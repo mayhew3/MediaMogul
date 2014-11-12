@@ -1,11 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="MediaMogulApp">
   <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <title>Shows</title>
   </head>
   <body>
     <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+
+    <div ng-controller="showController">
+      <div id="showsContainer">
+        {{testVar}}
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Episode</th>
+        <th>Start Time</th>
+      </tr>
+      <tr data-ng-repeat="show in shows">
+        <td>{{show.Title}}</td>
+        <td>{{show.EpisodeTitle}}</td>
+        <td>{{show.ShowingStartTime}}</td>
+      </tr>
+    </table>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.js"></script>
+    <script src="/static/js/angular_app.js"></script>
   </body>
 </html>
