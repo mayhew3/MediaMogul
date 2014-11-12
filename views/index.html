@@ -1,30 +1,35 @@
 <!DOCTYPE html>
-<html ng-app="MediaMogulApp">
+<html ng-app="mediaMogulApp">
   <head>
     <title>Shows</title>
+    <link rel="stylesheet" type="text/css"
+          href="stylesheets/style.css" />
   </head>
   <body>
     <h1><%= title %></h1>
 
     <div ng-controller="showController">
       <div id="showsContainer">
-        {{testVar}}
     <table>
       <tr>
         <th>Title</th>
+        <th>#</th>
         <th>Episode</th>
         <th>Start Time</th>
+        <th>Deleted</th>
       </tr>
       <tr data-ng-repeat="show in shows">
-        <td>{{show.Title}}</td>
-        <td>{{show.EpisodeTitle}}</td>
-        <td>{{show.ShowingStartTime}}</td>
+        <td ng-bind="show.Title"></td>
+        <td ng-bind="show.EpisodeNumber"></td>
+        <td ng-bind="show.EpisodeTitle"></td>
+        <td ng-bind="show.ShowingStartTime|date:'EEE MM/d H:mm'"></td>
+        <td ng-bind="show.DeletedDate|date:'EEE MM/d H:mm'"></td>
       </tr>
     </table>
       </div>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.js"></script>
-    <script src="/static/js/angular_app.js"></script>
+    <script src="javascripts/angular_app.js"></script>
   </body>
 </html>
