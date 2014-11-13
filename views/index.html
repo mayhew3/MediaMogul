@@ -14,14 +14,14 @@
       <tr>
         <th>Title</th>
         <th>#</th>
-        <th>Episode</th>
+        <th class="episodeDescription">Episode</th>
         <th>Start Time</th>
         <th>Deleted</th>
       </tr>
       <tr data-ng-repeat="show in shows">
         <td ng-bind="show.Title"></td>
         <td ng-bind="show.EpisodeNumber"></td>
-        <td ng-bind="show.EpisodeTitle"></td>
+        <td ng-bind="show.EpisodeTitle" class="episodeDescription"></td>
         <td ng-bind="show.ShowingStartTime|date:'EEE MM/d H:mm'"></td>
         <td ng-bind="show.DeletedDate|date:'EEE MM/d H:mm'"></td>
       </tr>

@@ -5,7 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var db = mongoose.connect('mongodb://localhost/tv');
+mongoose.connect('mongodb://localhost/tv');
 require('./models/show_model.js');
 
 var app = express();
