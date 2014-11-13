@@ -10,8 +10,6 @@ require('./models/show_model.js');
 
 var app = express();
 
-// todo: try to use HTML instead of EJS extension?
-
 // view engine setup
 app.engine('.html', require('ejs').__express);
 app.set('views', __dirname + '/views');
