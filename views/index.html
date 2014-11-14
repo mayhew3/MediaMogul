@@ -6,33 +6,30 @@
           href="stylesheets/style.css" />
   </head>
   <body>
-    <h1><%= title %></h1>
-
     <div ng-controller="showController">
       <div id="showsContainer">
-        {{thingsHappened}}
-    <table>
-      <tr>
-        <th>Title</th>
-        <th>#</th>
-        <th class="episodeDescription">Episode</th>
-        <th>Start Time</th>
-        <th>Watched</th>
-        <th>Watch</th>
-      </tr>
-      <tr data-ng-repeat="show in shows">
-        <td ng-bind="show.Title"></td>
-        <td ng-bind="show.EpisodeNumber"></td>
-        <td ng-bind="show.EpisodeTitle" class="episodeDescription"></td>
-        <td ng-bind="show.ShowingStartTime|date:'EEE MM/d H:mm'"></td>
-        <td ng-bind="show.Watched"></td>
-        <td>
-          <input type="checkbox" name="Watched"
-                 ng-model="show.Watched"
-                  ng-change="change(show)">
-        </td>
-      </tr>
-    </table>
+        <table>
+          <tr>
+            <th>Title</th>
+            <th>#</th>
+            <th class="episodeDescription">Episode</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Watched</th>
+          </tr>
+          <tr data-ng-repeat="show in shows">
+            <td ng-bind="show.Title"></td>
+            <td ng-bind="show.EpisodeNumber"></td>
+            <td ng-bind="show.EpisodeTitle" class="episodeDescription"></td>
+            <td ng-bind="show.ShowingStartTime|date:'EEE MM/d'"></td>
+            <td ng-bind="show.ShowingStartTime|date:'H:mm'"></td>
+            <td>
+              <input type="checkbox" name="Watched"
+                     ng-model="show.Watched"
+                     ng-change="change(show)">
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
 

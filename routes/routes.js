@@ -1,10 +1,7 @@
 module.exports = function(app) {
     var shows = require('../controllers/shows_controller');
     app.get('/', function (req, res) {
-        res.render('index', {title: "ShowList"});
-    });
-    app.get('/notes', function (req, res) {
-        res.render('angTest');
+        res.render('index');
     });
     app.get('/shows', shows.getShows);
     app.post('/markWatched', shows.markShowAsWatched);
