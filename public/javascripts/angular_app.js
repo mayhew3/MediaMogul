@@ -4,9 +4,14 @@ angular.module('mediaMogulApp', [])
     $http.get('/shows')
         .success(function(data, status, headers, config) {
             $scope.shows = data;
+            $scope.thingsHappened = "Nope.";
             $scope.error = "";
         }).error(function(data, status, headers, config) {
             $scope.shows = {};
             $scope.error = data;
         });
+            $scope.change = function(show) {
+                //debug("User clicked.");
+                $scope.thingsHappened = show.Title;
+            }
 }]);

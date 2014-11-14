@@ -10,6 +10,7 @@
 
     <div ng-controller="showController">
       <div id="showsContainer">
+        {{thingsHappened}}
     <table>
       <tr>
         <th>Title</th>
@@ -26,10 +27,9 @@
         <td ng-bind="show.ShowingStartTime|date:'EEE MM/d H:mm'"></td>
         <td ng-bind="show.Watched"></td>
         <td>
-          <form method="POST" action="/markWatched">
-            <input type="hidden" name="episodeId" value="{{show._id}}">
-            <input type="submit" value="Watch">
-          </form>
+          <input type="checkbox" name="Watched"
+                 ng-model="show.Watched"
+                  ng-change="change(show)">
         </td>
       </tr>
     </table>
