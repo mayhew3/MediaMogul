@@ -1,16 +1,18 @@
 angular.module('mediaMogulApp', [])
-    .controller('showController', ['$scope', '$http',
-        function($scope, $http) {
+    .controller('showController', ['$http',
+        function($http) {
+            var self = this;
+
             $http.get('/shows')
                 .success(function(data, status, headers, config) {
-                    $scope.shows = data;
-                    $scope.error = "";
+                    self.shows = data;
+                    self.error = "";
                 }).error(function(data, status, headers, config) {
-                    $scope.shows = {};
-                    $scope.error = data;
+                    self.shows = {};
+                    self.error = data;
                 });
-            $scope.change = function(show) {
+            self.change = function(show) {
                 $http.post('/markWatched', {episodeId: show._id, watched: show.Watched});
                 // todo: add some error handling.
-            }
+            };
         }]);

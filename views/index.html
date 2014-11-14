@@ -6,7 +6,7 @@
           href="stylesheets/style.css" />
   </head>
   <body>
-    <div ng-controller="showController">
+    <div ng-controller="showController as ctrl">
       <div id="showsContainer">
         <table>
           <tr>
@@ -17,7 +17,7 @@
             <th>Time</th>
             <th>Watched</th>
           </tr>
-          <tr data-ng-repeat="show in shows">
+          <tr data-ng-repeat="show in ctrl.shows">
             <td ng-bind="show.Title"></td>
             <td ng-bind="show.EpisodeNumber"></td>
             <td ng-bind="show.EpisodeTitle" class="episodeDescription"></td>
@@ -26,7 +26,7 @@
             <td>
               <input type="checkbox" name="Watched"
                      ng-model="show.Watched"
-                     ng-change="change(show)">
+                     ng-change="ctrl.change(show)">
             </td>
           </tr>
         </table>
