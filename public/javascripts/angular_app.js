@@ -13,6 +13,6 @@ angular.module('mediaMogulApp', [])
             $scope.change = function(show) {
                 //debug("User clicked.");
                 $scope.thingsHappened = show.Title;
-                $http.post('/markWatched', {episodeId: show._id});
+                $http.post('/markWatched', {episodeId: show._id, watched: show.Watched});
             }
         }]);
