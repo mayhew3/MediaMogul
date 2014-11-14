@@ -7,6 +7,7 @@ module.exports = function(app) {
         res.render('angTest');
     });
     app.get('/shows', shows.getShows);
+    app.post('/markWatched', shows.markShowAsWatched);
 
     // error handlers
 

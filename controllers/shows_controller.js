@@ -10,3 +10,13 @@ exports.getShows = function(req, res) {
             }
         });
 };
+exports.markShowAsWatched = function(req, res) {
+  Show.update({_id: req.body.episodeId}, {$set:{Watched:true}})
+      .exec(function(err, savedEpisode) {
+          if (err) {
+              res.json(404, {msg: 'Failed to update Episode as watched.'});
+          } else {
+              res.json({msg: "success"});
+          }
+      });
+};

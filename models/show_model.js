@@ -6,6 +6,7 @@ var ShowSchema = new Schema({
     EpisodeTitle: String,
     ShowingStartTime: Date,
     DeletedDate: Date,
-    Suggestion: Boolean
-});
+    Suggestion: Boolean,
+    Watched : Boolean
+}, {_id : true});
 mongoose.model('episodes', ShowSchema);
