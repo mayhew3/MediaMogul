@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/tv');
-require('./models/show_model.js');
+require('./models/episode_model.js');
 
 var app = express();
 

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
-var ShowSchema = new Schema({
+var EpisodeSchema = new Schema({
     Title: String,
     EpisodeNumber: Number,
     EpisodeTitle: String,
@@ -9,4 +9,4 @@ var ShowSchema = new Schema({
     Suggestion: Boolean,
     Watched : Boolean
 }, {_id : true});
-mongoose.model('episodes', ShowSchema);
+mongoose.model('episodes', EpisodeSchema);

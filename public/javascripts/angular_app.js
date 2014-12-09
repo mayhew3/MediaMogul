@@ -1,22 +1,22 @@
-function ShowService($log, $http) {
-    var shows = [];
+function EpisodeService($log, $http) {
+    var episodes = [];
     var error = "";
 
-    this.updateShowList = function() {
-        return $http.get('/shows')
+    this.updateEpisodeList = function() {
+        return $http.get('/episodes')
             .success(function(data, status, headers, config) {
                 $log.debug(data[0]);
-                shows = data;
+                episodes = data;
                 error = "";
             }).error(function(data, status, headers, config) {
                 $log.debug("Error!");
-                shows = [];
+                episodes = [];
                 error = data;
             });
     };
-    this.getShowList = function() {
-        $log.debug("Getting show list, size " + shows.length);
-        return shows;
+    this.getEpisodeList = function() {
+        $log.debug("Getting episode list, size " + episodes.length);
+        return episodes;
     };
     this.getError = function() {
         return error;
@@ -27,17 +27,17 @@ function ShowService($log, $http) {
     }
 }
 angular.module('mediaMogulApp', [])
-    .service('ShowService', ['$log', '$http', ShowService])
-    .controller('showController', ['ShowService',
-        function(ShowService) {
+    .service('EpisodeService', ['$log', '$http', EpisodeService])
+    .controller('episodeController', ['EpisodeService',
+        function(EpisodeService) {
             var self = this;
 
-            ShowService.updateShowList().then(function(updateResponse) {
-                self.shows = ShowService.getShowList();
-                self.error = ShowService.getError();
+            EpisodeService.updateEpisodeList().then(function(updateResponse) {
+                self.episodes = EpisodeService.getEpisodeList();
+                self.error = EpisodeService.getError();
             });
 
-            self.change = function(show) {
-                ShowService.markWatched(show._id, show.Watched);
+            self.change = function(episode) {
+                EpisodeService.markWatched(episode._id, episode.Watched);
             };
         }]);

@@ -1,10 +1,10 @@
 module.exports = function(app) {
-    var shows = require('../controllers/shows_controller');
+    var episodes = require('../controllers/episodes_controller');
     app.get('/', function (req, res) {
-        res.render('index');
+        res.render('episodes');
     });
-    app.get('/shows', shows.getShows);
-    app.post('/markWatched', shows.markShowAsWatched);
+    app.get('/episodes', episodes.getEpisodes);
+    app.post('/markWatched', episodes.markEpisodeAsWatched);
 
     // error handlers
 
