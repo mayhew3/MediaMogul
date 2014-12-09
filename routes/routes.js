@@ -2,7 +2,7 @@ module.exports = function(app) {
     var episodes = require('../controllers/episodes_controller');
     var series = require('../controllers/series_controller');
     app.get('/', function (req, res) {
-        res.render('shows');
+        res.render('episodes');
     });
     app.get('/shows', function(req, res) {
         res.render('shows');

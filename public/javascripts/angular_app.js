@@ -62,6 +62,12 @@ angular.module('mediaMogulApp', [])
         function(EpisodeService) {
             var self = this;
 
+            self.unwatchedOnly = true;
+
+            self.episodeFilter = function(episode) {
+                return (!self.unwatchedOnly || !episode.Watched);
+            };
+
             EpisodeService.updateEpisodeList().then(function(updateResponse) {
                 self.episodes = EpisodeService.getEpisodeList();
                 self.error = EpisodeService.getError();

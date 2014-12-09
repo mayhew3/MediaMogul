@@ -7,6 +7,12 @@
   </head>
   <body>
     <div ng-controller="episodeController as ctrl">
+      <div id="episodeFilters">
+        <label>Unwatched Only
+          <input type="checkbox"
+                 ng-model="ctrl.unwatchedOnly"/>
+        </label>
+      </div>
       <div id="episodesContainer">
         <table>
           <tr>
@@ -17,7 +23,7 @@
             <th>Time</th>
             <th>Watched</th>
           </tr>
-          <tr data-ng-repeat="episode in ctrl.episodes">
+          <tr data-ng-repeat="episode in ctrl.episodes | filter:ctrl.episodeFilter">
             <td ng-bind="episode.Title"></td>
             <td ng-bind="episode.EpisodeNumber"></td>
             <td ng-bind="episode.EpisodeTitle" class="episodeDescription"></td>
