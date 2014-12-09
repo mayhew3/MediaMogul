@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html ng-app="mediaMogulApp">
+  <head>
+    <title>Series</title>
+    <link rel="stylesheet" type="text/css"
+          href="stylesheets/style.css" />
+  </head>
+  <body>
+    <div ng-controller="seriesController as ctrl">
+      <div id="seriesContainer">
+        <table>
+          <tr>
+            <th>Title</th>
+            <th>Tier</th>
+          </tr>
+          <tr data-ng-repeat="series in ctrl.series">
+            <td ng-bind="series.SeriesTitle"></td>
+            <td>
+              <input type="number"
+                     min="1"
+                     max="5"
+                  ng-model="series.Tier"
+                  ng-change="ctrl.change(series)"/>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.js"></script>
+    <script src="javascripts/angular_app.js"></script>
+  </body>
+</html>

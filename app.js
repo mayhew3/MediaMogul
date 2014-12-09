@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/tv');
 require('./models/episode_model.js');
+require('./models/series_model.js');
 
 var app = express();
 

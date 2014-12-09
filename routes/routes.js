@@ -1,10 +1,16 @@
 module.exports = function(app) {
     var episodes = require('../controllers/episodes_controller');
+    var series = require('../controllers/series_controller');
     app.get('/', function (req, res) {
-        res.render('episodes');
+        res.render('shows');
+    });
+    app.get('/shows', function(req, res) {
+        res.render('shows');
     });
     app.get('/episodes', episodes.getEpisodes);
+    app.get('/seriesList', series.getSeries);
     app.post('/markWatched', episodes.markEpisodeAsWatched);
+    app.post('/changeTier', series.changeTier);
 
     // error handlers
 
