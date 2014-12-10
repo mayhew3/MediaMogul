@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
   Episode = mongoose.model('episodes');
 exports.getEpisodes = function(req, res) {
-    Episode.find({Suggestion:false, DeletedDate: {"$exists" : false}}).sort({ShowingStartTime:-1}).limit(100)
+    Episode.find({Suggestion:false, DeletedDate: {"$exists" : false}}).sort({ShowingStartTime:-1})
       .exec(function(err, episodes) {
           if (!episodes) {
               res.json(404, {msg: 'Episodes Not Found.'});

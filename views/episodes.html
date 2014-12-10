@@ -23,7 +23,9 @@
             <th>Time</th>
             <th>Watched</th>
           </tr>
-          <tr data-ng-repeat="episode in ctrl.episodes | filter:ctrl.episodeFilter">
+          <tr data-ng-repeat="episode in ctrl.episodes |
+                          filter:ctrl.episodeFilter |
+                          limitTo:50">
             <td ng-bind="episode.Title"></td>
             <td ng-bind="episode.EpisodeNumber"></td>
             <td ng-bind="episode.EpisodeTitle" class="episodeDescription"></td>
