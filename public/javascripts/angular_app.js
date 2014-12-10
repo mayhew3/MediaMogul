@@ -3,7 +3,7 @@ function EpisodeService($log, $http) {
     var error = "";
 
     this.updateEpisodeList = function() {
-        return $http.get('/episodes')
+        return $http.get('/episodeList')
             .success(function(data, status, headers, config) {
                 $log.debug(data[0]);
                 episodes = data;
@@ -55,7 +55,7 @@ function SeriesService($log, $http) {
     }
 }
 
-angular.module('mediaMogulApp', [])
+angular.module('mediaMogulApp', ['ui.bootstrap'])
   .service('EpisodeService', ['$log', '$http', EpisodeService])
   .service('SeriesService', ['$log', '$http', SeriesService])
     .controller('episodeController', ['EpisodeService',

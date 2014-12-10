@@ -7,7 +7,10 @@ module.exports = function(app) {
     app.get('/shows', function(req, res) {
         res.render('shows');
     });
-    app.get('/episodes', episodes.getEpisodes);
+    app.get('/episodes', function(req, res) {
+        res.render('episodes');
+    });
+    app.get('/episodeList', episodes.getEpisodes);
     app.get('/seriesList', series.getSeries);
     app.post('/markWatched', episodes.markEpisodeAsWatched);
     app.post('/changeTier', series.changeTier);
