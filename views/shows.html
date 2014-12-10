@@ -41,14 +41,17 @@
               <th>Title</th>
               <th>Tier</th>
             </thead>
-            <tr data-ng-repeat="series in ctrl.series">
+            <tr data-ng-repeat="series in ctrl.series |
+                orderBy:['Tier', 'SeriesTitle']">
               <td ng-bind="series.SeriesTitle"></td>
               <td>
-                <label class="btn btn-success" ng-model="series.Tier" btn-radio="1" ng-change="ctrl.change(series)">1</label>
-                <label class="btn btn-success" ng-model="series.Tier" btn-radio="2" ng-change="ctrl.change(series)">2</label>
-                <label class="btn btn-success" ng-model="series.Tier" btn-radio="3" ng-change="ctrl.change(series)">3</label>
-                <label class="btn btn-success" ng-model="series.Tier" btn-radio="4" ng-change="ctrl.change(series)">4</label>
-                <label class="btn btn-success" ng-model="series.Tier" btn-radio="5" ng-change="ctrl.change(series)">5</label>
+                <label ng-repeat="tier in ctrl.tiers"
+                       class="btn btn-success"
+                       ng-model="series.Tier"
+                       btn-radio="tier"
+                       ng-change="ctrl.change(series)">
+                  <span ng-bind="tier"></span>
+                </label>
               </td>
             </tr>
           </table>
