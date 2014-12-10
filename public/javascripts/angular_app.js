@@ -57,7 +57,10 @@ function SeriesService($log, $http) {
     this.changeTier = function(SeriesId, Tier) {
         $http.post('/changeTier', {SeriesId: SeriesId, Tier: Tier});
         // todo: add some error handling.
-    }
+    };
+    this.markAllWatched = function(SeriesId) {
+        $http.post('/markAllWatched', {SeriesId: SeriesId});
+    };
 }
 
 angular.module('mediaMogulApp', ['ui.bootstrap'])
@@ -105,7 +108,12 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
             self.change = function(series) {
                 SeriesService.changeTier(series._id, series.Tier);
-            }
+            };
+
+            self.markAllWatched = function(series) {
+                SeriesService.markAllWatched(series.SeriesId);
+                series.UnwatchedCount = 0;
+            };
         }
   ])
 ;

@@ -40,12 +40,19 @@
             <thead>
               <th>Title</th>
               <th>Unwatched</th>
+              <th></th>
               <th>Tier</th>
             </thead>
             <tr data-ng-repeat="series in ctrl.series |
                 orderBy:['Tier', 'SeriesTitle']">
               <td ng-bind="series.SeriesTitle"></td>
               <td ng-bind="series.UnwatchedCount"></td>
+              <td>
+                <button type="button"
+                        class="btn btn-success btn-sm"
+                        ng-hide="series.UnwatchedCount == 0"
+                        ng-click="ctrl.markAllWatched(series)">Mark All Watched</button>
+              </td>
               <td>
                 <label ng-repeat="tier in ctrl.tiers"
                        ng-class="ctrl.getButtonClass(tier, series)"

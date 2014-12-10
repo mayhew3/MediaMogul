@@ -13,6 +13,7 @@ module.exports = function(app) {
     app.get('/episodeList', episodes.getEpisodes);
     app.get('/seriesList', series.getSeries);
     app.post('/markWatched', episodes.markEpisodeAsWatched);
+    app.post('/markAllWatched', episodes.markAllEpisodesAsWatched);
     app.post('/changeTier', series.changeTier);
 
     // error handlers
