@@ -44,11 +44,11 @@
             <tr data-ng-repeat="series in ctrl.series">
               <td ng-bind="series.SeriesTitle"></td>
               <td>
-                <input type="number"
-                       min="1"
-                       max="5"
-                       ng-model="series.Tier"
-                       ng-change="ctrl.change(series)"/>
+                <label class="btn btn-success" ng-model="series.Tier" btn-radio="1" ng-change="ctrl.change(series)">1</label>
+                <label class="btn btn-success" ng-model="series.Tier" btn-radio="2" ng-change="ctrl.change(series)">2</label>
+                <label class="btn btn-success" ng-model="series.Tier" btn-radio="3" ng-change="ctrl.change(series)">3</label>
+                <label class="btn btn-success" ng-model="series.Tier" btn-radio="4" ng-change="ctrl.change(series)">4</label>
+                <label class="btn btn-success" ng-model="series.Tier" btn-radio="5" ng-change="ctrl.change(series)">5</label>
               </td>
             </tr>
           </table>
