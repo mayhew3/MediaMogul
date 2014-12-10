@@ -18,6 +18,11 @@ function EpisodeService($log, $http) {
         $log.debug("Getting episode list, size " + episodes.length);
         return episodes;
     };
+    this.getUnwatchedForSeries = function(SeriesId) {
+        return episodes.filter(function(episode) {
+           return !episode.Watched && episode.SeriesId == SeriesId;
+        });
+    };
     this.getError = function() {
         return error;
     };
@@ -77,16 +82,21 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 EpisodeService.markWatched(episode._id, episode.Watched);
             };
         }])
-  .controller('seriesController', ['SeriesService',
-        function(SeriesService) {
+  .controller('seriesController', ['SeriesService', 'EpisodeService',
+        function(SeriesService, EpisodeService) {
             var self = this;
 
-            // todo: use 5 buttons instead -- radio buttons?
             self.tiers = [1, 2, 3, 4, 5];
 
             SeriesService.updateSeriesList().then(function(updateResponse) {
                 self.series = SeriesService.getSeriesList();
                 self.error = SeriesService.getError();
+
+                EpisodeService.updateEpisodeList().then(function(epResponse) {
+                    self.series.forEach(function(series) {
+                        series.UnwatchedCount = EpisodeService.getUnwatchedForSeries(series.SeriesId).length;
+                    });
+                });
             });
 
             self.getButtonClass = function(tier, series) {
