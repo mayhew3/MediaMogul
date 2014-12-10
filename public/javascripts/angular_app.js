@@ -89,6 +89,10 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 self.error = SeriesService.getError();
             });
 
+            self.getButtonClass = function(tier, series) {
+                return series.Tier === tier ? "btn btn-success" : "btn btn-primary";
+            };
+
             self.change = function(series) {
                 SeriesService.changeTier(series._id, series.Tier);
             }

@@ -46,7 +46,7 @@
               <td ng-bind="series.SeriesTitle"></td>
               <td>
                 <label ng-repeat="tier in ctrl.tiers"
-                       class="btn btn-success"
+                       ng-class="ctrl.getButtonClass(tier, series)"
                        ng-model="series.Tier"
                        btn-radio="tier"
                        ng-change="ctrl.change(series)">
