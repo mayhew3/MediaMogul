@@ -159,7 +159,6 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                     size: 'lg',
                     resolve: {
                         episodes: function() {
-                            $log.debug(series);
                             return series.AllEpisodes;
                         }
                     }
@@ -167,15 +166,13 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             };
         }
   ])
-  .controller('SeriesDetailCtrl', ['$log','$modalInstance',
+  .controller('SeriesDetailCtrl', ['$log','$modalInstance', 'episodes',
       function($log, $modalInstance, episodes) {
           var self = this;
 
           self.episodes = episodes;
-          $log.debug("Have " + episodes.length + " episodes to display.");
 
           self.ok = function() {
-              $log.debug("OK clicked.");
               $modalInstance.dismiss("done");
           };
   }])
