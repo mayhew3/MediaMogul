@@ -109,9 +109,10 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             var self = this;
 
             self.tiers = [1, 2, 3, 4, 5];
+            self.unwatchedOnly = true;
 
             self.seriesFilter = function(series) {
-                return series.TotalCount > 0;
+                return self.unwatchedOnly ? series.UnwatchedCount > 0 : series.TotalCount > 0;
             };
 
             SeriesService.updateSeriesList().then(function(updateResponse) {
