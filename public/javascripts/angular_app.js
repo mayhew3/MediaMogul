@@ -18,9 +18,9 @@ function EpisodeService($log, $http) {
         $log.debug("Getting episode list, size " + episodes.length);
         return episodes;
     };
-    this.getUnwatchedForSeries = function(SeriesId) {
+    this.getEpisodesForSeries = function(SeriesId) {
         return episodes.filter(function(episode) {
-           return !episode.Watched && episode.SeriesId == SeriesId;
+           return episode.SeriesId == SeriesId;
         });
     };
     this.getError = function() {
@@ -110,13 +110,29 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
             self.tiers = [1, 2, 3, 4, 5];
 
+            self.seriesFilter = function(series) {
+                return series.TotalCount > 0;
+            };
+
             SeriesService.updateSeriesList().then(function(updateResponse) {
                 self.series = SeriesService.getSeriesList();
                 self.error = SeriesService.getError();
 
                 EpisodeService.updateEpisodeList().then(function(epResponse) {
                     self.series.forEach(function(series) {
-                        series.UnwatchedCount = EpisodeService.getUnwatchedForSeries(series.SeriesId).length;
+                        var episodesForSeries = EpisodeService.getEpisodesForSeries(series.SeriesId);
+                        var unwatched = episodesForSeries.filter(function(episode) {
+                            return !episode.Watched;
+                        });
+                        series.UnwatchedCount = unwatched.length;
+                        series.TotalCount = episodesForSeries.length;
+
+                        if (unwatched.length > 0) {
+                            series.LastUnwatched = unwatched[0].ShowingStartTime;
+                        }
+                        if (episodesForSeries.length > 0) {
+                            series.LastEpisode = episodesForSeries[0].ShowingStartTime;
+                        }
                     });
                 });
             });

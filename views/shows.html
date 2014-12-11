@@ -40,13 +40,20 @@
             <thead>
               <th>Title</th>
               <th>Unwatched</th>
+              <th>Total</th>
+              <th>Last Unwatched</th>
+              <th>Last Episode</th>
               <th></th>
               <th>Tier</th>
             </thead>
             <tr data-ng-repeat="series in ctrl.series |
-                orderBy:['Tier', 'SeriesTitle']">
+                filter:ctrl.seriesFilter |
+                orderBy:['+Tier', '-LastEpisode', '+SeriesTitle']">
               <td ng-bind="series.SeriesTitle"></td>
               <td ng-bind="series.UnwatchedCount"></td>
+              <td ng-bind="series.TotalCount"></td>
+              <td ng-bind="series.LastUnwatched|date:'M/d/yy'"></td>
+              <td ng-bind="series.LastEpisode|date:'M/d/yy'"></td>
               <td>
                 <button type="button"
                         class="btn btn-success btn-sm"
