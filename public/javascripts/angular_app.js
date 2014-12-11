@@ -51,6 +51,14 @@ function SeriesService($log, $http) {
         $log.debug("Getting series list, size " + series.length);
         return series;
     };
+    this.getSeriesWithId = function(SeriesId) {
+        $log.debug("Finding series for id " + SeriesId);
+        var filtered = series.filter(function(seriesElement) {
+            return seriesElement.SeriesId == SeriesId;
+        });
+        $log.debug("Found " + filtered.length + " items.");
+        return filtered[0];
+    };
     this.getError = function() {
         return error;
     };
@@ -66,8 +74,8 @@ function SeriesService($log, $http) {
 angular.module('mediaMogulApp', ['ui.bootstrap'])
   .service('EpisodeService', ['$log', '$http', EpisodeService])
   .service('SeriesService', ['$log', '$http', SeriesService])
-    .controller('episodeController', ['EpisodeService',
-        function(EpisodeService) {
+  .controller('episodeController', ['SeriesService', 'EpisodeService',
+        function(SeriesService, EpisodeService) {
             var self = this;
 
             self.unwatchedOnly = true;
@@ -79,6 +87,17 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             EpisodeService.updateEpisodeList().then(function(updateResponse) {
                 self.episodes = EpisodeService.getEpisodeList();
                 self.error = EpisodeService.getError();
+
+                SeriesService.updateSeriesList().then(function(serResponse) {
+                    self.episodes.forEach(function(episode) {
+                        var seriesWithId = SeriesService.getSeriesWithId(episode.SeriesId);
+                        if (seriesWithId != null) {
+                            episode.Tier = seriesWithId.Tier;
+                        }  else {
+                            episode.Tier = 6;
+                        }
+                    })
+                })
             });
 
             self.change = function(episode) {
