@@ -104,8 +104,8 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 EpisodeService.markWatched(episode._id, episode.Watched);
             };
         }])
-  .controller('seriesController', ['SeriesService', 'EpisodeService',
-        function(SeriesService, EpisodeService) {
+  .controller('seriesController', ['$log', '$modal', 'SeriesService', 'EpisodeService',
+        function($log, $modal, SeriesService, EpisodeService) {
             var self = this;
 
             self.tiers = [1, 2, 3, 4, 5];
@@ -126,6 +126,7 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                         });
                         series.UnwatchedCount = unwatched.length;
                         series.TotalCount = episodesForSeries.length;
+                        series.AllEpisodes = episodesForSeries;
 
                         if (unwatched.length > 0) {
                             series.LastUnwatched = unwatched[0].ShowingStartTime;
@@ -149,6 +150,28 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 SeriesService.markAllWatched(series.SeriesId);
                 series.UnwatchedCount = 0;
             };
+
+            self.open = function(series) {
+                $log.debug("Executing!");
+                $modal.open({
+                    templateUrl: 'seriesDetail.html',
+                    controller: 'SeriesDetailCtrl',
+                    size: 'lg',
+                    resolve: {
+                        episodes: function() {
+                            return series.AllEpisodes;
+                        }
+                    }
+                });
+            };
         }
   ])
+  .controller('SeriesDetailCtrl', ['$modalInstance',
+      function($modalInstance, episodes) {
+          var self = this;
+
+          self.ok = function() {
+              $modalInstance.close();
+          };
+  }])
 ;

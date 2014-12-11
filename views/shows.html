@@ -25,6 +25,23 @@
 <div class="container">
   <div ng-controller="seriesController as ctrl">
 
+    <script type="text/ng-template" id="seriesDetail.html">
+      <div class="modal-header">
+        <h3 class="modal-title">I'm a modal!</h3>
+      </div>
+      <div class="modal-body">
+        <ul>
+          <li ng-repeat="episode in episodes">
+            <span ng-bind="episode.EpisodeTitle"></span>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+      </div>
+    </script>
+
     <div class="page-header" id="banner">
       <div class="row">
         <div class="col-lg-12">
@@ -49,7 +66,12 @@
             <tr data-ng-repeat="series in ctrl.series |
                 filter:ctrl.seriesFilter |
                 orderBy:['+Tier', '-LastEpisode', '+SeriesTitle']">
-              <td ng-bind="series.SeriesTitle"></td>
+              <td>
+                <span ng-bind="series.SeriesTitle"></span>
+                <button type="button"
+                        class="btn btn-success btn-sm"
+                        ng-click="ctrl.open(series)">Detail</button>
+              </td>
               <td ng-bind="series.UnwatchedCount"></td>
               <td ng-bind="series.TotalCount"></td>
               <td ng-bind="series.LastUnwatched|date:'M/d/yy'"></td>
