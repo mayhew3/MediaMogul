@@ -155,10 +155,11 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 $log.debug("Executing!");
                 $modal.open({
                     templateUrl: 'seriesDetail.html',
-                    controller: 'SeriesDetailCtrl',
+                    controller: 'SeriesDetailCtrl as ctrl',
                     size: 'lg',
                     resolve: {
                         episodes: function() {
+                            $log.debug(series);
                             return series.AllEpisodes;
                         }
                     }
@@ -166,12 +167,16 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             };
         }
   ])
-  .controller('SeriesDetailCtrl', ['$modalInstance',
-      function($modalInstance, episodes) {
+  .controller('SeriesDetailCtrl', ['$log','$modalInstance',
+      function($log, $modalInstance, episodes) {
           var self = this;
 
+          self.episodes = episodes;
+          $log.debug("Have " + episodes.length + " episodes to display.");
+
           self.ok = function() {
-              $modalInstance.close();
+              $log.debug("OK clicked.");
+              $modalInstance.dismiss("done");
           };
   }])
 ;
