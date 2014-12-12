@@ -66,6 +66,11 @@ function SeriesService($log, $http) {
         $http.post('/changeTier', {SeriesId: SeriesId, Tier: Tier});
         // todo: add some error handling.
     };
+    this.changeMetacritic = function(SeriesId, Metacritic) {
+        $log.debug("Trying to update MC of " + SeriesId + " to " + Metacritic);
+        $http.post('/changeMetacritic', {SeriesId: SeriesId, Metacritic: Metacritic});
+        // todo: add some error handling.
+    };
     this.markAllWatched = function(SeriesId) {
         $http.post('/markAllWatched', {SeriesId: SeriesId});
     };
@@ -159,19 +164,23 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                     controller: 'SeriesDetailCtrl as ctrl',
                     size: 'lg',
                     resolve: {
-                        episodes: function() {
-                            return series.AllEpisodes;
+                        series: function() {
+                            return series;
                         }
                     }
                 });
             };
         }
   ])
-  .controller('SeriesDetailCtrl', ['$log','$modalInstance', 'episodes',
-      function($log, $modalInstance, episodes) {
+  .controller('SeriesDetailCtrl', ['$log', 'SeriesService', '$modalInstance', 'series',
+      function($log, SeriesService, $modalInstance, series) {
           var self = this;
 
-          self.episodes = episodes;
+          self.series = series;
+
+          self.changeMetacritic = function(series) {
+              SeriesService.changeMetacritic(series._id, series.Metacritic);
+          };
 
           self.ok = function() {
               $modalInstance.close();
