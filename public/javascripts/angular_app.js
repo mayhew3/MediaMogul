@@ -185,6 +185,11 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
               SeriesService.changeMetacritic(series._id, series.Metacritic);
           };
 
+          self.markWatched = function(episode) {
+              EpisodeService.markWatched(episode._id, episode.Watched);
+              self.series.UnwatchedCount--;
+          };
+
           self.ok = function() {
               $modalInstance.close();
           };
