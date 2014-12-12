@@ -148,7 +148,7 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 return series.Tier === tier ? "btn btn-success" : "btn btn-primary";
             };
 
-            self.change = function(series) {
+            self.changeTier = function(series) {
                 SeriesService.changeTier(series._id, series.Tier);
             };
 
@@ -172,13 +172,16 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             };
         }
   ])
-  .controller('SeriesDetailCtrl', ['$log', 'SeriesService', '$modalInstance', 'series',
-      function($log, SeriesService, $modalInstance, series) {
+  .controller('SeriesDetailCtrl', ['$log', 'SeriesService', 'EpisodeService', '$modalInstance', 'series',
+      function($log, SeriesService, EpisodeService, $modalInstance, series) {
           var self = this;
 
           self.series = series;
 
+          self.metacritic = series.Metacritic;
+
           self.changeMetacritic = function(series) {
+              series.Metacritic = self.metacritic;
               SeriesService.changeMetacritic(series._id, series.Metacritic);
           };
 
