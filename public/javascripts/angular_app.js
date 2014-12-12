@@ -174,7 +174,7 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
           self.episodes = episodes;
 
           self.ok = function() {
-              $modalInstance.dismiss("done");
+              $modalInstance.close();
           };
   }])
 ;
