@@ -36,6 +36,7 @@ function EpisodeService($log, $http) {
 
     var addEpisodeToSeries = function(episode, series) {
         episode.Tier = series.Tier;
+        episode.IsEpisodic = series.IsEpisodic;
 
         series.TotalCount++;
 
@@ -116,10 +117,29 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             self.episodes = [];
 
             self.episodeFilter = function(episode) {
-                return (!self.unwatchedOnly || !episode.Watched);
+                return episode.IsEpisodic && (!self.unwatchedOnly || !episode.Watched);
             };
 
-            EpisodeService.updateEpisodeList().then(function(updateResponse) {
+            EpisodeService.updateEpisodeList().then(function() {
+                self.episodes = EpisodeService.getEpisodeList();
+            });
+
+            self.change = function(episode) {
+                EpisodeService.markWatched(episode._id, episode.Watched);
+            };
+        }])
+  .controller('movieController', ['EpisodeService',
+        function(EpisodeService) {
+            var self = this;
+
+            self.unwatchedOnly = true;
+            self.episodes = [];
+
+            self.episodeFilter = function(episode) {
+                return !episode.IsEpisodic && (!self.unwatchedOnly || !episode.Watched);
+            };
+
+            EpisodeService.updateEpisodeList().then(function() {
                 self.episodes = EpisodeService.getEpisodeList();
             });
 

@@ -10,6 +10,9 @@ module.exports = function(app) {
     app.get('/episodes', function(req, res) {
         res.render('episodes');
     });
+    app.get('/movies', function(req, res) {
+        res.render('movies');
+    });
     app.get('/episodeList', episodes.getEpisodes);
     app.get('/seriesList', series.getSeries);
     app.post('/markWatched', episodes.markEpisodeAsWatched);
