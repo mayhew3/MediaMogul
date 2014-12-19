@@ -1,66 +1,96 @@
 function EpisodeService($log, $http) {
     var episodes = [];
-    var error = "";
+    var shows = [];
 
-    this.updateEpisodeList = function() {
-        return $http.get('/episodeList')
-            .success(function(data, status, headers, config) {
-                $log.debug(data[0]);
-                episodes = data;
-                error = "";
-            }).error(function(data, status, headers, config) {
-                $log.debug("Error!");
-                episodes = [];
-                error = data;
-            });
+    var epsProcess = 0;
+
+    var getSeriesWithId = function(SeriesId) {
+        var filtered = shows.filter(function(seriesElement) {
+            return seriesElement.SeriesId == SeriesId;
+        });
+        return filtered[0];
     };
-    this.getEpisodeList = function() {
-        $log.debug("Getting episode list, size " + episodes.length);
-        return episodes;
+
+    var linkEpisodesWithShows = function() {
+        $log.debug("Linking episodes with shows...");
+        $log.debug("Shows has length " + shows.length);
+        $log.debug("Episodes has length " + episodes.length);
+
+        shows.forEach(function(series) {
+            series.TotalCount = 0;
+            series.UnwatchedCount = 0;
+            series.AllEpisodes = [];
+        });
+
+        episodes.forEach(function(episode) {
+            var seriesWithId = getSeriesWithId(episode.SeriesId);
+            if (seriesWithId != null) {
+                addEpisodeToSeries(episode, seriesWithId);
+            }  else {
+                episode.Tier = 6;
+            }
+        });
+
+        $log.debug("Eps processed: " + epsProcess);
     };
-    this.getEpisodesForSeries = function(SeriesId) {
-        return episodes.filter(function(episode) {
-           return episode.SeriesId == SeriesId;
+
+    var addEpisodeToSeries = function(episode, series) {
+        episode.Tier = series.Tier;
+
+        series.TotalCount++;
+
+        series.AllEpisodes.push(episode);
+
+        if (series.LastEpisode == null) {
+            series.LastEpisode = episode.ShowingStartTime;
+        }
+
+        if (!episode.Watched) {
+            series.UnwatchedCount++;
+            if (series.LastUnwatched == null) {
+                series.LastUnwatched = episode.ShowingStartTime;
+            }
+        }
+
+        epsProcess++;
+    };
+
+    var queryForEpisodes = function() {
+        return $http.get('/episodeList').then(function (response) {
+            $log.debug("Episodes returned " + response.data.length);
+            episodes = response.data;
+        }, function (errResponse) {
+            console.error('Error while fetching episodes.');
         });
     };
-    this.getError = function() {
-        return error;
+
+    var queryForSeries = function() {
+        return $http.get('/seriesList').then(function (showresponse) {
+            $log.debug("Shows returned " + showresponse.data.length + " items.");
+            shows = showresponse.data;
+        }, function (errResponse) {
+            console.error('Error while fetching series list.');
+        });
     };
+
+
+    this.updateEpisodeList = function() {
+        return queryForEpisodes()
+            .then(queryForSeries)
+            .then(linkEpisodesWithShows);
+    };
+
+
+    this.getEpisodeList = function() {
+        return episodes;
+    };
+    this.getSeriesList = function() {
+        return shows;
+    };
+
     this.markWatched = function(episodeId, watched) {
         $http.post('/markWatched', {episodeId: episodeId, watched: watched});
         // todo: add some error handling.
-    }
-}
-function SeriesService($log, $http) {
-    var series = [];
-    var error = "";
-
-    this.updateSeriesList = function() {
-        return $http.get('/seriesList')
-            .success(function(data, status, headers, config) {
-                $log.debug(data[0]);
-                series = data;
-                error = "";
-            }).error(function(data, status, headers, config) {
-                $log.debug("Error!");
-                series = [];
-                error = data;
-            });
-    };
-    this.getSeriesList = function() {
-        $log.debug("Getting series list, size " + series.length);
-        return series;
-    };
-    this.getSeriesWithId = function(SeriesId) {
-        $log.debug("Finding series for id " + SeriesId);
-        var filtered = series.filter(function(seriesElement) {
-            return seriesElement.SeriesId == SeriesId;
-        });
-        $log.debug("Found " + filtered.length + " items.");
-        return filtered[0];
-    };
-    this.getError = function() {
-        return error;
     };
     this.changeTier = function(SeriesId, Tier) {
         $http.post('/changeTier', {SeriesId: SeriesId, Tier: Tier});
@@ -78,12 +108,12 @@ function SeriesService($log, $http) {
 
 angular.module('mediaMogulApp', ['ui.bootstrap'])
   .service('EpisodeService', ['$log', '$http', EpisodeService])
-  .service('SeriesService', ['$log', '$http', SeriesService])
-  .controller('episodeController', ['SeriesService', 'EpisodeService',
-        function(SeriesService, EpisodeService) {
+  .controller('episodeController', ['EpisodeService',
+        function(EpisodeService) {
             var self = this;
 
             self.unwatchedOnly = true;
+            self.episodes = [];
 
             self.episodeFilter = function(episode) {
                 return (!self.unwatchedOnly || !episode.Watched);
@@ -91,26 +121,14 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
             EpisodeService.updateEpisodeList().then(function(updateResponse) {
                 self.episodes = EpisodeService.getEpisodeList();
-                self.error = EpisodeService.getError();
-
-                SeriesService.updateSeriesList().then(function(serResponse) {
-                    self.episodes.forEach(function(episode) {
-                        var seriesWithId = SeriesService.getSeriesWithId(episode.SeriesId);
-                        if (seriesWithId != null) {
-                            episode.Tier = seriesWithId.Tier;
-                        }  else {
-                            episode.Tier = 6;
-                        }
-                    })
-                })
             });
 
             self.change = function(episode) {
                 EpisodeService.markWatched(episode._id, episode.Watched);
             };
         }])
-  .controller('seriesController', ['$log', '$modal', 'SeriesService', 'EpisodeService',
-        function($log, $modal, SeriesService, EpisodeService) {
+  .controller('seriesController', ['$log', '$modal', 'EpisodeService',
+        function($log, $modal, EpisodeService) {
             var self = this;
 
             self.tiers = [1, 2, 3, 4, 5];
@@ -120,28 +138,9 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 return self.unwatchedOnly ? series.UnwatchedCount > 0 : series.TotalCount > 0;
             };
 
-            SeriesService.updateSeriesList().then(function(updateResponse) {
-                self.series = SeriesService.getSeriesList();
-                self.error = SeriesService.getError();
-
-                EpisodeService.updateEpisodeList().then(function(epResponse) {
-                    self.series.forEach(function(series) {
-                        var episodesForSeries = EpisodeService.getEpisodesForSeries(series.SeriesId);
-                        var unwatched = episodesForSeries.filter(function(episode) {
-                            return !episode.Watched;
-                        });
-                        series.UnwatchedCount = unwatched.length;
-                        series.TotalCount = episodesForSeries.length;
-                        series.AllEpisodes = episodesForSeries;
-
-                        if (unwatched.length > 0) {
-                            series.LastUnwatched = unwatched[0].ShowingStartTime;
-                        }
-                        if (episodesForSeries.length > 0) {
-                            series.LastEpisode = episodesForSeries[0].ShowingStartTime;
-                        }
-                    });
-                });
+            EpisodeService.updateEpisodeList().then(function() {
+                self.series = EpisodeService.getSeriesList();
+                $log.debug("Controller has " + self.series.length + " shows.");
             });
 
             self.getButtonClass = function(tier, series) {
@@ -149,11 +148,11 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             };
 
             self.changeTier = function(series) {
-                SeriesService.changeTier(series._id, series.Tier);
+                EpisodeService.changeTier(series._id, series.Tier);
             };
 
             self.markAllWatched = function(series) {
-                SeriesService.markAllWatched(series.SeriesId);
+                EpisodeService.markAllWatched(series.SeriesId);
                 series.UnwatchedCount = 0;
             };
 
@@ -161,7 +160,7 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 $log.debug("Executing!");
                 $modal.open({
                     templateUrl: 'seriesDetail.html',
-                    controller: 'SeriesDetailCtrl as ctrl',
+                    controller: 'seriesDetailController as ctrl',
                     size: 'lg',
                     resolve: {
                         series: function() {
@@ -172,8 +171,8 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             };
         }
   ])
-  .controller('SeriesDetailCtrl', ['$log', 'SeriesService', 'EpisodeService', '$modalInstance', 'series',
-      function($log, SeriesService, EpisodeService, $modalInstance, series) {
+  .controller('seriesDetailController', ['$log', 'EpisodeService', '$modalInstance', 'series',
+      function($log, EpisodeService, $modalInstance, series) {
           var self = this;
 
           self.series = series;
@@ -182,7 +181,7 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
           self.changeMetacritic = function(series) {
               series.Metacritic = self.metacritic;
-              SeriesService.changeMetacritic(series._id, series.Metacritic);
+              EpisodeService.changeMetacritic(series._id, series.Metacritic);
           };
 
           self.markWatched = function(episode) {
