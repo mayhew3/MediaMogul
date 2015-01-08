@@ -20,13 +20,13 @@ exports.changeTier = function(req, res) {
           }
       });
 };
-exports.changeMetacritic = function(req, res) {
-    Series.update({_id: req.body.SeriesId}, {$set:{Metacritic:req.body.Metacritic}})
-      .exec(function(err, savedSeries) {
-          if (err) {
-              res.json(404, {msg: 'Failed to update Series with new Metacritic.'});
-          } else {
-              res.json({msg: "success"});
-          }
-      });
+exports.updateSeries = function(req, res) {
+  Series.update({_id: req.body.SeriesId}, req.body.ChangedFields)
+    .exec(function(err, savedSeries) {
+      if (err) {
+        res.json(404, {msg: 'Failed to update Series with new fields.'});
+      } else {
+        res.json({msg: "success"});
+      }
+    });
 };

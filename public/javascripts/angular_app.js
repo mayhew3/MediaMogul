@@ -97,10 +97,8 @@ function EpisodeService($log, $http) {
         $http.post('/changeTier', {SeriesId: SeriesId, Tier: Tier});
         // todo: add some error handling.
     };
-    this.changeMetacritic = function(SeriesId, Metacritic) {
-        $log.debug("Trying to update MC of " + SeriesId + " to " + Metacritic);
-        $http.post('/changeMetacritic', {SeriesId: SeriesId, Metacritic: Metacritic});
-        // todo: add some error handling.
+    this.updateSeries = function(SeriesId, ChangedFields) {
+        $http.post('/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
     };
     this.markAllWatched = function(SeriesId) {
         $http.post('/markAllWatched', {SeriesId: SeriesId});
@@ -197,11 +195,40 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
           self.series = series;
 
-          self.metacritic = series.Metacritic;
+          self.originalFields = {
+              Metacritic: series.Metacritic,
+              MyRating: series.MyRating
+          };
+
+          self.interfaceFields = {
+              Metacritic: series.Metacritic,
+              MyRating: series.MyRating
+          };
 
           self.changeMetacritic = function(series) {
-              series.Metacritic = self.metacritic;
-              EpisodeService.changeMetacritic(series._id, series.Metacritic);
+              series.Metacritic = self.interfaceFields.Metacritic;
+              series.MyRating = self.interfaceFields.MyRating;
+
+              var changedFields = {};
+              for (var key in self.interfaceFields) {
+                  if (self.interfaceFields.hasOwnProperty(key)) {
+                      var value = self.interfaceFields[key];
+
+                      $log.debug("In loop, key: " + key + ", value: " + value + ", old value: " + self.originalFields[key]);
+
+                      if (value != self.originalFields[key]) {
+                          $log.debug("Changed detected... ");
+                          changedFields[key] = value;
+                      }
+                  }
+              }
+
+              $log.debug("Changed fields: " + JSON.stringify(changedFields));
+
+              if (Object.getOwnPropertyNames(changedFields).length > 0) {
+                  $log.debug("Changed fields has a length!");
+                  EpisodeService.updateSeries(series._id, changedFields);
+              }
           };
 
           self.markWatched = function(episode) {

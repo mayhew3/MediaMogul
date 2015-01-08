@@ -5,6 +5,7 @@ var SeriesSchema = new Schema({
     IsEpisodic: Boolean,
     SeriesId: String,
     Tier: Number,
-    Metacritic: Number
+    Metacritic: Number,
+    MyRating: Number
 }, {_id : true});
 mongoose.model('series', SeriesSchema);

@@ -39,23 +39,30 @@
               ng-submit="ctrl.changeMetacritic(ctrl.series)"
               novalidate>
 
-          <div class="form-group">
-            <label class="control-label" for="metacriticInput">Metacritic</label>
-            <div class="input-group col-lg-3">
+          <div class="form-group col-lg-3">
+
+              <label class="control-label" for="metacriticInput">Metacritic</label>
               <input type="number"
                      class="form-control"
                      id="metacriticInput"
                      name="metacriticInput"
                      min="1"
                      max="100"
-                     ng-model="ctrl.metacritic"/>
+                     ng-model="ctrl.interfaceFields.Metacritic"/>
+              <label class="control-label" for="myRatingInput">My Rating</label>
+              <input type="number"
+                     class="form-control"
+                     id="myRatingInput"
+                     name="myRatingInput"
+                     min="1"
+                     max="100"
+                     ng-model="ctrl.interfaceFields.MyRating"/>
               <span class="input-group-btn">
                       <input class="btn btn-default"
                              type="submit"
                           value="Update"
                           ng-disabled="seriesFields.$invalid">
                     </span>
-            </div>
           </div>
 
         </form>

@@ -11,7 +11,7 @@ exports.getEpisodes = function(req, res) {
       });
 };
 exports.markEpisodeAsWatched = function(req, res) {
-    Episode.update({_id: req.body.episodeId}, {$set:{Watched:req.body.watched}})
+    Episode.update({_id: req.body.episodeId}, {Watched:req.body.watched})
       .exec(function(err, savedEpisode) {
           if (err) {
               res.status(404).json({msg: 'Failed to update Episode as watched.'});
