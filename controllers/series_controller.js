@@ -1,3 +1,6 @@
+var xml2js = require('xml2js');
+var async = require('async');
+var request = require('request');
 var mongoose = require('mongoose'),
   Series = mongoose.model('series');
 exports.getSeries = function(req, res) {
@@ -29,4 +32,92 @@ exports.updateSeries = function(req, res) {
         res.json({msg: "success"});
       }
     });
+};
+
+// not helpful right now, but maybe for Add Show.
+exports.addTVDBinfo = function(req, res, next) {
+  var seriesId = req.body.SeriesId;
+  var seriesName = req.body.SeriesTitle
+    .toLowerCase()
+    .replace(/ /g, '_')
+    .replace(/[^\w-]+/g, '');
+  var apiKey = '04DBA547465DC136';
+
+  console.log("Entering start of method for ID " + seriesId + " series " + seriesName);
+
+  var parser = xml2js.Parser({
+    explicitArray: false,
+    normalizeTags: true
+  });
+
+  async.waterfall([
+    function(callback) {
+      console.log("In first callback.");
+      request.get('http://thetvdb.com/api/GetSeries.php?seriesname=' + seriesName, function (error, response, body) {
+        if (error) return next(error);
+        console.log("Made successful first API call.");
+        parser.parseString(body, function(err, result) {
+          if (!result.data.series) {
+            return res.send(400, { message: req.body.SeriesTitle + ' was not found.' });
+          }
+          var tvdbId = result.data.series.seriesid || result.data.series[0].seriesid;
+          console.log("Found ID on TVDB! Id is " + tvdbId);
+          callback(err, seriesId, tvdbId);
+        });
+      });
+    },
+    function (seriesId, tvdbId, callback) {
+      console.log("In second callback.");
+      request.get('http://thetvdb.com/api/' + apiKey + '/series/' + tvdbId + '/all/en.xml', function (error, response, body) {
+        if (error) return next(error);
+        console.log("Made successful second API call.");
+        parser.parseString(body, function (err, result) {
+          var series = result.data.series;
+          var episodes = result.data.episode;
+          var show = {
+            tvdbId: series.id,
+            tvdbName: series.seriesname,
+            airsDayOfWeek: series.airs_dayofweek,
+            airsTime: series.airs_time,
+            firstAired: series.firstaired,
+            genre: series.genre.split('|').filter(Boolean),
+            network: series.network,
+            overview: series.overview,
+            rating: series.rating,
+            ratingCount: series.ratingcount,
+            runtime: series.runtime,
+            status: series.status,
+            poster: series.poster
+          };
+          console.log("Show data: " + JSON.stringify(show));
+          console.log("Episode data: " + episodes);
+          callback(err, seriesId, show);
+        });
+      });
+    },
+    function (seriesId, show, callback) {
+      console.log("In third callback.");
+      var url = 'http://thetvdb.com/banners/' + show.poster;
+      request({ url: url, encoding: null }, function (error, response, body) {
+        console.log("Made successful third API call.");
+        show.poster = 'data:' + response.headers['content-type'] + ';base64,' + body.toString('base64');
+        callback(error, seriesId, show);
+      });
+    }
+  ], function (err, seriesId, show) {
+    console.log("In final callback.");
+    if (err) return next(err);
+
+    console.log("Data found for series id " + seriesId + ": " + JSON.stringify(show));
+
+    Series.update({_id: seriesId}, show)
+      .exec(function(err, savedSeries) {
+        if (err) {
+          res.json(404, {msg: 'Failed to update Series with new fields.'});
+        } else {
+          res.json({msg: "success"});
+        }
+      });
+
+  });
 };
