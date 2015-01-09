@@ -10,15 +10,16 @@ var SeriesSchema = new Schema({
     ViewingLocations: [String],
     tvdbId: Number,
     tvdbName: String,
-    airsDayOfWeek: String,
-    airsTime: String,
-    firstAired: Date,
-    genre: [String],
-    network: String,
-    overview: String,
-    rating: Number,
-    ratingCount: Number,
-    status: String,
-    poster: String
+    tvdbAirsDayOfWeek: String,
+    tvdbAirsTime: String,
+    tvdbFirstAired: Date,
+    tvdbGenre: [String],
+    tvdbNetwork: String,
+    tvdbOverview: String,
+    tvdbRating: Number,
+    tvdbRatingCount: Number,
+    tvdbRuntime: Number,
+    tvdbStatus: String,
+    tvdbPoster: String
 }, {_id : true});
 mongoose.model('series', SeriesSchema);

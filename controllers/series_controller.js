@@ -69,17 +69,17 @@ exports.addSeries = function(req, res, next) {
 
           existingSeries.tvdbId = series.id;
           existingSeries.tvdbName = series.seriesname;
-          existingSeries.airsDayOfWeek = series.airs_dayofweek;
-          existingSeries.airsTime = series.airs_time;
-          existingSeries.firstAired = series.firstaired;
-          existingSeries.genre = series.genre.split('|').filter(Boolean);
-          existingSeries.network = series.network;
-          existingSeries.overview = series.overview;
-          existingSeries.rating = series.rating;
-          existingSeries.ratingCount = series.ratingcount;
-          existingSeries.runtime = series.runtime;
-          existingSeries.status = series.status;
-          existingSeries.poster = series.poster;
+          existingSeries.tvdbAirsDayOfWeek = series.airs_dayofweek;
+          existingSeries.tvdbAirsTime = series.airs_time;
+          existingSeries.tvdbFirstAired = series.firstaired;
+          existingSeries.tvdbGenre = series.genre.split('|').filter(Boolean);
+          existingSeries.tvdbNetwork = series.network;
+          existingSeries.tvdbOverview = series.overview;
+          existingSeries.tvdbRating = series.rating;
+          existingSeries.tvdbRatingCount = series.ratingcount;
+          existingSeries.tvdbRuntime = series.runtime;
+          existingSeries.tvdbStatus = series.status;
+          existingSeries.tvdbPoster = series.poster;
 
           console.log("Show data: " + JSON.stringify(existingSeries));
           console.log("Episode data: " + episodes);
@@ -89,10 +89,10 @@ exports.addSeries = function(req, res, next) {
     },
     function (series, callback) {
       console.log("In third callback.");
-      var url = 'http://thetvdb.com/banners/' + series.poster;
+      var url = 'http://thetvdb.com/banners/' + series.tvdbPoster;
       request({ url: url, encoding: null }, function (error, response, body) {
         console.log("Made successful third API call.");
-        series.poster = 'data:' + response.headers['content-type'] + ';base64,' + body.toString('base64');
+        series.tvdbPoster = 'data:' + response.headers['content-type'] + ';base64,' + body.toString('base64');
         callback(error, series);
       });
     }
