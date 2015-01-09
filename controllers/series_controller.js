@@ -1,6 +1,7 @@
 var xml2js = require('xml2js');
 var async = require('async');
 var request = require('request');
+var lodash = require('lodash');
 var mongoose = require('mongoose'),
   Series = mongoose.model('series');
 exports.getSeries = function(req, res) {
@@ -80,9 +81,17 @@ exports.addSeries = function(req, res, next) {
           existingSeries.tvdbRuntime = series.runtime;
           existingSeries.tvdbStatus = series.status;
           existingSeries.tvdbPoster = series.poster;
+          lodash.each(episodes, function (episode) {
+            existingSeries.tvdbEpisodes.push({
+              tvdbSeason: episode.seasonnumber,
+              tvdbEpisodeNumber: episode.episodenumber,
+              tvdbEpisodeName: episode.episodename,
+              tvdbFirstAired: episode.firstaired,
+              tvdbOverview: episode.overview
+            });
+          });
 
           console.log("Show data: " + JSON.stringify(existingSeries));
-          console.log("Episode data: " + episodes);
           callback(err, existingSeries);
         });
       });

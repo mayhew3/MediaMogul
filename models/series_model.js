@@ -20,6 +20,13 @@ var SeriesSchema = new Schema({
     tvdbRatingCount: Number,
     tvdbRuntime: Number,
     tvdbStatus: String,
-    tvdbPoster: String
+    tvdbPoster: String,
+    tvdbEpisodes: [{
+        tvdbSeason: Number,
+        tvdbEpisodeNumber: Number,
+        tvdbEpisodeName: String,
+        tvdbFirstAired: Date,
+        tvdbOverview: String
+    }]
 }, {_id : true});
 mongoose.model('series', SeriesSchema);
