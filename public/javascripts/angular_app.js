@@ -11,6 +11,13 @@ function EpisodeService($log, $http) {
         return filtered[0];
     };
 
+    this.getSeriesWithTitle = function(SeriesTitle) {
+        var filtered = shows.filter(function(seriesElement) {
+            return seriesElement.SeriesTitle == SeriesTitle;
+        });
+        return filtered[0];
+    };
+
     var linkEpisodesWithShows = function() {
         $log.debug("Linking episodes with shows...");
         $log.debug("Shows has length " + shows.length);
@@ -273,6 +280,12 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
           self.selectedLocation = "Netflix";
 
+          self.showExists = false;
+
+          self.updateShowExists = function() {
+             var title = self.series.SeriesTitle;
+             self.showExists = !!EpisodeService.getSeriesWithTitle(title);
+          };
 
           self.getButtonClass = function(tier) {
               return self.series.Tier === tier ? "btn btn-success" : "btn btn-primary";

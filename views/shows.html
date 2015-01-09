@@ -35,6 +35,10 @@
 
       <div class="modal-body">
 
+        <div class="alert alert-warning" ng-show="ctrl.showExists">
+          Show name already exists!
+        </div>
+
         <form class="bs-component"
               name="newSeriesFields"
               novalidate>
@@ -48,6 +52,7 @@
                      id="newSeriesTitle"
                      name="newSeriesTitle"
                      ng-required="true"
+                     ng-change="ctrl.updateShowExists()"
                      ng-model="ctrl.series.SeriesTitle"/>
             </div>
 
