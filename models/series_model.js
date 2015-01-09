@@ -7,6 +7,7 @@ var SeriesSchema = new Schema({
     Tier: Number,
     Metacritic: Number,
     MyRating: Number,
+    ViewingLocations: [String],
     tvdbId: Number,
     tvdbName: String,
     airsDayOfWeek: String,

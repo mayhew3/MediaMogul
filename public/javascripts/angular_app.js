@@ -100,6 +100,9 @@ function EpisodeService($log, $http) {
     this.updateSeries = function(SeriesId, ChangedFields) {
         $http.post('/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
     };
+    this.addSeries = function(series) {
+        $log.debug("Adding series " + JSON.stringify(series));
+    };
     this.markAllWatched = function(SeriesId) {
         $http.post('/markAllWatched', {SeriesId: SeriesId});
     };
@@ -187,6 +190,18 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                     }
                 });
             };
+
+            self.addSeries = function() {
+                $log.debug("Adding window.");
+                $modal.open({
+                    templateUrl: 'addSeries.html',
+                    controller: 'addSeriesController as ctrl',
+                    size: 'lg',
+                    resolve: {
+
+                    }
+                });
+            };
         }
   ])
   .controller('seriesDetailController', ['$log', 'EpisodeService', '$modalInstance', 'series',
@@ -239,5 +254,37 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
           self.ok = function() {
               $modalInstance.close();
           };
+  }]).controller('addSeriesController', ['$log', 'EpisodeService', '$modalInstance',
+      function($log, EpisodeService, $modalInstance) {
+          var self = this;
+
+          self.series = {
+              Tier: 5,
+              IsEpisodic: true
+          };
+
+          self.tiers = [1, 2, 3, 4, 5];
+          self.locations = ["Netflix", "Hulu", "Prime", "Xfinity", "TiVo"];
+
+          self.selectedLocation = "Netflix";
+
+
+          self.getButtonClass = function(tier) {
+              return self.series.Tier === tier ? "btn btn-success" : "btn btn-primary";
+          };
+
+          self.getLocButtonClass = function(location) {
+              return self.selectedLocation === location ? "btn btn-success" : "btn btn-primary";
+          };
+
+
+          self.ok = function() {
+              EpisodeService.addSeries(self.series);
+              $modalInstance.close();
+          };
+
+          self.cancel = function() {
+              $modalInstance.close();
+          }
   }])
 ;
