@@ -102,6 +102,11 @@ function EpisodeService($log, $http) {
     };
     this.addSeries = function(series) {
         $log.debug("Adding series " + JSON.stringify(series));
+        $http.post('/addSeries', {series: series}).then(function(response) {
+            return null;
+        }, function(errResponse) {
+            return errResponse;
+        }) ;
     };
     this.markAllWatched = function(SeriesId) {
         $http.post('/markAllWatched', {SeriesId: SeriesId});
@@ -279,8 +284,13 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
 
           self.ok = function() {
-              EpisodeService.addSeries(self.series);
-              $modalInstance.close();
+              self.series.ViewingLocations = [self.selectedLocation];
+              var errorResponse = EpisodeService.addSeries(self.series);
+              if (errorResponse) {
+                  $log.debug("Error adding series. Response: " + errorResponse);
+              } else {
+                  $modalInstance.close();
+              }
           };
 
           self.cancel = function() {

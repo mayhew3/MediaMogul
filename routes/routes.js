@@ -18,6 +18,7 @@ module.exports = function(app) {
     app.post('/markWatched', episodes.markEpisodeAsWatched);
     app.post('/markAllWatched', episodes.markAllEpisodesAsWatched);
     app.post('/changeTier', series.changeTier);
+    app.post('/addSeries', series.addSeries);
     app.post('/updateSeries', series.updateSeries);
 
     // error handlers

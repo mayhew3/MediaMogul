@@ -40,64 +40,64 @@
               novalidate>
           <div class="form-group col-lg-9">
 
-          <div class="col-lg-6">
+            <div class="col-lg-6">
 
-            <label class="control-label" for="newSeriesTitle">Name</label>
-            <input type="text"
-                   class="form-control"
-                   id="newSeriesTitle"
-                   name="newSeriesTitle"
-                   ng-required="true"
-                   ng-model="ctrl.series.SeriesTitle"/>
-          </div>
-
-          <div class="col-lg-3">
-
-            <label class="control-label" for="newMetacriticInput">Metacritic</label>
-            <input type="number"
-                   class="form-control"
-                   id="newMetacriticInput"
-                   name="metacriticInput"
-                   min="1"
-                   max="100"
-                   ng-model="ctrl.series.Metacritic"/>
-
-
-            <label class="control-label" for="newRatingInput">My Rating</label>
-            <input type="number"
-                   class="form-control"
-                   id="newRatingInput"
-                   name="myRatingInput"
-                   min="1"
-                   max="100"
-                   ng-model="ctrl.series.MyRating"/>
-
-          </div>
-
-
-          <div class="col-lg-6">
-            <label for="tierGroup">Tier</label>
-            <div id="tierGroup">
-              <label ng-repeat="tier in ctrl.tiers"
-                     ng-class="ctrl.getButtonClass(tier)"
-                     ng-model="ctrl.series.Tier"
-                     btn-radio="tier">
-                <span ng-bind="tier"></span>
-              </label>
+              <label class="control-label" for="newSeriesTitle">Name</label>
+              <input type="text"
+                     class="form-control"
+                     id="newSeriesTitle"
+                     name="newSeriesTitle"
+                     ng-required="true"
+                     ng-model="ctrl.series.SeriesTitle"/>
             </div>
-          </div>
 
-          <div class="col-lg-6">
-            <label for="locationGroup">Viewing Location</label>
-            <div id="locationGroup">
-              <label ng-repeat="location in ctrl.locations"
-                     ng-class="ctrl.getLocButtonClass(location)"
-                     ng-model="ctrl.selectedLocation"
-                     btn-radio="location">
-                <span ng-bind="location"></span>
-              </label>
+            <div class="col-lg-3">
+
+              <label class="control-label" for="newMetacriticInput">Metacritic</label>
+              <input type="number"
+                     class="form-control"
+                     id="newMetacriticInput"
+                     name="metacriticInput"
+                     min="1"
+                     max="100"
+                     ng-model="ctrl.series.Metacritic"/>
+
+
+              <label class="control-label" for="newRatingInput">My Rating</label>
+              <input type="number"
+                     class="form-control"
+                     id="newRatingInput"
+                     name="myRatingInput"
+                     min="1"
+                     max="100"
+                     ng-model="ctrl.series.MyRating"/>
+
             </div>
-          </div>
+
+
+            <div class="col-lg-6">
+              <label for="tierGroup">Tier</label>
+              <div id="tierGroup">
+                <label ng-repeat="tier in ctrl.tiers"
+                       ng-class="ctrl.getButtonClass(tier)"
+                       ng-model="ctrl.series.Tier"
+                       btn-radio="tier">
+                  <span ng-bind="tier"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <label for="locationGroup">Viewing Location</label>
+              <div id="locationGroup">
+                <label ng-repeat="location in ctrl.locations"
+                       ng-class="ctrl.getLocButtonClass(location)"
+                       ng-model="ctrl.selectedLocation"
+                       btn-radio="location">
+                  <span ng-bind="location"></span>
+                </label>
+              </div>
+            </div>
           </div>
 
         </form>

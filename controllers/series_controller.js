@@ -23,6 +23,19 @@ exports.changeTier = function(req, res) {
           }
       });
 };
+exports.addSeries = function(req, res) {
+    var seriesObj = req.body.series;
+  console.log("Series info: " + JSON.stringify(seriesObj));
+  var series = new Series(seriesObj);
+  console.log("Full Series: " + JSON.stringify(series));
+  series.save(function(err) {
+    if (err) {
+      res.json(404, {msg: 'Failed to insert Series.'});
+    } else {
+      res.json({msg: "success"});
+    }
+  });
+};
 exports.updateSeries = function(req, res) {
   Series.update({_id: req.body.SeriesId}, req.body.ChangedFields)
     .exec(function(err, savedSeries) {
