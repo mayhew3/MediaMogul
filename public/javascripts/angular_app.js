@@ -119,9 +119,35 @@ function EpisodeService($log, $http) {
         $http.post('/markAllWatched', {SeriesId: SeriesId});
     };
 }
+function ErrorLogService($log, $http) {
+    var errorlogs = [];
+
+
+    this.updateErrorLogs = function() {
+        return $http.get('/errorlog/list').then(function (response) {
+            $log.debug("Errors returned " + response.data.length);
+            errorlogs = response.data;
+        }, function (errResponse) {
+            console.error('Error while fetching error logs.');
+        });
+    };
+
+    this.getErrorLogs = function () {
+        return errorlogs;
+    };
+
+    this.setChosenName = function(logID, chosenName) {
+        $http.post('/errorlog/setChosenName', {errorLogID: logID, chosenName: chosenName});
+    };
+
+    this.ignoreError = function(logID, ignoreError) {
+        $http.post('/errorlog/ignoreError', {errorLogID: logID, ignoreError: ignoreError});
+    }
+}
 
 angular.module('mediaMogulApp', ['ui.bootstrap'])
   .service('EpisodeService', ['$log', '$http', EpisodeService])
+  .service('ErrorLogService', ['$log', '$http', ErrorLogService])
   .controller('episodeController', ['EpisodeService',
         function(EpisodeService) {
             var self = this;
@@ -215,6 +241,32 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
                 });
             };
         }
+  ])
+  .controller('errorLogController', ['$log', 'ErrorLogService',
+    function($log, ErrorLogService) {
+        var self = this;
+
+        self.setChosenName = function(errorLog) {
+           ErrorLogService.setChosenName(errorLog._id, errorLog.ChosenName);
+        };
+
+        self.ignoreError = function(errorLog) {
+           ErrorLogService.ignoreError(errorLog._id, errorLog.IgnoreError);
+        };
+
+        self.chooseTiVo = function(errorLog) {
+           errorLog.ChosenName = errorLog.TiVoName;
+        };
+
+        self.chooseTVDB = function(errorLog) {
+           errorLog.ChosenName = errorLog.TVDBName;
+        };
+
+        ErrorLogService.updateErrorLogs().then(function() {
+            self.errorLogs = ErrorLogService.getErrorLogs();
+            $log.debug("Controller has " + self.errorLogs.length + " entries.");
+        });
+    }
   ])
   .controller('seriesDetailController', ['$log', 'EpisodeService', '$modalInstance', 'series',
       function($log, EpisodeService, $modalInstance, series) {

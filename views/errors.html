@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html ng-app="mediaMogulApp">
+  <head>
+    <title>Error Logs</title>
+    <link rel="stylesheet" type="text/css"
+          href="stylesheets/bootstrap.min.css" />
+  </head>
+  <body>
+
+  <div class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-collapse collapse" id="navbar-main">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="/shows">Series</a>
+          </li>
+          <li>
+            <a href="/episodes">Episodes</a>
+          </li>
+          <li>
+            <a href="/movies">Movies</a>
+          </li>
+          <li>
+            <a href="/errors">Errors</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div ng-controller="errorLogController as ctrl">
+
+      <div class="page-header" id="banner">
+        <div class="row">
+          <div class="col-lg-12">
+            <h1>Error Logs</h1>
+          </div>
+        </div>
+      </div>
+
+      <div class="bs-docs-section clearfix">
+        <div class="col-lg-12">
+
+          <div id="mismatchContainer">
+            <h2>Mismatch Errors</h2>
+            <table class="table table-striped table-hover ">
+              <thead>
+              <th>Date</th>
+              <th>Formatted</th>
+              <th>Tivo</th>
+              <th>TVDB</th>
+              <th>Resolved</th>
+              <th></th>
+              </thead>
+              <tr data-ng-repeat="errorLog in ctrl.errorLogs |
+                          filter:'NameMismatch' |
+                          orderBy:['TiVoName'] |
+                          limitTo:50">
+                <td ng-bind="errorLog.EventDate|date:'EEE MM/dd'"></td>
+                <td ng-bind="errorLog.FormattedName"></td>
+                <td>
+                  <button type="button"
+                          class="btn btn-success btn-sm"
+                          ng-click="ctrl.chooseTiVo(errorLog)"
+                      ng-bind="errorLog.TiVoName"></button>
+
+                </td>
+                <td>
+                  <button type="button"
+                          class="btn btn-success btn-sm"
+                          ng-click="ctrl.chooseTVDB(errorLog)"
+                          ng-bind="errorLog.TVDBName"></button>
+                </td>
+                <td>
+                  <input type="text"
+                         ng-model="errorLog.ChosenName"
+                         ng-blur="ctrl.setChosenName(errorLog)"/>
+                </td>
+                <td>
+                  <button type="button"
+                          class="btn btn-success btn-sm"
+                          btn-checkbox
+                          btn-checkbox-true="true"
+                          btn-checkbox-false="false"
+                          ng-model="errorLog.IgnoreError"
+                          ng-change="ctrl.ignoreError(errorLog)">Ignore Show</button>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div id="notFoundContainer">
+            <h2>Not Found Errors</h2>
+            <table class="table table-striped table-hover ">
+              <thead>
+              <th>Date</th>
+              <th>Formatted</th>
+              <th>TiVo</th>
+              <th>Resolved</th>
+              <th></th>
+              </thead>
+              <tr data-ng-repeat="errorLog in ctrl.errorLogs |
+                          filter:'NoMatchFound' |
+                          orderBy:['TiVoName'] |
+                          limitTo:50">
+                <td ng-bind="errorLog.EventDate|date:'EEE MM/dd'"></td>
+                <td ng-bind="errorLog.FormattedName"></td>
+                <td ng-bind="errorLog.TiVoName"></td>
+                <td>
+                  <input type="text"
+                         ng-model="errorLog.ChosenName"
+                         ng-blur="ctrl.setChosenName(errorLog)"/>
+                </td>
+                <td>
+                  <button type="button"
+                          class="btn btn-success btn-sm"
+                          btn-checkbox
+                          btn-checkbox-true="true"
+                          btn-checkbox-false="false"
+                          ng-model="errorLog.IgnoreError"
+                          ng-change="ctrl.ignoreError(errorLog)">Ignore Show</button>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.js"></script>
+  <script src="javascripts/ui-bootstrap-tpls-0.12.0.min.js"></script>
+  <script src="javascripts/angular_app.js"></script>
+  </body>
+</html>

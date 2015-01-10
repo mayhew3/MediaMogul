@@ -1,6 +1,7 @@
 module.exports = function(app) {
     var episodes = require('../controllers/episodes_controller');
     var series = require('../controllers/series_controller');
+    var errorLogs = require('../controllers/errorlogs_controller');
     app.get('/', function (req, res) {
         res.render('shows');
     });
@@ -13,13 +14,21 @@ module.exports = function(app) {
     app.get('/movies', function(req, res) {
         res.render('movies');
     });
+    app.get('/errors', function(req, res) {
+        res.render('errors');
+    });
+
     app.get('/episodeList', episodes.getEpisodes);
     app.get('/seriesList', series.getSeries);
+    app.get('/errorlog/list', errorLogs.getErrorLogs);
+
     app.post('/markWatched', episodes.markEpisodeAsWatched);
     app.post('/markAllWatched', episodes.markAllEpisodesAsWatched);
     app.post('/changeTier', series.changeTier);
     app.post('/addSeries', series.addSeries);
     app.post('/updateSeries', series.updateSeries);
+    app.post('/errorlog/setChosenName', errorLogs.setChosenName);
+    app.post('/errorlog/ignoreError', errorLogs.setIgnoreError);
 
     // error handlers
 
