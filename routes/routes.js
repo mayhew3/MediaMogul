@@ -17,7 +17,7 @@ module.exports = function(app) {
     app.get('/seriesList', series.getSeries);
     app.get('/errorlog/list', errorLogs.getErrorLogs);
 
-    app.post('/markWatched', series.markEpisodeAsWatched);
+    app.post('/updateEpisode', series.updateEpisode);
     app.post('/markAllWatched', series.markAllEpisodesAsWatched);
     app.post('/changeTier', series.changeTier);
     app.post('/addSeries', series.addSeries);

@@ -36,6 +36,8 @@ var SeriesSchema = new Schema({
         TiVoDeletedDate: Date,
         TiVoSuggestion: String,
         Watched: Boolean,
+        WatchedDate: Date,
+        tvdbEpisodeId: String,
         tvdbSeason: Number,
         tvdbEpisodeNumber: Number,
         tvdbEpisodeName: String,

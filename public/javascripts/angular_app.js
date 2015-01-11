@@ -26,8 +26,9 @@ function EpisodeService($log, $http) {
         return shows;
     };
 
-    this.markWatched = function(episodeId, watched) {
-        $http.post('/markWatched', {episodeId: episodeId, watched: watched});
+    this.markWatched = function(seriesId, episodeId, watched, unwatchedEpisodes) {
+        var changedFields = {"tvdbEpisodes.$.Watched": watched, "tvdbEpisodes.$.WatchedDate": new Date, UnwatchedEpisodes: unwatchedEpisodes};
+        $http.post('/updateEpisode', {SeriesId: seriesId, EpisodeId: episodeId, ChangedFields: changedFields});
         // todo: add some error handling.
     };
     this.changeTier = function(SeriesId, Tier) {
@@ -227,8 +228,9 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
           };
 
           self.markWatched = function(episode) {
-              EpisodeService.markWatched(episode._id, episode.Watched);
-              self.series.UnwatchedEpisodes--;
+              var updatedUnwatched = self.series.UnwatchedEpisodes - 1;
+              EpisodeService.markWatched(self.series._id, episode.tvdbEpisodeId, episode.Watched, updatedUnwatched);
+              self.series.UnwatchedEpisodes = updatedUnwatched;
           };
 
           self.ok = function() {

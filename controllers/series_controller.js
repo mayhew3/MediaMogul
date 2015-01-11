@@ -122,8 +122,16 @@ exports.updateSeries = function(req, res) {
       }
     });
 };
-exports.markEpisodeAsWatched = function(req, res) {
-  // todo: implement
+exports.updateEpisode = function(req, res) {
+  Series.update({_id: req.body.SeriesId, "tvdbEpisodes.tvdbEpisodeId": req.body.EpisodeId},
+    req.body.ChangedFields)
+    .exec(function(err) {
+      if (err) {
+        res.json(404, {msg: 'Failed to update Episode with new fields.'});
+      } else {
+        res.json({msg: "success"});
+      }
+    });
 };
 exports.markAllEpisodesAsWatched = function(req, res) {
   // todo: implement
