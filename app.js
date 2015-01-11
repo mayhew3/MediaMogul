@@ -6,7 +6,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://obsidian/tv');
-require('./models/episode_model.js');
 require('./models/series_model.js');
 require('./models/errorlog_model.js');
 

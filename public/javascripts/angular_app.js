@@ -1,15 +1,5 @@
 function EpisodeService($log, $http) {
-    var episodes = [];
     var shows = [];
-
-    var epsProcess = 0;
-
-    var getSeriesWithId = function(SeriesId) {
-        var filtered = shows.filter(function(seriesElement) {
-            return seriesElement.SeriesId == SeriesId;
-        });
-        return filtered[0];
-    };
 
     this.getSeriesWithTitle = function(SeriesTitle) {
         var filtered = shows.filter(function(seriesElement) {
@@ -18,80 +8,20 @@ function EpisodeService($log, $http) {
         return filtered[0];
     };
 
-    var linkEpisodesWithShows = function() {
-        $log.debug("Linking episodes with shows...");
-        $log.debug("Shows has length " + shows.length);
-        $log.debug("Episodes has length " + episodes.length);
-
-        shows.forEach(function(series) {
-            series.TotalCount = 0;
-            series.UnwatchedCount = 0;
-            series.AllEpisodes = [];
-        });
-
-        episodes.forEach(function(episode) {
-            var seriesWithId = getSeriesWithId(episode.SeriesId);
-            if (seriesWithId != null) {
-                addEpisodeToSeries(episode, seriesWithId);
-            }  else {
-                episode.Tier = 6;
-            }
-        });
-
-        $log.debug("Eps processed: " + epsProcess);
-    };
-
-    var addEpisodeToSeries = function(episode, series) {
-        episode.Tier = series.Tier;
-        episode.IsEpisodic = series.IsEpisodic;
-
-        series.TotalCount++;
-
-        series.AllEpisodes.push(episode);
-
-        if (series.LastEpisode == null) {
-            series.LastEpisode = episode.ShowingStartTime;
-        }
-
-        if (!episode.Watched) {
-            series.UnwatchedCount++;
-            if (series.LastUnwatched == null) {
-                series.LastUnwatched = episode.ShowingStartTime;
-            }
-        }
-
-        epsProcess++;
-    };
-
-    var queryForEpisodes = function() {
-        return $http.get('/episodeList').then(function (response) {
-            $log.debug("Episodes returned " + response.data.length);
-            episodes = response.data;
-        }, function (errResponse) {
-            console.error('Error while fetching episodes.');
-        });
-    };
-
-    var queryForSeries = function() {
+    this.updateEpisodeList = function() {
         return $http.get('/seriesList').then(function (showresponse) {
             $log.debug("Shows returned " + showresponse.data.length + " items.");
             shows = showresponse.data;
         }, function (errResponse) {
-            console.error('Error while fetching series list.');
+            console.error('Error while fetching series list: ' + errResponse);
+        }).then(function () {
+            shows.forEach(function(show) {
+               show.TotalEpisodes = show.tvdbEpisodes.length;
+            });
         });
     };
 
 
-    this.updateEpisodeList = function() {
-        return queryForEpisodes()
-            .then(queryForSeries)
-            .then(linkEpisodesWithShows);
-    };
-
-
-    this.getEpisodeList = function() {
-        return episodes;
-    };
     this.getSeriesList = function() {
         return shows;
     };
@@ -148,25 +78,6 @@ function ErrorLogService($log, $http) {
 angular.module('mediaMogulApp', ['ui.bootstrap'])
   .service('EpisodeService', ['$log', '$http', EpisodeService])
   .service('ErrorLogService', ['$log', '$http', ErrorLogService])
-  .controller('episodeController', ['EpisodeService',
-        function(EpisodeService) {
-            var self = this;
-
-            self.unwatchedOnly = true;
-            self.episodes = [];
-
-            self.episodeFilter = function(episode) {
-                return episode.IsEpisodic && (!self.unwatchedOnly || !episode.Watched);
-            };
-
-            EpisodeService.updateEpisodeList().then(function() {
-                self.episodes = EpisodeService.getEpisodeList();
-            });
-
-            self.change = function(episode) {
-                EpisodeService.markWatched(episode._id, episode.Watched);
-            };
-        }])
   .controller('movieController', ['EpisodeService',
         function(EpisodeService) {
             var self = this;
@@ -194,7 +105,7 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             self.unwatchedOnly = true;
 
             self.seriesFilter = function(series) {
-                return self.unwatchedOnly ? series.UnwatchedCount > 0 : series.TotalCount > 0;
+                return self.unwatchedOnly ? series.UnwatchedEpisodes > 0 : series.tvdbEpisodes.length > 0;
             };
 
             EpisodeService.updateEpisodeList().then(function() {
@@ -212,7 +123,7 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
             self.markAllWatched = function(series) {
                 EpisodeService.markAllWatched(series.SeriesId);
-                series.UnwatchedCount = 0;
+                series.UnwatchedEpisodes = 0;
             };
 
             self.open = function(series) {
@@ -284,6 +195,11 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
               MyRating: series.MyRating
           };
 
+
+          self.episodeFilter = function(episode) {
+              return episode.OnTiVo;
+          };
+
           self.changeMetacritic = function(series) {
               series.Metacritic = self.interfaceFields.Metacritic;
               series.MyRating = self.interfaceFields.MyRating;
@@ -312,7 +228,7 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
           self.markWatched = function(episode) {
               EpisodeService.markWatched(episode._id, episode.Watched);
-              self.series.UnwatchedCount--;
+              self.series.UnwatchedEpisodes--;
           };
 
           self.ok = function() {

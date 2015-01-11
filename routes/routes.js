@@ -1,5 +1,4 @@
 module.exports = function(app) {
-    var episodes = require('../controllers/episodes_controller');
     var series = require('../controllers/series_controller');
     var errorLogs = require('../controllers/errorlogs_controller');
     app.get('/', function (req, res) {
@@ -8,9 +7,6 @@ module.exports = function(app) {
     app.get('/shows', function(req, res) {
         res.render('shows');
     });
-    app.get('/episodes', function(req, res) {
-        res.render('episodes');
-    });
     app.get('/movies', function(req, res) {
         res.render('movies');
     });
@@ -18,12 +14,11 @@ module.exports = function(app) {
         res.render('errors');
     });
 
-    app.get('/episodeList', episodes.getEpisodes);
     app.get('/seriesList', series.getSeries);
     app.get('/errorlog/list', errorLogs.getErrorLogs);
 
-    app.post('/markWatched', episodes.markEpisodeAsWatched);
-    app.post('/markAllWatched', episodes.markAllEpisodesAsWatched);
+    app.post('/markWatched', series.markEpisodeAsWatched);
+    app.post('/markAllWatched', series.markAllEpisodesAsWatched);
     app.post('/changeTier', series.changeTier);
     app.post('/addSeries', series.addSeries);
     app.post('/updateSeries', series.updateSeries);

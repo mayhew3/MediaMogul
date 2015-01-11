@@ -122,3 +122,9 @@ exports.updateSeries = function(req, res) {
       }
     });
 };
+exports.markEpisodeAsWatched = function(req, res) {
+  // todo: implement
+};
+exports.markAllEpisodesAsWatched = function(req, res) {
+  // todo: implement
+};
