@@ -46,8 +46,12 @@ function EpisodeService($log, $http) {
             return errResponse;
         }) ;
     };
-    this.markAllWatched = function(SeriesId) {
-        $http.post('/markAllWatched', {SeriesId: SeriesId});
+    this.markAllWatched = function(SeriesId, unwatchedEpisodeIds) {
+        return $http.post('/markAllWatched', {SeriesId: SeriesId, UnwatchedEpisodeIds: unwatchedEpisodeIds}).then(function() {
+            $log.debug("Success?")
+        }, function(errResponse) {
+            $log.debug("Error calling the method: " + errResponse);
+        });
     };
 }
 function ErrorLogService($log, $http) {
@@ -123,8 +127,31 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
             };
 
             self.markAllWatched = function(series) {
-                EpisodeService.markAllWatched(series.SeriesId);
-                series.UnwatchedEpisodes = 0;
+
+                var unwatchedEpisodes = [];
+                var unwatchedEpisodeIds = [];
+                series.tvdbEpisodes.forEach(function(episode) {
+                   if (episode.OnTiVo && !episode.Watched) {
+                       unwatchedEpisodes.push(episode);
+                       unwatchedEpisodeIds.push(episode.tvdbEpisodeId);
+                   }
+                });
+
+                $log.debug("Unwatched ep list: " + unwatchedEpisodeIds);
+
+                EpisodeService.markAllWatched(series._id, unwatchedEpisodeIds).then(function() {
+                    $log.debug("Finished update, adjusting denorms.");
+                    series.UnwatchedEpisodes = 0;
+                    series.LastUnwatched = null;
+
+                    var rightNow = new Date;
+                    unwatchedEpisodes.forEach(function(episode) {
+                        episode.Watched = true;
+                        episode.WatchedDate = rightNow;
+                    });
+                });
+
+                $log.debug("Series '" + series.SeriesTitle + "' " + series._id);
             };
 
             self.open = function(series) {

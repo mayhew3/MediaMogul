@@ -134,5 +134,50 @@ exports.updateEpisode = function(req, res) {
     });
 };
 exports.markAllEpisodesAsWatched = function(req, res) {
-  // todo: implement
+  var seriesId = req.body.SeriesId;
+  var unwatchedEpisodeIds = req.body.UnwatchedEpisodeIds;
+
+  console.log("Entered correct method, series id " + seriesId, " episodes " + unwatchedEpisodeIds);
+
+  var index = 0;
+
+  async.whilst(
+    function() {
+      return index < unwatchedEpisodeIds.length;
+    },
+    function(callback) {
+      var episodeId = unwatchedEpisodeIds[index];
+      index++;
+
+      console.log("Trying episode id " + episodeId);
+
+      Series.update({_id: seriesId, "tvdbEpisodes.tvdbEpisodeId": episodeId},
+        {"tvdbEpisodes.$.Watched": true, "tvdbEpisodes.$.WatchedDate": new Date})
+        .exec(function (err) {
+          if (err) {
+            callback(err);
+          }
+        })
+        .then(function(r) {
+          console.log("Update completed with result " + r);
+          callback();
+        });
+    },
+    function (err) {
+      if (err) {
+        console.log("ERROR with message " + err);
+        res.json(404, {msg: 'Failed to update Episode as watched.'});
+      } else {
+        Series.update({_id: seriesId}, {UnwatchedEpisodes: 0, LastUnwatched: null})
+          .exec(function (err) {
+            if (err) {
+              res.json(404, {msg: 'Failed to update Series unwatched denorms.'});
+            } else {
+              res.json({msg: "success"});
+            }
+          });
+      }
+    }
+  );
+
 };
