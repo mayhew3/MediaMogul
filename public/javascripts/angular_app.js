@@ -213,6 +213,54 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
           self.series = series;
 
+          self.seasonLabels = [];
+          self.selectedSeason = null;
+
+          self.series.tvdbEpisodes.forEach(function (episode) {
+              if (episode.tvdbFirstAired == null) {
+                  episode.formattedDate = null;
+              } else {
+                  var airTime = (self.series.tvdbAirsTime == null) ?
+                                "9:00 PM" : self.series.tvdbAirsTime;
+                  var args = episode.tvdbFirstAired + " " + airTime;
+                  episode.formattedDate = new Date(args);
+              }
+
+              var season = episode.tvdbSeason;
+              if (season != "0" && !(self.seasonLabels.indexOf(season) > -1)) {
+                  self.seasonLabels.push(season);
+                  if (self.selectedSeason == null) {
+                      self.selectedSeason = season;
+                  }
+              }
+          });
+
+
+          self.getLabelInfo = function(episode) {
+              if (episode.OnTiVo) {
+                  if (episode.TiVoDeletedDate) {
+                      return {labelClass: "label label-default", labelText: "Deleted"};
+                  } else if (episode.TiVoSuggestion === true) {
+                      return {labelClass: "label label-warning", labelText: "Suggestion"};
+                  } else {
+                      return {labelClass: "label label-info", labelText: "Recorded"};
+                  }
+              } else {
+                  if (isUnaired(episode)) {
+                      return {labelClass: "label label-danger", labelText: "Unaired"};
+                  }
+                  return null;
+              }
+          };
+
+          self.shouldHideMarkWatched = function(episode) {
+              return episode.Watched || isUnaired(episode);
+          };
+
+          function isUnaired(episode) {
+              return episode.formattedDate == null || episode.formattedDate >= new Date;
+          }
+
           self.originalFields = {
               Metacritic: series.Metacritic,
               MyRating: series.MyRating
@@ -225,8 +273,14 @@ angular.module('mediaMogulApp', ['ui.bootstrap'])
 
 
           self.episodeFilter = function(episode) {
-              return episode.OnTiVo;
+              return episode.tvdbSeason == self.selectedSeason;
           };
+
+
+          self.getButtonClass = function(season) {
+              return self.selectedSeason === season ? "btn btn-success" : "btn btn-primary";
+          };
+
 
           self.changeMetacritic = function(series) {
               series.Metacritic = self.interfaceFields.Metacritic;

@@ -19,7 +19,7 @@ var SeriesSchema = new Schema({
     tvdbName: String,
     tvdbAirsDayOfWeek: String,
     tvdbAirsTime: String,
-    tvdbFirstAired: Date,
+    tvdbFirstAired: String,
     tvdbGenre: [String],
     tvdbNetwork: String,
     tvdbOverview: String,
@@ -41,7 +41,7 @@ var SeriesSchema = new Schema({
         tvdbSeason: Number,
         tvdbEpisodeNumber: Number,
         tvdbEpisodeName: String,
-        tvdbFirstAired: Date,
+        tvdbFirstAired: String,
         tvdbOverview: String
     }]
 }, {_id : true});
