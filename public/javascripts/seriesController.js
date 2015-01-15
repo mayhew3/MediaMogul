@@ -59,7 +59,7 @@ angular.module('mediaMogulApp')
     self.open = function(series) {
       $log.debug("Executing!");
       $modal.open({
-        templateUrl: 'seriesDetail.html',
+        templateUrl: 'views/seriesDetail.html',
         controller: 'seriesDetailController as ctrl',
         size: 'lg',
         resolve: {
@@ -73,7 +73,7 @@ angular.module('mediaMogulApp')
     self.addSeries = function() {
       $log.debug("Adding window.");
       $modal.open({
-        templateUrl: 'addSeries.html',
+        templateUrl: 'views/addSeries.html',
         controller: 'addSeriesController as ctrl',
         size: 'lg',
         resolve: {
