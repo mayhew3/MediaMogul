@@ -1,18 +1,7 @@
 module.exports = function(app) {
     var series = require('../controllers/series_controller');
     var errorLogs = require('../controllers/errorlogs_controller');
-    app.get('/', function (req, res) {
-        res.render('shows');
-    });
-    app.get('/shows', function(req, res) {
-        res.render('shows');
-    });
-    app.get('/movies', function(req, res) {
-        res.render('movies');
-    });
-    app.get('/errors', function(req, res) {
-        res.render('errors');
-    });
+
 
     app.get('/seriesList', series.getSeries);
     app.get('/errorlog/list', errorLogs.getErrorLogs);
