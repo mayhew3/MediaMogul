@@ -28,21 +28,6 @@ var SeriesSchema = new Schema({
     tvdbRuntime: Number,
     tvdbStatus: String,
     tvdbPoster: String,
-    tvdbEpisodes: [{
-        OnTiVo: Boolean,
-        TiVoDescription: String,
-        TiVoEpisodeTitle: String,
-        TiVoShowingStartTime: Date,
-        TiVoDeletedDate: Date,
-        TiVoSuggestion: String,
-        Watched: Boolean,
-        WatchedDate: Date,
-        tvdbEpisodeId: String,
-        tvdbSeason: Number,
-        tvdbEpisodeNumber: Number,
-        tvdbEpisodeName: String,
-        tvdbFirstAired: String,
-        tvdbOverview: String
-    }]
+    episodes: [Schema.Types.ObjectId]
 }, {_id : true});
 mongoose.model('series', SeriesSchema);

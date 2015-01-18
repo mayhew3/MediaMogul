@@ -4,27 +4,33 @@ angular.module('mediaMogulApp')
     var self = this;
 
     self.series = series;
+    self.episodes = [];
 
     self.seasonLabels = [];
     self.selectedSeason = null;
 
-    self.series.tvdbEpisodes.forEach(function (episode) {
-      if (episode.tvdbFirstAired == null) {
-        episode.formattedDate = null;
-      } else {
-        var airTime = (self.series.tvdbAirsTime == null) ?
-          "9:00 PM" : self.series.tvdbAirsTime;
-        var args = episode.tvdbFirstAired + " " + airTime;
-        episode.formattedDate = new Date(args);
-      }
-
-      var season = episode.tvdbSeason;
-      if (season != "0" && !(self.seasonLabels.indexOf(season) > -1)) {
-        self.seasonLabels.push(season);
-        if (self.selectedSeason == null) {
-          self.selectedSeason = season;
+    EpisodeService.updateEpisodeList(self.series).then(function() {
+      self.episodes = EpisodeService.getEpisodes();
+      $log.debug("Updated list with " + self.episodes.length + " episodes!");
+    }).then(function() {
+      self.episodes.forEach(function (episode) {
+        if (episode.tvdbFirstAired == null) {
+          episode.formattedDate = null;
+        } else {
+          var airTime = (self.series.tvdbAirsTime == null) ?
+            "9:00 PM" : self.series.tvdbAirsTime;
+          var args = episode.tvdbFirstAired + " " + airTime;
+          episode.formattedDate = new Date(args);
         }
-      }
+
+        var season = episode.tvdbSeason;
+        if (season != "0" && !(self.seasonLabels.indexOf(season) > -1)) {
+          self.seasonLabels.push(season);
+          if (self.selectedSeason == null) {
+            self.selectedSeason = season;
+          }
+        }
+      });
     });
 
 

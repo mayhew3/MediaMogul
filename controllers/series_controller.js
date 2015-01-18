@@ -3,7 +3,8 @@ var async = require('async');
 var request = require('request');
 var lodash = require('lodash');
 var mongoose = require('mongoose'),
-  Series = mongoose.model('series');
+  Series = mongoose.model('series'),
+  Episodes = mongoose.model('episodes');
 exports.getSeries = function(req, res) {
     Series.find({IsEpisodic:true}).sort({SeriesTitle:1})
       .exec(function(err, series) {
@@ -13,6 +14,18 @@ exports.getSeries = function(req, res) {
               res.json(series);
           }
       });
+};
+exports.getEpisodes = function(req, res) {
+  console.log("Episode call received. Params: " + req.query.SeriesId);
+
+  Episodes.find({SeriesId:req.query.SeriesId}).sort({tvdbSeason:1, tvdbEpisodeNumber:1})
+    .exec(function(err, episodes) {
+      if (!episodes) {
+        res.json(404, {msg: 'Episodes not found.'});
+      } else {
+        res.json(episodes);
+      }
+    });
 };
 exports.changeTier = function(req, res) {
     Series.update({_id: req.body.SeriesId}, {$set:{Tier:req.body.Tier}})

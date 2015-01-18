@@ -10,8 +10,8 @@ angular.module('mediaMogulApp')
       return !episode.IsEpisodic && (!self.unwatchedOnly || !episode.Watched);
     };
 
-    EpisodeService.updateEpisodeList().then(function() {
-      self.episodes = EpisodeService.getEpisodeList();
+    EpisodeService.updateSeriesList().then(function() {
+      self.episodes = EpisodeService.getSeriesList();
     });
 
     self.change = function(episode) {

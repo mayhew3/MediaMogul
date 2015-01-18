@@ -1,5 +1,6 @@
 function EpisodeService($log, $http) {
   var shows = [];
+  var episodes = [];
 
   this.getSeriesWithTitle = function(SeriesTitle) {
     var filtered = shows.filter(function(seriesElement) {
@@ -8,7 +9,7 @@ function EpisodeService($log, $http) {
     return filtered[0];
   };
 
-  this.updateEpisodeList = function() {
+  this.updateSeriesList = function() {
     return $http.get('/seriesList').then(function (showresponse) {
       $log.debug("Shows returned " + showresponse.data.length + " items.");
       shows = showresponse.data;
@@ -16,9 +17,22 @@ function EpisodeService($log, $http) {
       console.error('Error while fetching series list: ' + errResponse);
     }).then(function () {
       shows.forEach(function(show) {
-        show.TotalEpisodes = show.tvdbEpisodes.length;
+        show.TotalEpisodes = show.episodes.length;
       });
     });
+  };
+
+  this.updateEpisodeList = function(series) {
+    return $http.get('/episodeList', {params: {SeriesId: series._id}}).then(function(episodeResponse) {
+      $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
+      episodes = episodeResponse.data;
+    }, function(errResponse) {
+      console.error('Error while fetching episode list: ' + errResponse);
+    });
+  };
+
+  this.getEpisodes = function() {
+    return episodes;
   };
 
 

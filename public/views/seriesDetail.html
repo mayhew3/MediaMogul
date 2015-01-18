@@ -58,11 +58,10 @@
     <th>TiVo</th>
     <th>Watched</th>
     </thead>
-    <tr data-ng-repeat="episode in ctrl.series.tvdbEpisodes |
+    <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.episodeFilter |
                           orderBy:['tvdbEpisodeNumber'] |
-                          limitTo:50"
-        ng-class="ctrl.getRowClass(episode)">
+                          limitTo:50">
       <td ng-bind="episode.tvdbEpisodeNumber"></td>
       <td ng-bind="episode.tvdbEpisodeName" class="episodeDescription"></td>
       <td ng-bind="episode.formattedDate|date:'EEE MM/d'"></td>

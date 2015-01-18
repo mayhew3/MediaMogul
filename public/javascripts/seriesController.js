@@ -7,12 +7,12 @@ angular.module('mediaMogulApp')
     self.unwatchedOnly = true;
 
     self.seriesFilter = function(series) {
-      return self.unwatchedOnly ? series.UnwatchedEpisodes > 0 : series.tvdbEpisodes.length > 0;
+      return self.unwatchedOnly ? series.UnwatchedEpisodes > 0 : series.episodes.length > 0;
     };
 
     var seriesList = EpisodeService.getSeriesList();
     if (seriesList.length == 0) {
-      EpisodeService.updateEpisodeList().then(function () {
+      EpisodeService.updateSeriesList().then(function () {
         self.series = EpisodeService.getSeriesList();
         $log.debug("Controller has " + self.series.length + " shows.");
       });
@@ -32,7 +32,7 @@ angular.module('mediaMogulApp')
 
       var unwatchedEpisodes = [];
       var unwatchedEpisodeIds = [];
-      series.tvdbEpisodes.forEach(function(episode) {
+      series.episodes.forEach(function(episode) {
         if (episode.OnTiVo && !episode.Watched) {
           unwatchedEpisodes.push(episode);
           unwatchedEpisodeIds.push(episode.tvdbEpisodeId);
