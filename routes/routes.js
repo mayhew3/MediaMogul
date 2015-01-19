@@ -8,6 +8,7 @@ module.exports = function(app) {
     app.get('/errorlog/list', errorLogs.getErrorLogs);
 
     app.post('/updateEpisode', series.updateEpisode);
+    app.post('/updateMultiEpisodes', series.updateMultipleEpisodes);
     app.post('/markAllWatched', series.markAllEpisodesAsWatched);
     app.post('/changeTier', series.changeTier);
     app.post('/addSeries', series.addSeries);

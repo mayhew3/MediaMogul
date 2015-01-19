@@ -126,6 +126,7 @@ exports.addSeries = function(req, res, next) {
 
 };
 exports.updateSeries = function(req, res) {
+  console.log("Update Series with " + JSON.stringify(req.body.ChangedFields));
   Series.update({_id: req.body.SeriesId}, req.body.ChangedFields)
     .exec(function(err, savedSeries) {
       if (err) {
@@ -136,8 +137,18 @@ exports.updateSeries = function(req, res) {
     });
 };
 exports.updateEpisode = function(req, res) {
-  Series.update({_id: req.body.SeriesId, "tvdbEpisodes.tvdbEpisodeId": req.body.EpisodeId},
-    req.body.ChangedFields)
+  console.log("Update Episode with " + JSON.stringify(req.body.ChangedFields));
+  Episodes.update({_id: req.body.EpisodeId}, req.body.ChangedFields)
+    .exec(function(err) {
+      if (err) {
+        res.json(404, {msg: 'Failed to update Episode with new fields.'});
+      } else {
+        res.json({msg: "success"});
+      }
+    });
+};
+exports.updateMultipleEpisodes = function(req, res) {
+  Episodes.update({_id: {$in: req.body.AllEpisodeIds}}, req.body.ChangedFields, {multi:true})
     .exec(function(err) {
       if (err) {
         res.json(404, {msg: 'Failed to update Episode with new fields.'});

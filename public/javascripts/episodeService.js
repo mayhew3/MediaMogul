@@ -41,8 +41,10 @@ function EpisodeService($log, $http) {
   };
 
   this.markWatched = function(seriesId, episodeId, watched, unwatchedEpisodes) {
-    var changedFields = {"tvdbEpisodes.$.Watched": watched, "tvdbEpisodes.$.WatchedDate": new Date, UnwatchedEpisodes: unwatchedEpisodes};
-    $http.post('/updateEpisode', {SeriesId: seriesId, EpisodeId: episodeId, ChangedFields: changedFields});
+    var changedFields = {"Watched": watched, "WatchedDate": new Date};
+    var changedSeriesFields = {"UnwatchedEpisodes":unwatchedEpisodes};
+    $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
+    $http.post('/updateSeries', {SeriesId: seriesId, ChangedFields: changedSeriesFields});
     // todo: add some error handling.
   };
   this.changeTier = function(SeriesId, Tier) {
