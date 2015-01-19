@@ -111,6 +111,9 @@ angular.module('mediaMogulApp')
       var updatedUnwatched = self.series.UnwatchedEpisodes - 1;
       EpisodeService.markWatched(self.series._id, episode._id, episode.Watched, updatedUnwatched);
       self.series.UnwatchedEpisodes = updatedUnwatched;
+      if (updatedUnwatched == 0) {
+        self.series.LastUnwatched = null;
+      }
     };
 
     self.ok = function() {

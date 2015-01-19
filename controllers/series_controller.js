@@ -169,7 +169,7 @@ exports.markAllEpisodesAsWatched = function(req, res) {
         res.json(404, {msg: 'Failed to update Episode with new fields.'});
       } else {
         console.log("Updating series.");
-        Series.update({_id:seriesId}, {UnwatchedEpisodes:0})
+        Series.update({_id:seriesId}, {UnwatchedEpisodes:0, LastUnwatched:null})
           .exec(function(err) {
             if (err) {
               res.json(404, {msg: 'Failed to update Series with new fields.'});

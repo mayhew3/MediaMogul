@@ -43,6 +43,9 @@ function EpisodeService($log, $http) {
   this.markWatched = function(seriesId, episodeId, watched, unwatchedEpisodes) {
     var changedFields = {"Watched": watched, "WatchedDate": new Date};
     var changedSeriesFields = {"UnwatchedEpisodes":unwatchedEpisodes};
+    if (unwatchedEpisodes === 0) {
+      changedSeriesFields["LastUnwatched"] = null;
+    }
     $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
     $http.post('/updateSeries', {SeriesId: seriesId, ChangedFields: changedSeriesFields});
     // todo: add some error handling.
