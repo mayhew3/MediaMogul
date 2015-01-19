@@ -62,8 +62,8 @@ function EpisodeService($log, $http) {
       return errResponse;
     }) ;
   };
-  this.markAllWatched = function(SeriesId, unwatchedEpisodeIds) {
-    return $http.post('/markAllWatched', {SeriesId: SeriesId, UnwatchedEpisodeIds: unwatchedEpisodeIds}).then(function() {
+  this.markAllWatched = function(SeriesId) {
+    return $http.post('/markAllWatched', {SeriesId: SeriesId}).then(function() {
       $log.debug("Success?")
     }, function(errResponse) {
       $log.debug("Error calling the method: " + errResponse);

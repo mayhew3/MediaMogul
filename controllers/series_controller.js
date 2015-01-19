@@ -159,49 +159,24 @@ exports.updateMultipleEpisodes = function(req, res) {
 };
 exports.markAllEpisodesAsWatched = function(req, res) {
   var seriesId = req.body.SeriesId;
-  var unwatchedEpisodeIds = req.body.UnwatchedEpisodeIds;
+  console.log("Updating episodes as Watched.");
 
-  console.log("Entered correct method, series id " + seriesId, " episodes " + unwatchedEpisodeIds);
-
-  var index = 0;
-
-  async.whilst(
-    function() {
-      return index < unwatchedEpisodeIds.length;
-    },
-    function(callback) {
-      var episodeId = unwatchedEpisodeIds[index];
-      index++;
-
-      console.log("Trying episode id " + episodeId);
-
-      Series.update({_id: seriesId, "tvdbEpisodes.tvdbEpisodeId": episodeId},
-        {"tvdbEpisodes.$.Watched": true, "tvdbEpisodes.$.WatchedDate": new Date})
-        .exec(function (err) {
-          if (err) {
-            callback(err);
-          }
-        })
-        .then(function(r) {
-          console.log("Update completed with result " + r);
-          callback();
-        });
-    },
-    function (err) {
+  Episodes.update({SeriesId:seriesId, OnTiVo:true, Watched:{$ne:true}},
+                  {Watched:true, WatchedDate:new Date},
+                  {multi:true})
+    .exec(function(err) {
       if (err) {
-        console.log("ERROR with message " + err);
-        res.json(404, {msg: 'Failed to update Episode as watched.'});
+        res.json(404, {msg: 'Failed to update Episode with new fields.'});
       } else {
-        Series.update({_id: seriesId}, {UnwatchedEpisodes: 0, LastUnwatched: null})
-          .exec(function (err) {
+        console.log("Updating series.");
+        Series.update({_id:seriesId}, {UnwatchedEpisodes:0})
+          .exec(function(err) {
             if (err) {
-              res.json(404, {msg: 'Failed to update Series unwatched denorms.'});
+              res.json(404, {msg: 'Failed to update Series with new fields.'});
             } else {
-              res.json({msg: "success"});
+              res.json({msg: "Success."});
             }
-          });
+          })
       }
-    }
-  );
-
+    });
 };
