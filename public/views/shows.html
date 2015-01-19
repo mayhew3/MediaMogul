@@ -41,7 +41,23 @@
               <td ng-bind="series.SeriesTitle" ng-click="ctrl.open(series)"></td>
               <td ng-bind="series.Metacritic"></td>
               <td ng-bind="series.MyRating"></td>
-              <td ng-bind="series.ActiveEpisodes + ' (' + series.UnwatchedEpisodes + ')'"></td>
+              <td>
+                 <span class="label label-success"
+                       ng-hide="series.UnwatchedEpisodes == 0"
+                       ng-bind="series.UnwatchedEpisodes"
+                       title="New"></span>
+                 <span class="label label-info"
+                       ng-hide="series.ActiveEpisodes == 0"
+                       ng-bind="series.ActiveEpisodes"
+                       title="Recorded"></span>
+                 <span class="label label-warning"
+                       ng-bind="series.ActiveEpisodes+series.DeletedEpisodes+series.tvdbOnlyEpisodes"
+                       title="Total"></span>
+                 <span class="label label-danger"
+                       ng-hide="series.UnmatchedEpisodes == 0"
+                       ng-bind="series.UnmatchedEpisodes"
+                       title="Unmatched"></span>
+              </td>
               <td ng-bind="series.MostRecent|date:'M/d/yy'"></td>
               <td>
                 <button type="button"
