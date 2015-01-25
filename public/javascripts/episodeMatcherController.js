@@ -60,19 +60,9 @@ angular.module('mediaMogulApp')
       return episode.formattedDate == null || ((episode.formattedDate - new Date + (1000*60*60*24)) > 0);
     }
 
-    self.originalFields = {
-      Metacritic: series.Metacritic,
-      MyRating: series.MyRating
-    };
-
-    self.interfaceFields = {
-      Metacritic: series.Metacritic,
-      MyRating: series.MyRating
-    };
-
 
     self.unmatchedFilter = function(episode) {
-      return episode.tvdbEpisodeId == null;
+      return episode.tvdbEpisodeId == null && !episode.MatchingStump;
     };
 
 
@@ -105,8 +95,10 @@ angular.module('mediaMogulApp')
 
     self.matchSelectedEpisodes = function() {
       var tivoEps = [];
-      var tvdbIDs = [];
       var tivoIDs = [];
+
+      var tvdbEps = [];
+      var tvdbIDs = [];
 
       self.episodes.forEach(function(episode) {
         if (episode.ChosenTop) {
@@ -114,6 +106,7 @@ angular.module('mediaMogulApp')
           tivoIDs.push(episode.TiVoProgramId);
         }
         if (episode.ChosenBottom) {
+          tvdbEps.push(episode);
           tvdbIDs.push(episode.tvdbEpisodeId);
         }
       });
@@ -124,45 +117,44 @@ angular.module('mediaMogulApp')
         $log.debug("Currently doesn't support matching two TiVo episodes to one TVDB episode.");
       } else {
         $log.debug("Executing match between TiVo eps " + tivoIDs + " and TVDB eps " + tvdbIDs);
-        EpisodeService.matchTiVoEpisodes(tivoEps, tvdbIDs);
-      }
-    };
 
+        var tivoEpisode = tivoEps[0];
+        var fieldsToChange = {
+          OnTiVo: true,
+          TiVoDescription: tivoEpisode.TiVoDescription,
+          TiVoDeletedDate: tivoEpisode.TiVoDeletedDate,
+          TiVoEpisodeNumber: tivoEpisode.TiVoEpisodeNumber,
+          TiVoEpisodeTitle: tivoEpisode.TiVoEpisodeTitle,
+          TiVoProgramId: tivoEpisode.TiVoProgramId,
+          TiVoSeriesTitle: tivoEpisode.TiVoSeriesTitle,
+          TiVoShowingStartTime: tivoEpisode.TiVoShowingStartTime,
+          TiVoSuggestion: tivoEpisode.TiVoSuggestion
+        };
 
-    self.changeMetacritic = function(series) {
-      series.Metacritic = self.interfaceFields.Metacritic;
-      series.MyRating = self.interfaceFields.MyRating;
-
-      var changedFields = {};
-      for (var key in self.interfaceFields) {
-        if (self.interfaceFields.hasOwnProperty(key)) {
-          var value = self.interfaceFields[key];
-
-          $log.debug("In loop, key: " + key + ", value: " + value + ", old value: " + self.originalFields[key]);
-
-          if (value != self.originalFields[key]) {
-            $log.debug("Changed detected... ");
-            changedFields[key] = value;
+        EpisodeService.matchTiVoEpisodes(fieldsToChange, tvdbIDs).then(function() {
+          tivoEps.forEach(function (episode) {
+            episode.MatchingStump = true;
+            episode.ChosenTop = false;
+          });
+          tvdbEps.forEach(function (tvdbEpisode) {
+            for (var key in fieldsToChange) {
+              if (fieldsToChange.hasOwnProperty(key)) {
+                tvdbEpisode[key] = fieldsToChange[key];
+              }
+            }
+            tvdbEpisode.ChosenBottom = false;
+          });
+          self.series.UnmatchedEpisodes--;
+          if (!tivoEpisode.Watched) {
+            self.series.UnwatchedEpisodes++;
           }
-        }
-      }
+        }, function (errResponse) {
+          $log.debug("Error calling the method: " + errResponse);
+        });
 
-      $log.debug("Changed fields: " + JSON.stringify(changedFields));
-
-      if (Object.getOwnPropertyNames(changedFields).length > 0) {
-        $log.debug("Changed fields has a length!");
-        EpisodeService.updateSeries(series._id, changedFields);
       }
     };
 
-    self.markWatched = function(episode) {
-      var updatedUnwatched = self.series.UnwatchedEpisodes - 1;
-      EpisodeService.markWatched(self.series._id, episode._id, episode.Watched, updatedUnwatched);
-      self.series.UnwatchedEpisodes = updatedUnwatched;
-      if (updatedUnwatched == 0) {
-        self.series.LastUnwatched = null;
-      }
-    };
 
     self.ok = function() {
       $modalInstance.close();
