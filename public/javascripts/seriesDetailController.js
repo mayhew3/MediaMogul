@@ -52,7 +52,7 @@ angular.module('mediaMogulApp')
     };
 
     self.shouldHideMarkWatched = function(episode) {
-      return episode.Watched || isUnaired(episode);
+      return !episode.OnTiVo || episode.Watched || isUnaired(episode);
     };
 
     function isUnaired(episode) {
