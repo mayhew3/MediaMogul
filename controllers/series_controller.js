@@ -180,3 +180,31 @@ exports.markAllEpisodesAsWatched = function(req, res) {
       }
     });
 };
+exports.matchTiVoEpisodes = function(req, res) {
+  var tivoEpisode = req.body.Episode;
+  var tvdbEpisodeIds = req.body.TVDBEpisodeIds;
+
+  console.log("Trying to match TVDB IDs " + tvdbEpisodeIds + " to episode " + JSON.stringify(tivoEpisode));
+
+  Episodes.update({TiVoProgramId: tivoEpisode.TiVoProgramId},
+                  {MatchingStump:true})
+    .exec(function(err) {
+      if (err) {
+        res.json(404, {msg: 'Failed to update Episode with MatchingStump.'});
+      } else {
+        Episodes.update({tvdbEpisodeId: {$in: tvdbEpisodeIds}},
+                        tivoEpisode,
+                        {multi:true})
+          .exec(function(err) {
+            if (err) {
+              res.json(404, {msg: 'Failed to update Episode with new fields.'});
+            } else {
+              // todo: update denorms.
+
+              res.json({msg: "Success"});
+            }
+          });
+      }
+    });
+
+};

@@ -42,7 +42,7 @@ function EpisodeService($log, $http) {
 
   this.markWatched = function(seriesId, episodeId, watched, unwatchedEpisodes) {
     var changedFields = {"Watched": watched, "WatchedDate": new Date};
-    var changedSeriesFields = {"UnwatchedEpisodes":unwatchedEpisodes};
+    var changedSeriesFields = {"UnwatchedEpisodes": unwatchedEpisodes};
     if (unwatchedEpisodes === 0) {
       changedSeriesFields["LastUnwatched"] = null;
     }
@@ -63,7 +63,7 @@ function EpisodeService($log, $http) {
       return null;
     }, function(errResponse) {
       return errResponse;
-    }) ;
+    });
   };
   this.markAllWatched = function(SeriesId) {
     return $http.post('/markAllWatched', {SeriesId: SeriesId}).then(function() {
@@ -72,6 +72,32 @@ function EpisodeService($log, $http) {
       $log.debug("Error calling the method: " + errResponse);
     });
   };
+  this.matchTiVoEpisodes = function (episodes, tvdbIds) {
+    if (episodes.length != 1) {
+      $log.debug("Can't call this method unless one episode is passed in.");
+    } else {
+      var episode = episodes[0];
+
+      var fieldsToChange = {
+        OnTiVo: true,
+        TiVoDescription: episode.TiVoDescription,
+        TiVoDeletedDate: episode.TiVoDeletedDate,
+        TiVoEpisodeNumber: episode.TiVoEpisodeNumber,
+        TiVoEpisodeTitle: episode.TiVoEpisodeTitle,
+        TiVoProgramId: episode.TiVoProgramId,
+        TiVoSeriesTitle: episode.TiVoSeriesTitle,
+        TiVoShowingStartTime: episode.TiVoShowingStartTime,
+        TiVoSuggestion: episode.TiVoSuggestion
+      };
+
+      return $http.post('/matchTiVoEpisodes', {Episode: fieldsToChange, TVDBEpisodeIds: tvdbIds}).then(function () {
+        $log.debug("Success?")
+      }, function (errResponse) {
+        $log.debug("Error calling the method: " + errResponse);
+      });
+
+    }
+  }
 }
 
 angular.module('mediaMogulApp')

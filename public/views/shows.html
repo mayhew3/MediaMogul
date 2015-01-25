@@ -56,7 +56,8 @@
                  <span class="label label-danger"
                        ng-hide="series.UnmatchedEpisodes == 0"
                        ng-bind="series.UnmatchedEpisodes"
-                       title="Unmatched"></span>
+                       title="Unmatched"
+                       ng-click="ctrl.tryToMatch(series)"></span>
               </td>
               <td ng-bind="series.MostRecent|date:'M/d/yy'"></td>
               <td>

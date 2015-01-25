@@ -1,0 +1,81 @@
+<div class="modal-header">
+  <h3 class="modal-title" ng-bind="ctrl.series.SeriesTitle"/>
+</div>
+<div class="modal-body">
+
+  <div id="unmatchedEpisodes">
+    <table class="table table-striped table-hover ">
+      <thead>
+      <th>Episode</th>
+      <th>Title</th>
+      <th>Date</th>
+      <th>TiVo</th>
+      </thead>
+      <tr data-ng-repeat="episode in ctrl.episodes |
+                          filter:ctrl.unmatchedFilter |
+                          orderBy:['tvdbEpisodeNumber'] |
+                          limitTo:50"
+          ng-class="ctrl.getRowClass(episode)"
+          ng-click="ctrl.toggleRowTop(episode)">
+        <td ng-bind="episode.TiVoEpisodeNumber"></td>
+        <td ng-bind="episode.TiVoEpisodeTitle" class="episodeDescription"></td>
+        <td ng-bind="episode.TiVoShowingStartTime|date:'EEE MM/d'"></td>
+        <td>
+              <span ng-class="ctrl.getLabelInfo(episode).labelClass"
+                    ng-hide="ctrl.getLabelInfo(episode) == null"
+                    ng-bind="ctrl.getLabelInfo(episode).labelText"></span>
+        </td>
+
+      </tr>
+    </table>
+  </div>
+
+  <div id="episodesToMatch">
+
+    <div id="seasonFilter" class="col-lg-9">
+      <label ng-repeat="season in ctrl.seasonLabels"
+             ng-class="ctrl.getButtonClass(season)"
+             ng-model="ctrl.selectedSeason"
+             btn-radio="season">
+        <span ng-bind="season"></span>
+      </label>
+    </div>
+
+    <div id="actions" class="col-lg-3">
+      <button type="button"
+              ng-click="ctrl.matchSelectedEpisodes()"
+              class="btn btn-warning">Match</button>
+    </div>
+
+    <table class="table table-striped table-hover ">
+      <thead>
+      <th>Episode</th>
+      <th>Title</th>
+      <th>Date</th>
+      <th>TiVo</th>
+      </thead>
+      <tr data-ng-repeat="episode in ctrl.episodes |
+                          filter:ctrl.bottomFilter |
+                          orderBy:['tvdbEpisodeNumber'] |
+                          limitTo:50"
+          ng-class="ctrl.getRowClass(episode)"
+          ng-click="ctrl.toggleRowBottom(episode)">
+        <td ng-bind="episode.tvdbEpisodeNumber"></td>
+        <td ng-bind="episode.tvdbEpisodeName" class="episodeDescription"></td>
+        <td ng-bind="episode.formattedDate|date:'EEE MM/d'"></td>
+        <td>
+              <span ng-class="ctrl.getLabelInfo(episode).labelClass"
+                    ng-hide="ctrl.getLabelInfo(episode) == null"
+                    ng-bind="ctrl.getLabelInfo(episode).labelText"></span>
+        </td>
+
+      </tr>
+    </table>
+
+  </div>
+
+
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-click="ctrl.ok()">Close</button>
+</div>
