@@ -24,7 +24,7 @@ angular.module('mediaMogulApp')
         }
 
         var season = episode.tvdbSeason;
-        if (season != "0" && !(self.seasonLabels.indexOf(season) > -1)) {
+        if (season != null && season != "0" && !(self.seasonLabels.indexOf(season) > -1)) {
           self.seasonLabels.push(season);
           if (self.selectedSeason == null) {
             self.selectedSeason = season;
