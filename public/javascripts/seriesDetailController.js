@@ -21,6 +21,11 @@ angular.module('mediaMogulApp')
             "9:00 PM" : self.series.tvdbAirsTime;
           var args = episode.tvdbFirstAired + " " + airTime;
           episode.formattedDate = new Date(args);
+
+          if (isNaN(episode.formattedDate)) {
+            args = episode.tvdbFirstAired + " 9:00 PM";
+            episode.formattedDate = new Date(args);
+          }
         }
 
         var season = episode.tvdbSeason;
@@ -52,7 +57,7 @@ angular.module('mediaMogulApp')
     };
 
     self.shouldHideMarkWatched = function(episode) {
-      return !episode.OnTiVo || episode.Watched || isUnaired(episode);
+      return (!episode.OnTiVo || episode.Watched) && (episode.OnTiVo || isUnaired(episode));
     };
 
     function isUnaired(episode) {
