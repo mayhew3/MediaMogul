@@ -14,26 +14,11 @@ angular.module('mediaMogulApp')
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     }).then(function() {
       self.episodes.forEach(function (episode) {
-        if (episode.tvdbFirstAired == null) {
-          episode.formattedDate = null;
-        } else {
-          var airTime = (self.series.tvdbAirsTime == null) ?
-            "9:00 PM" : self.series.tvdbAirsTime;
-          var args = episode.tvdbFirstAired + " " + airTime;
-          episode.formattedDate = new Date(args);
-
-          if (isNaN(episode.formattedDate)) {
-            args = episode.tvdbFirstAired + " 9:00 PM";
-            episode.formattedDate = new Date(args);
-          }
-        }
 
         var season = episode.tvdbSeason;
-        if (season != null && season != "0" && !(self.seasonLabels.indexOf(season) > -1)) {
+        if (season != null && season != 0 && !(self.seasonLabels.indexOf(season) > -1)) {
           self.seasonLabels.push(season);
-          if (self.selectedSeason == null) {
-            self.selectedSeason = season;
-          }
+          self.selectedSeason = season;
         }
       });
     });
@@ -62,7 +47,12 @@ angular.module('mediaMogulApp')
 
     function isUnaired(episode) {
       // unaired if the air date is more than a day after now.
-      return episode.formattedDate == null || ((episode.formattedDate - new Date + (1000*60*60*24)) > 0);
+
+      var isNull = episode.tvdbFirstAired == null;
+      var diff = (new Date(episode.tvdbFirstAired) - new Date + (1000 * 60 * 60 * 24));
+      var hasSufficientDiff = (diff > 0);
+
+      return isNull || hasSufficientDiff;
     }
 
     self.originalFields = {

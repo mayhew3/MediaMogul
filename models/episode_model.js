@@ -5,7 +5,7 @@ var EpisodeSchema = new Schema({
     SeriesId:Schema.Types.ObjectId,
     TiVoDescription:String,
     TiVoDeletedDate:Date,
-    TiVoEpisodeNumber:String,
+    TiVoEpisodeNumber:Number,
     TiVoEpisodeTitle:String,
     TiVoProgramId:String,
     TiVoSeriesTitle:String,
@@ -14,10 +14,10 @@ var EpisodeSchema = new Schema({
     MatchingStump:Boolean,
     Watched:Boolean,
     WatchedDate:Date,
-    tvdbEpisodeId:String,
+    tvdbEpisodeId:Number,
     tvdbSeason:Number,
     tvdbEpisodeNumber:Number,
-    tvdbFirstAired:String,
+    tvdbFirstAired:Date,
     tvdbAirsTime:String
 }, {_id : true});
 mongoose.model('episodes', EpisodeSchema);
