@@ -15,6 +15,7 @@ var SeriesSchema = new Schema({
     UnwatchedEpisodes: Number,
     UnwatchedUnrecorded: Number,
     tvdbOnlyEpisodes: Number,
+    WatchedEpisodes: Number,
     UnmatchedEpisodes: Number,
     LastUnwatched: Date,
     MostRecent: Date,

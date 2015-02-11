@@ -40,9 +40,9 @@ function EpisodeService($log, $http) {
     return shows;
   };
 
-  this.markWatched = function(seriesId, episodeId, watched, unwatchedEpisodes) {
+  this.markWatched = function(seriesId, episodeId, watched, unwatchedEpisodes, watchedEpisodes) {
     var changedFields = {"Watched": watched, "WatchedDate": new Date};
-    var changedSeriesFields = {"UnwatchedEpisodes": unwatchedEpisodes};
+    var changedSeriesFields = {"UnwatchedEpisodes": unwatchedEpisodes, "WatchedEpisodes": watchedEpisodes};
     if (unwatchedEpisodes === 0) {
       changedSeriesFields["LastUnwatched"] = null;
     }

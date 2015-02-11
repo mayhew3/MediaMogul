@@ -103,9 +103,14 @@ angular.module('mediaMogulApp')
     };
 
     self.markWatched = function(episode) {
-      var updatedUnwatched = self.series.UnwatchedEpisodes - 1;
-      EpisodeService.markWatched(self.series._id, episode._id, episode.Watched, updatedUnwatched);
+      var updatedUnwatched = (episode.OnTiVo && episode.TiVoDeletedDate == null) ?
+            self.series.UnwatchedEpisodes - 1 :
+            self.series.UnwatchedEpisodes;
+      var updatedWatched = self.series.WatchedEpisodes + 1;
+      EpisodeService.markWatched(self.series._id, episode._id, episode.Watched,
+        updatedUnwatched, updatedWatched);
       self.series.UnwatchedEpisodes = updatedUnwatched;
+      self.series.WatchedEpisodes = updatedWatched;
       if (updatedUnwatched == 0) {
         self.series.LastUnwatched = null;
       }
