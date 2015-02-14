@@ -60,8 +60,7 @@
     </thead>
     <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.episodeFilter |
-                          orderBy:['tvdbEpisodeNumber'] |
-                          limitTo:50">
+                          orderBy:['tvdbEpisodeNumber']">
       <td ng-bind="episode.tvdbEpisodeNumber"></td>
       <td ng-bind="episode.tvdbEpisodeName" class="episodeDescription"></td>
       <td ng-bind="episode.tvdbFirstAired|date:'EEE MM/d'"></td>

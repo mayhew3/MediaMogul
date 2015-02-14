@@ -10,11 +10,11 @@
       <th>Title</th>
       <th>Date</th>
       <th>TiVo</th>
+      <th></th>
       </thead>
       <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.unmatchedFilter |
-                          orderBy:['tvdbEpisodeNumber'] |
-                          limitTo:50"
+                          orderBy:['tvdbEpisodeNumber']"
           ng-class="ctrl.getRowClass(episode)"
           ng-click="ctrl.toggleRowTop(episode)">
         <td ng-bind="episode.TiVoEpisodeNumber"></td>
@@ -25,7 +25,11 @@
                     ng-hide="ctrl.getLabelInfo(episode) == null"
                     ng-bind="ctrl.getLabelInfo(episode).labelText"></span>
         </td>
-
+        <td>
+          <button type="button"
+                  ng-click="ctrl.retireUnmatchedEpisode(episode)"
+                  class="btn btn-danger">Delete</button>
+        </td>
       </tr>
     </table>
   </div>
@@ -56,8 +60,7 @@
       </thead>
       <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.bottomFilter |
-                          orderBy:['tvdbEpisodeNumber'] |
-                          limitTo:50"
+                          orderBy:['tvdbEpisodeNumber']"
           ng-class="ctrl.getRowClass(episode)"
           ng-click="ctrl.toggleRowBottom(episode)">
         <td ng-bind="episode.tvdbEpisodeNumber"></td>

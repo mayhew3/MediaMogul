@@ -17,7 +17,7 @@ angular.module('mediaMogulApp')
 
 
         var season = episode.tvdbSeason;
-        if (season != null && season != "0" && !(self.seasonLabels.indexOf(season) > -1)) {
+        if (season != null && !(self.seasonLabels.indexOf(season) > -1)) {
           self.seasonLabels.push(season);
           if (self.selectedSeason == null) {
             self.selectedSeason = season;
@@ -84,6 +84,14 @@ angular.module('mediaMogulApp')
 
     self.toggleRowBottom = function(episode) {
       episode.ChosenBottom = !episode.ChosenBottom;
+    };
+
+    self.retireUnmatchedEpisode = function(episode) {
+      episode.MatchingStump = true;
+      EpisodeService.retireUnmatchedEpisode(episode._id).then(function() {
+        episode.ChosenTop = false;
+        EpisodeService.updateDenorms(self.series, self.episodes);
+      });
     };
 
     self.matchSelectedEpisodes = function() {

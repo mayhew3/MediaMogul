@@ -16,7 +16,7 @@ angular.module('mediaMogulApp')
       self.episodes.forEach(function (episode) {
 
         var season = episode.tvdbSeason;
-        if (season != null && season != 0 && !(self.seasonLabels.indexOf(season) > -1)) {
+        if (season != null && !(self.seasonLabels.indexOf(season) > -1)) {
           self.seasonLabels.push(season);
           self.selectedSeason = season;
         }
@@ -103,17 +103,9 @@ angular.module('mediaMogulApp')
     };
 
     self.markWatched = function(episode) {
-      var updatedUnwatched = (episode.OnTiVo && episode.TiVoDeletedDate == null) ?
-            self.series.UnwatchedEpisodes - 1 :
-            self.series.UnwatchedEpisodes;
-      var updatedWatched = self.series.WatchedEpisodes + 1;
-      EpisodeService.markWatched(self.series._id, episode._id, episode.Watched,
-        updatedUnwatched, updatedWatched);
-      self.series.UnwatchedEpisodes = updatedUnwatched;
-      self.series.WatchedEpisodes = updatedWatched;
-      if (updatedUnwatched == 0) {
-        self.series.LastUnwatched = null;
-      }
+      EpisodeService.markWatched(self.series._id, episode._id, episode.Watched).then(function () {
+        EpisodeService.updateDenorms(self.series, self.episodes);
+      });
     };
 
     self.ok = function() {
