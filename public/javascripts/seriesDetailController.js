@@ -45,6 +45,11 @@ angular.module('mediaMogulApp')
       return (!episode.OnTiVo || episode.Watched) && (episode.OnTiVo || isUnaired(episode));
     };
 
+    self.shouldShowMarkWatched = function(episode) {
+      return !episode.Watched &&
+      (episode.OnTiVo || !isUnaired(episode));
+    };
+
     function isUnaired(episode) {
       // unaired if the air date is more than a day after now.
 
@@ -76,6 +81,32 @@ angular.module('mediaMogulApp')
     };
 
 
+    self.markAllPastWatched = function() {
+      var lastWatched = null;
+      self.episodes.forEach(function(episode) {
+        if ((lastWatched == null || lastWatched < episode.tvdbFirstAired)
+          && episode.Watched && episode.tvdbSeason != 0) {
+
+          lastWatched = episode.tvdbFirstAired;
+        }
+      });
+
+      EpisodeService.markAllWatched(self.series._id, lastWatched).then(function() {
+        $log.debug("Finished update, adjusting denorms.");
+        self.episodes.forEach(function(episode) {
+          $log.debug(lastWatched + ", " + episode.tvdbFirstAired);
+          if (episode.tvdbFirstAired != null && episode.tvdbFirstAired < lastWatched && episode.tvdbSeason != 0) {
+            episode.Watched = true;
+          }
+        });
+        EpisodeService.updateDenorms(self.series, self.episodes);
+      });
+
+      $log.debug("Series '" + self.series.SeriesTitle + "' " + self.series._id);
+    };
+
+
+
     self.changeMetacritic = function(series) {
       series.Metacritic = self.interfaceFields.Metacritic;
       series.MyRating = self.interfaceFields.MyRating;
@@ -102,8 +133,8 @@ angular.module('mediaMogulApp')
       }
     };
 
-    self.markWatched = function(episode) {
-      EpisodeService.markWatched(self.series._id, episode._id, episode.Watched).then(function () {
+    self.markWatched = function(episode, withoutDate) {
+      EpisodeService.markWatched(self.series._id, episode._id, episode.Watched, withoutDate).then(function () {
         EpisodeService.updateDenorms(self.series, self.episodes);
       });
     };

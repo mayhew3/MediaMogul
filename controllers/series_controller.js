@@ -159,24 +159,45 @@ exports.updateMultipleEpisodes = function(req, res) {
 };
 exports.markAllEpisodesAsWatched = function(req, res) {
   var seriesId = req.body.SeriesId;
-  console.log("Updating episodes as Watched.");
+  var lastWatched = req.body.LastWatched;
+  console.log("Updating episodes as Watched, before " + lastWatched);
 
-  Episodes.update({SeriesId:seriesId, OnTiVo:true, Watched:{$ne:true}},
-                  {Watched:true, WatchedDate:new Date},
-                  {multi:true})
+  var conditions = {
+    SeriesId: seriesId,
+    OnTiVo: true,
+    Watched: {$ne: true},
+    tvdbSeason: {$ne: 0}
+  };
+  var updateFields = {Watched: true, WatchedDate: new Date};
+
+  if (lastWatched != null) {
+    conditions = {
+      SeriesId: seriesId,
+      tvdbEpisodeId: {$exists: true},
+      tvdbFirstAired: {$lt: lastWatched},
+      tvdbSeason: {$ne: 0}
+    };
+    updateFields = {Watched: true};
+  }
+
+  Episodes.update(conditions, updateFields, {multi:true})
     .exec(function(err) {
       if (err) {
         res.json(404, {msg: 'Failed to update Episode with new fields.'});
       } else {
         console.log("Updating series.");
-        Series.update({_id:seriesId}, {UnwatchedEpisodes:0, LastUnwatched:null})
-          .exec(function(err) {
-            if (err) {
-              res.json(404, {msg: 'Failed to update Series with new fields.'});
-            } else {
-              res.json({msg: "Success."});
-            }
-          })
+        if (lastWatched == null) {
+          Series.update({_id: seriesId}, {UnwatchedEpisodes: 0, LastUnwatched: null})
+            .exec(function (err) {
+              if (err) {
+                res.json(404, {msg: 'Failed to update Series with new fields.'});
+              } else {
+                res.json({msg: "Success."});
+              }
+            })
+        } else {
+          res.json({msg: "Success."});
+        }
       }
     });
 };

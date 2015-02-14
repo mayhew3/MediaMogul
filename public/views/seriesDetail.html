@@ -41,6 +41,12 @@
 
   </form>
 
+  <div id="MarkingAllWatched" class="col-lg-12">
+    <button type="button"
+            class="btn btn-success"
+            ng-click="ctrl.markAllPastWatched()">All Past Watched</button>
+  </div>
+
   <div id="seasonFilter" class="col-lg-12">
     <label ng-repeat="season in ctrl.seasonLabels"
            ng-class="ctrl.getButtonClass(season)"
@@ -75,9 +81,17 @@
                 btn-checkbox
                 btn-checkbox-true="true"
                 btn-checkbox-false="false"
-                ng-hide="ctrl.shouldHideMarkWatched(episode)"
+                ng-show="ctrl.shouldShowMarkWatched(episode)"
                 ng-model="episode.Watched"
-                ng-change="ctrl.markWatched(episode)">Mark Watched</button>
+                ng-change="ctrl.markWatched(episode, false)">Mark Watched</button>
+         <button type="button"
+                class="btn btn-success btn-sm"
+                btn-checkbox
+                btn-checkbox-true="true"
+                btn-checkbox-false="false"
+                ng-show="ctrl.shouldShowMarkWatched(episode)"
+                ng-model="episode.Watched"
+                ng-change="ctrl.markWatched(episode, true)">Without Date</button>
         <span ng-hide="!episode.Watched">Watched</span>
 
       </td>

@@ -40,8 +40,11 @@ function EpisodeService($log, $http) {
     return shows;
   };
 
-  this.markWatched = function(seriesId, episodeId, watched) {
-    var changedFields = {"Watched": watched, "WatchedDate": new Date};
+  this.markWatched = function(seriesId, episodeId, watched, withoutDate) {
+    var changedFields = withoutDate ?
+      {"Watched": watched} :
+      {"Watched": watched, "WatchedDate": new Date};
+
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
     // todo: add some error handling.
   };
@@ -60,8 +63,8 @@ function EpisodeService($log, $http) {
       return errResponse;
     });
   };
-  this.markAllWatched = function(SeriesId) {
-    return $http.post('/markAllWatched', {SeriesId: SeriesId}).then(function() {
+  this.markAllWatched = function(SeriesId, lastWatched) {
+    return $http.post('/markAllWatched', {SeriesId: SeriesId, LastWatched: lastWatched}).then(function() {
       $log.debug("Success?")
     }, function(errResponse) {
       $log.debug("Error calling the method: " + errResponse);

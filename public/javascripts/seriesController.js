@@ -30,27 +30,10 @@ angular.module('mediaMogulApp')
 
     self.markAllWatched = function(series) {
 
-      var unwatchedEpisodes = [];
-      var unwatchedEpisodeIds = [];
-      series.episodes.forEach(function(episode) {
-        if (episode.OnTiVo && !episode.Watched) {
-          unwatchedEpisodes.push(episode);
-          unwatchedEpisodeIds.push(episode.tvdbEpisodeId);
-        }
-      });
-
-      $log.debug("Unwatched ep list: " + unwatchedEpisodeIds);
-
-      EpisodeService.markAllWatched(series._id, unwatchedEpisodeIds).then(function() {
+      EpisodeService.markAllWatched(series._id).then(function() {
         $log.debug("Finished update, adjusting denorms.");
         series.UnwatchedEpisodes = 0;
         series.LastUnwatched = null;
-
-        var rightNow = new Date;
-        unwatchedEpisodes.forEach(function(episode) {
-          episode.Watched = true;
-          episode.WatchedDate = rightNow;
-        });
       });
 
       $log.debug("Series '" + series.SeriesTitle + "' " + series._id);
