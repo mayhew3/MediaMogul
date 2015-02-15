@@ -92,7 +92,14 @@
                 ng-show="ctrl.shouldShowMarkWatched(episode)"
                 ng-model="episode.Watched"
                 ng-change="ctrl.markWatched(episode, true)">Without Date</button>
-        <span ng-hide="!episode.Watched">Watched</span>
+        <button type="button"
+                class="btn btn-danger btn-sm"
+                btn-checkbox
+                btn-checkbox-true="true"
+                btn-checkbox-false="false"
+                ng-show="episode.Watched"
+                ng-model="episode.Watched"
+                ng-change="ctrl.markWatched(episode, true)">Unwatch</button>
 
       </td>
     </tr>

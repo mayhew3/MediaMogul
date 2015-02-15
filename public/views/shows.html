@@ -52,13 +52,22 @@
                        ng-bind="series.ActiveEpisodes"
                        title="Recorded"></span>
                  <span class="label label-warning"
+                       ng-hide="series.SuggestionEpisodes == 0"
+                       ng-bind="series.SuggestionEpisodes"
+                       title="Suggestions"></span>
+                 <span class="label label-default"
                        ng-bind="series.ActiveEpisodes+series.DeletedEpisodes+series.tvdbOnlyEpisodes"
                        title="Total"></span>
+                <span class="label label-primary"
+                      ng-hide="series.UnwatchedUnrecorded == 0"
+                      ng-bind="series.UnwatchedUnrecorded"
+                      title="UnwatchedUnrecorded"></span>
                  <span class="label label-danger"
                        ng-hide="series.UnmatchedEpisodes == 0"
                        ng-bind="series.UnmatchedEpisodes"
                        title="Unmatched"
                        ng-click="ctrl.tryToMatch(series)"></span>
+
               </td>
               <td ng-bind="series.MostRecent|date:'M/d/yy'"></td>
               <td>
