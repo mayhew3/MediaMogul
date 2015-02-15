@@ -10,6 +10,26 @@ angular.module('mediaMogulApp')
       return self.unwatchedOnly ? series.UnwatchedEpisodes > 0 : series.episodes.length > 0;
     };
 
+    self.firstTier = function(series) {
+      return series.Tier === 1 && airedInLastDays(series.LastUnwatched, 7);
+    };
+
+
+    self.secondTier = function(series) {
+      return series.Tier === 2 && airedInLastDays(series.LastUnwatched, 7);
+    };
+
+
+    function airedInLastDays(airDate, days) {
+      var notNull = airDate != null;
+      var diff = (new Date(airDate) - new Date + (1000 * 60 * 60 * 24 * days));
+      var withinDiff = (diff > 0);
+
+      $log.debug("AirDate: " + airDate + ", diff: " + diff);
+
+      return notNull && withinDiff;
+    }
+
     var seriesList = EpisodeService.getSeriesList();
     if (seriesList.length == 0) {
       EpisodeService.updateSeriesList().then(function () {

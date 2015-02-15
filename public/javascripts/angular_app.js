@@ -10,6 +10,9 @@ angular.module('mediaMogulApp', ['ngRoute', 'ui.bootstrap'])
       .when('/errors', {
         templateUrl: 'views/errors.html'
       })
+      .when('/posters', {
+        templateUrl: 'views/posters.html'
+      })
     ;
     $routeProvider.otherwise({
       redirectTo: '/'
