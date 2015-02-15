@@ -1,6 +1,3 @@
-<div class="modal-header">
-  <h3 class="modal-title" ng-bind="ctrl.series.SeriesTitle"/>
-</div>
 <div class="modal-body">
 
   <form class="bs-component"
@@ -8,6 +5,13 @@
         name="seriesFields"
         ng-submit="ctrl.changeMetacritic(ctrl.series)"
         novalidate>
+
+    <div class="col-lg-3">
+      <img class="img-rounded"
+           ng-src="{{'http://thetvdb.com/banners/'+ctrl.series.tvdbPoster}}"
+           width="100%"/>
+    </div>
+
 
     <div class="form-group col-lg-3">
 
@@ -84,7 +88,7 @@
                 ng-show="ctrl.shouldShowMarkWatched(episode)"
                 ng-model="episode.Watched"
                 ng-change="ctrl.markWatched(episode, false)">Mark Watched</button>
-         <button type="button"
+        <button type="button"
                 class="btn btn-success btn-sm"
                 btn-checkbox
                 btn-checkbox-true="true"
