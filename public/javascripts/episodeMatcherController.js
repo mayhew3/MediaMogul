@@ -60,7 +60,7 @@ angular.module('mediaMogulApp')
 
 
     self.bottomFilter = function(episode) {
-      return episode.tvdbSeason == self.selectedSeason;
+      return episode.tvdbSeason == self.selectedSeason && !episode.MatchingStump;
     };
 
     self.getButtonClass = function(season) {

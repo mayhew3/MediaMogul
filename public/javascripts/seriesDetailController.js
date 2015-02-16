@@ -25,6 +25,22 @@ angular.module('mediaMogulApp')
       });
     });
 
+    self.wrongMatch = function() {
+      EpisodeService.updateSeries(self.series._id, {MatchedWrong: self.series.MatchedWrong});
+    };
+
+    self.useMatch = function(possibleMatch) {
+      $log.debug("Match selected: " + possibleMatch.SeriesTitle + '(' + possibleMatch.SeriesID + ')');
+      var changedFields = {
+        tvdbId: possibleMatch.SeriesID,
+        NeedsTVDBRedo: true,
+        MatchedWrong: false
+      };
+      EpisodeService.updateSeries(self.series._id, changedFields).then(function () {
+        self.series.NeedsTVDBRedo = true;
+        self.series.MatchedWrong = false;
+      });
+    };
 
     self.getLabelInfo = function(episode) {
       if (episode.OnTiVo) {
@@ -74,7 +90,7 @@ angular.module('mediaMogulApp')
 
 
     self.episodeFilter = function(episode) {
-      return episode.tvdbSeason == self.selectedSeason;
+      return episode.tvdbSeason == self.selectedSeason && !episode.MatchingStump;
     };
 
 

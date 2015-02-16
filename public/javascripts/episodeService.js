@@ -53,7 +53,8 @@ function EpisodeService($log, $http) {
     // todo: add some error handling.
   };
   this.updateSeries = function(SeriesId, ChangedFields) {
-    $http.post('/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
+    $log.debug('Received update for Series ' + SeriesId + " with data " + JSON.stringify(ChangedFields));
+    return $http.post('/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
   };
   this.addSeries = function(series) {
     $log.debug("Adding series " + JSON.stringify(series));

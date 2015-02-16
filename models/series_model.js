@@ -9,6 +9,12 @@ var SeriesSchema = new Schema({
     MyRating: Number,
     ViewingLocations: [String],
     DateAdded: Date,
+    MatchedWrong: Boolean,
+    PossibleMatches: [{
+      SeriesTitle: String,
+      SeriesID: Number
+    }],
+    NeedsTVDBRedo: Boolean,
     ActiveEpisodes: Number,
     DeletedEpisodes: Number,
     SuggestionEpisodes: Number,
