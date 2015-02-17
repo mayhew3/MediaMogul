@@ -92,13 +92,6 @@ exports.addSeries = function(req, res, next) {
           callback(err, existingSeries);
         });
       });
-    },
-    function (series, callback) {
-      var url = 'http://thetvdb.com/banners/' + series.tvdbPoster;
-      request({ url: url, encoding: null }, function (error, response, body) {
-        series.tvdbPoster = 'data:' + response.headers['content-type'] + ';base64,' + body.toString('base64');
-        callback(error, series);
-      });
     }
   ], function (err, series) {
     if (err) return next(err);
