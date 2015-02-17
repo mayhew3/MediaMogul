@@ -3,6 +3,7 @@ var mongoose = require('mongoose'),
 var SeriesSchema = new Schema({
     SeriesTitle: String,
     IsEpisodic: Boolean,
+    IsSuggestion: Boolean,
     SeriesId: String,
     Tier: Number,
     Metacritic: Number,

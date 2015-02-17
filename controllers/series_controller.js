@@ -74,7 +74,6 @@ exports.addSeries = function(req, res, next) {
 
         parser.parseString(body, function (err, result) {
           var series = result.data.series;
-          var episodes = result.data.episode;
 
           existingSeries.tvdbId = series.id;
           existingSeries.tvdbName = series.seriesname;
@@ -89,15 +88,6 @@ exports.addSeries = function(req, res, next) {
           existingSeries.tvdbRuntime = series.runtime;
           existingSeries.tvdbStatus = series.status;
           existingSeries.tvdbPoster = series.poster;
-          lodash.each(episodes, function (episode) {
-            existingSeries.tvdbEpisodes.push({
-              tvdbSeason: episode.seasonnumber,
-              tvdbEpisodeNumber: episode.episodenumber,
-              tvdbEpisodeName: episode.episodename,
-              tvdbFirstAired: episode.firstaired,
-              tvdbOverview: episode.overview
-            });
-          });
 
           callback(err, existingSeries);
         });
