@@ -79,13 +79,17 @@ angular.module('mediaMogulApp')
     }
 
     self.originalFields = {
-      Metacritic: series.Metacritic,
-      MyRating: series.MyRating
+      Metacritic: self.series.Metacritic,
+      MyRating: self.series.MyRating,
+      TVDBHint: self.series.TVDBHint,
+      MetacriticHint: self.series.MetacriticHint
     };
 
     self.interfaceFields = {
-      Metacritic: series.Metacritic,
-      MyRating: series.MyRating
+      Metacritic: self.series.Metacritic,
+      MyRating: self.series.MyRating,
+      TVDBHint: self.series.TVDBHint,
+      MetacriticHint: self.series.MetacriticHint
     };
 
 
@@ -128,6 +132,8 @@ angular.module('mediaMogulApp')
     self.changeMetacritic = function(series) {
       series.Metacritic = self.interfaceFields.Metacritic;
       series.MyRating = self.interfaceFields.MyRating;
+      series.TVDBHint = self.interfaceFields.TVDBHint;
+      series.MetacriticHint = self.interfaceFields.MetacriticHint;
 
       var changedFields = {};
       for (var key in self.interfaceFields) {

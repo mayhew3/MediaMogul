@@ -4,7 +4,6 @@ var SeriesSchema = new Schema({
     SeriesTitle: String,
     IsEpisodic: Boolean,
     IsSuggestion: Boolean,
-    SeriesId: String,
     Tier: Number,
     Metacritic: Number,
     MyRating: Number,
@@ -16,6 +15,8 @@ var SeriesSchema = new Schema({
       SeriesID: Number
     }],
     NeedsTVDBRedo: Boolean,
+    TVDBHint: String,
+    MetacriticHint: String,
     ActiveEpisodes: Number,
     DeletedEpisodes: Number,
     SuggestionEpisodes: Number,

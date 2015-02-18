@@ -38,7 +38,7 @@
             </thead>
             <tr data-ng-repeat="series in ctrl.series |
                 filter:ctrl.seriesFilter |
-                orderBy:['+Tier', '-MostRecent', '+SeriesTitle']">
+                orderBy:[ctrl.orderByRating].concat('-MyRating')">
               <td ng-bind="series.SeriesTitle" ng-click="ctrl.open(series)"></td>
               <td ng-bind="series.Metacritic"></td>
               <td ng-bind="series.MyRating"></td>

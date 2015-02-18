@@ -21,6 +21,11 @@ angular.module('mediaMogulApp')
     };
 
 
+    self.orderByRating = function(series) {
+      return (angular.isDefined(series.MyRating) ? -1: 0);
+    };
+
+
     function airedInLastDays(airDate, days) {
       var notNull = airDate != null;
       var diff = (new Date(airDate) - new Date + (1000 * 60 * 60 * 24 * days));
