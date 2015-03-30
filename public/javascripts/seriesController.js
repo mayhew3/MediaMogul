@@ -22,7 +22,7 @@ angular.module('mediaMogulApp')
 
 
     self.orderByRating = function(series) {
-      return (angular.isDefined(series.MyRating) ? -1: 0);
+      return (angular.isDefined(series.FullRating) ? -1: 0);
     };
 
 
@@ -36,11 +36,34 @@ angular.module('mediaMogulApp')
       return notNull && withinDiff;
     }
 
+    function updateFullRating(series) {
+      var metacritic = series.Metacritic;
+      var myRating = series.MyRating;
+
+      if (metacritic == null) {
+        series.FullRating = myRating;
+      } else if (myRating == null) {
+        series.FullRating = metacritic;
+      } else {
+        var watched = series.WatchedEpisodes;
+        if (watched > 4) {
+          watched = 4;
+        }
+        var myWeight = 0.40 + (watched * 0.15);
+        var metaWeight = 1 - myWeight;
+
+        series.FullRating = (myRating * myWeight) + (metacritic * metaWeight);
+      }
+    }
+
     var seriesList = EpisodeService.getSeriesList();
     if (seriesList.length == 0) {
       EpisodeService.updateSeriesList().then(function () {
         self.series = EpisodeService.getSeriesList();
         $log.debug("Controller has " + self.series.length + " shows.");
+        self.series.forEach(function(seri) {
+          updateFullRating(seri);
+        });
       });
     } else {
       self.series = seriesList;

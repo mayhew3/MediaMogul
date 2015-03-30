@@ -38,7 +38,7 @@
             </thead>
             <tr data-ng-repeat="series in ctrl.series |
                 filter:ctrl.seriesFilter |
-                orderBy:[ctrl.orderByRating].concat('-MyRating')">
+                orderBy:[ctrl.orderByRating].concat('-FullRating')">
               <td ng-bind="series.SeriesTitle" ng-click="ctrl.open(series)"></td>
               <td ng-bind="series.Metacritic"></td>
               <td ng-bind="series.MyRating"></td>
@@ -78,15 +78,7 @@
                 <span ng-hide="series.UnwatchedEpisodes != 0">All Watched</span>
 
               </td>
-              <td>
-                <label ng-repeat="tier in ctrl.tiers"
-                       ng-class="ctrl.getButtonClass(tier, series)"
-                       ng-model="series.Tier"
-                       btn-radio="tier"
-                       ng-change="ctrl.changeTier(series)">
-                  <span ng-bind="tier"></span>
-                </label>
-              </td>
+              <td ng-bind="series.FullRating"></td>
             </tr>
           </table>
         </div>
