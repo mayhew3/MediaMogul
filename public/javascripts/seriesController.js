@@ -12,12 +12,16 @@ angular.module('mediaMogulApp')
     };
 
     self.firstTier = function(series) {
-      return series.Tier === 1 && airedInLastDays(series.LastUnwatched, 7);
+      return series.Tier === 1
+         && airedInLastDays(series.LastUnwatched, 365)
+        ;
     };
 
 
     self.secondTier = function(series) {
-      return series.Tier === 2 && airedInLastDays(series.LastUnwatched, 7);
+      return series.Tier === 2
+         && airedInLastDays(series.LastUnwatched, 21)
+        ;
     };
 
 
