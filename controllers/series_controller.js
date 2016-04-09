@@ -66,7 +66,7 @@ exports.getEpisodes = function(req, res) {
   })
 };
 exports.changeTier = function(req, response) {
-  var tier = req.body.Tier;
+  var tier = req.body.tier;
   var seriesId = req.body.SeriesId;
 
   console.log("Updating series " + seriesId + " to Tier " + tier);
@@ -97,7 +97,7 @@ exports.addSeries = function(req, res, next) {
   var seriesObj = req.body.series;
   var series = new Series(seriesObj);
 
-  var seriesName = series.SeriesTitle
+  var seriesName = series.title
     .toLowerCase()
     .replace(/ /g, '_')
     .replace(/[^\w-]+/g, '');
@@ -131,7 +131,7 @@ exports.addSeries = function(req, res, next) {
         parser.parseString(body, function (err, result) {
           var series = result.data.series;
 
-          existingSeries.tvdbId = series.id;
+          existingSeries.tvdb_id = series.id;
           existingSeries.tvdbName = series.seriesname;
           existingSeries.tvdbAirsDayOfWeek = series.airs_dayofweek;
           existingSeries.tvdbAirsTime = series.airs_time;

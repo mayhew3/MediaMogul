@@ -144,9 +144,9 @@ angular.module('mediaMogulApp')
             }
             tvdbEpisode.ChosenBottom = false;
           });
-          self.series.UnmatchedEpisodes--;
+          self.series.unmatched_episodes--;
           if (!tivoEpisode.Watched) {
-            self.series.UnwatchedEpisodes++;
+            self.series.unwatched_episodes++;
           }
         }, function (errResponse) {
           $log.debug("Error calling the method: " + errResponse);

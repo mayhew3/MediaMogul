@@ -4,7 +4,7 @@ angular.module('mediaMogulApp')
     var self = this;
 
     self.series = {
-      Tier: 5,
+      tier: 5,
       IsEpisodic: true
     };
 
@@ -16,12 +16,12 @@ angular.module('mediaMogulApp')
     self.showExists = false;
 
     self.updateShowExists = function() {
-      var title = self.series.SeriesTitle;
+      var title = self.series.title;
       self.showExists = !!EpisodeService.getSeriesWithTitle(title);
     };
 
     self.getButtonClass = function(tier) {
-      return self.series.Tier === tier ? "btn btn-success" : "btn btn-primary";
+      return self.series.tier === tier ? "btn btn-success" : "btn btn-primary";
     };
 
     self.getLocButtonClass = function(location) {
@@ -31,7 +31,7 @@ angular.module('mediaMogulApp')
 
     self.ok = function() {
       self.series.ViewingLocations = [self.selectedLocation];
-      self.series.DateAdded = new Date;
+      self.series.date_added = new Date;
       var errorResponse = EpisodeService.addSeries(self.series);
       if (errorResponse) {
         $log.debug("Error adding series. Response: " + errorResponse);

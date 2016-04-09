@@ -22,7 +22,7 @@
              name="metacriticInput"
              min="1"
              max="100"
-             ng-model="ctrl.interfaceFields.Metacritic"/>
+             ng-model="ctrl.interfaceFields.metacritic"/>
     </div>
     <div class="form-group col-lg-3">
       <label class="control-label" for="myRatingInput">My Rating</label>
@@ -32,7 +32,7 @@
              name="myRatingInput"
              min="1"
              max="100"
-             ng-model="ctrl.interfaceFields.MyRating"/>
+             ng-model="ctrl.interfaceFields.my_rating"/>
     </div>
     <div class="form-group col-lg-3">
       <label class="control-label" for="tvdbHintInput">TVDB Hint</label>
@@ -40,7 +40,7 @@
              class="form-control"
              id="tvdbHintInput"
              name="tvdbHintInput"
-             ng-model="ctrl.interfaceFields.TVDBHint"/>
+             ng-model="ctrl.interfaceFields.tvdb_hint"/>
     </div>
     <div class="form-group col-lg-3">
       <label class="control-label" for="metacriticHintInput">Metacritic Hint</label>
@@ -48,7 +48,7 @@
              class="form-control"
              id="metacriticHintInput"
              name="metacriticHintInput"
-             ng-model="ctrl.interfaceFields.MetacriticHint"/>
+             ng-model="ctrl.interfaceFields.metacritic_hint"/>
     </div>
     <div class="form-group col-lg-3">
               <span class="input-group-btn">
@@ -62,7 +62,7 @@
     <div class="form-group col-lg-3">
       <label ng-repeat="tier in ctrl.tiers"
              ng-class="ctrl.getTierButtonClass(tier)"
-             ng-model="ctrl.series.Tier"
+             ng-model="ctrl.series.tier"
              btn-radio="tier"
              ng-change="ctrl.changeTier()">
         <span ng-bind="tier"></span>
@@ -80,11 +80,11 @@
             btn-checkbox
             btn-checkbox-true="true"
             btn-checkbox-false="false"
-            ng-model="ctrl.series.MatchedWrong"
+            ng-model="ctrl.series.matched_wrong"
             ng-change="ctrl.wrongMatch()">Matched Wrong</button>
   </div>
 
-  <div id="possibleMatches" class="col-lg-12" ng-show="ctrl.series.MatchedWrong">
+  <div id="possibleMatches" class="col-lg-12" ng-show="ctrl.series.matched_wrong">
     <button type="button"
             ng-repeat="possibleMatch in ctrl.series.PossibleMatches"
             ng-bind="possibleMatch.SeriesTitle"

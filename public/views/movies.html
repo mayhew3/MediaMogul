@@ -35,10 +35,10 @@
               </thead>
               <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.episodeFilter |
-                          orderBy:['Tier', '-ShowingStartTime'] |
+                          orderBy:['tier', '-ShowingStartTime'] |
                           limitTo:50">
                 <td ng-bind="episode.Title"></td>
-                <td ng-bind="episode.Tier"></td>
+                <td ng-bind="episode.tier"></td>
                 <td ng-bind="episode.EpisodeNumber"></td>
                 <td ng-bind="episode.EpisodeTitle" class="episodeDescription"></td>
                 <td ng-bind="episode.ShowingStartTime|date:'EEE MM/d'"></td>

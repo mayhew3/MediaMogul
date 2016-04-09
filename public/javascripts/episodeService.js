@@ -4,7 +4,7 @@ function EpisodeService($log, $http) {
 
   this.getSeriesWithTitle = function(SeriesTitle) {
     var filtered = shows.filter(function(seriesElement) {
-      return seriesElement.SeriesTitle == SeriesTitle;
+      return seriesElement.title == SeriesTitle;
     });
     return filtered[0];
   };
@@ -60,7 +60,7 @@ function EpisodeService($log, $http) {
     // todo: add some error handling.
   };
   this.changeTier = function(SeriesId, Tier) {
-    $http.post('/changeTier', {SeriesId: SeriesId, Tier: Tier});
+    $http.post('/changeTier', {SeriesId: SeriesId, tier: Tier});
     // todo: add some error handling.
   };
   this.updateSeries = function(SeriesId, ChangedFields) {
@@ -177,28 +177,28 @@ function EpisodeService($log, $http) {
       }
     });
 
-    series.ActiveEpisodes = activeEpisodes;
-    series.DeletedEpisodes = deletedEpisodes;
-    series.SuggestionEpisodes = suggestionEpisodes;
-    series.WatchedEpisodes = watchedEpisodes;
-    series.UnwatchedEpisodes = unwatchedEpisodes;
-    series.UnmatchedEpisodes = unmatchedEpisodes;
-    series.tvdbOnlyEpisodes = tvdbOnly;
-    series.UnwatchedUnrecorded = unwatchedUnrecorded;
-    series.MostRecent = mostRecent;
-    series.LastUnwatched = lastUnwatched;
+    series.active_episodes = activeEpisodes;
+    series.deleted_episodes = deletedEpisodes;
+    series.suggestion_episodes = suggestionEpisodes;
+    series.watched_episodes = watchedEpisodes;
+    series.unwatched_episodes = unwatchedEpisodes;
+    series.unmatched_episodes = unmatchedEpisodes;
+    series.tvdb_only_episodes = tvdbOnly;
+    series.unwatched_unrecorded = unwatchedUnrecorded;
+    series.most_recent = mostRecent;
+    series.last_unwatched = lastUnwatched;
 
     var changedFields = {
-      ActiveEpisodes: activeEpisodes,
-      DeletedEpisodes: deletedEpisodes,
-      SuggestionEpisodes: suggestionEpisodes,
-      WatchedEpisodes: watchedEpisodes,
-      UnwatchedEpisodes: unwatchedEpisodes,
-      UnmatchedEpisodes: unmatchedEpisodes,
-      tvdbOnlyEpisodes: tvdbOnly,
-      UnwatchedUnrecorded: unwatchedUnrecorded,
-      MostRecent: mostRecent,
-      LastUnwatched: lastUnwatched
+      active_episodes: activeEpisodes,
+      deleted_episodes: deletedEpisodes,
+      suggestion_episodes: suggestionEpisodes,
+      watched_episodes: watchedEpisodes,
+      unwatched_episodes: unwatchedEpisodes,
+      unmatched_episodes: unmatchedEpisodes,
+      tvdb_only_episodes: tvdbOnly,
+      unwatched_unrecorded: unwatchedUnrecorded,
+      most_recent: mostRecent,
+      last_unwatched: lastUnwatched
     };
 
     return $http.post('/updateSeries', {SeriesId: series._id, ChangedFields: changedFields});

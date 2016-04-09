@@ -28,19 +28,19 @@ angular.module('mediaMogulApp')
     });
 
     self.wrongMatch = function() {
-      EpisodeService.updateSeries(self.series._id, {MatchedWrong: self.series.MatchedWrong});
+      EpisodeService.updateSeries(self.series._id, {MatchedWrong: self.series.matched_wrong});
     };
 
     self.useMatch = function(possibleMatch) {
       $log.debug("Match selected: " + possibleMatch.SeriesTitle + '(' + possibleMatch.SeriesID + ')');
       var changedFields = {
-        tvdbId: possibleMatch.SeriesID,
-        NeedsTVDBRedo: true,
-        MatchedWrong: false
+        tvdb_id: possibleMatch.SeriesID,
+        needs_tvdb_redo: true,
+        matched_wrong: false
       };
       EpisodeService.updateSeries(self.series._id, changedFields).then(function () {
-        self.series.NeedsTVDBRedo = true;
-        self.series.MatchedWrong = false;
+        self.series.needs_tvdb_redo = true;
+        self.series.matched_wrong = false;
       });
     };
 
@@ -81,17 +81,17 @@ angular.module('mediaMogulApp')
     }
 
     self.originalFields = {
-      Metacritic: self.series.Metacritic,
-      MyRating: self.series.MyRating,
-      TVDBHint: self.series.TVDBHint,
-      MetacriticHint: self.series.MetacriticHint
+      metacritic: self.series.metacritic,
+      my_rating: self.series.my_rating,
+      tvdb_hint: self.series.tvdb_hint,
+      metacritic_hint: self.series.metacritic_hint
     };
 
     self.interfaceFields = {
-      Metacritic: self.series.Metacritic,
-      MyRating: self.series.MyRating,
-      TVDBHint: self.series.TVDBHint,
-      MetacriticHint: self.series.MetacriticHint
+      metacritic: self.series.metacritic,
+      my_rating: self.series.my_rating,
+      tvdb_hint: self.series.tvdb_hint,
+      metacritic_hint: self.series.metacritic_hint
     };
 
 
@@ -106,12 +106,12 @@ angular.module('mediaMogulApp')
 
 
     self.getTierButtonClass = function(tier) {
-      return self.series.Tier === tier ? "btn btn-success" : "btn btn-primary";
+      return self.series.tier === tier ? "btn btn-success" : "btn btn-primary";
     };
 
 
     self.changeTier = function() {
-      EpisodeService.changeTier(self.series._id, self.series.Tier);
+      EpisodeService.changeTier(self.series._id, self.series.tier);
     };
 
 
@@ -136,16 +136,16 @@ angular.module('mediaMogulApp')
         EpisodeService.updateDenorms(self.series, self.episodes);
       });
 
-      $log.debug("Series '" + self.series.SeriesTitle + "' " + self.series._id);
+      $log.debug("Series '" + self.series.title + "' " + self.series._id);
     };
 
 
 
     self.changeMetacritic = function(series) {
-      series.Metacritic = self.interfaceFields.Metacritic;
-      series.MyRating = self.interfaceFields.MyRating;
-      series.TVDBHint = self.interfaceFields.TVDBHint;
-      series.MetacriticHint = self.interfaceFields.MetacriticHint;
+      series.metacritic = self.interfaceFields.metacritic;
+      series.my_rating = self.interfaceFields.my_rating;
+      series.tvdb_hint = self.interfaceFields.tvdb_hint;
+      series.metacritic_hint = self.interfaceFields.metacritic_hint;
 
       var changedFields = {};
       for (var key in self.interfaceFields) {
