@@ -5,37 +5,93 @@ var lodash = require('lodash');
 var mongoose = require('mongoose'),
   Series = mongoose.model('series'),
   Episodes = mongoose.model('episodes');
-exports.getSeries = function(req, res) {
-    Series.find({IsEpisodic:true}).sort({SeriesTitle:1})
-      .exec(function(err, series) {
-          if (!series) {
-              res.json(404, {msg: 'Series Not Found.'});
-          } else {
-              res.json(series);
-          }
-      });
+var pg = require('pg');
+
+exports.getSeries = function(request, response) {
+  var results = [];
+
+  pg.connect(process.env.DATABASE_URL, function(err, client) {
+    var query = client.query(
+      'SELECT * ' +
+      'FROM series ' +
+      'ORDER BY series_title');
+
+    query.on('row', function(row) {
+      results.push(row);
+    });
+
+    query.on('end', function() {
+      client.end();
+      return response.json(results);
+    });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  })
 };
+
 exports.getEpisodes = function(req, res) {
   console.log("Episode call received. Params: " + req.query.SeriesId);
 
-  Episodes.find({SeriesId:req.query.SeriesId}).sort({tvdbSeason:1, tvdbEpisodeNumber:1})
-    .exec(function(err, episodes) {
-      if (!episodes) {
-        res.json(404, {msg: 'Episodes not found.'});
-      } else {
-        res.json(episodes);
-      }
+  var results = [];
+
+  pg.connect(process.env.DATABASE_URL, function(err, client) {
+    var sql = 'SELECT * ' +
+      'FROM episode ' +
+      'WHERE seriesid = $1' +
+      'ORDER BY season, episode_number';
+
+    var queryConfig = {
+      text: sql,
+      values: [req.query.SeriesId]
+    };
+
+    var query = client.query(queryConfig);
+
+    query.on('row', function(row) {
+      results.push(row);
     });
+
+    query.on('end', function() {
+      client.end();
+      return response.json(results);
+    });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  })
 };
-exports.changeTier = function(req, res) {
-    Series.update({_id: req.body.SeriesId}, {$set:{Tier:req.body.Tier}})
-      .exec(function(err, savedSeries) {
-          if (err) {
-              res.json(404, {msg: 'Failed to update Series with new Tier.'});
-          } else {
-              res.json({msg: "success"});
-          }
-      });
+exports.changeTier = function(req, response) {
+  var tier = req.body.Tier;
+  var seriesId = req.body.SeriesId;
+
+  console.log("Updating series " + seriesId + " to Tier " + tier);
+
+  var sql = "UPDATE series SET tier = $1 WHERE id = $2";
+
+  pg.connect(process.env.DATABASE_URL, function(err, client) {
+
+    var queryConfig = {
+      text: sql,
+      values: [tier, seriesId]
+    };
+
+    var query = client.query(queryConfig);
+
+    query.on('end', function() {
+      client.end();
+      return response.json({msg: "Success"});
+    });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  });
 };
 exports.addSeries = function(req, res, next) {
   var seriesObj = req.body.series;

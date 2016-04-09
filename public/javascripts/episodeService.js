@@ -12,14 +12,25 @@ function EpisodeService($log, $http) {
   this.updateSeriesList = function() {
     return $http.get('/seriesList').then(function (showresponse) {
       $log.debug("Shows returned " + showresponse.data.length + " items.");
-      shows = showresponse.data;
-    }, function (errResponse) {
-      console.error('Error while fetching series list: ' + errResponse);
-    }).then(function () {
-      shows.forEach(function(show) {
+      var tempShows = showresponse.data;
+      tempShows.forEach(function (show) {
+        self.updateNumericFields(show);
         show.TotalEpisodes = show.episodes.length;
       });
+      $log.debug("Finished updating.");
+      shows = tempShows;
+    }, function (errResponse) {
+      console.error('Error while fetching series list: ' + errResponse);
     });
+  };
+
+  this.updateNumericFields = function(show) {
+    if (show.tier != null) {
+      show.tier = parseInt(show.tier);
+    }
+    if (show.metacritic != null) {
+      show.metacritic = parseInt(show.metacritic);
+    }
   };
 
   this.updateEpisodeList = function(series) {
