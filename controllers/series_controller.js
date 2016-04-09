@@ -10,11 +10,23 @@ var pg = require('pg');
 exports.getSeries = function(request, response) {
   var results = [];
 
-  pg.connect(process.env.DATABASE_URL, function(err, client) {
+  var config = process.env.DATABASE_URL;
+  console.log("Database URL: " + config);
+
+  var client = new pg.Client(config);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
     var query = client.query(
       'SELECT * ' +
       'FROM series ' +
-      'ORDER BY series_title');
+      'ORDER BY title');
 
     query.on('row', function(row) {
       results.push(row);

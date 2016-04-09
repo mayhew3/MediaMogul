@@ -1,6 +1,7 @@
 function EpisodeService($log, $http) {
   var shows = [];
   var episodes = [];
+  var self = this;
 
   this.getSeriesWithTitle = function(SeriesTitle) {
     var filtered = shows.filter(function(seriesElement) {
@@ -15,7 +16,7 @@ function EpisodeService($log, $http) {
       var tempShows = showresponse.data;
       tempShows.forEach(function (show) {
         self.updateNumericFields(show);
-        show.TotalEpisodes = show.episodes.length;
+        //show.TotalEpisodes = show.episodes.length;
       });
       $log.debug("Finished updating.");
       shows = tempShows;
