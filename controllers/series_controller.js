@@ -6,12 +6,12 @@ var mongoose = require('mongoose'),
   Series = mongoose.model('series'),
   Episodes = mongoose.model('episodes');
 var pg = require('pg');
+var config = process.env.DATABASE_URL;
 
 exports.getSeries = function(request, response) {
-  var results = [];
+  console.log("Series call received.");
 
-  var config = process.env.DATABASE_URL;
-  console.log("Database URL: " + config);
+  var results = [];
 
   var client = new pg.Client(config);
   if (client == null) {
@@ -50,8 +50,6 @@ exports.getEpisodes = function(req, response) {
   console.log("Episode call received. Params: " + req.query.SeriesId);
 
   var results = [];
-
-  var config = process.env.DATABASE_URL;
 
   var client = new pg.Client(config);
   if (client == null) {
@@ -105,7 +103,6 @@ exports.changeTier = function(req, response) {
 
   console.log("Updating series " + seriesId + " to Tier " + tier);
 
-  var client = new pg.Client(process.env.DATABASE_URL);
   if (client == null) {
     return console.error('null client');
   }
@@ -235,7 +232,7 @@ exports.updateSeries = function(req, response) {
   console.log("SQL: " + sql);
   console.log("Values: " + values);
 
-  var client = new pg.Client(process.env.DATABASE_URL);
+  var client = new pg.Client(config);
   if (client == null) {
     return console.error('null client');
   }
