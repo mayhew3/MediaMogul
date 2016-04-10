@@ -202,7 +202,7 @@ function EpisodeService($log, $http) {
       last_unwatched: lastUnwatched
     };
 
-    return $http.post('/updateSeries', {SeriesId: series._id, ChangedFields: changedFields});
+    return $http.post('/updateSeries', {SeriesId: series.id, ChangedFields: changedFields});
   };
 
   function isAfter(trackingDate, newDate) {

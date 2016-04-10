@@ -78,18 +78,18 @@ angular.module('mediaMogulApp')
     };
 
     self.changeTier = function(series) {
-      EpisodeService.changeTier(series._id, series.tier);
+      EpisodeService.changeTier(series.id, series.tier);
     };
 
     self.markAllWatched = function(series) {
 
-      EpisodeService.markAllWatched(series._id).then(function() {
+      EpisodeService.markAllWatched(series.id).then(function() {
         $log.debug("Finished update, adjusting denorms.");
         series.unwatched_episodes = 0;
         series.last_unwatched = null;
       });
 
-      $log.debug("Series '" + series.title + "' " + series._id);
+      $log.debug("Series '" + series.title + "' " + series.id);
     };
 
     self.open = function(series) {

@@ -28,7 +28,7 @@ angular.module('mediaMogulApp')
     });
 
     self.wrongMatch = function() {
-      EpisodeService.updateSeries(self.series._id, {MatchedWrong: self.series.matched_wrong});
+      EpisodeService.updateSeries(self.series.id, {MatchedWrong: self.series.matched_wrong});
     };
 
     self.useMatch = function(possibleMatch) {
@@ -38,7 +38,7 @@ angular.module('mediaMogulApp')
         needs_tvdb_redo: true,
         matched_wrong: false
       };
-      EpisodeService.updateSeries(self.series._id, changedFields).then(function () {
+      EpisodeService.updateSeries(self.series.id, changedFields).then(function () {
         self.series.needs_tvdb_redo = true;
         self.series.matched_wrong = false;
       });
@@ -111,7 +111,7 @@ angular.module('mediaMogulApp')
 
 
     self.changeTier = function() {
-      EpisodeService.changeTier(self.series._id, self.series.tier);
+      EpisodeService.changeTier(self.series.id, self.series.tier);
     };
 
 
@@ -125,7 +125,7 @@ angular.module('mediaMogulApp')
         }
       });
 
-      EpisodeService.markAllWatched(self.series._id, lastWatched).then(function() {
+      EpisodeService.markAllWatched(self.series.id, lastWatched).then(function() {
         $log.debug("Finished update, adjusting denorms.");
         self.episodes.forEach(function(episode) {
           $log.debug(lastWatched + ", " + episode.air_date);
@@ -136,7 +136,7 @@ angular.module('mediaMogulApp')
         EpisodeService.updateDenorms(self.series, self.episodes);
       });
 
-      $log.debug("Series '" + self.series.title + "' " + self.series._id);
+      $log.debug("Series '" + self.series.title + "' " + self.series.id);
     };
 
 
@@ -165,12 +165,12 @@ angular.module('mediaMogulApp')
 
       if (Object.getOwnPropertyNames(changedFields).length > 0) {
         $log.debug("Changed fields has a length!");
-        EpisodeService.updateSeries(series._id, changedFields);
+        EpisodeService.updateSeries(series.id, changedFields);
       }
     };
 
     self.markWatched = function(episode, withoutDate) {
-      EpisodeService.markWatched(self.series._id, episode._id, episode.watched, withoutDate).then(function () {
+      EpisodeService.markWatched(self.series.id, episode._id, episode.watched, withoutDate).then(function () {
         EpisodeService.updateDenorms(self.series, self.episodes);
       });
     };

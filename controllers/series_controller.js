@@ -105,10 +105,17 @@ exports.changeTier = function(req, response) {
 
   console.log("Updating series " + seriesId + " to Tier " + tier);
 
-  var sql = "UPDATE series SET tier = $1 WHERE id = $2";
+  var client = new pg.Client(process.env.DATABASE_URL);
+  if (client == null) {
+    return console.error('null client');
+  }
 
-  pg.connect(process.env.DATABASE_URL, function(err, client) {
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
 
+    var sql = "UPDATE series SET tier = $1 WHERE id = $2";
     var queryConfig = {
       text: sql,
       values: [tier, seriesId]
