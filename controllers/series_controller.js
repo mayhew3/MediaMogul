@@ -24,9 +24,11 @@ exports.getSeries = function(request, response) {
     }
 
     var query = client.query(
-      'SELECT * ' +
-      'FROM series ' +
-      'ORDER BY title');
+      'SELECT s.*, tvs.poster ' +
+      'FROM series s ' +
+      'LEFT OUTER JOIN tvdb_series tvs ' +
+      ' ON s.tvdb_series_id = tvs.id ' +
+      'ORDER BY s.title');
 
     query.on('row', function(row) {
       results.push(row);
@@ -74,8 +76,6 @@ exports.getEpisodes = function(req, response) {
       'WHERE e.seriesid = $1 ' +
       'ORDER BY e.season, te.episode_number';
 
-    console.log(sql);
-
     var queryConfig = {
       text: sql,
       values: [req.query.SeriesId]
@@ -98,6 +98,7 @@ exports.getEpisodes = function(req, response) {
     }
   })
 };
+
 exports.changeTier = function(req, response) {
   var tier = req.body.tier;
   var seriesId = req.body.SeriesId;
@@ -126,6 +127,7 @@ exports.changeTier = function(req, response) {
     }
   });
 };
+
 exports.addSeries = function(req, res, next) {
   var seriesObj = req.body.series;
   var series = new Series(seriesObj);

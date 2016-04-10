@@ -24,7 +24,7 @@
             <div class="fade-repeat col-xs-4 col-md-3" ng-repeat="show in ctrl.series | filter:ctrl.firstTier">
               <a ng-click="ctrl.open(show)" href="">
                 <img class="img-rounded"
-                     ng-src="{{'http://thetvdb.com/banners/'+show.tvdbPoster}}"
+                     ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
                      width="100%"/>
               </a>
             </div>
@@ -48,7 +48,7 @@
             <div class="fade-repeat col-xs-3 col-md-2" ng-repeat="show in ctrl.series | filter:ctrl.secondTier">
               <a ng-click="ctrl.open(show)" href="">
                 <img class="img-rounded"
-                     ng-src="{{'http://thetvdb.com/banners/'+show.tvdbPoster}}"
+                     ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
                      width="100%"/>
               </a>
             </div>
