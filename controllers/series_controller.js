@@ -1,7 +1,6 @@
 var xml2js = require('xml2js');
 var async = require('async');
 var request = require('request');
-var lodash = require('lodash');
 var mongoose = require('mongoose'),
   Series = mongoose.model('series'),
   Episodes = mongoose.model('episodes');
@@ -11,90 +10,32 @@ var config = process.env.DATABASE_URL;
 exports.getSeries = function(request, response) {
   console.log("Series call received.");
 
-  var results = [];
+  var sql = 'SELECT s.*, tvs.poster ' +
+    'FROM series s ' +
+    'LEFT OUTER JOIN tvdb_series tvs ' +
+    ' ON s.tvdb_series_id = tvs.id ' +
+    'ORDER BY s.title';
 
-  var client = new pg.Client(config);
-  if (client == null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var query = client.query(
-      'SELECT s.*, tvs.poster ' +
-      'FROM series s ' +
-      'LEFT OUTER JOIN tvdb_series tvs ' +
-      ' ON s.tvdb_series_id = tvs.id ' +
-      'ORDER BY s.title');
-
-    query.on('row', function(row) {
-      results.push(row);
-    });
-
-    query.on('end', function() {
-      client.end();
-      return response.json(results);
-    });
-
-    if (err) {
-      console.error(err);
-      response.send("Error " + err);
-    }
-  })
+  return executeQueryWithResults(response, sql, []);
 };
 
 exports.getEpisodes = function(req, response) {
   console.log("Episode call received. Params: " + req.query.SeriesId);
 
-  var results = [];
+  var sql = 'SELECT e.*, ' +
+    'te.episode_number as tvdb_episode_number, ' +
+    'te.name as tvdb_episode_name, ' +
+    'ti.deleted_date as tivo_deleted_date, ' +
+    'ti.suggestion as tivo_suggestion ' +
+    'FROM episode e ' +
+    'LEFT OUTER JOIN tvdb_episode te ' +
+    ' ON e.tvdb_episode_id = te.id ' +
+    'LEFT OUTER JOIN tivo_episode ti ' +
+    ' ON e.tivo_episode_id = ti.id ' +
+    'WHERE e.seriesid = $1 ' +
+    'ORDER BY e.season, te.episode_number';
 
-  var client = new pg.Client(config);
-  if (client == null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var sql = 'SELECT e.*, ' +
-      'te.episode_number as tvdb_episode_number, ' +
-      'te.name as tvdb_episode_name, ' +
-      'ti.deleted_date as tivo_deleted_date, ' +
-      'ti.suggestion as tivo_suggestion ' +
-      'FROM episode e ' +
-      'LEFT OUTER JOIN tvdb_episode te ' +
-      ' ON e.tvdb_episode_id = te.id ' +
-      'LEFT OUTER JOIN tivo_episode ti ' +
-      ' ON e.tivo_episode_id = ti.id ' +
-      'WHERE e.seriesid = $1 ' +
-      'ORDER BY e.season, te.episode_number';
-
-    var queryConfig = {
-      text: sql,
-      values: [req.query.SeriesId]
-    };
-
-    var query = client.query(queryConfig);
-
-    query.on('row', function(row) {
-      results.push(row);
-    });
-
-    query.on('end', function() {
-      client.end();
-      return response.json(results);
-    });
-
-    if (err) {
-      console.error(err);
-      response.send("Error " + err);
-    }
-  })
+  return executeQueryWithResults(response, sql, [req.query.SeriesId]);
 };
 
 exports.changeTier = function(req, response) {
@@ -206,61 +147,14 @@ exports.addSeries = function(req, res, next) {
 exports.updateSeries = function(req, response) {
   console.log("Update Series with " + JSON.stringify(req.body.ChangedFields));
 
-  var sql = "UPDATE series SET ";
-  var values = [];
-  var i = 1;
-  var changedFields = req.body.ChangedFields;
-  for (var key in changedFields) {
-    if (changedFields.hasOwnProperty(key)) {
-      if (values.length != 0) {
-        sql += ", ";
-      }
+  var queryConfig = buildQueryConfig(req.body.ChangedFields, "series", req.body.SeriesId);
 
-      sql += (key + " = $" + i);
+  console.log("SQL: " + queryConfig.text);
+  console.log("Values: " + queryConfig.values);
 
-      var value = changedFields[key];
-      values.push(value);
-
-      i++;
-    }
-  }
-
-  sql += (" WHERE id = $" + i);
-
-  values.push(req.body.SeriesId);
-
-  console.log("SQL: " + sql);
-  console.log("Values: " + values);
-
-  var client = new pg.Client(config);
-  if (client == null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var queryConfig = {
-      text: sql,
-      values: values
-    };
-
-    var query = client.query(queryConfig);
-
-    query.on('end', function() {
-      client.end();
-      return response.json({msg: "Success"});
-    });
-
-    if (err) {
-      console.error(err);
-      response.send("Error " + err);
-    }
-  });
-
+  executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
+
 exports.updateEpisode = function(req, res) {
   console.log("Update Episode with " + JSON.stringify(req.body.ChangedFields));
   Episodes.update({_id: req.body.EpisodeId}, req.body.ChangedFields)
@@ -354,3 +248,106 @@ exports.matchTiVoEpisodes = function(req, res) {
     });
 
 };
+
+// utility methods
+
+
+function executeQueryWithResults(response, sql, values) {
+  var results = [];
+
+  var queryConfig = {
+    text: sql,
+    values: values
+  };
+
+  var client = new pg.Client(config);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
+    var query = client.query(queryConfig);
+
+    query.on('row', function(row) {
+      results.push(row);
+    });
+
+    query.on('end', function() {
+      client.end();
+      return response.json(results);
+    });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  })
+}
+
+
+function executeQueryNoResults(response, sql, values) {
+
+  var queryConfig = {
+    text: sql,
+    values: values
+  };
+
+  var client = new pg.Client(config);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
+    var query = client.query(queryConfig);
+
+    query.on('end', function() {
+      client.end();
+      return response.json({msg: "Success"});
+    });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  });
+}
+
+function buildQueryConfig(changedFields, tableName, rowID) {
+
+  var sql = "UPDATE " + tableName + " SET ";
+  var values = [];
+  var i = 1;
+  for (var key in changedFields) {
+    if (changedFields.hasOwnProperty(key)) {
+      if (values.length != 0) {
+        sql += ", ";
+      }
+
+      sql += (key + " = $" + i);
+
+      var value = changedFields[key];
+      values.push(value);
+
+      i++;
+    }
+  }
+
+  sql += (" WHERE id = $" + i);
+
+  values.push(rowID);
+
+  return {
+    text: sql,
+    values: values
+  };
+}
+
+
