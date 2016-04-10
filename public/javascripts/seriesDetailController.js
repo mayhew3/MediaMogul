@@ -17,7 +17,7 @@ angular.module('mediaMogulApp')
     }).then(function() {
       self.episodes.forEach(function (episode) {
 
-        var season = episode.tvdbSeason;
+        var season = episode.season;
         if (season != null && !(self.seasonLabels.indexOf(season) > -1)) {
           self.seasonLabels.push(season);
           if (!isUnaired(episode)) {
@@ -45,10 +45,10 @@ angular.module('mediaMogulApp')
     };
 
     self.getLabelInfo = function(episode) {
-      if (episode.OnTiVo) {
-        if (episode.TiVoDeletedDate) {
+      if (episode.on_tivo) {
+        if (episode.tivo_deleted_date) {
           return {labelClass: "label label-default", labelText: "Deleted"};
-        } else if (episode.TiVoSuggestion === true) {
+        } else if (episode.tivo_suggestion === true) {
           return {labelClass: "label label-warning", labelText: "Suggestion"};
         } else {
           return {labelClass: "label label-info", labelText: "Recorded"};
@@ -62,19 +62,19 @@ angular.module('mediaMogulApp')
     };
 
     self.shouldHideMarkWatched = function(episode) {
-      return (!episode.OnTiVo || episode.Watched) && (episode.OnTiVo || isUnaired(episode));
+      return (!episode.on_tivo || episode.watched) && (episode.on_tivo || isUnaired(episode));
     };
 
     self.shouldShowMarkWatched = function(episode) {
-      return !episode.Watched &&
-      (episode.OnTiVo || !isUnaired(episode));
+      return !episode.watched &&
+      (episode.on_tivo || !isUnaired(episode));
     };
 
     function isUnaired(episode) {
       // unaired if the air date is more than a day after now.
 
-      var isNull = episode.tvdbFirstAired == null;
-      var diff = (new Date(episode.tvdbFirstAired) - new Date + (1000 * 60 * 60 * 24));
+      var isNull = episode.air_date == null;
+      var diff = (new Date(episode.air_date) - new Date + (1000 * 60 * 60 * 24));
       var hasSufficientDiff = (diff > 0);
 
       return isNull || hasSufficientDiff;
@@ -96,7 +96,7 @@ angular.module('mediaMogulApp')
 
 
     self.episodeFilter = function(episode) {
-      return episode.tvdbSeason == self.selectedSeason && !episode.MatchingStump;
+      return episode.season == self.selectedSeason && !episode.retired;
     };
 
 
@@ -118,19 +118,19 @@ angular.module('mediaMogulApp')
     self.markAllPastWatched = function() {
       var lastWatched = null;
       self.episodes.forEach(function(episode) {
-        if ((lastWatched == null || lastWatched < episode.tvdbFirstAired)
-          && episode.Watched && episode.tvdbSeason != 0) {
+        if ((lastWatched == null || lastWatched < episode.air_date)
+          && episode.watched && episode.season != 0) {
 
-          lastWatched = episode.tvdbFirstAired;
+          lastWatched = episode.air_date;
         }
       });
 
       EpisodeService.markAllWatched(self.series._id, lastWatched).then(function() {
         $log.debug("Finished update, adjusting denorms.");
         self.episodes.forEach(function(episode) {
-          $log.debug(lastWatched + ", " + episode.tvdbFirstAired);
-          if (episode.tvdbFirstAired != null && episode.tvdbFirstAired < lastWatched && episode.tvdbSeason != 0) {
-            episode.Watched = true;
+          $log.debug(lastWatched + ", " + episode.air_date);
+          if (episode.air_date != null && episode.air_date < lastWatched && episode.season != 0) {
+            episode.watched = true;
           }
         });
         EpisodeService.updateDenorms(self.series, self.episodes);
@@ -170,7 +170,7 @@ angular.module('mediaMogulApp')
     };
 
     self.markWatched = function(episode, withoutDate) {
-      EpisodeService.markWatched(self.series._id, episode._id, episode.Watched, withoutDate).then(function () {
+      EpisodeService.markWatched(self.series._id, episode._id, episode.watched, withoutDate).then(function () {
         EpisodeService.updateDenorms(self.series, self.episodes);
       });
     };

@@ -35,7 +35,7 @@ function EpisodeService($log, $http) {
   };
 
   this.updateEpisodeList = function(series) {
-    return $http.get('/episodeList', {params: {SeriesId: series._id}}).then(function(episodeResponse) {
+    return $http.get('/episodeList', {params: {SeriesId: series.id}}).then(function(episodeResponse) {
       $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
       episodes = episodeResponse.data;
     }, function(errResponse) {
@@ -54,8 +54,8 @@ function EpisodeService($log, $http) {
 
   this.markWatched = function(seriesId, episodeId, watched, withoutDate) {
     var changedFields = withoutDate ?
-      {"Watched": watched} :
-      {"Watched": watched, "WatchedDate": new Date};
+      {"watched": watched} :
+      {"watched": watched, "WatchedDate": new Date};
 
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
     // todo: add some error handling.
@@ -91,7 +91,7 @@ function EpisodeService($log, $http) {
     });
   };
   this.retireUnmatchedEpisode = function (episodeId) {
-    var changedFields = {"MatchingStump": true};
+    var changedFields = {"retired": true};
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
   };
 
@@ -112,13 +112,13 @@ function EpisodeService($log, $http) {
 
     episodes.forEach(function(episode) {
 
-      if (!episode.MatchingStump) {
+      if (!episode.retired) {
 
-        var onTiVo = episode.OnTiVo;
-        var suggestion = episode.TiVoSuggestion;
+        var onTiVo = episode.on_tivo;
+        var suggestion = episode.tivo_suggestion;
         var showingStartTime = episode.TiVoShowingStartTime;
-        var deleted = (episode.TiVoDeletedDate != null);
-        var watched = episode.Watched;
+        var deleted = (episode.tivo_deleted_date != null);
+        var watched = episode.watched;
         var hasTVDBId = (episode.tvdbEpisodeId != null);
 
         // ACTIVE

@@ -14,7 +14,7 @@
       </thead>
       <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.unmatchedFilter |
-                          orderBy:['tvdbEpisodeNumber']"
+                          orderBy:['tvdb_episode_number']"
           ng-class="ctrl.getRowClass(episode)"
           ng-click="ctrl.toggleRowTop(episode)">
         <td ng-bind="episode.TiVoEpisodeNumber"></td>
@@ -60,12 +60,12 @@
       </thead>
       <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.bottomFilter |
-                          orderBy:['tvdbEpisodeNumber']"
+                          orderBy:['tvdb_episode_number']"
           ng-class="ctrl.getRowClass(episode)"
           ng-click="ctrl.toggleRowBottom(episode)">
-        <td ng-bind="episode.tvdbEpisodeNumber"></td>
-        <td ng-bind="episode.tvdbEpisodeName" class="episodeDescription"></td>
-        <td ng-bind="episode.tvdbFirstAired|date:'EEE MM/d'"></td>
+        <td ng-bind="episode.tvdb_episode_number"></td>
+        <td ng-bind="episode.tvdb_episode_name" class="episodeDescription"></td>
+        <td ng-bind="episode.air_date|date:'EEE MM/d'"></td>
         <td>
               <span ng-class="ctrl.getLabelInfo(episode).labelClass"
                     ng-hide="ctrl.getLabelInfo(episode) == null"

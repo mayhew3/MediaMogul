@@ -44,16 +44,37 @@ exports.getSeries = function(request, response) {
   })
 };
 
-exports.getEpisodes = function(req, res) {
+exports.getEpisodes = function(req, response) {
   console.log("Episode call received. Params: " + req.query.SeriesId);
 
   var results = [];
 
-  pg.connect(process.env.DATABASE_URL, function(err, client) {
-    var sql = 'SELECT * ' +
-      'FROM episode ' +
-      'WHERE seriesid = $1' +
-      'ORDER BY season, episode_number';
+  var config = process.env.DATABASE_URL;
+
+  var client = new pg.Client(config);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
+    var sql = 'SELECT e.*, ' +
+      'te.episode_number as tvdb_episode_number, ' +
+      'te.name as tvdb_episode_name, ' +
+      'ti.deleted_date as tivo_deleted_date, ' +
+      'ti.suggestion as tivo_suggestion ' +
+      'FROM episode e ' +
+      'LEFT OUTER JOIN tvdb_episode te ' +
+      ' ON e.tvdb_episode_id = te.id ' +
+      'LEFT OUTER JOIN tivo_episode ti ' +
+      ' ON e.tivo_episode_id = ti.id ' +
+      'WHERE e.seriesid = $1 ' +
+      'ORDER BY e.season, te.episode_number';
+
+    console.log(sql);
 
     var queryConfig = {
       text: sql,
@@ -215,20 +236,20 @@ exports.markAllEpisodesAsWatched = function(req, res) {
 
   var conditions = {
     SeriesId: seriesId,
-    OnTiVo: true,
-    Watched: {$ne: true},
-    tvdbSeason: {$ne: 0}
+    on_tivo: true,
+    watched: {$ne: true},
+    season: {$ne: 0}
   };
-  var updateFields = {Watched: true, WatchedDate: new Date};
+  var updateFields = {watched: true, WatchedDate: new Date};
 
   if (lastWatched != null) {
     conditions = {
       SeriesId: seriesId,
       tvdbEpisodeId: {$exists: true},
-      tvdbFirstAired: {$lt: lastWatched},
-      tvdbSeason: {$ne: 0}
+      air_date: {$lt: lastWatched},
+      season: {$ne: 0}
     };
-    updateFields = {Watched: true};
+    updateFields = {watched: true};
   }
 
   Episodes.update(conditions, updateFields, {multi:true})

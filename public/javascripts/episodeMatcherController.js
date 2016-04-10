@@ -15,7 +15,7 @@ angular.module('mediaMogulApp')
     }).then(function() {
       self.episodes.forEach(function (episode) {
 
-        var season = episode.tvdbSeason;
+        var season = episode.season;
         if (season != null && !(self.seasonLabels.indexOf(season) > -1)) {
           self.seasonLabels.push(season);
           if (!isUnaired(episode)) {
@@ -27,10 +27,10 @@ angular.module('mediaMogulApp')
 
 
     self.getLabelInfo = function(episode) {
-      if (episode.OnTiVo) {
-        if (episode.TiVoDeletedDate) {
+      if (episode.on_tivo) {
+        if (episode.tivo_deleted_date) {
           return {labelClass: "label label-default", labelText: "Deleted"};
-        } else if (episode.TiVoSuggestion === true) {
+        } else if (episode.tivo_suggestion === true) {
           return {labelClass: "label label-warning", labelText: "Suggestion"};
         } else {
           return {labelClass: "label label-info", labelText: "Recorded"};
@@ -44,22 +44,22 @@ angular.module('mediaMogulApp')
     };
 
     self.shouldHideMarkWatched = function(episode) {
-      return !episode.OnTiVo || episode.Watched || isUnaired(episode);
+      return !episode.on_tivo || episode.watched || isUnaired(episode);
     };
 
     function isUnaired(episode) {
       // unaired if the air date is more than a day after now.
-      return episode.tvdbFirstAired == null || ((episode.tvdbFirstAired - new Date + (1000*60*60*24)) > 0);
+      return episode.air_date == null || ((episode.air_date - new Date + (1000*60*60*24)) > 0);
     }
 
 
     self.unmatchedFilter = function(episode) {
-      return episode.tvdbEpisodeId == null && !episode.MatchingStump;
+      return episode.tvdbEpisodeId == null && !episode.retired;
     };
 
 
     self.bottomFilter = function(episode) {
-      return episode.tvdbSeason == self.selectedSeason && !episode.MatchingStump;
+      return episode.season == self.selectedSeason && !episode.retired;
     };
 
     self.getButtonClass = function(season) {
@@ -86,7 +86,7 @@ angular.module('mediaMogulApp')
     };
 
     self.retireUnmatchedEpisode = function(episode) {
-      episode.MatchingStump = true;
+      episode.retired = true;
       EpisodeService.retireUnmatchedEpisode(episode._id).then(function() {
         episode.ChosenTop = false;
         EpisodeService.updateDenorms(self.series, self.episodes);
@@ -120,20 +120,20 @@ angular.module('mediaMogulApp')
 
         var tivoEpisode = tivoEps[0];
         var fieldsToChange = {
-          OnTiVo: true,
+          on_tivo: true,
           TiVoDescription: tivoEpisode.TiVoDescription,
-          TiVoDeletedDate: tivoEpisode.TiVoDeletedDate,
+          tivo_deleted_date: tivoEpisode.tivo_deleted_date,
           TiVoEpisodeNumber: tivoEpisode.TiVoEpisodeNumber,
           TiVoEpisodeTitle: tivoEpisode.TiVoEpisodeTitle,
           TiVoProgramId: tivoEpisode.TiVoProgramId,
           TiVoSeriesTitle: tivoEpisode.TiVoSeriesTitle,
           TiVoShowingStartTime: tivoEpisode.TiVoShowingStartTime,
-          TiVoSuggestion: tivoEpisode.TiVoSuggestion
+          tivo_suggestion: tivoEpisode.tivo_suggestion
         };
 
         EpisodeService.matchTiVoEpisodes(fieldsToChange, tvdbIDs).then(function() {
           tivoEps.forEach(function (episode) {
-            episode.MatchingStump = true;
+            episode.retired = true;
             episode.ChosenTop = false;
           });
           tvdbEps.forEach(function (tvdbEpisode) {
@@ -145,7 +145,7 @@ angular.module('mediaMogulApp')
             tvdbEpisode.ChosenBottom = false;
           });
           self.series.unmatched_episodes--;
-          if (!tivoEpisode.Watched) {
+          if (!tivoEpisode.watched) {
             self.series.unwatched_episodes++;
           }
         }, function (errResponse) {
