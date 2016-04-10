@@ -87,7 +87,7 @@ angular.module('mediaMogulApp')
 
     self.retireUnmatchedEpisode = function(episode) {
       episode.retired = true;
-      EpisodeService.retireUnmatchedEpisode(episode._id).then(function() {
+      EpisodeService.retireUnmatchedEpisode(episode.id).then(function() {
         episode.ChosenTop = false;
         EpisodeService.updateDenorms(self.series, self.episodes);
       });

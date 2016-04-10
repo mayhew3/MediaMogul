@@ -170,7 +170,7 @@ angular.module('mediaMogulApp')
     };
 
     self.markWatched = function(episode, withoutDate) {
-      EpisodeService.markWatched(self.series.id, episode._id, episode.watched, withoutDate).then(function () {
+      EpisodeService.markWatched(self.series.id, episode.id, episode.watched, withoutDate).then(function () {
         EpisodeService.updateDenorms(self.series, self.episodes);
       });
     };

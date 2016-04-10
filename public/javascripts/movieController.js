@@ -15,6 +15,6 @@ angular.module('mediaMogulApp')
     });
 
     self.change = function(episode) {
-      EpisodeService.markWatched(episode._id, episode.watched);
+      EpisodeService.markWatched(episode.id, episode.watched);
     };
   }]);
