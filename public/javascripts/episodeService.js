@@ -53,9 +53,10 @@ function EpisodeService($log, $http) {
   };
 
   this.markWatched = function(seriesId, episodeId, watched, withoutDate) {
+    var watchedDate = watched ? new Date : null;
     var changedFields = withoutDate ?
       {"watched": watched} :
-      {"watched": watched, "WatchedDate": new Date};
+      {"watched": watched, "watched_date": watchedDate};
 
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
     // todo: add some error handling.
@@ -91,7 +92,7 @@ function EpisodeService($log, $http) {
     });
   };
   this.retireUnmatchedEpisode = function (episodeId) {
-    var changedFields = {"retired": true};
+    var changedFields = {"retired": 1};
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
   };
 

@@ -44,33 +44,9 @@ exports.changeTier = function(req, response) {
 
   console.log("Updating series " + seriesId + " to Tier " + tier);
 
-  if (client == null) {
-    return console.error('null client');
-  }
+  var sql = "UPDATE series SET tier = $1 WHERE id = $2";
 
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var sql = "UPDATE series SET tier = $1 WHERE id = $2";
-    var queryConfig = {
-      text: sql,
-      values: [tier, seriesId]
-    };
-
-    var query = client.query(queryConfig);
-
-    query.on('end', function() {
-      client.end();
-      return response.json({msg: "Success"});
-    });
-
-    if (err) {
-      console.error(err);
-      response.send("Error " + err);
-    }
-  });
+  executeQueryNoResults(response, sql, [tier, seriesId]);
 };
 
 exports.addSeries = function(req, res, next) {
@@ -144,6 +120,7 @@ exports.addSeries = function(req, res, next) {
 
 
 };
+
 exports.updateSeries = function(req, response) {
   console.log("Update Series with " + JSON.stringify(req.body.ChangedFields));
 
@@ -155,17 +132,17 @@ exports.updateSeries = function(req, response) {
   executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
-exports.updateEpisode = function(req, res) {
+exports.updateEpisode = function(req, response) {
   console.log("Update Episode with " + JSON.stringify(req.body.ChangedFields));
-  Episodes.update({_id: req.body.EpisodeId}, req.body.ChangedFields)
-    .exec(function(err) {
-      if (err) {
-        res.json(404, {msg: 'Failed to update Episode with new fields.'});
-      } else {
-        res.json({msg: "success"});
-      }
-    });
+
+  var queryConfig = buildQueryConfig(req.body.ChangedFields, "episode", req.body.EpisodeId);
+
+  console.log("SQL: " + queryConfig.text);
+  console.log("Values: " + queryConfig.values);
+
+  executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
+
 exports.updateMultipleEpisodes = function(req, res) {
   Episodes.update({_id: {$in: req.body.AllEpisodeIds}}, req.body.ChangedFields, {multi:true})
     .exec(function(err) {
@@ -187,7 +164,7 @@ exports.markAllEpisodesAsWatched = function(req, res) {
     watched: {$ne: true},
     season: {$ne: 0}
   };
-  var updateFields = {watched: true, WatchedDate: new Date};
+  var updateFields = {watched: true, watched_date: new Date};
 
   if (lastWatched != null) {
     conditions = {
