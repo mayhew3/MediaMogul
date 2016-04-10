@@ -206,16 +206,63 @@ exports.addSeries = function(req, res, next) {
 
 
 };
-exports.updateSeries = function(req, res) {
+exports.updateSeries = function(req, response) {
   console.log("Update Series with " + JSON.stringify(req.body.ChangedFields));
-  Series.update({_id: req.body.SeriesId}, req.body.ChangedFields)
-    .exec(function(err, savedSeries) {
-      if (err) {
-        res.json(404, {msg: 'Failed to update Series with new fields.'});
-      } else {
-        res.json({msg: "success"});
+
+  var sql = "UPDATE series SET ";
+  var values = [];
+  var i = 1;
+  var changedFields = req.body.ChangedFields;
+  for (var key in changedFields) {
+    if (changedFields.hasOwnProperty(key)) {
+      if (values.length != 0) {
+        sql += ", ";
       }
+
+      sql += (key + " = $" + i);
+
+      var value = changedFields[key];
+      values.push(value);
+
+      i++;
+    }
+  }
+
+  sql += (" WHERE id = $" + i);
+
+  values.push(req.body.SeriesId);
+
+  console.log("SQL: " + sql);
+  console.log("Values: " + values);
+
+  var client = new pg.Client(process.env.DATABASE_URL);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
+    var queryConfig = {
+      text: sql,
+      values: values
+    };
+
+    var query = client.query(queryConfig);
+
+    query.on('end', function() {
+      client.end();
+      return response.json({msg: "Success"});
     });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  });
+
 };
 exports.updateEpisode = function(req, res) {
   console.log("Update Episode with " + JSON.stringify(req.body.ChangedFields));
