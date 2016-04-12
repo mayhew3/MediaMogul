@@ -124,23 +124,23 @@ exports.addSeries = function(req, res, next) {
 exports.updateSeries = function(req, response) {
   console.log("Update Series with " + JSON.stringify(req.body.ChangedFields));
 
-  var queryConfig = buildQueryConfig(req.body.ChangedFields, "series", req.body.SeriesId);
+  var queryConfig = buildUpdateQueryConfig(req.body.ChangedFields, "series", req.body.SeriesId);
 
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
 exports.updateEpisode = function(req, response) {
   console.log("Update Episode with " + JSON.stringify(req.body.ChangedFields));
 
-  var queryConfig = buildQueryConfig(req.body.ChangedFields, "episode", req.body.EpisodeId);
+  var queryConfig = buildUpdateQueryConfig(req.body.ChangedFields, "episode", req.body.EpisodeId);
 
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
 exports.updateMultipleEpisodes = function(req, res) {
@@ -156,47 +156,67 @@ exports.updateMultipleEpisodes = function(req, res) {
 exports.markAllEpisodesAsWatched = function(req, res) {
   var seriesId = req.body.SeriesId;
   var lastWatched = req.body.LastWatched;
+
+  if (lastWatched == null) {
+    return markAllWatched(res, seriesId);
+  } else {
+    return markPastWatched(res, seriesId, lastWatched);
+  }
+};
+
+function markAllWatched(response, seriesId) {
+  console.log("Updating all episodes as Watched");
+
+  var sql = 'UPDATE episode ' +
+    'SET watched = $1 ' +
+    'WHERE seriesid = $2 ' +
+    'AND on_tivo = $3 ' +
+    'AND watched <> $4 ' +
+    'AND season <> $5 ';
+
+  var values = [true, // watched
+    seriesId, // series_id
+    true, // on_tivo
+    true, // !watched
+    0 // !season
+  ];
+
+  return executeQueryNoResults(response, sql, values)
+  // todo: do both updates in a single server call (MM-134)
+/*
+  .then(function() {
+    var sql = 'UPDATE series ' +
+      'SET unwatched_episodes = $1, last_unwatched = $2 ' +
+      'WHERE id = $3';
+
+    executeQueryNoResults(res, sql, [0, null, seriesId]);
+  })
+*/
+
+    ;
+}
+
+function markPastWatched(response, seriesId, lastWatched) {
   console.log("Updating episodes as Watched, before " + lastWatched);
 
-  var conditions = {
-    SeriesId: seriesId,
-    on_tivo: true,
-    watched: {$ne: true},
-    season: {$ne: 0}
-  };
-  var updateFields = {watched: true, watched_date: new Date};
+  var sql = 'UPDATE episode ' +
+    'SET watched = $1 ' +
+    'WHERE seriesid = $2 ' +
+    'AND tvdb_episode_id is not null ' +
+    'AND air_date < $3 ' +
+    'AND watched <> $4 ' +
+    'AND season <> $5 ';
 
-  if (lastWatched != null) {
-    conditions = {
-      SeriesId: seriesId,
-      tvdbEpisodeId: {$exists: true},
-      air_date: {$lt: lastWatched},
-      season: {$ne: 0}
-    };
-    updateFields = {watched: true};
-  }
+  var values = [true, // watched
+    seriesId, // series_id
+    lastWatched, // air_date <
+    true, // !watched
+    0 // !season
+  ];
 
-  Episodes.update(conditions, updateFields, {multi:true})
-    .exec(function(err) {
-      if (err) {
-        res.json(404, {msg: 'Failed to update Episode with new fields.'});
-      } else {
-        console.log("Updating series.");
-        if (lastWatched == null) {
-          Series.update({_id: seriesId}, {UnwatchedEpisodes: 0, LastUnwatched: null})
-            .exec(function (err) {
-              if (err) {
-                res.json(404, {msg: 'Failed to update Series with new fields.'});
-              } else {
-                res.json({msg: "Success."});
-              }
-            })
-        } else {
-          res.json({msg: "Success."});
-        }
-      }
-    });
-};
+  return executeQueryNoResults(response, sql, values);
+}
+
 exports.matchTiVoEpisodes = function(req, res) {
   var tivoEpisode = req.body.Episode;
   var tvdbEpisodeIds = req.body.TVDBEpisodeIds;
@@ -297,7 +317,7 @@ function executeQueryNoResults(response, sql, values) {
   });
 }
 
-function buildQueryConfig(changedFields, tableName, rowID) {
+function buildUpdateQueryConfig(changedFields, tableName, rowID) {
 
   var sql = "UPDATE " + tableName + " SET ";
   var values = [];

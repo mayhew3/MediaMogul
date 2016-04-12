@@ -87,6 +87,15 @@ angular.module('mediaMogulApp')
         $log.debug("Finished update, adjusting denorms.");
         series.unwatched_episodes = 0;
         series.last_unwatched = null;
+
+        var changedFields = {
+          unwatched_episodes: 0,
+          last_unwatched: null
+        };
+
+        EpisodeService.updateSeries(series.id, changedFields).then(function() {
+          $log.debug("Finished updating series unwatched to 0.");
+        });
       });
 
       $log.debug("Series '" + series.title + "' " + series.id);
