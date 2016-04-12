@@ -50,10 +50,11 @@ exports.changeTier = function(req, response) {
 };
 
 exports.addSeries = function(req, res, next) {
-  var seriesObj = req.body.series;
-  var series = new Series(seriesObj);
+  console.log("Entered addSeries server call.");
 
-  var seriesName = series.title
+  var seriesObj = req.body.series;
+
+  var seriesName = seriesObj.title
     .toLowerCase()
     .replace(/ /g, '_')
     .replace(/[^\w-]+/g, '');
@@ -76,7 +77,7 @@ exports.addSeries = function(req, res, next) {
           }
           var tvdbId = result.data.series.seriesid || result.data.series[0].seriesid;
           console.log("Found ID on TVDB! Id is " + tvdbId);
-          callback(err, series, tvdbId);
+          callback(err, seriesObj, tvdbId);
         });
       });
     },
@@ -108,13 +109,27 @@ exports.addSeries = function(req, res, next) {
   ], function (err, series) {
     if (err) return next(err);
 
-    series.save(function(err) {
-      if (err) {
-        res.json(404, {msg: 'Failed to insert Series.'});
-      } else {
-        res.json({msg: "success"});
-      }
-    });
+    var sql = "INSERT INTO tvdb_series (" +
+      "tvdb_id, name, airs_day_of_week, airs_time, first_aired, network, overview, " +
+      "rating, rating_count, runtime, status, poster) " +
+      "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)";
+
+    console.log(sql);
+
+    executeQueryNoResults(res, sql, [
+      series.tvdb_id,
+      series.tvdbName,
+      series.tvdbAirsDayOfWeek,
+      series.tvdbAirsTime,
+      series.tvdbFirstAired,
+      series.tvdbNetwork,
+      series.tvdbOverview,
+      series.tvdbRating,
+      series.tvdbRatingCount,
+      series.tvdbRuntime,
+      series.tvdbStatus,
+      series.tvdbPoster
+    ]);
 
   });
 
