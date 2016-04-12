@@ -143,16 +143,17 @@ exports.updateEpisode = function(req, response) {
   return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
-exports.updateMultipleEpisodes = function(req, res) {
-  Episodes.update({_id: {$in: req.body.AllEpisodeIds}}, req.body.ChangedFields, {multi:true})
-    .exec(function(err) {
-      if (err) {
-        res.json(404, {msg: 'Failed to update Episode with new fields.'});
-      } else {
-        res.json({msg: "success"});
-      }
-    });
+exports.updateMultipleEpisodes = function(req, response) {
+  console.log("Update Multiple Episodes with " + JSON.stringify(req.body.ChangedFields));
+
+  var queryConfig = buildUpdateQueryConfigMultiple(req.body.ChangedFields, "episode", req.body.AllEpisodeIds);
+
+  console.log("SQL: " + queryConfig.text);
+  console.log("Values: " + queryConfig.values);
+
+  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
+
 exports.markAllEpisodesAsWatched = function(req, res) {
   var seriesId = req.body.SeriesId;
   var lastWatched = req.body.LastWatched;
@@ -340,6 +341,51 @@ function buildUpdateQueryConfig(changedFields, tableName, rowID) {
   sql += (" WHERE id = $" + i);
 
   values.push(rowID);
+
+  return {
+    text: sql,
+    values: values
+  };
+}
+
+// todo: doesn't quite work right
+function buildUpdateQueryConfigMultiple(changedFields, tableName, rowIDs) {
+
+  var sql = "UPDATE " + tableName + " SET ";
+  var values = [];
+  var i = 1;
+  for (var key in changedFields) {
+    if (changedFields.hasOwnProperty(key)) {
+      if (values.length != 0) {
+        sql += ", ";
+      }
+
+      sql += (key + " = $" + i);
+
+      var value = changedFields[key];
+      values.push(value);
+
+      i++;
+    }
+  }
+
+  sql += " WHERE id IN (";
+
+  var startIndex = i;
+  for(var rowID in rowIDs) {
+    if (i != startIndex) {
+      sql += ", ";
+    }
+
+    sql += ("$" + i);
+    values.push(rowID);
+
+    i++;
+  }
+
+  sql += ")";
+
+  console.log(sql);
 
   return {
     text: sql,
