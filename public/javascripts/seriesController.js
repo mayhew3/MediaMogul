@@ -17,18 +17,15 @@ angular.module('mediaMogulApp')
         ;
     };
 
-
     self.secondTier = function(series) {
       return series.tier === 2
          && airedInLastDays(series.last_unwatched, 21)
         ;
     };
 
-
     self.orderByRating = function(series) {
       return (angular.isDefined(series.FullRating) ? -1: 0);
     };
-
 
     function airedInLastDays(airDate, days) {
       var notNull = airDate != null;

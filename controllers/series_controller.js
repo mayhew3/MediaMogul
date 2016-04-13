@@ -1,9 +1,6 @@
 var xml2js = require('xml2js');
 var async = require('async');
 var request = require('request');
-var mongoose = require('mongoose'),
-  Series = mongoose.model('series'),
-  Episodes = mongoose.model('episodes');
 var pg = require('pg');
 var config = process.env.DATABASE_URL;
 
@@ -324,6 +321,7 @@ exports.matchTiVoEpisodes = function(req, res) {
 
   console.log("Trying to match TVDB IDs " + tvdbEpisodeIds + " to episode " + JSON.stringify(tivoEpisode));
 
+  /*
   Episodes.update({TiVoProgramId: tivoEpisode.TiVoProgramId},
                   {MatchingStump:true})
     .exec(function(err) {
@@ -344,7 +342,7 @@ exports.matchTiVoEpisodes = function(req, res) {
           });
       }
     });
-
+*/
 };
 
 // utility methods

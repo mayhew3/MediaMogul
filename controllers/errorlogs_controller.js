@@ -1,6 +1,5 @@
-var mongoose = require('mongoose'),
-  ErrorLog = mongoose.model('errorlogs');
 exports.getErrorLogs = function(req, res) {
+  /*
   ErrorLog.find({Resolved:false}).sort({EventDate:-1})
       .exec(function(err, errorlogs) {
           if (!errorlogs) {
@@ -9,11 +8,12 @@ exports.getErrorLogs = function(req, res) {
               res.json(errorlogs);
           }
       });
+  */
 };
 exports.setChosenName = function(req, res) {
   var id = req.body.errorLogID;
   var chosenName = req.body.chosenName;
-
+/*
   ErrorLog.update({_id : id}, {ChosenName: chosenName})
     .exec(function(err) {
       if (err) {
@@ -22,11 +22,12 @@ exports.setChosenName = function(req, res) {
         res.json({msg: "success"});
       }
     });
+  */
 };
 exports.setIgnoreError = function(req, res) {
   var id = req.body.errorLogID;
   var ignoreError = req.body.ignoreError;
-
+/*
   ErrorLog.update({_id : id}, {IgnoreError: ignoreError})
     .exec(function(err) {
       if (err) {
@@ -35,4 +36,5 @@ exports.setIgnoreError = function(req, res) {
         res.json({msg: "success"});
       }
     });
+  */
 };

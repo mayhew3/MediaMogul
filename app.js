@@ -4,11 +4,6 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://obsidian/tv');
-require('./models/series_model.js');
-require('./models/episode_model.js');
-require('./models/errorlog_model.js');
 
 var app = express();
 
