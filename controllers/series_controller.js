@@ -73,7 +73,8 @@ exports.addSeries = function(req, res, next) {
         if (error) return next(error);
         parser.parseString(body, function(err, result) {
           if (!result.data.series) {
-            return res.send(400, { message: seriesName + ' was not found.' });
+            seriesObj.tvdb_series_id = null;
+            return insertSeries(seriesObj, res);
           }
           var tvdbId = result.data.series.seriesid || result.data.series[0].seriesid;
           console.log("Found ID on TVDB! Id is " + tvdbId);
@@ -109,14 +110,22 @@ exports.addSeries = function(req, res, next) {
   ], function (err, series) {
     if (err) return next(err);
 
+    var tvdb_id = series.tvdb_id;
+
+    if (tvdb_id == null) {
+      console.log("tvdb_id is null, so not inserting into tvdb_series.");
+      return insertSeries(series, res);
+    }
+
     var sql = "INSERT INTO tvdb_series (" +
       "tvdb_id, name, airs_day_of_week, airs_time, first_aired, network, overview, " +
-      "rating, rating_count, runtime, status, poster) " +
-      "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)";
+      "rating, rating_count, runtime, status, poster, date_added) " +
+      "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) " +
+      "RETURNING id";
 
     console.log(sql);
 
-    executeQueryNoResults(res, sql, [
+    var values = [
       series.tvdb_id,
       series.tvdbName,
       series.tvdbAirsDayOfWeek,
@@ -128,11 +137,87 @@ exports.addSeries = function(req, res, next) {
       series.tvdbRatingCount,
       series.tvdbRuntime,
       series.tvdbStatus,
-      series.tvdbPoster
-    ]);
+      series.tvdbPoster,
+      new Date
+    ];
+
+    var queryConfig = {
+      text: sql,
+      values: values
+    };
+
+    var client = new pg.Client(config);
+    if (client == null) {
+      return console.error('null client');
+    }
+
+    client.connect(function(err) {
+      if (err) {
+        return console.error('could not connect to postgres', err);
+      }
+
+      client.query(queryConfig, function(err, result) {
+        if (err) {
+          console.error(err);
+          response.send("Error " + err);
+        }
+        console.log("tvdb_series insert successful.");
+        series.tvdb_series_id = result.rows[0].id;
+        console.log("tvdb_series_id found: " + series.tvdb_series_id);
+        return insertSeries(series, res);
+      });
+
+    });
+
 
   });
 
+
+};
+
+var insertSeries = function(series, response) {
+  console.log("Inserting series.");
+
+  var sql = "INSERT INTO series (" +
+    "title, tier, metacritic, tvdb_series_id, tvdb_id, my_rating, date_added) " +
+    "VALUES ($1, $2, $3, $4, $5, $6, $7)";
+  var values = [
+    series.title,
+    series.tier,
+    series.metacritic,
+    series.tvdb_series_id,
+    series.tvdb_id,
+    series.my_rating,
+    new Date
+  ];
+
+  var queryConfig = {
+    text: sql,
+    values: values
+  };
+
+  var client = new pg.Client(config);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
+    var query = client.query(queryConfig);
+
+    query.on('end', function() {
+      client.end();
+      return response.json({msg: "Success!"});
+    });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  });
 
 };
 
