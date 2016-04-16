@@ -27,12 +27,27 @@ exports.getEpisodes = function(req, response) {
     'FROM episode e ' +
     'LEFT OUTER JOIN tvdb_episode te ' +
     ' ON e.tvdb_episode_id = te.id ' +
+    'LEFT OUTER JOIN edge_tivo_episode ete ' +
+    ' ON e.id = ete.episode_id ' +
     'LEFT OUTER JOIN tivo_episode ti ' +
-    ' ON e.tivo_episode_id = ti.id ' +
+    ' ON ete.tivo_episode_id = ti.id ' +
     'WHERE e.seriesid = $1 ' +
     'ORDER BY e.season, te.episode_number';
 
   return executeQueryWithResults(response, sql, [req.query.SeriesId]);
+};
+
+exports.getUnmatchedEpisodes = function(req, response) {
+  console.log("Unmatched Episode call received. Params: " + req.query.TiVoSeriesId);
+
+  var sql = 'SELECT te.* ' +
+  'FROM tivo_episode te ' +
+  'LEFT OUTER JOIN edge_tivo_episode ete ' +
+  'ON ete.tivo_episode_id = te.id ' +
+  'WHERE ete.tivo_episode_id IS NULL ' +
+    'AND te.tivo_series_id = $1';
+
+  return executeQueryWithResults(response, sql, [req.query.TiVoSeriesId]);
 };
 
 exports.changeTier = function(req, response) {

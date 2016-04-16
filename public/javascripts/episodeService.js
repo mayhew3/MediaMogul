@@ -1,6 +1,7 @@
 function EpisodeService($log, $http) {
   var shows = [];
   var episodes = [];
+  var unmatchedEpisodes = [];
   var self = this;
 
   this.getSeriesWithTitle = function(SeriesTitle) {
@@ -43,10 +44,22 @@ function EpisodeService($log, $http) {
     });
   };
 
+  this.updateUnmatchedList = function(series) {
+    return $http.get('/unmatchedEpisodes', {params: {TiVoSeriesId: series.tivo_series_id}}).then(function(episodeResponse) {
+      $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
+      unmatchedEpisodes = episodeResponse.data;
+    }, function(errResponse) {
+      console.error('Error while fetching episode list: ' + errResponse);
+    });
+  };
+
   this.getEpisodes = function() {
     return episodes;
   };
 
+  this.getUnmatchedEpisodes = function() {
+    return unmatchedEpisodes;
+  };
 
   this.getSeriesList = function() {
     return shows;
@@ -120,7 +133,7 @@ function EpisodeService($log, $http) {
         var showingStartTime = episode.TiVoShowingStartTime;
         var deleted = (episode.tivo_deleted_date != null);
         var watched = episode.watched;
-        var hasTVDBId = (episode.tvdbEpisodeId != null);
+        var hasTVDBId = (episode.tvdb_episode_id != null);
 
         // ACTIVE
         if (onTiVo && !suggestion && !deleted) {

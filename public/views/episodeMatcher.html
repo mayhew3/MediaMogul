@@ -12,18 +12,17 @@
       <th>TiVo</th>
       <th></th>
       </thead>
-      <tr data-ng-repeat="episode in ctrl.episodes |
-                          filter:ctrl.unmatchedFilter |
-                          orderBy:['tvdb_episode_number']"
+      <tr data-ng-repeat="episode in ctrl.unmatchedEpisodes |
+                          orderBy:['showing_start_time']"
           ng-class="ctrl.getRowClass(episode)"
           ng-click="ctrl.toggleRowTop(episode)">
-        <td ng-bind="episode.TiVoEpisodeNumber"></td>
-        <td ng-bind="episode.TiVoEpisodeTitle" class="episodeDescription"></td>
-        <td ng-bind="episode.TiVoShowingStartTime|date:'EEE MM/d'"></td>
+        <td ng-bind="episode.title"></td>
+        <td ng-bind="episode.description" class="episodeDescription"></td>
+        <td ng-bind="episode.showing_start_time|date:'EEE MM/d'"></td>
         <td>
-              <span ng-class="ctrl.getLabelInfo(episode).labelClass"
-                    ng-hide="ctrl.getLabelInfo(episode) == null"
-                    ng-bind="ctrl.getLabelInfo(episode).labelText"></span>
+              <span ng-class="ctrl.getUnmatchedLabelInfo(episode).labelClass"
+                    ng-hide="ctrl.getUnmatchedLabelInfo(episode) == null"
+                    ng-bind="ctrl.getUnmatchedLabelInfo(episode).labelText"></span>
         </td>
         <td>
           <button type="button"

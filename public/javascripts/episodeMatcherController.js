@@ -5,26 +5,40 @@ angular.module('mediaMogulApp')
 
     self.series = series;
     self.episodes = [];
+    self.unmatchedEpisodes = [];
 
     self.seasonLabels = [];
     self.selectedSeason = null;
 
     EpisodeService.updateEpisodeList(self.series).then(function() {
       self.episodes = EpisodeService.getEpisodes();
-      $log.debug("Updated list with " + self.episodes.length + " episodes!");
-    }).then(function() {
-      self.episodes.forEach(function (episode) {
 
-        var season = episode.season;
-        if (season != null && !(self.seasonLabels.indexOf(season) > -1)) {
-          self.seasonLabels.push(season);
-          if (!isUnaired(episode)) {
-            self.selectedSeason = season;
+
+      EpisodeService.updateUnmatchedList(self.series).then(function() {
+        $log.debug("Updated unmatched list with " + self.unmatchedEpisodes.length + " episodes!");
+
+        self.unmatchedEpisodes = EpisodeService.getUnmatchedEpisodes();
+        self.episodes.forEach(function (episode) {
+          var season = episode.season;
+          if (season != null && !(self.seasonLabels.indexOf(season) > -1)) {
+            self.seasonLabels.push(season);
+            if (!isUnaired(episode)) {
+              self.selectedSeason = season;
+            }
           }
-        }
-      });
+        });
+      })
     });
 
+    self.getUnmatchedLabelInfo = function(episode) {
+      if (episode.deleted_date) {
+        return {labelClass: "label label-default", labelText: "Deleted"};
+      } else if (episode.suggestion === true) {
+        return {labelClass: "label label-warning", labelText: "Suggestion"};
+      } else {
+        return {labelClass: "label label-info", labelText: "Recorded"};
+      }
+    };
 
     self.getLabelInfo = function(episode) {
       if (episode.on_tivo) {
@@ -54,7 +68,7 @@ angular.module('mediaMogulApp')
 
 
     self.unmatchedFilter = function(episode) {
-      return episode.tvdbEpisodeId == null && !episode.retired;
+      return episode.tvdb_episode_id == null && !episode.retired;
     };
 
 
@@ -103,11 +117,11 @@ angular.module('mediaMogulApp')
       self.episodes.forEach(function(episode) {
         if (episode.ChosenTop) {
           tivoEps.push(episode);
-          tivoIDs.push(episode.TiVoProgramId);
+          tivoIDs.push(episode.tivo_program_id);
         }
         if (episode.ChosenBottom) {
           tvdbEps.push(episode);
-          tvdbIDs.push(episode.tvdbEpisodeId);
+          tvdbIDs.push(episode.tvdb_episode_id);
         }
       });
 
@@ -121,11 +135,10 @@ angular.module('mediaMogulApp')
         var tivoEpisode = tivoEps[0];
         var fieldsToChange = {
           on_tivo: true,
-          TiVoDescription: tivoEpisode.TiVoDescription,
           tivo_deleted_date: tivoEpisode.tivo_deleted_date,
           TiVoEpisodeNumber: tivoEpisode.TiVoEpisodeNumber,
           TiVoEpisodeTitle: tivoEpisode.TiVoEpisodeTitle,
-          TiVoProgramId: tivoEpisode.TiVoProgramId,
+          tivo_program_id: tivoEpisode.tivo_program_id,
           TiVoSeriesTitle: tivoEpisode.TiVoSeriesTitle,
           TiVoShowingStartTime: tivoEpisode.TiVoShowingStartTime,
           tivo_suggestion: tivoEpisode.tivo_suggestion
