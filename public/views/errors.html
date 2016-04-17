@@ -26,26 +26,26 @@
               </thead>
               <tr data-ng-repeat="errorLog in ctrl.errorLogs |
                           filter:'NameMismatch' |
-                          orderBy:['TiVoName'] |
+                          orderBy:['tivo_name'] |
                           limitTo:50">
-                <td ng-bind="errorLog.EventDate|date:'EEE MM/dd'"></td>
-                <td ng-bind="errorLog.FormattedName"></td>
+                <td ng-bind="errorLog.event_date|date:'EEE MM/dd'"></td>
+                <td ng-bind="errorLog.formatted_name"></td>
                 <td>
                   <button type="button"
                           class="btn btn-success btn-sm"
                           ng-click="ctrl.chooseTiVo(errorLog)"
-                      ng-bind="errorLog.TiVoName"></button>
+                      ng-bind="errorLog.tivo_name"></button>
 
                 </td>
                 <td>
                   <button type="button"
                           class="btn btn-success btn-sm"
                           ng-click="ctrl.chooseTVDB(errorLog)"
-                          ng-bind="errorLog.TVDBName"></button>
+                          ng-bind="errorLog.tvdb_name"></button>
                 </td>
                 <td>
                   <input type="text"
-                         ng-model="errorLog.ChosenName"
+                         ng-model="errorLog.chosen_name"
                          ng-blur="ctrl.setChosenName(errorLog)"/>
                 </td>
                 <td>
@@ -54,7 +54,7 @@
                           btn-checkbox
                           btn-checkbox-true="true"
                           btn-checkbox-false="false"
-                          ng-model="errorLog.IgnoreError"
+                          ng-model="errorLog.ignore_error"
                           ng-change="ctrl.ignoreError(errorLog)">Ignore Show</button>
                 </td>
               </tr>
@@ -75,12 +75,12 @@
                           filter:'NoMatchFound' |
                           orderBy:['TiVoName'] |
                           limitTo:50">
-                <td ng-bind="errorLog.EventDate|date:'EEE MM/dd'"></td>
-                <td ng-bind="errorLog.FormattedName"></td>
-                <td ng-bind="errorLog.TiVoName"></td>
+                <td ng-bind="errorLog.event_date|date:'EEE MM/dd'"></td>
+                <td ng-bind="errorLog.formatted_name"></td>
+                <td ng-bind="errorLog.tivo_name"></td>
                 <td>
                   <input type="text"
-                         ng-model="errorLog.ChosenName"
+                         ng-model="errorLog.chosen_name"
                          ng-blur="ctrl.setChosenName(errorLog)"/>
                 </td>
                 <td>
@@ -89,7 +89,7 @@
                           btn-checkbox
                           btn-checkbox-true="true"
                           btn-checkbox-false="false"
-                          ng-model="errorLog.IgnoreError"
+                          ng-model="errorLog.ignore_error"
                           ng-change="ctrl.ignoreError(errorLog)">Ignore Show</button>
                 </td>
               </tr>

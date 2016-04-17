@@ -1,14 +1,15 @@
-exports.getErrorLogs = function(req, res) {
-  /*
-  ErrorLog.find({Resolved:false}).sort({EventDate:-1})
-      .exec(function(err, errorlogs) {
-          if (!errorlogs) {
-              res.status(404).json({msg: 'ErrorLogs Not Found.'});
-          } else {
-              res.json(errorlogs);
-          }
-      });
-  */
+var pg = require('pg');
+var config = process.env.DATABASE_URL;
+
+exports.getErrorLogs = function(req, response) {
+  console.log("Errorlogs call received.");
+
+  var sql = 'SELECT * ' +
+    'FROM error_log ' +
+    'WHERE resolved = $1 ' +
+    'ORDER BY event_date DESC';
+
+  return executeQueryWithResults(response, sql, [false]);
 };
 exports.setChosenName = function(req, res) {
   var id = req.body.errorLogID;
@@ -38,3 +39,43 @@ exports.setIgnoreError = function(req, res) {
     });
   */
 };
+
+
+// utility methods
+
+function executeQueryWithResults(response, sql, values) {
+  var results = [];
+
+  var queryConfig = {
+    text: sql,
+    values: values
+  };
+
+  var client = new pg.Client(config);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
+    var query = client.query(queryConfig);
+
+    query.on('row', function(row) {
+      results.push(row);
+    });
+
+    query.on('end', function() {
+      client.end();
+      return response.json(results);
+    });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  })
+}
+
