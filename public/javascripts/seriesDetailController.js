@@ -5,6 +5,7 @@ angular.module('mediaMogulApp')
 
     self.series = series;
     self.episodes = [];
+    self.possibleMatches = [];
 
     self.tiers = [1, 2, 3, 4, 5];
 
@@ -27,8 +28,13 @@ angular.module('mediaMogulApp')
       });
     });
 
+    EpisodeService.updatePossibleMatches(self.series).then(function() {
+      self.possibleMatches = EpisodeService.getPossibleMatches();
+      $log.debug("Updated " + self.possibleMatches.length + " possible matches.");
+    });
+
     self.wrongMatch = function() {
-      EpisodeService.updateSeries(self.series.id, {MatchedWrong: self.series.matched_wrong});
+      EpisodeService.updateSeries(self.series.id, {matched_wrong: self.series.matched_wrong});
     };
 
     self.useMatch = function(possibleMatch) {

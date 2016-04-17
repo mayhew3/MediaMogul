@@ -85,8 +85,8 @@
 
   <div id="possibleMatches" class="col-lg-12" ng-show="ctrl.series.matched_wrong">
     <button type="button"
-            ng-repeat="possibleMatch in ctrl.series.PossibleMatches"
-            ng-bind="possibleMatch.SeriesTitle"
+            ng-repeat="possibleMatch in ctrl.possibleMatches"
+            ng-bind="possibleMatch.tvdb_series_title"
             class="btn btn-info"
             ng-click="ctrl.useMatch(possibleMatch)"
         ></button>

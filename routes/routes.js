@@ -5,6 +5,7 @@ module.exports = function(app) {
 
     app.get('/seriesList', series.getSeries);
     app.get('/episodeList', series.getEpisodes);
+    app.get('/possibleMatches', series.getPossibleMatches);
     app.get('/unmatchedEpisodes', series.getUnmatchedEpisodes);
     app.get('/errorlog/list', errorLogs.getErrorLogs);
 

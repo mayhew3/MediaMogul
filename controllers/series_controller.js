@@ -38,6 +38,16 @@ exports.getEpisodes = function(req, response) {
   return executeQueryWithResults(response, sql, [req.query.SeriesId]);
 };
 
+exports.getPossibleMatches = function(req, response) {
+  console.log("Episode call received. Params: " + req.query.SeriesId);
+
+  var sql = 'SELECT psm.* ' +
+    'FROM possible_series_match psm ' +
+    'WHERE psm.series_id = $1';
+
+  return executeQueryWithResults(response, sql, [req.query.SeriesId]);
+};
+
 exports.getUnmatchedEpisodes = function(req, response) {
   console.log("Unmatched Episode call received. Params: " + req.query.TiVoSeriesId);
 

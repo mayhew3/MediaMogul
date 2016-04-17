@@ -2,6 +2,7 @@ function EpisodeService($log, $http) {
   var shows = [];
   var episodes = [];
   var unmatchedEpisodes = [];
+  var possibleMatches = [];
   var self = this;
 
   this.getSeriesWithTitle = function(SeriesTitle) {
@@ -43,6 +44,15 @@ function EpisodeService($log, $http) {
     });
   };
 
+  this.updatePossibleMatches = function(series) {
+    return $http.get('/possibleMatches', {params: {SeriesId: series.id}}).then(function(response) {
+      $log.debug("Possible matches returned " + response.data.length + " items.");
+      possibleMatches = response.data;
+    }, function(errResponse) {
+      console.error('Error while fetching possible match list: ' + errResponse);
+    });
+  };
+
   this.updateUnmatchedList = function(series) {
     return $http.get('/unmatchedEpisodes', {params: {TiVoSeriesId: series.tivo_series_id}}).then(function(episodeResponse) {
       $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
@@ -54,6 +64,10 @@ function EpisodeService($log, $http) {
 
   this.getEpisodes = function() {
     return episodes;
+  };
+
+  this.getPossibleMatches = function() {
+    return possibleMatches;
   };
 
   this.getUnmatchedEpisodes = function() {
