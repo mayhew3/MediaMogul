@@ -1,25 +1,4 @@
-body {
-  padding: 50px;
-  font: 14px Calibri, Helvetica, Arial, sans-serif;
-  color: darkslateblue;
-  background-color: darkcyan;
-}
 
-a {
-  color: #00B7FF;
-}
-
-th {
-  background-color: midnightblue;
-  color: lavender;
-  text-align: left;
-}
-
-td {
-  padding: 2pt;
-  background-color: skyblue;
-}
-
-.episodeDescription {
-  max-width: 300pt;
+.posterRow {
+  margin-bottom: 15px;
 }
