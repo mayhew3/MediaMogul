@@ -66,9 +66,15 @@ angular.module('mediaMogulApp')
       return episode.air_date == null || ((episode.air_date - new Date + (1000*60*60*24)) > 0);
     }
 
+    function removeUnmatched(episode) {
+      var index = self.unmatchedEpisodes.indexOf(episode);
+      if (index > -1) {
+        self.unmatchedEpisodes.splice(index, 1);
+      }
+    }
 
     self.unmatchedFilter = function(episode) {
-      return episode.tvdb_episode_id == null && !episode.retired;
+      return episode.on_tivo !== true && !episode.retired;
     };
 
 
@@ -94,6 +100,14 @@ angular.module('mediaMogulApp')
       episode.ChosenTop = !episode.ChosenTop;
     };
 
+    function updateUnmatchedDenorm() {
+      var updatedLength = self.unmatchedEpisodes.length;
+      var changedFields = {
+        unmatched_episodes: updatedLength
+      };
+      self.series.unmatched_episodes = updatedLength;
+      EpisodeService.updateSeries(self.series.id, changedFields);
+    }
 
     self.toggleRowBottom = function(episode) {
       episode.ChosenBottom = !episode.ChosenBottom;
@@ -102,8 +116,8 @@ angular.module('mediaMogulApp')
     self.retireUnmatchedEpisode = function(episode) {
       episode.retired = true;
       EpisodeService.retireUnmatchedEpisode(episode.id).then(function() {
-        episode.ChosenTop = false;
-        EpisodeService.updateDenorms(self.series, self.episodes);
+        removeUnmatched(episode);
+        updateUnmatchedDenorm();
       });
     };
 
@@ -115,56 +129,46 @@ angular.module('mediaMogulApp')
       var tvdbIDs = [];
 
       self.episodes.forEach(function(episode) {
-        if (episode.ChosenTop) {
-          tivoEps.push(episode);
-          tivoIDs.push(episode.tivo_program_id);
-        }
         if (episode.ChosenBottom) {
+          tvdbIDs.push(episode.id);
           tvdbEps.push(episode);
-          tvdbIDs.push(episode.tvdb_episode_id);
         }
       });
 
-      if (tivoEps.length == 0 || tvdbIDs == 0) {
+      self.unmatchedEpisodes.forEach(function(unmatchedEpisode) {
+        if (unmatchedEpisode.ChosenTop) {
+          tivoIDs.push(unmatchedEpisode.id);
+          tivoEps.push(unmatchedEpisode);
+        }
+      });
+
+      if (tivoIDs.length == 0 || tvdbIDs.length == 0) {
         $log.debug("Must select at least one episode from top and bottom to match.")
-      } else if (tivoEps.length != 1) {
+      } else if (tivoIDs.length != 1) {
         $log.debug("Currently doesn't support matching two TiVo episodes to one TVDB episode.");
       } else {
         $log.debug("Executing match between TiVo eps " + tivoIDs + " and TVDB eps " + tvdbIDs);
 
+        // if condition means there is exactly one tivo episode.
         var tivoEpisode = tivoEps[0];
-        var fieldsToChange = {
-          on_tivo: true,
-          tivo_deleted_date: tivoEpisode.tivo_deleted_date,
-          TiVoEpisodeNumber: tivoEpisode.TiVoEpisodeNumber,
-          TiVoEpisodeTitle: tivoEpisode.TiVoEpisodeTitle,
-          tivo_program_id: tivoEpisode.tivo_program_id,
-          TiVoSeriesTitle: tivoEpisode.TiVoSeriesTitle,
-          TiVoShowingStartTime: tivoEpisode.TiVoShowingStartTime,
-          tivo_suggestion: tivoEpisode.tivo_suggestion
-        };
+        var tivoID = tivoIDs[0];
 
-        EpisodeService.matchTiVoEpisodes(fieldsToChange, tvdbIDs).then(function() {
+        EpisodeService.matchTiVoEpisodes(tivoID, tvdbIDs).then(function() {
           tivoEps.forEach(function (episode) {
-            episode.retired = true;
-            episode.ChosenTop = false;
+            removeUnmatched(episode);
           });
           tvdbEps.forEach(function (tvdbEpisode) {
-            for (var key in fieldsToChange) {
-              if (fieldsToChange.hasOwnProperty(key)) {
-                tvdbEpisode[key] = fieldsToChange[key];
-              }
-            }
+            tvdbEpisode.on_tivo = true;
+            tvdbEpisode.tivo_deleted_date = tivoEpisode.deleted_date;
+            tvdbEpisode.tivo_suggestion = tivoEpisode.suggestion;
             tvdbEpisode.ChosenBottom = false;
           });
-          self.series.unmatched_episodes--;
-          if (!tivoEpisode.watched) {
-            self.series.unwatched_episodes++;
-          }
+          EpisodeService.updateDenorms(self.series, self.episodes).then(function() {
+            updateUnmatchedDenorm();
+          });
         }, function (errResponse) {
           $log.debug("Error calling the method: " + errResponse);
         });
-
       }
     };
 

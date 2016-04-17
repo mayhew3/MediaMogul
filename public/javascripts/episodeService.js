@@ -17,7 +17,6 @@ function EpisodeService($log, $http) {
       var tempShows = showresponse.data;
       tempShows.forEach(function (show) {
         self.updateNumericFields(show);
-        //show.TotalEpisodes = show.episodes.length;
       });
       $log.debug("Finished updating.");
       shows = tempShows;
@@ -84,7 +83,7 @@ function EpisodeService($log, $http) {
   };
   this.addSeries = function(series) {
     $log.debug("Adding series " + JSON.stringify(series));
-    $http.post('/addSeries', {series: series}).then(function(response) {
+    $http.post('/addSeries', {series: series}).then(function() {
       return null;
     }, function(errResponse) {
       return errResponse;
@@ -97,8 +96,8 @@ function EpisodeService($log, $http) {
       $log.debug("Error calling the method: " + errResponse);
     });
   };
-  this.matchTiVoEpisodes = function (fieldsToChange, tvdbIds) {
-    return $http.post('/matchTiVoEpisodes', {Episode: fieldsToChange, TVDBEpisodeIds: tvdbIds}).then(function () {
+  this.matchTiVoEpisodes = function (tivoID, tvdbIDs) {
+    return $http.post('/matchTiVoEpisodes', {TiVoID: tivoID, TVDBEpisodeIds: tvdbIDs}).then(function () {
       $log.debug("Success?")
     }, function (errResponse) {
       $log.debug("Error calling the method: " + errResponse);
@@ -118,7 +117,6 @@ function EpisodeService($log, $http) {
     var watchedEpisodes = 0;
     var unwatchedEpisodes = 0;
     var matchedEpisodes = 0;
-    var unmatchedEpisodes = 0;
     var tvdbOnly = 0;
     var unwatchedUnrecorded = 0;
     var mostRecent = null;
@@ -130,10 +128,9 @@ function EpisodeService($log, $http) {
 
         var onTiVo = episode.on_tivo;
         var suggestion = episode.tivo_suggestion;
-        var showingStartTime = episode.TiVoShowingStartTime;
+        var showingStartTime = episode.showing_start_time;
         var deleted = (episode.tivo_deleted_date != null);
         var watched = episode.watched;
-        var hasTVDBId = (episode.tvdb_episode_id != null);
 
         // ACTIVE
         if (onTiVo && !suggestion && !deleted) {
@@ -161,17 +158,12 @@ function EpisodeService($log, $http) {
         }
 
         // MATCHED
-        if (onTiVo && hasTVDBId) {
+        if (onTiVo) {
           matchedEpisodes++;
         }
 
-        // UNMATCHED
-        if (onTiVo && !hasTVDBId) {
-          unmatchedEpisodes++;
-        }
-
         // TVDB ONLY
-        if (!onTiVo && hasTVDBId) {
+        if (!onTiVo) {
           tvdbOnly++;
         }
 
@@ -197,7 +189,6 @@ function EpisodeService($log, $http) {
     series.suggestion_episodes = suggestionEpisodes;
     series.watched_episodes = watchedEpisodes;
     series.unwatched_episodes = unwatchedEpisodes;
-    series.unmatched_episodes = unmatchedEpisodes;
     series.tvdb_only_episodes = tvdbOnly;
     series.unwatched_unrecorded = unwatchedUnrecorded;
     series.most_recent = mostRecent;
@@ -209,7 +200,6 @@ function EpisodeService($log, $http) {
       suggestion_episodes: suggestionEpisodes,
       watched_episodes: watchedEpisodes,
       unwatched_episodes: unwatchedEpisodes,
-      unmatched_episodes: unmatchedEpisodes,
       tvdb_only_episodes: tvdbOnly,
       unwatched_unrecorded: unwatchedUnrecorded,
       most_recent: mostRecent,

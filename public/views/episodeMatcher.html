@@ -8,6 +8,7 @@
       <thead>
       <th>Episode</th>
       <th>Title</th>
+      <th>Desc</th>
       <th>Date</th>
       <th>TiVo</th>
       <th></th>
@@ -16,9 +17,10 @@
                           orderBy:['showing_start_time']"
           ng-class="ctrl.getRowClass(episode)"
           ng-click="ctrl.toggleRowTop(episode)">
+        <td ng-bind="episode.episode_number"></td>
         <td ng-bind="episode.title"></td>
         <td ng-bind="episode.description" class="episodeDescription"></td>
-        <td ng-bind="episode.showing_start_time|date:'EEE MM/d'"></td>
+        <td ng-bind="episode.showing_start_time|date:'MM-d-yy'"></td>
         <td>
               <span ng-class="ctrl.getUnmatchedLabelInfo(episode).labelClass"
                     ng-hide="ctrl.getUnmatchedLabelInfo(episode) == null"
@@ -64,7 +66,7 @@
           ng-click="ctrl.toggleRowBottom(episode)">
         <td ng-bind="episode.tvdb_episode_number"></td>
         <td ng-bind="episode.tvdb_episode_name" class="episodeDescription"></td>
-        <td ng-bind="episode.air_date|date:'EEE MM/d'"></td>
+        <td ng-bind="episode.air_date|date:'MM-d-yy'"></td>
         <td>
               <span ng-class="ctrl.getLabelInfo(episode).labelClass"
                     ng-hide="ctrl.getLabelInfo(episode) == null"

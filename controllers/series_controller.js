@@ -23,7 +23,8 @@ exports.getEpisodes = function(req, response) {
     'te.episode_number as tvdb_episode_number, ' +
     'te.name as tvdb_episode_name, ' +
     'ti.deleted_date as tivo_deleted_date, ' +
-    'ti.suggestion as tivo_suggestion ' +
+    'ti.suggestion as tivo_suggestion, ' +
+    'ti.showing_start_time as showing_start_time ' +
     'FROM episode e ' +
     'LEFT OUTER JOIN tvdb_episode te ' +
     ' ON e.tvdb_episode_id = te.id ' +
@@ -330,35 +331,78 @@ function markPastWatched(response, seriesId, lastWatched) {
   return executeQueryNoResults(response, sql, values);
 }
 
-exports.matchTiVoEpisodes = function(req, res) {
-  var tivoEpisode = req.body.Episode;
+exports.matchTiVoEpisodes = function(req, response) {
+  var tivoEpisodeId = req.body.TiVoID;
   var tvdbEpisodeIds = req.body.TVDBEpisodeIds;
 
-  console.log("Trying to match TVDB IDs " + tvdbEpisodeIds + " to episode " + JSON.stringify(tivoEpisode));
+  insertEdgeRow(tivoEpisodeId, tvdbEpisodeIds).then(function(result, err) {
+    if (err) {
+      console.error(err);
+      return response.send("Error " + err);
+    }
 
-  /*
-  Episodes.update({TiVoProgramId: tivoEpisode.TiVoProgramId},
-                  {MatchingStump:true})
-    .exec(function(err) {
+    updateOnTivo(tvdbEpisodeIds).then(function(result, err) {
       if (err) {
-        res.json(404, {msg: 'Failed to update Episode with MatchingStump.'});
-      } else {
-        Episodes.update({tvdbEpisodeId: {$in: tvdbEpisodeIds}},
-                        tivoEpisode,
-                        {multi:true})
-          .exec(function(err) {
-            if (err) {
-              res.json(404, {msg: 'Failed to update Episode with new fields.'});
-            } else {
-              // todo: update denorms.
-
-              res.json({msg: "Success"});
-            }
-          });
+        console.error(err);
+        return response.send("Error " + err);
       }
+
+      response.json({msg: "Success!"});
     });
-*/
+  });
+
 };
+
+function insertEdgeRow(tivoEpisodeId, tvdbEpisodeIds) {
+  var wildcards = [];
+  var index = 1;
+  tvdbEpisodeIds.forEach(function() {
+    wildcards.push("$" + index);
+    index++;
+  });
+
+  var wildCardString = wildcards.join(', ');
+
+  console.log("Trying to match TVDB IDs " + tvdbEpisodeIds + " to episode " + tivoEpisodeId);
+
+  var sql = 'INSERT INTO edge_tivo_episode (tivo_episode_id, episode_id) ' +
+    'SELECT $' + index + ', id ' +
+    'FROM episode ' +
+    'WHERE id IN (' + wildCardString + ")";
+
+  var values = tvdbEpisodeIds.slice();
+  values.push(tivoEpisodeId);
+
+  console.log("SQL:" + sql);
+  console.log("Values:" + values);
+
+  return updateNoJSON(sql, values);
+}
+
+function updateOnTivo(tvdbEpisodeIds) {
+  var wildcards = [];
+  var index = 1;
+  tvdbEpisodeIds.forEach(function() {
+    wildcards.push("$" + index);
+    index++;
+  });
+
+  var wildCardString = wildcards.join(', ');
+
+  console.log("Trying to update episode.OnTivo column for " + tvdbEpisodeIds + ".");
+
+  var sql = 'UPDATE episode ' +
+    'SET on_tivo = $' + index + ' ' +
+    'WHERE id IN (' + wildCardString + ")";
+
+  var values = tvdbEpisodeIds.slice();
+  values.push(true);
+
+  console.log("SQL:" + sql);
+  console.log("Values:" + values);
+
+  return updateNoJSON(sql, values);
+}
 
 // utility methods
 
@@ -428,6 +472,37 @@ function executeQueryNoResults(response, sql, values) {
       console.error(err);
       response.send("Error " + err);
     }
+  });
+}
+
+function updateNoJSON(sql, values) {
+  return new Promise(function(resolve, reject) {
+
+    var queryConfig = {
+      text: sql,
+      values: values
+    };
+
+    var client = new pg.Client(config);
+    if (client == null) {
+      return console.error('null client');
+    }
+
+    client.connect(function(err) {
+      if (err) {
+        console.error(err);
+        reject(Error(err));
+      }
+
+      var query = client.query(queryConfig);
+
+      query.on('end', function() {
+        client.end();
+        resolve("Success!");
+      });
+
+    });
+
   });
 }
 

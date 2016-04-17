@@ -7,7 +7,7 @@ angular.module('mediaMogulApp')
     self.unwatchedOnly = true;
 
     self.seriesFilter = function(series) {
-      return (self.unwatchedOnly ? series.unwatched_episodes > 0 : series.episodes.length > 0)
+      return (self.unwatchedOnly ? series.unwatched_episodes > 0 : series.matched_episodes > 0)
         && !series.suggestion;
     };
 
