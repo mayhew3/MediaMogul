@@ -73,7 +73,7 @@
               </thead>
               <tr data-ng-repeat="errorLog in ctrl.errorLogs |
                           filter:'NoMatchFound' |
-                          orderBy:['TiVoName'] |
+                          orderBy:['tivo_name'] |
                           limitTo:50">
                 <td ng-bind="errorLog.event_date|date:'EEE MM/dd'"></td>
                 <td ng-bind="errorLog.formatted_name"></td>
