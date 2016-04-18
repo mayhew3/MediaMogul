@@ -11,37 +11,54 @@ exports.getErrorLogs = function(req, response) {
 
   return executeQueryWithResults(response, sql, [false]);
 };
-exports.setChosenName = function(req, res) {
-  var id = req.body.errorLogID;
-  var chosenName = req.body.chosenName;
-/*
-  ErrorLog.update({_id : id}, {ChosenName: chosenName})
-    .exec(function(err) {
-      if (err) {
-        res.status(404).json({msg: 'Failed to update ChosenName on ErrorLog.'});
-      } else {
-        res.json({msg: "success"});
-      }
-    });
-  */
-};
-exports.setIgnoreError = function(req, res) {
-  var id = req.body.errorLogID;
-  var ignoreError = req.body.ignoreError;
-/*
-  ErrorLog.update({_id : id}, {IgnoreError: ignoreError})
-    .exec(function(err) {
-      if (err) {
-        res.status(404).json({msg: 'Failed to update IgnoreError on ErrorLog.'});
-      } else {
-        res.json({msg: "success"});
-      }
-    });
-  */
+
+exports.updateErrorLog = function(req, response) {
+  var changedFields = req.body.ChangedFields;
+  var errorLogID = req.body.errorLogID;
+
+  console.log("Updating error log (" + errorLogID + ") with fields: " + JSON.stringify(changedFields));
+
+  var queryConfig = buildUpdateQueryConfig(changedFields, "error_log", errorLogID);
+
+  console.log("SQL: " + queryConfig.text);
+  console.log("Values: " + queryConfig.values);
+
+  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
 
 // utility methods
+
+function executeQueryNoResults(response, sql, values) {
+
+  var queryConfig = {
+    text: sql,
+    values: values
+  };
+
+  var client = new pg.Client(config);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
+    var query = client.query(queryConfig);
+
+    query.on('end', function() {
+      client.end();
+      return response.json({msg: "Success"});
+    });
+
+    if (err) {
+      console.error(err);
+      response.send("Error " + err);
+    }
+  });
+}
 
 function executeQueryWithResults(response, sql, values) {
   var results = [];
@@ -78,4 +95,36 @@ function executeQueryWithResults(response, sql, values) {
     }
   })
 }
+
+
+function buildUpdateQueryConfig(changedFields, tableName, rowID) {
+
+  var sql = "UPDATE " + tableName + " SET ";
+  var values = [];
+  var i = 1;
+  for (var key in changedFields) {
+    if (changedFields.hasOwnProperty(key)) {
+      if (values.length != 0) {
+        sql += ", ";
+      }
+
+      sql += (key + " = $" + i);
+
+      var value = changedFields[key];
+      values.push(value);
+
+      i++;
+    }
+  }
+
+  sql += (" WHERE id = $" + i);
+
+  values.push(rowID);
+
+  return {
+    text: sql,
+    values: values
+  };
+}
+
 

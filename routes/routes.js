@@ -16,8 +16,7 @@ module.exports = function(app) {
     app.post('/changeTier', series.changeTier);
     app.post('/addSeries', series.addSeries);
     app.post('/updateSeries', series.updateSeries);
-    app.post('/errorlog/setChosenName', errorLogs.setChosenName);
-    app.post('/errorlog/ignoreError', errorLogs.setIgnoreError);
+    app.post('/errorlog/updateErrorLog', errorLogs.updateErrorLog);
 
     // error handlers
 

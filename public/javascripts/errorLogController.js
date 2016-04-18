@@ -4,19 +4,19 @@ angular.module('mediaMogulApp')
     var self = this;
 
     self.setChosenName = function(errorLog) {
-      ErrorLogService.setChosenName(errorLog._id, errorLog.ChosenName);
+      ErrorLogService.setChosenName(errorLog.id, errorLog.chosen_name);
     };
 
     self.ignoreError = function(errorLog) {
-      ErrorLogService.ignoreError(errorLog._id, errorLog.IgnoreError);
+      ErrorLogService.ignoreError(errorLog.id, errorLog.ignore_error);
     };
 
     self.chooseTiVo = function(errorLog) {
-      errorLog.ChosenName = errorLog.TiVoName;
+      errorLog.chosen_name = errorLog.tivo_name;
     };
 
     self.chooseTVDB = function(errorLog) {
-      errorLog.ChosenName = errorLog.TVDBName;
+      errorLog.chosen_name = errorLog.tvdb_name;
     };
 
     ErrorLogService.updateErrorLogs().then(function() {
