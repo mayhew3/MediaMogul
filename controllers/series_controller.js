@@ -20,7 +20,7 @@ exports.getEpisodes = function(req, response) {
   console.log("Episode call received. Params: " + req.query.SeriesId);
 
   var sql = 'SELECT e.*, ' +
-    'te.season_episode_number as tvdb_episode_number, ' +
+    'te.episode_number as tvdb_episode_number, ' +
     'te.name as tvdb_episode_name, ' +
     'ti.deleted_date as tivo_deleted_date, ' +
     'ti.suggestion as tivo_suggestion, ' +
