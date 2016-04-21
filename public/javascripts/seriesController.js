@@ -7,13 +7,13 @@ angular.module('mediaMogulApp')
     self.unwatchedOnly = true;
 
     self.seriesFilter = function(series) {
-      return (self.unwatchedOnly ? series.unwatched_episodes > 0 : series.matched_episodes > 0)
-        && !series.suggestion;
+      return (self.unwatchedOnly ? (series.unwatched_episodes + series.unmatched_episodes) > 0 : (series.matched_episodes +  + series.unmatched_episodes) > 0)
+        && !series.suggestion && series.tvdb_series_id != null;
     };
 
     self.firstTier = function(series) {
       return series.tier === 1
-         && airedInLastDays(series.last_unwatched, 365)
+         && airedInLastDays(series.last_unwatched, 3650)
         ;
     };
 
