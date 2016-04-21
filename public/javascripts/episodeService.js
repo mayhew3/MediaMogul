@@ -118,8 +118,7 @@ function EpisodeService($log, $http) {
     });
   };
   this.retireUnmatchedEpisode = function (episodeId) {
-    var changedFields = {"retired": 1};
-    return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
+    return $http.post('/retireTiVoEpisode', {TiVoEpisodeId: episodeId});
   };
 
 

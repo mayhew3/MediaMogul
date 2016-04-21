@@ -341,6 +341,14 @@ function markPastWatched(response, seriesId, lastWatched) {
   return executeQueryNoResults(response, sql, values);
 }
 
+exports.retireTiVoEpisode = function(req, response) {
+  console.log("Retiring tivo_episode with id " + req.body.TiVoEpisodeId);
+
+  var sql = 'UPDATE tivo_episode SET retired = id WHERE id = $1';
+
+  return executeQueryNoResults(response, sql, [req.body.TiVoEpisodeId]);
+};
+
 exports.matchTiVoEpisodes = function(req, response) {
   var tivoEpisodeId = req.body.TiVoID;
   var tvdbEpisodeIds = req.body.TVDBEpisodeIds;
