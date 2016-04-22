@@ -55,10 +55,10 @@ exports.getUnmatchedEpisodes = function(req, response) {
   'FROM tivo_episode te ' +
   'LEFT OUTER JOIN edge_tivo_episode ete ' +
   'ON ete.tivo_episode_id = te.id ' +
-  'WHERE ete.tivo_episode_id IS NULL ' +
-    'AND te.tivo_series_id = $1';
+  'WHERE (ete.tivo_episode_id IS NULL or ete.retired <> $1) ' +
+    'AND te.tivo_series_id = $2';
 
-  return executeQueryWithResults(response, sql, [req.query.TiVoSeriesId]);
+  return executeQueryWithResults(response, sql, [0, req.query.TiVoSeriesId]);
 };
 
 exports.changeTier = function(req, response) {
