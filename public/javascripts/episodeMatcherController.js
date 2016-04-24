@@ -121,6 +121,31 @@ angular.module('mediaMogulApp')
       });
     };
 
+    self.unlinkEpisode = function(episode) {
+      var createdUnmatched = {
+        id: episode.tivo_episode_id,
+        episode_number: episode.tivo_episode_number,
+        title: episode.tivo_title,
+        description: episode.tivo_description,
+        showing_start_time: episode.showing_start_time
+      };
+      EpisodeService.unlinkEpisode(episode.id).then(function() {
+        episode.on_tivo = false;
+        episode.tivo_episode_id = null;
+        episode.tivo_episode_number = null;
+        episode.tivo_title = null;
+        episode.tivo_description = null;
+        episode.showing_start_time = null;
+        episode.tivo_deleted_date = null;
+        episode.tivo_suggestion = null;
+        episode.ChosenBottom = false;
+        $log.debug(episode);
+        self.unmatchedEpisodes.push(createdUnmatched);
+        updateUnmatchedDenorm();
+        EpisodeService.updateDenorms(self.series, self.episodes);
+      });
+    };
+
     self.matchSelectedEpisodes = function() {
       var tivoEps = [];
       var tivoIDs = [];

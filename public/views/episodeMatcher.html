@@ -58,6 +58,7 @@
       <th>Title</th>
       <th>Date</th>
       <th>TiVo</th>
+      <th></th>
       </thead>
       <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.bottomFilter |
@@ -72,7 +73,9 @@
                     ng-hide="ctrl.getLabelInfo(episode) == null"
                     ng-bind="ctrl.getLabelInfo(episode).labelText"></span>
         </td>
-
+        <td><button type="button"
+                    ng-click="ctrl.unlinkEpisode(episode)"
+                    class="btn btn-warning">Unlink</button></td>
       </tr>
     </table>
 

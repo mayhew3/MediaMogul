@@ -117,6 +117,13 @@ function EpisodeService($log, $http) {
       $log.debug("Error calling the method: " + errResponse);
     });
   };
+  this.unlinkEpisode = function (episodeId) {
+    return $http.post('/unlinkEpisode', {EpisodeId: episodeId}).then(function () {
+      $log.debug("Success?")
+    }, function (errResponse) {
+      $log.debug("Error calling the method: " + errResponse);
+    });
+  };
   this.retireUnmatchedEpisode = function (episodeId) {
     return $http.post('/retireTiVoEpisode', {TiVoEpisodeId: episodeId});
   };
@@ -137,7 +144,7 @@ function EpisodeService($log, $http) {
 
     episodes.forEach(function(episode) {
 
-      if (!episode.retired) {
+      if (!episode.retired && episode.season != 0) {
 
         var onTiVo = episode.on_tivo;
         var suggestion = episode.tivo_suggestion;
@@ -206,6 +213,7 @@ function EpisodeService($log, $http) {
     series.unwatched_unrecorded = unwatchedUnrecorded;
     series.most_recent = mostRecent;
     series.last_unwatched = lastUnwatched;
+    series.matched_episodes = matchedEpisodes;
 
     var changedFields = {
       active_episodes: activeEpisodes,
@@ -216,7 +224,8 @@ function EpisodeService($log, $http) {
       tvdb_only_episodes: tvdbOnly,
       unwatched_unrecorded: unwatchedUnrecorded,
       most_recent: mostRecent,
-      last_unwatched: lastUnwatched
+      last_unwatched: lastUnwatched,
+      matched_episodes: matchedEpisodes
     };
 
     return $http.post('/updateSeries', {SeriesId: series.id, ChangedFields: changedFields});
