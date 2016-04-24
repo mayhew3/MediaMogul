@@ -184,6 +184,11 @@ angular.module('mediaMogulApp')
           });
           tvdbEps.forEach(function (tvdbEpisode) {
             tvdbEpisode.on_tivo = true;
+            tvdbEpisode.tivo_episode_id = tivoID;
+            tvdbEpisode.tivo_episode_number = tivoEpisode.episode_number;
+            tvdbEpisode.tivo_title = tivoEpisode.title;
+            tvdbEpisode.tivo_description = tivoEpisode.description;
+            tvdbEpisode.showing_start_time = tivoEpisode.showing_start_time;
             tvdbEpisode.tivo_deleted_date = tivoEpisode.deleted_date;
             tvdbEpisode.tivo_suggestion = tivoEpisode.suggestion;
             tvdbEpisode.ChosenBottom = false;

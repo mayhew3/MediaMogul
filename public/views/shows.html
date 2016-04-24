@@ -57,7 +57,8 @@
                        title="Suggestions"></span>
                  <span class="label label-default"
                        ng-bind="series.active_episodes+series.deleted_episodes+series.tvdb_only_episodes"
-                       title="Total"></span>
+                       title="Total"
+                       ng-click="ctrl.tryToMatch(series)"></span>
                 <span class="label label-primary"
                       ng-hide="series.unwatched_unrecorded == 0"
                       ng-bind="series.unwatched_unrecorded"

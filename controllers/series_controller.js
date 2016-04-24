@@ -60,9 +60,9 @@ exports.getUnmatchedEpisodes = function(req, response) {
   'FROM tivo_episode te ' +
   'WHERE te.tivo_series_id = $1 ' +
     'AND te.retired = $2 ' +
-    'AND id not in (select ete.tivo_episode_id from edge_tivo_episode ete where retired = $3)';
+    'AND id not in (select ete.tivo_episode_id from edge_tivo_episode ete)';
 
-  return executeQueryWithResults(response, sql, [req.query.TiVoSeriesId, 0, 0]);
+  return executeQueryWithResults(response, sql, [req.query.TiVoSeriesId, 0]);
 };
 
 exports.changeTier = function(req, response) {
@@ -429,8 +429,7 @@ function insertEdgeRow(tivoEpisodeId, tvdbEpisodeIds) {
 function retireEdgeRows(episodeId) {
   console.log("Retiring edge rows to episode " + episodeId);
 
-  var sql = 'UPDATE edge_tivo_episode ' +
-    'SET retired = id ' +
+  var sql = 'DELETE FROM edge_tivo_episode ' +
     'WHERE episode_id = $1 ';
 
   var values = [episodeId];
