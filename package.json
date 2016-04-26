@@ -14,10 +14,10 @@
     "serve-favicon": "~2.1.7",
     "debug": "~2.1.0",
     "async": "~0.8.0",
-    "lodash": "~2.4.1",
     "moment": "~2.9.0",
     "request": "~2.34.0",
-    "xml2js": "~0.4.2"
+    "xml2js": "~0.4.2",
+    "npm": "3.8.7"
   },
   "engines": {
     "node": "5.11.0"
