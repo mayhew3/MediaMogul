@@ -9,11 +9,13 @@ angular.module('mediaMogulApp')
     };
 
     self.tiers = [1, 2, 3, 4, 5];
-    self.locations = ["Netflix", "Hulu", "Prime", "Xfinity", "TiVo"];
 
-    self.selectedLocation = "Netflix";
+    self.selectedLocation = null;
 
     self.showExists = false;
+
+    self.viewingLocations = EpisodeService.getViewingLocations();
+
 
     self.updateShowExists = function() {
       var title = self.series.title;
@@ -25,7 +27,10 @@ angular.module('mediaMogulApp')
     };
 
     self.getLocButtonClass = function(location) {
-      return self.selectedLocation === location ? "btn btn-success" : "btn btn-primary";
+      if (self.selectedLocation == null) {
+        return "btn btn-primary";
+      }
+      return self.selectedLocation.name === location.name ? "btn btn-success" : "btn btn-primary";
     };
 
 

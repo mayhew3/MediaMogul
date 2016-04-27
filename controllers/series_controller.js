@@ -53,6 +53,14 @@ exports.getPossibleMatches = function(req, response) {
   return executeQueryWithResults(response, sql, [req.query.SeriesId]);
 };
 
+exports.getViewingLocations = function(req, response) {
+  console.log("Getting all possible viewing locations.");
+
+  var sql = 'SELECT * FROM viewing_location';
+
+  return executeQueryWithResults(response, sql, []);
+};
+
 exports.getUnmatchedEpisodes = function(req, response) {
   console.log("Unmatched Episode call received. Params: " + req.query.TiVoSeriesId);
 
@@ -189,7 +197,10 @@ exports.addSeries = function(req, res, next) {
           response.send("Error " + err);
         }
         console.log("tvdb_series insert successful.");
+
+        // NOTE: This only works because the query has "RETURNING id" at the end.
         series.tvdb_series_id = result.rows[0].id;
+
         console.log("tvdb_series_id found: " + series.tvdb_series_id);
         return insertSeries(series, res);
       });
@@ -207,7 +218,8 @@ var insertSeries = function(series, response) {
 
   var sql = "INSERT INTO series (" +
     "title, tier, metacritic, tvdb_series_id, tvdb_id, my_rating, date_added) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7)";
+    "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
+    "RETURNING id ";
   var values = [
     series.title,
     series.tier,
@@ -233,19 +245,34 @@ var insertSeries = function(series, response) {
       return console.error('could not connect to postgres', err);
     }
 
-    var query = client.query(queryConfig);
+    client.query(queryConfig, function(err, result) {
+      if (err) {
+        console.error(err);
+        response.send("Error " + err);
+      }
+      console.log("series insert successful.");
 
-    query.on('end', function() {
-      client.end();
-      return response.json({msg: "Success!"});
+      // NOTE: This only works because the query has "RETURNING id" at the end.
+      series.id = result.rows[0].id;
+
+      console.log("series id found: " + series.id);
+      return insertSeriesViewingLocation(series, response);
     });
 
-    if (err) {
-      console.error(err);
-      response.send("Error " + err);
-    }
   });
 
+};
+
+var insertSeriesViewingLocation = function(series, response) {
+  var seriesId = series.id;
+  var viewingLocation = series.ViewingLocations[0];
+
+  console.log("Adding viewing_location " + viewingLocation.name + " to series " + seriesId);
+
+  var sql = 'INSERT INTO series_viewing_location (series_id, viewing_location_id, date_added) ' +
+    'VALUES ($1, $2, now())';
+
+  return executeQueryNoResults(response, sql, [seriesId, viewingLocation.id]);
 };
 
 exports.updateSeries = function(req, response) {

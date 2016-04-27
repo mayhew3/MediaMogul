@@ -64,11 +64,11 @@
         <div class="col-lg-6">
           <label for="locationGroup">Viewing Location</label>
           <div id="locationGroup">
-            <label ng-repeat="location in ctrl.locations"
+            <label ng-repeat="location in ctrl.viewingLocations"
                    ng-class="ctrl.getLocButtonClass(location)"
                    ng-model="ctrl.selectedLocation"
                    btn-radio="location">
-              <span ng-bind="location"></span>
+              <span ng-bind="location.name"></span>
             </label>
           </div>
         </div>

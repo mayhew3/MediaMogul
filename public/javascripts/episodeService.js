@@ -3,6 +3,7 @@ function EpisodeService($log, $http) {
   var episodes = [];
   var unmatchedEpisodes = [];
   var possibleMatches = [];
+  var viewingLocations = [];
   var self = this;
 
   this.getSeriesWithTitle = function(SeriesTitle) {
@@ -21,6 +22,14 @@ function EpisodeService($log, $http) {
       });
       $log.debug("Finished updating.");
       shows = tempShows;
+
+      $http.get('/viewingLocations').then(function (viewingResponse) {
+        $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
+        viewingLocations = viewingResponse.data;
+      }, function (errViewing) {
+        console.error('Error while fetching viewing location list: ' + errViewing);
+      });
+
     }, function (errResponse) {
       console.error('Error while fetching series list: ' + errResponse);
     });
@@ -76,6 +85,10 @@ function EpisodeService($log, $http) {
 
   this.getSeriesList = function() {
     return shows;
+  };
+
+  this.getViewingLocations = function() {
+    return viewingLocations;
   };
 
   this.markWatched = function(seriesId, episodeId, watched, withoutDate) {

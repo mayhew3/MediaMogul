@@ -44,12 +44,12 @@
               <td ng-bind="series.my_rating"></td>
               <td>
                  <span class="label label-success"
-                       ng-hide="series.unwatched_episodes == 0"
-                       ng-bind="series.unwatched_episodes"
+                       ng-hide="(series.unwatched_episodes + series.unwatched_streaming) == 0"
+                       ng-bind="(series.unwatched_episodes + series.unwatched_streaming)"
                        title="New"></span>
                  <span class="label label-info"
-                       ng-hide="series.active_episodes == 0"
-                       ng-bind="series.active_episodes"
+                       ng-hide="(series.active_episodes + series.streaming_episodes) == 0"
+                       ng-bind="(series.active_episodes + series.streaming_episodes)"
                        title="Recorded"></span>
                  <span class="label label-warning"
                        ng-hide="series.suggestion_episodes == 0"
@@ -74,9 +74,9 @@
               <td>
                 <button type="button"
                         class="btn btn-success btn-sm"
-                        ng-hide="series.unwatched_episodes == 0"
+                        ng-hide="(series.unwatched_episodes + series.unwatched_streaming) == 0"
                         ng-click="ctrl.markAllWatched(series)">Mark All Watched</button>
-                <span ng-hide="series.unwatched_episodes != 0">All Watched</span>
+                <span ng-hide="(series.unwatched_episodes + series.unwatched_streaming) != 0">All Watched</span>
 
               </td>
               <td ng-bind="series.FullRating"></td>
