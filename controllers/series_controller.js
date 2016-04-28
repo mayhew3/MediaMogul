@@ -256,16 +256,30 @@ var insertSeries = function(series, response) {
       series.id = result.rows[0].id;
 
       console.log("series id found: " + series.id);
-      return insertSeriesViewingLocation(series, response);
+      return insertSeriesViewingLocation(series.id, series.ViewingLocations[0], response);
     });
 
   });
 
 };
 
-var insertSeriesViewingLocation = function(series, response) {
-  var seriesId = series.id;
-  var viewingLocation = series.ViewingLocations[0];
+exports.getSeriesViewingLocations = function(req, response) {
+  console.log("Episode call received. Params: " + req.query.SeriesId);
+
+  var seriesId = req.query.SeriesId;
+
+  var sql = 'SELECT * ' +
+    'FROM series_viewing_location ' +
+    'WHERE series_id = $1';
+
+  return executeQueryWithResults(response, sql, [seriesId]);
+};
+
+exports.addViewingLocation = function(req, response) {
+  return insertSeriesViewingLocation(req.body.SeriesId, req.body.ViewingLocation, response);
+};
+
+var insertSeriesViewingLocation = function(seriesId, viewingLocation, response) {
 
   console.log("Adding viewing_location " + viewingLocation.name + " to series " + seriesId);
 

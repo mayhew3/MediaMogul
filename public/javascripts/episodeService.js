@@ -1,4 +1,4 @@
-function EpisodeService($log, $http) {
+function EpisodeService($log, $http, $q) {
   var shows = [];
   var episodes = [];
   var unmatchedEpisodes = [];
@@ -45,12 +45,23 @@ function EpisodeService($log, $http) {
   };
 
   this.updateEpisodeList = function(series) {
-    return $http.get('/episodeList', {params: {SeriesId: series.id}}).then(function(episodeResponse) {
-      $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
-      episodes = episodeResponse.data;
-    }, function(errResponse) {
-      console.error('Error while fetching episode list: ' + errResponse);
-    });
+    var deferred = $q.defer();
+    var urlCalls = [];
+    urlCalls.push($http.get('/episodeList', {params: {SeriesId: series.id}}));
+    urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
+
+    $q.all(urlCalls).then(
+      function(results) {
+        episodes = results[0].data;
+        series.viewingLocations = results[1].data;
+        $log.debug("Episodes has " + episodes.length + " rows.");
+        $log.debug("Locations has " + series.viewingLocations.length + " rows.");
+        deferred.resolve();
+      },
+      function(errors) {
+        deferred.reject(errors);
+      });
+    return deferred.promise;
   };
 
   this.updatePossibleMatches = function(series) {
@@ -114,6 +125,14 @@ function EpisodeService($log, $http) {
       return null;
     }, function(errResponse) {
       return errResponse;
+    });
+  };
+  this.addViewingLocation = function(series, viewingLocation) {
+    $log.debug("Adding viewing location '" + viewingLocation.name + "' to existing series: " + series.title);
+    $http.post('/addViewingLocation', {SeriesId: series.id, ViewingLocation: viewingLocation}).then(function() {
+      $log.debug("Success.");
+    }, function(errResponse) {
+      $log.debug("Error adding viewing location: " + errResponse);''
     });
   };
   this.markAllWatched = function(SeriesId, lastWatched) {
@@ -250,4 +269,4 @@ function EpisodeService($log, $http) {
 }
 
 angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', EpisodeService]);
+  .service('EpisodeService', ['$log', '$http', '$q', EpisodeService]);

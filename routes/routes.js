@@ -7,6 +7,7 @@ module.exports = function(app) {
     app.get('/episodeList', series.getEpisodes);
     app.get('/possibleMatches', series.getPossibleMatches);
     app.get('/viewingLocations', series.getViewingLocations);
+    app.get('/seriesViewingLocations', series.getSeriesViewingLocations);
     app.get('/unmatchedEpisodes', series.getUnmatchedEpisodes);
     app.get('/errorlog/list', errorLogs.getErrorLogs);
 
@@ -19,6 +20,7 @@ module.exports = function(app) {
     app.post('/changeTier', series.changeTier);
     app.post('/addSeries', series.addSeries);
     app.post('/updateSeries', series.updateSeries);
+    app.post('/addViewingLocation', series.addViewingLocation);
     app.post('/errorlog/updateErrorLog', errorLogs.updateErrorLog);
 
     // error handlers

@@ -12,10 +12,19 @@ angular.module('mediaMogulApp')
     self.seasonLabels = [];
     self.selectedSeason = null;
 
+    self.viewingLocations = EpisodeService.getViewingLocations();
+
+    self.inputViewingLocations = [];
+
     EpisodeService.updateEpisodeList(self.series).then(function() {
       self.episodes = EpisodeService.getEpisodes();
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     }).then(function() {
+      updateSeasonLabels();
+      updateViewingLocations();
+    });
+
+    function updateSeasonLabels() {
       self.episodes.forEach(function (episode) {
 
         var season = episode.season;
@@ -26,7 +35,32 @@ angular.module('mediaMogulApp')
           }
         }
       });
-    });
+    }
+
+    function updateViewingLocations() {
+
+      self.viewingLocations.forEach(function(viewingLocation) {
+        var locationObj = {
+          active: containsMatchingLocation(self.series.viewingLocations, viewingLocation.name),
+          locationName: viewingLocation.name
+        };
+        self.inputViewingLocations.push(locationObj);
+      });
+
+      $log.debug("ViewingLocations array: " + self.inputViewingLocations);
+
+      function containsMatchingLocation(arr, locationName) {
+        arr.forEach(function(element) {
+          if (element.name === locationName) {
+            return true;
+          }
+        });
+        return false;
+      }
+
+      $log.debug("Viewing Location objects: " + self.viewViewingLocations);
+
+    }
 
     EpisodeService.updatePossibleMatches(self.series).then(function() {
       self.possibleMatches = EpisodeService.getPossibleMatches();
@@ -118,6 +152,10 @@ angular.module('mediaMogulApp')
 
     self.changeTier = function() {
       EpisodeService.changeTier(self.series.id, self.series.tier);
+    };
+
+    self.addViewingLocation = function(viewingLocation) {
+      EpisodeService.addViewingLocation(self.series, viewingLocation);
     };
 
 
