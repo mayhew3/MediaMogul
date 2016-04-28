@@ -38,27 +38,23 @@ angular.module('mediaMogulApp')
     }
 
     function updateViewingLocations() {
-
       self.viewingLocations.forEach(function(viewingLocation) {
         var locationObj = {
-          active: containsMatchingLocation(self.series.viewingLocations, viewingLocation.name),
-          locationName: viewingLocation.name
+          active: containsMatchingLocation(self.series.viewingLocations, viewingLocation.id),
+          locationName: viewingLocation.name,
+          locationId: viewingLocation.id
         };
         self.inputViewingLocations.push(locationObj);
       });
 
-      $log.debug("ViewingLocations array: " + self.inputViewingLocations);
+      $log.debug("ViewingLocations array: " + JSON.stringify(self.inputViewingLocations));
 
-      function containsMatchingLocation(arr, locationName) {
-        arr.forEach(function(element) {
-          if (element.name === locationName) {
-            return true;
-          }
+      function containsMatchingLocation(arr, locationId) {
+        var foundElement = arr.find(function(element) {
+          return element.viewing_location_id === locationId;
         });
-        return false;
+        return !(foundElement === undefined);
       }
-
-      $log.debug("Viewing Location objects: " + self.viewViewingLocations);
 
     }
 
@@ -147,6 +143,10 @@ angular.module('mediaMogulApp')
 
     self.getTierButtonClass = function(tier) {
       return self.series.tier === tier ? "btn btn-success" : "btn btn-primary";
+    };
+
+    self.getLocButtonClass = function(location) {
+      return location.active ? "btn btn-success" : "btn btn-primary";
     };
 
 
