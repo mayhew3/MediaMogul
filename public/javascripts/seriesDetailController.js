@@ -97,6 +97,12 @@ angular.module('mediaMogulApp')
         } else {
           return {labelClass: "label label-info", labelText: "Recorded"};
         }
+      } else if (episode.streaming) {
+        if (isUnaired(episode)) {
+          return {labelClass: "label label-danger", labelText: "Unaired"};
+        } else {
+          return {labelClass: "label label-success", labelText: "Streaming"};
+        }
       } else {
         if (isUnaired(episode)) {
           return {labelClass: "label label-danger", labelText: "Unaired"};
