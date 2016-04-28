@@ -46,17 +46,25 @@ angular.module('mediaMogulApp')
         };
         self.inputViewingLocations.push(locationObj);
       });
-
       $log.debug("ViewingLocations array: " + JSON.stringify(self.inputViewingLocations));
-
-      function containsMatchingLocation(arr, locationId) {
-        var foundElement = arr.find(function(element) {
-          return element.viewing_location_id === locationId;
-        });
-        return !(foundElement === undefined);
-      }
-
     }
+
+
+    function containsMatchingLocation(arr, locationId) {
+      var foundElement = arr.find(function(element) {
+        return element.viewing_location_id === locationId;
+      });
+      return !(foundElement === undefined);
+    }
+
+
+    self.changeViewingLocation = function(viewingLocation) {
+      if (viewingLocation.active) {
+        EpisodeService.addViewingLocation(self.series, viewingLocation.locationId);
+      } else {
+        EpisodeService.removeViewingLocation(self.series, viewingLocation.locationId);
+      }
+    };
 
     EpisodeService.updatePossibleMatches(self.series).then(function() {
       self.possibleMatches = EpisodeService.getPossibleMatches();

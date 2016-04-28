@@ -256,7 +256,7 @@ var insertSeries = function(series, response) {
       series.id = result.rows[0].id;
 
       console.log("series id found: " + series.id);
-      return insertSeriesViewingLocation(series.id, series.ViewingLocations[0], response);
+      return insertSeriesViewingLocation(series.id, series.ViewingLocations[0].id, response);
     });
 
   });
@@ -276,17 +276,27 @@ exports.getSeriesViewingLocations = function(req, response) {
 };
 
 exports.addViewingLocation = function(req, response) {
-  return insertSeriesViewingLocation(req.body.SeriesId, req.body.ViewingLocation, response);
+  return insertSeriesViewingLocation(req.body.SeriesId, req.body.ViewingLocationId, response);
 };
 
-var insertSeriesViewingLocation = function(seriesId, viewingLocation, response) {
+exports.removeViewingLocation = function(req, response) {
+  var seriesId = req.body.SeriesId;
+  var viewingLocationId = req.body.ViewingLocationId;
 
-  console.log("Adding viewing_location " + viewingLocation.name + " to series " + seriesId);
+  var sql = "DELETE FROM series_viewing_location " +
+    "WHERE series_id = $1 AND viewing_location_id = $2";
+
+  return executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
+};
+
+var insertSeriesViewingLocation = function(seriesId, viewingLocationId, response) {
+
+  console.log("Adding viewing_location " + viewingLocationId + " to series " + seriesId);
 
   var sql = 'INSERT INTO series_viewing_location (series_id, viewing_location_id, date_added) ' +
     'VALUES ($1, $2, now())';
 
-  return executeQueryNoResults(response, sql, [seriesId, viewingLocation.id]);
+  return executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
 };
 
 exports.updateSeries = function(req, response) {

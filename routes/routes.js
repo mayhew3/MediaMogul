@@ -21,6 +21,7 @@ module.exports = function(app) {
     app.post('/addSeries', series.addSeries);
     app.post('/updateSeries', series.updateSeries);
     app.post('/addViewingLocation', series.addViewingLocation);
+    app.post('/removeViewingLocation', series.removeViewingLocation);
     app.post('/errorlog/updateErrorLog', errorLogs.updateErrorLog);
 
     // error handlers

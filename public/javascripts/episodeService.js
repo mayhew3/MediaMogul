@@ -127,12 +127,20 @@ function EpisodeService($log, $http, $q) {
       return errResponse;
     });
   };
-  this.addViewingLocation = function(series, viewingLocation) {
-    $log.debug("Adding viewing location '" + viewingLocation.name + "' to existing series: " + series.title);
-    $http.post('/addViewingLocation', {SeriesId: series.id, ViewingLocation: viewingLocation}).then(function() {
+  this.addViewingLocation = function(series, viewingLocationId) {
+    $log.debug("Adding viewing location " + viewingLocationId + " to existing series: " + series.title);
+    $http.post('/addViewingLocation', {SeriesId: series.id, ViewingLocationId: viewingLocationId}).then(function() {
       $log.debug("Success.");
     }, function(errResponse) {
-      $log.debug("Error adding viewing location: " + errResponse);''
+      $log.debug("Error adding viewing location: " + errResponse);
+    });
+  };
+  this.removeViewingLocation = function(series, viewingLocationId) {
+    $log.debug("Removing viewing location " + viewingLocationId + " from series: " + series.title);
+    $http.post('/removeViewingLocation', {SeriesId: series.id, ViewingLocationId: viewingLocationId}).then(function() {
+      $log.debug("Success.");
+    }, function(errResponse) {
+      $log.debug("Error removing viewing location: " + errResponse);
     });
   };
   this.markAllWatched = function(SeriesId, lastWatched) {

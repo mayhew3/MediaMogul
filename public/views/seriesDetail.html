@@ -75,6 +75,7 @@
                           orderBy:['locationId']"
                ng-class="ctrl.getLocButtonClass(location)"
                ng-model="location.active"
+               ng-change="ctrl.changeViewingLocation(location)"
                btn-checkbox>
           <span ng-bind="location.locationName"></span>
         </label>
