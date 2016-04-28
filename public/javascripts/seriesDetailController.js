@@ -41,28 +41,30 @@ angular.module('mediaMogulApp')
       self.viewingLocations.forEach(function(viewingLocation) {
         var locationObj = {
           active: containsMatchingLocation(self.series.viewingLocations, viewingLocation.id),
-          locationName: viewingLocation.name,
-          locationId: viewingLocation.id
+          viewingLocation: viewingLocation
         };
         self.inputViewingLocations.push(locationObj);
       });
       $log.debug("ViewingLocations array: " + JSON.stringify(self.inputViewingLocations));
+
+      self.isStreaming = function() {
+        return EpisodeService.isStreaming(self.series);
+      };
     }
 
 
     function containsMatchingLocation(arr, locationId) {
       var foundElement = arr.find(function(element) {
-        return element.viewing_location_id === locationId;
+        return element.id === locationId;
       });
       return !(foundElement === undefined);
     }
 
-
-    self.changeViewingLocation = function(viewingLocation) {
-      if (viewingLocation.active) {
-        EpisodeService.addViewingLocation(self.series, viewingLocation.locationId);
+    self.changeViewingLocation = function(location) {
+      if (location.active) {
+        EpisodeService.addViewingLocation(self.series, self.episodes, location.viewingLocation);
       } else {
-        EpisodeService.removeViewingLocation(self.series, viewingLocation.locationId);
+        EpisodeService.removeViewingLocation(self.series, self.episodes, location.viewingLocation);
       }
     };
 
@@ -167,11 +169,6 @@ angular.module('mediaMogulApp')
     self.changeTier = function() {
       EpisodeService.changeTier(self.series.id, self.series.tier);
     };
-
-    self.addViewingLocation = function(viewingLocation) {
-      EpisodeService.addViewingLocation(self.series, viewingLocation);
-    };
-
 
     self.markAllPastWatched = function() {
       var lastWatched = null;

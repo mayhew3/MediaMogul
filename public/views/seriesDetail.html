@@ -72,12 +72,12 @@
       <label for="locationGroup">Viewing Locations</label>
       <div id="locationGroup">
         <label ng-repeat="location in ctrl.inputViewingLocations |
-                          orderBy:['locationId']"
+                          orderBy:['viewingLocation.id']"
                ng-class="ctrl.getLocButtonClass(location)"
                ng-model="location.active"
                ng-change="ctrl.changeViewingLocation(location)"
                btn-checkbox>
-          <span ng-bind="location.locationName"></span>
+          <span ng-bind="location.viewingLocation.name"></span>
         </label>
       </div>
     </div>

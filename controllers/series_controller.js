@@ -268,9 +268,11 @@ exports.getSeriesViewingLocations = function(req, response) {
 
   var seriesId = req.query.SeriesId;
 
-  var sql = 'SELECT * ' +
-    'FROM series_viewing_location ' +
-    'WHERE series_id = $1';
+  var sql = 'SELECT vl.* ' +
+    'FROM series_viewing_location svl ' +
+    'INNER JOIN viewing_location vl ' +
+    ' ON svl.viewing_location_id = vl.id ' +
+    'WHERE svl.series_id = $1';
 
   return executeQueryWithResults(response, sql, [seriesId]);
 };
@@ -297,6 +299,20 @@ var insertSeriesViewingLocation = function(seriesId, viewingLocationId, response
     'VALUES ($1, $2, now())';
 
   return executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
+};
+
+exports.changeEpisodesStreaming = function(req, response) {
+  var seriesId = req.body.SeriesId;
+  var streaming = req.body.Streaming;
+
+  console.log("Updating episodes of series " + seriesId + " to streaming: " + streaming);
+
+  var sql = "UPDATE episode " +
+    "SET streaming = $1 " +
+    "WHERE seriesid = $2 " +
+    "AND season <> $3";
+
+  return executeQueryNoResults(response, sql, [streaming, seriesId, 0]);
 };
 
 exports.updateSeries = function(req, response) {
