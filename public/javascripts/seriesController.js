@@ -8,26 +8,30 @@ angular.module('mediaMogulApp')
 
     self.seriesFilter = function(series) {
       return (self.unwatchedOnly ?
-          (series.unwatched_episodes + series.unwatched_streaming + series.unmatched_episodes) > 0 :
+          hasUnwatchedEpisodes(series) :
           (series.matched_episodes +  + series.unmatched_episodes) > 0)
         && !series.suggestion && series.tvdb_series_id != null;
     };
 
     self.firstTier = function(series) {
       return series.tier === 1
-         && airedInLastDays(series.last_unwatched, 3650)
+         && hasUnwatchedEpisodes(series)
         ;
     };
 
     self.secondTier = function(series) {
       return series.tier === 2
-         && airedInLastDays(series.last_unwatched, 21)
+         && hasUnwatchedEpisodes(series)
         ;
     };
 
     self.orderByRating = function(series) {
       return (angular.isDefined(series.FullRating) ? -1: 0);
     };
+
+    function hasUnwatchedEpisodes(series) {
+      return (series.unwatched_episodes + series.unwatched_streaming + series.unmatched_episodes) > 0;
+    }
 
     function airedInLastDays(airDate, days) {
       var notNull = airDate != null;
