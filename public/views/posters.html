@@ -21,10 +21,12 @@
       <div class="panel panel-default">
         <div class="panel-body">
           <div class="row show-list">
-            <div class="fade-repeat col-xs-4 col-md-3" ng-repeat="show in ctrl.series | filter:ctrl.firstTier">
+            <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.firstTier |
+                orderBy:[ctrl.orderByRating].concat('-FullRating')">
               <a ng-click="ctrl.open(show)" href="">
                 <img class="img-rounded"
-                     ng-src="{{'http://thetvdb.com/banners/'+show.tvdbPoster}}"
+                     ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
                      width="100%"/>
               </a>
             </div>
@@ -45,10 +47,12 @@
       <div class="panel panel-default">
         <div class="panel-body">
           <div class="row show-list">
-            <div class="fade-repeat col-xs-3 col-md-2" ng-repeat="show in ctrl.series | filter:ctrl.secondTier">
+            <div class="fade-repeat col-xs-3 col-md-2 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.secondTier |
+                orderBy:[ctrl.orderByRating].concat('-FullRating')">
               <a ng-click="ctrl.open(show)" href="">
                 <img class="img-rounded"
-                     ng-src="{{'http://thetvdb.com/banners/'+show.tvdbPoster}}"
+                     ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
                      width="100%"/>
               </a>
             </div>

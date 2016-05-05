@@ -1,10 +1,14 @@
-function EpisodeService($log, $http) {
+function EpisodeService($log, $http, $q) {
   var shows = [];
   var episodes = [];
+  var unmatchedEpisodes = [];
+  var possibleMatches = [];
+  var viewingLocations = [];
+  var self = this;
 
   this.getSeriesWithTitle = function(SeriesTitle) {
     var filtered = shows.filter(function(seriesElement) {
-      return seriesElement.SeriesTitle == SeriesTitle;
+      return seriesElement.title == SeriesTitle;
     });
     return filtered[0];
   };
@@ -12,20 +16,67 @@ function EpisodeService($log, $http) {
   this.updateSeriesList = function() {
     return $http.get('/seriesList').then(function (showresponse) {
       $log.debug("Shows returned " + showresponse.data.length + " items.");
-      shows = showresponse.data;
+      var tempShows = showresponse.data;
+      tempShows.forEach(function (show) {
+        self.updateNumericFields(show);
+      });
+      $log.debug("Finished updating.");
+      shows = tempShows;
+
+      $http.get('/viewingLocations').then(function (viewingResponse) {
+        $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
+        viewingLocations = viewingResponse.data;
+      }, function (errViewing) {
+        console.error('Error while fetching viewing location list: ' + errViewing);
+      });
+
     }, function (errResponse) {
       console.error('Error while fetching series list: ' + errResponse);
-    }).then(function () {
-      shows.forEach(function(show) {
-        show.TotalEpisodes = show.episodes.length;
-      });
     });
   };
 
+  this.updateNumericFields = function(show) {
+    if (show.tier != null) {
+      show.tier = parseInt(show.tier);
+    }
+    if (show.metacritic != null) {
+      show.metacritic = parseInt(show.metacritic);
+    }
+  };
+
   this.updateEpisodeList = function(series) {
-    return $http.get('/episodeList', {params: {SeriesId: series._id}}).then(function(episodeResponse) {
+    var deferred = $q.defer();
+    var urlCalls = [];
+    urlCalls.push($http.get('/episodeList', {params: {SeriesId: series.id}}));
+    urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
+
+    $q.all(urlCalls).then(
+      function(results) {
+        episodes = results[0].data;
+        series.viewingLocations = results[1].data;
+        $log.debug("Episodes has " + episodes.length + " rows.");
+        $log.debug("Locations has " + series.viewingLocations.length + " rows.");
+        deferred.resolve();
+      },
+      function(errors) {
+        deferred.reject(errors);
+      });
+    return deferred.promise;
+  };
+
+  this.updatePossibleMatches = function(series) {
+    return $http.get('/possibleMatches', {params: {SeriesId: series.id}}).then(function(response) {
+      $log.debug("Possible matches returned " + response.data.length + " items.");
+      possibleMatches = response.data;
+    }, function(errResponse) {
+      console.error('Error while fetching possible match list: ' + errResponse);
+    });
+  };
+
+  this.updateUnmatchedList = function(series) {
+    return $http.get('/unmatchedEpisodes', {params: {TiVoSeriesId: series.tivo_series_id}}).then(function(episodeResponse) {
       $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
-      episodes = episodeResponse.data;
+      unmatchedEpisodes = episodeResponse.data;
     }, function(errResponse) {
       console.error('Error while fetching episode list: ' + errResponse);
     });
@@ -35,21 +86,42 @@ function EpisodeService($log, $http) {
     return episodes;
   };
 
+  this.getPossibleMatches = function() {
+    return possibleMatches;
+  };
+
+  this.getUnmatchedEpisodes = function() {
+    return unmatchedEpisodes;
+  };
 
   this.getSeriesList = function() {
     return shows;
   };
 
+  this.getViewingLocations = function() {
+    return viewingLocations;
+  };
+
+  this.isStreaming = function(series) {
+    $log.debug("Series.ViewingLocations: " + JSON.stringify(series.viewingLocations));
+    var streamingPlatform = series.viewingLocations.find(function(viewingLocation) {
+      return viewingLocation.streaming;
+    });
+    $log.debug("Streaming Platform: " + streamingPlatform);
+    return !(streamingPlatform === undefined);
+  };
+
   this.markWatched = function(seriesId, episodeId, watched, withoutDate) {
+    var watchedDate = watched ? new Date : null;
     var changedFields = withoutDate ?
-      {"Watched": watched} :
-      {"Watched": watched, "WatchedDate": new Date};
+      {"watched": watched} :
+      {"watched": watched, "watched_date": watchedDate};
 
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
     // todo: add some error handling.
   };
   this.changeTier = function(SeriesId, Tier) {
-    $http.post('/changeTier', {SeriesId: SeriesId, Tier: Tier});
+    $http.post('/changeTier', {SeriesId: SeriesId, tier: Tier});
     // todo: add some error handling.
   };
   this.updateSeries = function(SeriesId, ChangedFields) {
@@ -58,12 +130,78 @@ function EpisodeService($log, $http) {
   };
   this.addSeries = function(series) {
     $log.debug("Adding series " + JSON.stringify(series));
-    $http.post('/addSeries', {series: series}).then(function(response) {
+    $http.post('/addSeries', {series: series}).then(function() {
       return null;
     }, function(errResponse) {
       return errResponse;
     });
   };
+
+  this.addViewingLocation = function(series, episodes, viewingLocation) {
+    var wasStreamingBefore = self.isStreaming(series);
+    var changedToStreaming = !wasStreamingBefore && viewingLocation.streaming;
+    series.viewingLocations.push(viewingLocation);
+
+    $log.debug("Adding viewing location '" + viewingLocation.name + "' to existing series: " + series.title);
+    $http.post('/addViewingLocation', {SeriesId: series.id, ViewingLocationId: viewingLocation.id}).then(function() {
+      $log.debug("Viewing location added.");
+      if (changedToStreaming) {
+        changeStreamingOnEpisodes(series, episodes, true);
+      }
+    }, function(errResponse) {
+      $log.debug("Error adding viewing location: " + errResponse);
+    });
+  };
+
+  this.removeViewingLocation = function(series, episodes, viewingLocation) {
+    var wasStreamingBefore = self.isStreaming(series);
+
+    var indexOf = series.viewingLocations.findIndex(function(location) {
+      return location.id === viewingLocation.id;
+    });
+    $log.debug("Viewing Location: " + JSON.stringify(viewingLocation) + ", indexOf: " + indexOf);
+
+    if (indexOf < 0) {
+      debug("No viewing location found to remove!");
+      return;
+    }
+
+    series.viewingLocations.splice(indexOf, 1);
+    var changedToNotStreaming = wasStreamingBefore && !self.isStreaming(series);
+
+    $log.debug("Removing viewing location '" + viewingLocation.name + "' from series: " + series.title);
+    $http.post('/removeViewingLocation', {
+      SeriesId: series.id,
+      ViewingLocationId: viewingLocation.id
+    }).then(function () {
+      $log.debug("Success.");
+
+      if (changedToNotStreaming) {
+        changeStreamingOnEpisodes(series, episodes, false);
+      }
+    }, function (errResponse) {
+      $log.debug("Error removing viewing location: " + errResponse);
+    });
+  };
+
+
+  function changeStreamingOnEpisodes(series, episodes, streaming) {
+    $http.post('/changeEpisodesStreaming', {SeriesId: series.id, Streaming: streaming}).then(function () {
+      $log.debug("Episodes updated to streaming: " + streaming);
+
+      episodes.forEach(function (episode) {
+        if (episode.season != 0) {
+          episode.streaming = streaming;
+        }
+      });
+      self.updateDenorms(series, episodes);
+
+    }, function (errResponse) {
+      $log.debug("Error updating episodes: " + errResponse);
+    });
+  }
+
+
   this.markAllWatched = function(SeriesId, lastWatched) {
     return $http.post('/markAllWatched', {SeriesId: SeriesId, LastWatched: lastWatched}).then(function() {
       $log.debug("Success?")
@@ -71,16 +209,22 @@ function EpisodeService($log, $http) {
       $log.debug("Error calling the method: " + errResponse);
     });
   };
-  this.matchTiVoEpisodes = function (fieldsToChange, tvdbIds) {
-    return $http.post('/matchTiVoEpisodes', {Episode: fieldsToChange, TVDBEpisodeIds: tvdbIds}).then(function () {
+  this.matchTiVoEpisodes = function (tivoID, tvdbIDs) {
+    return $http.post('/matchTiVoEpisodes', {TiVoID: tivoID, TVDBEpisodeIds: tvdbIDs}).then(function () {
+      $log.debug("Success?")
+    }, function (errResponse) {
+      $log.debug("Error calling the method: " + errResponse);
+    });
+  };
+  this.unlinkEpisode = function (episodeId) {
+    return $http.post('/unlinkEpisode', {EpisodeId: episodeId}).then(function () {
       $log.debug("Success?")
     }, function (errResponse) {
       $log.debug("Error calling the method: " + errResponse);
     });
   };
   this.retireUnmatchedEpisode = function (episodeId) {
-    var changedFields = {"MatchingStump": true};
-    return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
+    return $http.post('/retireTiVoEpisode', {TiVoEpisodeId: episodeId});
   };
 
 
@@ -92,22 +236,24 @@ function EpisodeService($log, $http) {
     var watchedEpisodes = 0;
     var unwatchedEpisodes = 0;
     var matchedEpisodes = 0;
-    var unmatchedEpisodes = 0;
     var tvdbOnly = 0;
     var unwatchedUnrecorded = 0;
+    var streamingEpisodes = 0;
+    var unwatchedStreaming = 0;
     var mostRecent = null;
     var lastUnwatched = null;
+    var now = new Date;
 
     episodes.forEach(function(episode) {
 
-      if (!episode.MatchingStump) {
+      if (!episode.retired && episode.season != 0) {
 
-        var onTiVo = episode.OnTiVo;
-        var suggestion = episode.TiVoSuggestion;
-        var showingStartTime = episode.TiVoShowingStartTime;
-        var deleted = (episode.TiVoDeletedDate != null);
-        var watched = episode.Watched;
-        var hasTVDBId = (episode.tvdbEpisodeId != null);
+        var onTiVo = episode.on_tivo;
+        var suggestion = episode.tivo_suggestion;
+        var deleted = (episode.tivo_deleted_date != null);
+        var watched = episode.watched;
+        var streaming = episode.streaming;
+        var airDate = new Date(episode.air_date);
 
         // ACTIVE
         if (onTiVo && !suggestion && !deleted) {
@@ -135,17 +281,12 @@ function EpisodeService($log, $http) {
         }
 
         // MATCHED
-        if (onTiVo && hasTVDBId) {
+        if (onTiVo) {
           matchedEpisodes++;
         }
 
-        // UNMATCHED
-        if (onTiVo && !hasTVDBId) {
-          unmatchedEpisodes++;
-        }
-
         // TVDB ONLY
-        if (!onTiVo && hasTVDBId) {
+        if (!onTiVo) {
           tvdbOnly++;
         }
 
@@ -155,42 +296,56 @@ function EpisodeService($log, $http) {
         }
 
         // LAST EPISODE
-        if (onTiVo && isAfter(mostRecent, showingStartTime) && !deleted) {
-          mostRecent = showingStartTime;
+        if (onTiVo && isAfter(mostRecent, airDate) && !deleted) {
+          mostRecent = airDate;
         }
 
         // LAST UNWATCHED EPISODE
-        if (onTiVo && isAfter(lastUnwatched, showingStartTime) && !suggestion && !deleted && !watched) {
-          lastUnwatched = showingStartTime;
+        if (onTiVo && isAfter(lastUnwatched, airDate) && !suggestion && !deleted && !watched) {
+          lastUnwatched = airDate;
+        }
+
+        // STREAMING
+        if (!onTiVo && streaming && airDate < now) {
+          streamingEpisodes++;
+        }
+
+        // UNWATCHED STREAMING
+        if (!onTiVo && streaming && airDate < now && !watched) {
+          unwatchedStreaming++;
         }
       }
     });
 
-    series.ActiveEpisodes = activeEpisodes;
-    series.DeletedEpisodes = deletedEpisodes;
-    series.SuggestionEpisodes = suggestionEpisodes;
-    series.WatchedEpisodes = watchedEpisodes;
-    series.UnwatchedEpisodes = unwatchedEpisodes;
-    series.UnmatchedEpisodes = unmatchedEpisodes;
-    series.tvdbOnlyEpisodes = tvdbOnly;
-    series.UnwatchedUnrecorded = unwatchedUnrecorded;
-    series.MostRecent = mostRecent;
-    series.LastUnwatched = lastUnwatched;
+    series.active_episodes = activeEpisodes;
+    series.deleted_episodes = deletedEpisodes;
+    series.suggestion_episodes = suggestionEpisodes;
+    series.watched_episodes = watchedEpisodes;
+    series.unwatched_episodes = unwatchedEpisodes;
+    series.tvdb_only_episodes = tvdbOnly;
+    series.unwatched_unrecorded = unwatchedUnrecorded;
+    series.most_recent = mostRecent;
+    series.last_unwatched = lastUnwatched;
+    series.matched_episodes = matchedEpisodes;
+    series.streaming_episodes = streamingEpisodes;
+    series.unwatched_streaming = unwatchedStreaming;
 
     var changedFields = {
-      ActiveEpisodes: activeEpisodes,
-      DeletedEpisodes: deletedEpisodes,
-      SuggestionEpisodes: suggestionEpisodes,
-      WatchedEpisodes: watchedEpisodes,
-      UnwatchedEpisodes: unwatchedEpisodes,
-      UnmatchedEpisodes: unmatchedEpisodes,
-      tvdbOnlyEpisodes: tvdbOnly,
-      UnwatchedUnrecorded: unwatchedUnrecorded,
-      MostRecent: mostRecent,
-      LastUnwatched: lastUnwatched
+      active_episodes: activeEpisodes,
+      deleted_episodes: deletedEpisodes,
+      suggestion_episodes: suggestionEpisodes,
+      watched_episodes: watchedEpisodes,
+      unwatched_episodes: unwatchedEpisodes,
+      tvdb_only_episodes: tvdbOnly,
+      unwatched_unrecorded: unwatchedUnrecorded,
+      most_recent: mostRecent,
+      last_unwatched: lastUnwatched,
+      matched_episodes: matchedEpisodes,
+      streaming_episodes: streamingEpisodes,
+      unwatched_streaming: unwatchedStreaming
     };
 
-    return $http.post('/updateSeries', {SeriesId: series._id, ChangedFields: changedFields});
+    return $http.post('/updateSeries', {SeriesId: series.id, ChangedFields: changedFields});
   };
 
   function isAfter(trackingDate, newDate) {
@@ -199,4 +354,4 @@ function EpisodeService($log, $http) {
 }
 
 angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', EpisodeService]);
+  .service('EpisodeService', ['$log', '$http', '$q', EpisodeService]);

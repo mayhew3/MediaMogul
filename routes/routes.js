@@ -5,17 +5,25 @@ module.exports = function(app) {
 
     app.get('/seriesList', series.getSeries);
     app.get('/episodeList', series.getEpisodes);
+    app.get('/possibleMatches', series.getPossibleMatches);
+    app.get('/viewingLocations', series.getViewingLocations);
+    app.get('/seriesViewingLocations', series.getSeriesViewingLocations);
+    app.get('/unmatchedEpisodes', series.getUnmatchedEpisodes);
     app.get('/errorlog/list', errorLogs.getErrorLogs);
 
     app.post('/updateEpisode', series.updateEpisode);
     app.post('/updateMultiEpisodes', series.updateMultipleEpisodes);
     app.post('/markAllWatched', series.markAllEpisodesAsWatched);
     app.post('/matchTiVoEpisodes', series.matchTiVoEpisodes);
+    app.post('/unlinkEpisode', series.unlinkEpisode);
+    app.post('/retireTiVoEpisode', series.retireTiVoEpisode);
     app.post('/changeTier', series.changeTier);
     app.post('/addSeries', series.addSeries);
     app.post('/updateSeries', series.updateSeries);
-    app.post('/errorlog/setChosenName', errorLogs.setChosenName);
-    app.post('/errorlog/ignoreError', errorLogs.setIgnoreError);
+    app.post('/addViewingLocation', series.addViewingLocation);
+    app.post('/removeViewingLocation', series.removeViewingLocation);
+    app.post('/changeEpisodesStreaming', series.changeEpisodesStreaming);
+    app.post('/errorlog/updateErrorLog', errorLogs.updateErrorLog);
 
     // error handlers
 

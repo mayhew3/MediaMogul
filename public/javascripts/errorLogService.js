@@ -7,7 +7,7 @@ function ErrorLogService($log, $http) {
       $log.debug("Errors returned " + response.data.length);
       errorlogs = response.data;
     }, function (errResponse) {
-      console.error('Error while fetching error logs.');
+      console.error('Error while fetching error logs: ' + errResponse);
     });
   };
 
@@ -16,11 +16,17 @@ function ErrorLogService($log, $http) {
   };
 
   this.setChosenName = function(logID, chosenName) {
-    $http.post('/errorlog/setChosenName', {errorLogID: logID, chosenName: chosenName});
+    var changedFields = {
+      chosen_name: chosenName
+    };
+    $http.post('/errorlog/updateErrorLog', {errorLogID: logID, ChangedFields: changedFields});
   };
 
   this.ignoreError = function(logID, ignoreError) {
-    $http.post('/errorlog/ignoreError', {errorLogID: logID, ignoreError: ignoreError});
+    var changedFields = {
+      ignore_error: ignoreError
+    };
+    $http.post('/errorlog/updateErrorLog', {errorLogID: logID, ChangedFields: changedFields});
   }
 }
 

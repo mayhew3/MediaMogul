@@ -35,10 +35,10 @@
               </thead>
               <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.episodeFilter |
-                          orderBy:['Tier', '-ShowingStartTime'] |
+                          orderBy:['tier', '-ShowingStartTime'] |
                           limitTo:50">
                 <td ng-bind="episode.Title"></td>
-                <td ng-bind="episode.Tier"></td>
+                <td ng-bind="episode.tier"></td>
                 <td ng-bind="episode.EpisodeNumber"></td>
                 <td ng-bind="episode.EpisodeTitle" class="episodeDescription"></td>
                 <td ng-bind="episode.ShowingStartTime|date:'EEE MM/d'"></td>
@@ -49,8 +49,8 @@
                           btn-checkbox
                           btn-checkbox-true="true"
                           btn-checkbox-false="false"
-                          ng-hide="episode.Watched"
-                          ng-model="episode.Watched"
+                          ng-hide="episode.watched"
+                          ng-model="episode.watched"
                           ng-change="ctrl.change(episode)">Mark Watched</button>
                 </td>
               </tr>

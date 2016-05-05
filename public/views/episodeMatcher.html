@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h3 class="modal-title" ng-bind="ctrl.series.SeriesTitle"/>
+  <h3 class="modal-title" ng-bind="ctrl.series.title"/>
 </div>
 <div class="modal-body">
 
@@ -8,22 +8,23 @@
       <thead>
       <th>Episode</th>
       <th>Title</th>
+      <th>Desc</th>
       <th>Date</th>
       <th>TiVo</th>
       <th></th>
       </thead>
-      <tr data-ng-repeat="episode in ctrl.episodes |
-                          filter:ctrl.unmatchedFilter |
-                          orderBy:['tvdbEpisodeNumber']"
+      <tr data-ng-repeat="episode in ctrl.unmatchedEpisodes |
+                          orderBy:['showing_start_time']"
           ng-class="ctrl.getRowClass(episode)"
           ng-click="ctrl.toggleRowTop(episode)">
-        <td ng-bind="episode.TiVoEpisodeNumber"></td>
-        <td ng-bind="episode.TiVoEpisodeTitle" class="episodeDescription"></td>
-        <td ng-bind="episode.TiVoShowingStartTime|date:'EEE MM/d'"></td>
+        <td ng-bind="episode.episode_number"></td>
+        <td ng-bind="episode.title"></td>
+        <td ng-bind="episode.description" class="episodeDescription"></td>
+        <td ng-bind="episode.showing_start_time|date:'MM-d-yy'"></td>
         <td>
-              <span ng-class="ctrl.getLabelInfo(episode).labelClass"
-                    ng-hide="ctrl.getLabelInfo(episode) == null"
-                    ng-bind="ctrl.getLabelInfo(episode).labelText"></span>
+              <span ng-class="ctrl.getUnmatchedLabelInfo(episode).labelClass"
+                    ng-hide="ctrl.getUnmatchedLabelInfo(episode) == null"
+                    ng-bind="ctrl.getUnmatchedLabelInfo(episode).labelText"></span>
         </td>
         <td>
           <button type="button"
@@ -57,21 +58,24 @@
       <th>Title</th>
       <th>Date</th>
       <th>TiVo</th>
+      <th></th>
       </thead>
       <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.bottomFilter |
-                          orderBy:['tvdbEpisodeNumber']"
+                          orderBy:['tvdb_episode_number']"
           ng-class="ctrl.getRowClass(episode)"
           ng-click="ctrl.toggleRowBottom(episode)">
-        <td ng-bind="episode.tvdbEpisodeNumber"></td>
-        <td ng-bind="episode.tvdbEpisodeName" class="episodeDescription"></td>
-        <td ng-bind="episode.tvdbFirstAired|date:'EEE MM/d'"></td>
+        <td ng-bind="episode.tvdb_episode_number"></td>
+        <td ng-bind="episode.tvdb_episode_name" class="episodeDescription"></td>
+        <td ng-bind="episode.air_date|date:'MM-d-yy'"></td>
         <td>
               <span ng-class="ctrl.getLabelInfo(episode).labelClass"
                     ng-hide="ctrl.getLabelInfo(episode) == null"
                     ng-bind="ctrl.getLabelInfo(episode).labelText"></span>
         </td>
-
+        <td><button type="button"
+                    ng-click="ctrl.unlinkEpisode(episode)"
+                    class="btn btn-warning">Unlink</button></td>
       </tr>
     </table>
 

@@ -8,10 +8,9 @@
 
     <div class="col-lg-3">
       <img class="img-rounded"
-           ng-src="{{'http://thetvdb.com/banners/'+ctrl.series.tvdbPoster}}"
+           ng-src="{{'http://thetvdb.com/banners/'+ctrl.series.poster}}"
            width="100%"/>
     </div>
-
 
     <div class="form-group col-lg-3">
 
@@ -22,7 +21,7 @@
              name="metacriticInput"
              min="1"
              max="100"
-             ng-model="ctrl.interfaceFields.Metacritic"/>
+             ng-model="ctrl.interfaceFields.metacritic"/>
     </div>
     <div class="form-group col-lg-3">
       <label class="control-label" for="myRatingInput">My Rating</label>
@@ -32,7 +31,7 @@
              name="myRatingInput"
              min="1"
              max="100"
-             ng-model="ctrl.interfaceFields.MyRating"/>
+             ng-model="ctrl.interfaceFields.my_rating"/>
     </div>
     <div class="form-group col-lg-3">
       <label class="control-label" for="tvdbHintInput">TVDB Hint</label>
@@ -40,7 +39,7 @@
              class="form-control"
              id="tvdbHintInput"
              name="tvdbHintInput"
-             ng-model="ctrl.interfaceFields.TVDBHint"/>
+             ng-model="ctrl.interfaceFields.tvdb_hint"/>
     </div>
     <div class="form-group col-lg-3">
       <label class="control-label" for="metacriticHintInput">Metacritic Hint</label>
@@ -48,7 +47,7 @@
              class="form-control"
              id="metacriticHintInput"
              name="metacriticHintInput"
-             ng-model="ctrl.interfaceFields.MetacriticHint"/>
+             ng-model="ctrl.interfaceFields.metacritic_hint"/>
     </div>
     <div class="form-group col-lg-3">
               <span class="input-group-btn">
@@ -62,11 +61,25 @@
     <div class="form-group col-lg-3">
       <label ng-repeat="tier in ctrl.tiers"
              ng-class="ctrl.getTierButtonClass(tier)"
-             ng-model="ctrl.series.Tier"
+             ng-model="ctrl.series.tier"
              btn-radio="tier"
              ng-change="ctrl.changeTier()">
         <span ng-bind="tier"></span>
       </label>
+    </div>
+
+    <div class="form-group col-lg-6">
+      <label for="locationGroup">Viewing Locations</label>
+      <div id="locationGroup">
+        <label ng-repeat="location in ctrl.inputViewingLocations |
+                          orderBy:['viewingLocation.id']"
+               ng-class="ctrl.getLocButtonClass(location)"
+               ng-model="location.active"
+               ng-change="ctrl.changeViewingLocation(location)"
+               btn-checkbox>
+          <span ng-bind="location.viewingLocation.name"></span>
+        </label>
+      </div>
     </div>
 
   </form>
@@ -80,14 +93,14 @@
             btn-checkbox
             btn-checkbox-true="true"
             btn-checkbox-false="false"
-            ng-model="ctrl.series.MatchedWrong"
+            ng-model="ctrl.series.matched_wrong"
             ng-change="ctrl.wrongMatch()">Matched Wrong</button>
   </div>
 
-  <div id="possibleMatches" class="col-lg-12" ng-show="ctrl.series.MatchedWrong">
+  <div id="possibleMatches" class="col-lg-12" ng-show="ctrl.series.matched_wrong">
     <button type="button"
-            ng-repeat="possibleMatch in ctrl.series.PossibleMatches"
-            ng-bind="possibleMatch.SeriesTitle"
+            ng-repeat="possibleMatch in ctrl.possibleMatches"
+            ng-bind="possibleMatch.tvdb_series_title"
             class="btn btn-info"
             ng-click="ctrl.useMatch(possibleMatch)"
         ></button>
@@ -114,10 +127,10 @@
     </thead>
     <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.episodeFilter |
-                          orderBy:['tvdbEpisodeNumber']">
-      <td ng-bind="episode.tvdbEpisodeNumber"></td>
-      <td ng-bind="episode.tvdbEpisodeName" class="episodeDescription"></td>
-      <td ng-bind="episode.tvdbFirstAired|date:'EEE MM/d'"></td>
+                          orderBy:['tvdb_episode_number']">
+      <td ng-bind="episode.tvdb_episode_number"></td>
+      <td ng-bind="episode.tvdb_episode_name" class="episodeDescription"></td>
+      <td ng-bind="episode.air_date|date:'EEE MM/d'"></td>
       <td>
               <span ng-class="ctrl.getLabelInfo(episode).labelClass"
                     ng-hide="ctrl.getLabelInfo(episode) == null"
@@ -130,7 +143,7 @@
                 btn-checkbox-true="true"
                 btn-checkbox-false="false"
                 ng-show="ctrl.shouldShowMarkWatched(episode)"
-                ng-model="episode.Watched"
+                ng-model="episode.watched"
                 ng-change="ctrl.markWatched(episode, false)">Mark Watched</button>
         <button type="button"
                 class="btn btn-success btn-sm"
@@ -138,16 +151,16 @@
                 btn-checkbox-true="true"
                 btn-checkbox-false="false"
                 ng-show="ctrl.shouldShowMarkWatched(episode)"
-                ng-model="episode.Watched"
+                ng-model="episode.watched"
                 ng-change="ctrl.markWatched(episode, true)">Without Date</button>
         <button type="button"
                 class="btn btn-primary btn-sm"
                 btn-checkbox
                 btn-checkbox-true="true"
                 btn-checkbox-false="false"
-                ng-show="episode.Watched"
-                ng-model="episode.Watched"
-                ng-change="ctrl.markWatched(episode, true)">Unwatch</button>
+                ng-show="episode.watched"
+                ng-model="episode.watched"
+                ng-change="ctrl.markWatched(episode, false)">Unwatch</button>
 
       </td>
     </tr>

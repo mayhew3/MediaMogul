@@ -22,7 +22,7 @@
                  name="newSeriesTitle"
                  ng-required="true"
                  ng-change="ctrl.updateShowExists()"
-                 ng-model="ctrl.series.SeriesTitle"/>
+                 ng-model="ctrl.series.title"/>
         </div>
 
         <div class="col-lg-3">
@@ -34,7 +34,7 @@
                  name="metacriticInput"
                  min="1"
                  max="100"
-                 ng-model="ctrl.series.Metacritic"/>
+                 ng-model="ctrl.series.metacritic"/>
 
 
           <label class="control-label" for="newRatingInput">My Rating</label>
@@ -44,7 +44,7 @@
                  name="myRatingInput"
                  min="1"
                  max="100"
-                 ng-model="ctrl.series.MyRating"/>
+                 ng-model="ctrl.series.my_rating"/>
 
         </div>
 
@@ -54,7 +54,7 @@
           <div id="tierGroup">
             <label ng-repeat="tier in ctrl.tiers"
                    ng-class="ctrl.getButtonClass(tier)"
-                   ng-model="ctrl.series.Tier"
+                   ng-model="ctrl.series.tier"
                    btn-radio="tier">
               <span ng-bind="tier"></span>
             </label>
@@ -64,11 +64,11 @@
         <div class="col-lg-6">
           <label for="locationGroup">Viewing Location</label>
           <div id="locationGroup">
-            <label ng-repeat="location in ctrl.locations"
+            <label ng-repeat="location in ctrl.viewingLocations"
                    ng-class="ctrl.getLocButtonClass(location)"
                    ng-model="ctrl.selectedLocation"
                    btn-radio="location">
-              <span ng-bind="location"></span>
+              <span ng-bind="location.name"></span>
             </label>
           </div>
         </div>

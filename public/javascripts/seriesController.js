@@ -7,28 +7,31 @@ angular.module('mediaMogulApp')
     self.unwatchedOnly = true;
 
     self.seriesFilter = function(series) {
-      return (self.unwatchedOnly ? series.UnwatchedEpisodes > 0 : series.episodes.length > 0)
-        && !series.IsSuggestion;
+      return (self.unwatchedOnly ?
+          hasUnwatchedEpisodes(series) :
+          (series.matched_episodes +  + series.unmatched_episodes) > 0)
+        && !series.suggestion && series.tvdb_series_id != null;
     };
 
     self.firstTier = function(series) {
-      return series.Tier === 1
-         && airedInLastDays(series.LastUnwatched, 365)
+      return series.tier === 1
+         && hasUnwatchedEpisodes(series)
         ;
     };
-
 
     self.secondTier = function(series) {
-      return series.Tier === 2
-         && airedInLastDays(series.LastUnwatched, 21)
+      return series.tier === 2
+         && hasUnwatchedEpisodes(series)
         ;
     };
-
 
     self.orderByRating = function(series) {
       return (angular.isDefined(series.FullRating) ? -1: 0);
     };
 
+    function hasUnwatchedEpisodes(series) {
+      return (series.unwatched_episodes + series.unwatched_streaming + series.unmatched_episodes) > 0;
+    }
 
     function airedInLastDays(airDate, days) {
       var notNull = airDate != null;
@@ -41,15 +44,15 @@ angular.module('mediaMogulApp')
     }
 
     function updateFullRating(series) {
-      var metacritic = series.Metacritic;
-      var myRating = series.MyRating;
+      var metacritic = series.metacritic;
+      var myRating = series.my_rating;
 
       if (metacritic == null) {
         series.FullRating = myRating;
       } else if (myRating == null) {
         series.FullRating = metacritic;
       } else {
-        var watched = series.WatchedEpisodes;
+        var watched = series.watched_episodes;
         if (watched > 4) {
           watched = 4;
         }
@@ -74,22 +77,31 @@ angular.module('mediaMogulApp')
     }
 
     self.getButtonClass = function(tier, series) {
-      return series.Tier === tier ? "btn btn-success" : "btn btn-primary";
+      return series.tier === tier ? "btn btn-success" : "btn btn-primary";
     };
 
     self.changeTier = function(series) {
-      EpisodeService.changeTier(series._id, series.Tier);
+      EpisodeService.changeTier(series.id, series.tier);
     };
 
     self.markAllWatched = function(series) {
 
-      EpisodeService.markAllWatched(series._id).then(function() {
+      EpisodeService.markAllWatched(series.id).then(function() {
         $log.debug("Finished update, adjusting denorms.");
-        series.UnwatchedEpisodes = 0;
-        series.LastUnwatched = null;
+        series.unwatched_episodes = 0;
+        series.last_unwatched = null;
+
+        var changedFields = {
+          unwatched_episodes: 0,
+          last_unwatched: null
+        };
+
+        EpisodeService.updateSeries(series.id, changedFields).then(function() {
+          $log.debug("Finished updating series unwatched to 0.");
+        });
       });
 
-      $log.debug("Series '" + series.SeriesTitle + "' " + series._id);
+      $log.debug("Series '" + series.title + "' " + series.id);
     };
 
     self.open = function(series) {
