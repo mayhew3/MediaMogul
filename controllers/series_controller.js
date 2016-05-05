@@ -124,7 +124,7 @@ exports.addSeries = function(req, res, next) {
         parser.parseString(body, function (err, result) {
           var series = result.data.series;
 
-          existingSeries.tvdb_id = series.id;
+          existingSeries.tvdb_series_ext_id = series.id;
           existingSeries.tvdbName = series.seriesname;
           existingSeries.tvdbAirsDayOfWeek = series.airs_dayofweek;
           existingSeries.tvdbAirsTime = series.airs_time;
@@ -145,9 +145,7 @@ exports.addSeries = function(req, res, next) {
   ], function (err, series) {
     if (err) return next(err);
 
-    var tvdb_id = series.tvdb_id;
-
-    if (tvdb_id == null) {
+    if (series.tvdb_series_ext_id == null) {
       console.log("tvdb_series_ext_id is null, so not inserting into tvdb_series.");
       return insertSeries(series, res);
     }
@@ -161,7 +159,7 @@ exports.addSeries = function(req, res, next) {
     console.log(sql);
 
     var values = [
-      series.tvdb_id,
+      series.tvdb_series_ext_id,
       series.tvdbName,
       series.tvdbAirsDayOfWeek,
       series.tvdbAirsTime,
@@ -225,7 +223,7 @@ var insertSeries = function(series, response) {
     series.tier,
     series.metacritic,
     series.tvdb_series_id,
-    series.tvdb_id,
+    series.tvdb_series_ext_id,
     series.my_rating,
     new Date
   ];
