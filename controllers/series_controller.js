@@ -36,7 +36,7 @@ exports.getEpisodes = function(req, response) {
     ' ON e.id = ete.episode_id ' +
     'LEFT OUTER JOIN tivo_episode ti ' +
     ' ON ete.tivo_episode_id = ti.id ' +
-    'WHERE e.seriesid = $1 ' +
+    'WHERE e.series_id = $1 ' +
     'AND e.retired = $2 ' +
     'ORDER BY e.season, te.episode_number';
 
@@ -309,7 +309,7 @@ exports.changeEpisodesStreaming = function(req, response) {
 
   var sql = "UPDATE episode " +
     "SET streaming = $1 " +
-    "WHERE seriesid = $2 " +
+    "WHERE series_id = $2 " +
     "AND season <> $3";
 
   return executeQueryNoResults(response, sql, [streaming, seriesId, 0]);
@@ -365,7 +365,7 @@ function markAllWatched(response, seriesId) {
 
   var sql = 'UPDATE episode ' +
     'SET watched = $1 ' +
-    'WHERE seriesid = $2 ' +
+    'WHERE series_id = $2 ' +
     'AND on_tivo = $3 ' +
     'AND watched <> $4 ' +
     'AND season <> $5 ';
@@ -397,7 +397,7 @@ function markPastWatched(response, seriesId, lastWatched) {
 
   var sql = 'UPDATE episode ' +
     'SET watched = $1 ' +
-    'WHERE seriesid = $2 ' +
+    'WHERE series_id = $2 ' +
     'AND tvdb_episode_id is not null ' +
     'AND air_date < $3 ' +
     'AND watched <> $4 ' +
