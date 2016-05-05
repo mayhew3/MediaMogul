@@ -148,12 +148,12 @@ exports.addSeries = function(req, res, next) {
     var tvdb_id = series.tvdb_id;
 
     if (tvdb_id == null) {
-      console.log("tvdb_id is null, so not inserting into tvdb_series.");
+      console.log("tvdb_series_ext_id is null, so not inserting into tvdb_series.");
       return insertSeries(series, res);
     }
 
     var sql = "INSERT INTO tvdb_series (" +
-      "tvdb_id, name, airs_day_of_week, airs_time, first_aired, network, overview, " +
+      "tvdb_series_ext_id, name, airs_day_of_week, airs_time, first_aired, network, overview, " +
       "rating, rating_count, runtime, status, poster, date_added) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) " +
       "RETURNING id";
@@ -217,7 +217,7 @@ var insertSeries = function(series, response) {
   console.log("Inserting series.");
 
   var sql = "INSERT INTO series (" +
-    "title, tier, metacritic, tvdb_series_id, tvdb_id, my_rating, date_added) " +
+    "title, tier, metacritic, tvdb_series_id, tvdb_series_ext_id, my_rating, date_added) " +
     "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
     "RETURNING id ";
   var values = [
