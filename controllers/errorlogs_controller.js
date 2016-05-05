@@ -1,5 +1,5 @@
 var pg = require('pg');
-var config = process.env.DATABASE_URL;
+var config = process.env.NODE_DB_URL;
 
 exports.getErrorLogs = function(req, response) {
   console.log("Errorlogs call received.");

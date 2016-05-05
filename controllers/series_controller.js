@@ -2,7 +2,7 @@ var xml2js = require('xml2js');
 var async = require('async');
 var request = require('request');
 var pg = require('pg');
-var config = process.env.DATABASE_URL;
+var config = process.env.NODE_DB_URL;
 
 exports.getSeries = function(request, response) {
   console.log("Series call received.");
