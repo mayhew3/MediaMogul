@@ -241,6 +241,8 @@ angular.module('mediaMogulApp')
             return episode;
           }
         }
+      }).result.finally(function() {
+        EpisodeService.updateDenorms(self.series, self.episodes);
       });
     };
 
