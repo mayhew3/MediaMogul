@@ -227,6 +227,9 @@ function EpisodeService($log, $http, $q) {
     return $http.post('/retireTiVoEpisode', {TiVoEpisodeId: episodeId});
   };
 
+  this.addRating = function(episodeRating) {
+    return $http.post('/addRating', {EpisodeRating: episodeRating});
+  };
 
 
   this.updateDenorms = function(series, episodes) {

@@ -28,7 +28,8 @@ exports.getEpisodes = function(req, response) {
     'ti.episode_number as tivo_episode_number, ' +
     'ti.title as tivo_title, ' +
     'ti.description as tivo_description, ' +
-    'ti.id as tivo_episode_id ' +
+    'ti.id as tivo_episode_id,' +
+    'er.rating_value as rating_value ' +
     'FROM episode e ' +
     'LEFT OUTER JOIN tvdb_episode te ' +
     ' ON e.tvdb_episode_id = te.id ' +
@@ -36,6 +37,8 @@ exports.getEpisodes = function(req, response) {
     ' ON e.id = ete.episode_id ' +
     'LEFT OUTER JOIN tivo_episode ti ' +
     ' ON ete.tivo_episode_id = ti.id ' +
+    'LEFT OUTER JOIN episode_rating er ' +
+    ' ON er.episode_id = e.id ' +
     'WHERE e.series_id = $1 ' +
     'AND e.retired = $2 ' +
     'ORDER BY e.season, te.episode_number';
@@ -464,6 +467,28 @@ exports.unlinkEpisode = function(req, response) {
   })
 
 };
+
+exports.addRating = function(req, response) {
+  var episodeRating = req.body.EpisodeRating;
+
+  console.log("Adding rating: " + JSON.stringify(episodeRating));
+
+  var sql = "INSERT INTO episode_rating (episode_id, rating_date, rating_funny, rating_character, rating_story, rating_value, review, date_added) " +
+    "VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
+
+  executeQueryNoResults(response, sql,
+    [
+      episodeRating.episode_id,
+      new Date,
+      episodeRating.rating_funny,
+      episodeRating.rating_character,
+      episodeRating.rating_story,
+      episodeRating.rating_value,
+      episodeRating.review,
+      new Date
+    ]);
+};
+
 
 function insertEdgeRow(tivoEpisodeId, tvdbEpisodeIds) {
   var wildcards = [];

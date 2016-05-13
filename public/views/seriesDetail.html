@@ -124,6 +124,7 @@
     <th>Date</th>
     <th>TiVo</th>
     <th>Watched</th>
+    <th>Rating</th>
     </thead>
     <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.episodeFilter |
@@ -162,6 +163,15 @@
                 ng-model="episode.watched"
                 ng-change="ctrl.markWatched(episode, false)">Unwatch</button>
 
+
+      </td>
+      <td>
+        <button type="button"
+                class="btn btn-success btn-sm"
+                ng-show="episode.rating_value == null"
+                ng-click="ctrl.openEpisodeRating(episode)">Rate</button>
+        <span ng-bind="episode.rating_value"
+              ng-show="episode.rating_value != null"></span>
       </td>
     </tr>
   </table>

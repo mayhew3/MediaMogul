@@ -23,6 +23,7 @@ module.exports = function(app) {
     app.post('/addViewingLocation', series.addViewingLocation);
     app.post('/removeViewingLocation', series.removeViewingLocation);
     app.post('/changeEpisodesStreaming', series.changeEpisodesStreaming);
+    app.post('/addRating', series.addRating);
     app.post('/errorlog/updateErrorLog', errorLogs.updateErrorLog);
 
     // error handlers

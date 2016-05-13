@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('seriesDetailController', ['$log', 'EpisodeService', '$modalInstance', 'series',
-  function($log, EpisodeService, $modalInstance, series) {
+  .controller('seriesDetailController', ['$log', 'EpisodeService', '$modalInstance', 'series', '$modal',
+  function($log, EpisodeService, $modalInstance, series, $modal) {
     var self = this;
 
     self.series = series;
@@ -229,6 +229,21 @@ angular.module('mediaMogulApp')
         EpisodeService.updateDenorms(self.series, self.episodes);
       });
     };
+
+
+    self.openEpisodeRating = function(episode) {
+      $modal.open({
+        templateUrl: 'views/episodeRating.html',
+        controller: 'episodeRatingController as ctrl',
+        size: 'lg',
+        resolve: {
+          episode: function() {
+            return episode;
+          }
+        }
+      });
+    };
+
 
     self.ok = function() {
       $modalInstance.close();
