@@ -25,6 +25,10 @@ angular.module('mediaMogulApp')
         ;
     };
 
+    self.upcomingSoon = function(series) {
+      return airingInNextDays(series.nextAirDate, 7) && !hasUnwatchedEpisodes(series);
+    };
+
     self.orderByRating = function(series) {
       return (angular.isDefined(series.FullRating) ? -1: 0);
     };
@@ -33,9 +37,9 @@ angular.module('mediaMogulApp')
       return (series.unwatched_episodes + series.unwatched_streaming + series.unmatched_episodes) > 0;
     }
 
-    function airedInLastDays(airDate, days) {
+    function airingInNextDays(airDate, days) {
       var notNull = airDate != null;
-      var diff = (new Date(airDate) - new Date + (1000 * 60 * 60 * 24 * days));
+      var diff = (new Date() - new Date(airDate) + (1000 * 60 * 60 * 24 * days));
       var withinDiff = (diff > 0);
 
       $log.debug("AirDate: " + airDate + ", diff: " + diff);

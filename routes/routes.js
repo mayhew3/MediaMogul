@@ -9,6 +9,7 @@ module.exports = function(app) {
     app.get('/viewingLocations', series.getViewingLocations);
     app.get('/seriesViewingLocations', series.getSeriesViewingLocations);
     app.get('/unmatchedEpisodes', series.getUnmatchedEpisodes);
+    app.get('/upcomingEpisodes', series.getUpcomingEpisodes);
     app.get('/errorlog/list', errorLogs.getErrorLogs);
 
     app.post('/updateEpisode', series.updateEpisode);

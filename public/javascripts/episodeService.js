@@ -26,6 +26,8 @@ function EpisodeService($log, $http, $q) {
       $http.get('/viewingLocations').then(function (viewingResponse) {
         $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
         viewingLocations = viewingResponse.data;
+
+        self.updateNextUp();
       }, function (errViewing) {
         console.error('Error while fetching viewing location list: ' + errViewing);
       });
@@ -43,6 +45,30 @@ function EpisodeService($log, $http, $q) {
       show.metacritic = parseInt(show.metacritic);
     }
   };
+  
+  this.updateNextUp = function() {
+    return $http.get('/upcomingEpisodes').then(function (upcomingResults) {
+      $log.debug(JSON.stringify(upcomingResults));
+      upcomingResults.data.forEach(function(episode) {
+        findAndUpdateSeries(episode);
+      });
+    });
+  };
+
+  function findAndUpdateSeries(resultObj) {
+    var series_id = resultObj.series_id;
+    shows.forEach(function (series) {
+      if (series.id == series_id && series.nextAirDate == undefined) {
+        $log.debug("Updating series " + series.title + " next air date " + resultObj.air_date);
+        series.nextAirDate = resultObj.air_date;
+        series.nextEpisode = {
+          title: resultObj.title,
+          season: resultObj.season,
+          episode_number: resultObj.episode_number
+        };
+      }
+    });
+  }
 
   this.updateEpisodeList = function(series) {
     var deferred = $q.defer();
