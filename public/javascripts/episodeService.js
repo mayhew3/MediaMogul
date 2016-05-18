@@ -111,11 +111,8 @@ function EpisodeService($log, $http, $q) {
     return !(streamingPlatform === undefined);
   };
 
-  this.markWatched = function(seriesId, episodeId, watched, withoutDate) {
-    var watchedDate = watched ? new Date : null;
-    var changedFields = withoutDate ?
-      {"watched": watched} :
-      {"watched": watched, "watched_date": watchedDate};
+  this.markWatched = function(seriesId, episodeId, watched, watchedDate) {
+    var changedFields = {"watched": watched, "watched_date": watchedDate};
 
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
     // todo: add some error handling.

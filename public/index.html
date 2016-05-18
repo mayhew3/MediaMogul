@@ -6,7 +6,31 @@
         href="stylesheets/bootstrap.min.css" >
   <link rel="stylesheet" type="text/css"
         href="stylesheets/style.css" >
+  <link rel="stylesheet" type="text/css"
+        href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker3.min.css" >
+
+  <!-- JQuery must come before Angular -->
+  <script src="https://code.jquery.com/jquery-2.2.3.js"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular-route.js"></script>
+  <script src="javascripts/ui-bootstrap-tpls-0.12.0.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
+
+
+  <script src="javascripts/angular_app.js"></script>
+  <script src="javascripts/episodeService.js"></script>
+  <script src="javascripts/errorLogService.js"></script>
+  <script src="javascripts/addSeriesController.js"></script>
+  <script src="javascripts/errorLogController.js"></script>
+  <script src="javascripts/movieController.js"></script>
+  <script src="javascripts/seriesController.js"></script>
+  <script src="javascripts/seriesDetailController.js"></script>
+  <script src="javascripts/episodeMatcherController.js"></script>
+  <script src="javascripts/episodeRatingController.js"></script>
+
 </head>
+
 <body ng-app="mediaMogulApp">
 
 <div class="navbar navbar-default navbar-fixed-top">
@@ -31,24 +55,6 @@
 </div>
 
 <div ng-view></div>
-
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular-route.js"></script>
-<script src="javascripts/ui-bootstrap-tpls-0.12.0.min.js"></script>
-
-
-<script src="javascripts/angular_app.js"></script>
-<script src="javascripts/episodeService.js"></script>
-<script src="javascripts/errorLogService.js"></script>
-<script src="javascripts/addSeriesController.js"></script>
-<script src="javascripts/errorLogController.js"></script>
-<script src="javascripts/movieController.js"></script>
-<script src="javascripts/seriesController.js"></script>
-<script src="javascripts/seriesDetailController.js"></script>
-<script src="javascripts/episodeMatcherController.js"></script>
-<script src="javascripts/episodeRatingController.js"></script>
-
-
 
 </body>
 </html>

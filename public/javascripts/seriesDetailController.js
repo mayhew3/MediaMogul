@@ -118,7 +118,7 @@ angular.module('mediaMogulApp')
     };
 
     self.shouldShowMarkWatched = function(episode) {
-      return !episode.watched &&
+      return !episode.watched && episode.rating_value != null &&
       (episode.on_tivo || !isUnaired(episode));
     };
 
@@ -225,11 +225,17 @@ angular.module('mediaMogulApp')
     };
 
     self.markWatched = function(episode, withoutDate) {
-      EpisodeService.markWatched(self.series.id, episode.id, episode.watched, withoutDate).then(function () {
+      var dateToUpdate = withoutDate ? null : new Date;
+      EpisodeService.markWatched(self.series.id, episode.id, episode.watched, dateToUpdate).then(function () {
         EpisodeService.updateDenorms(self.series, self.episodes);
       });
     };
 
+    self.unwatch = function(episode) {
+      EpisodeService.markWatched(self.series.id, episode.id, false, null).then(function () {
+        EpisodeService.updateDenorms(self.series, self.episodes);
+      });
+    };
 
     self.openEpisodeRating = function(episode) {
       $modal.open({
