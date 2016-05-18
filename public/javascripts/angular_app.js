@@ -1,17 +1,16 @@
 angular.module('mediaMogulApp', ['ngRoute', 'ui.bootstrap'])
   .config(function($routeProvider) {
     $routeProvider.when('/', {
-      templateUrl: 'views/shows.html'
+      templateUrl: 'views/tv.html'
     })
-
-      .when('/shows', {
-        templateUrl: 'views/shows.html'
+      .when('/tv', {
+        templateUrl: 'views/tv.html'
       })
       .when('/errors', {
         templateUrl: 'views/errors.html'
       })
-      .when('/posters', {
-        templateUrl: 'views/posters.html'
+      .when('/tvbacklog', {
+        templateUrl: 'views/tvbacklog.html'
       })
     ;
     $routeProvider.otherwise({
