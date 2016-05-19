@@ -1,4 +1,4 @@
-function EpisodeService($log, $http, $q) {
+function EpisodeService($log, $http, $q, $filter) {
   var shows = [];
   var episodes = [];
   var unmatchedEpisodes = [];
@@ -48,7 +48,7 @@ function EpisodeService($log, $http, $q) {
   
   this.updateNextUp = function() {
     return $http.get('/upcomingEpisodes').then(function (upcomingResults) {
-      $log.debug(JSON.stringify(upcomingResults));
+      // $log.debug(JSON.stringify(upcomingResults));
       upcomingResults.data.forEach(function(episode) {
         findAndUpdateSeries(episode);
       });
@@ -61,6 +61,14 @@ function EpisodeService($log, $http, $q) {
       if (series.id == series_id && series.nextAirDate == undefined) {
         $log.debug("Updating series " + series.title + " next air date " + resultObj.air_date);
         series.nextAirDate = resultObj.air_date;
+
+        var combinedStr = $filter('date')(series.nextAirDate, 'shortDate') + " " + series.airs_time;
+        var combinedDate = new Date(combinedStr);
+
+        var minutesPart = $filter('date')(combinedDate, 'mm');
+        var timeFormat = (minutesPart == '00') ? 'EEEE ha' : 'EEEE h:mm a';
+
+        series.nextAirDateFormatted = $filter('date')(combinedDate, timeFormat);
         series.nextEpisode = {
           title: resultObj.title,
           season: resultObj.season,
@@ -380,4 +388,4 @@ function EpisodeService($log, $http, $q) {
 }
 
 angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', '$q', EpisodeService]);
+  .service('EpisodeService', ['$log', '$http', '$q', '$filter', EpisodeService]);

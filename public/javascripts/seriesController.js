@@ -42,7 +42,7 @@ angular.module('mediaMogulApp')
       var diff = (new Date() - new Date(airDate) + (1000 * 60 * 60 * 24 * days));
       var withinDiff = (diff > 0);
 
-      $log.debug("AirDate: " + airDate + ", diff: " + diff);
+      // $log.debug("AirDate: " + airDate + ", diff: " + diff);
 
       return notNull && withinDiff;
     }

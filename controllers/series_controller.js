@@ -7,7 +7,7 @@ var config = process.env.NODE_DB_URL;
 exports.getSeries = function(request, response) {
   console.log("Series call received.");
 
-  var sql = 'SELECT s.*, tvs.poster ' +
+  var sql = 'SELECT s.*, tvs.poster, tvs.airs_time ' +
     'FROM series s ' +
     'LEFT OUTER JOIN tvdb_series tvs ' +
     ' ON s.tvdb_series_id = tvs.id ' +
