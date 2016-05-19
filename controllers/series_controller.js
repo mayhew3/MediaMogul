@@ -11,9 +11,10 @@ exports.getSeries = function(request, response) {
     'FROM series s ' +
     'LEFT OUTER JOIN tvdb_series tvs ' +
     ' ON s.tvdb_series_id = tvs.id ' +
+    'WHERE s.suggestion = $1 ' +
     'ORDER BY s.title';
 
-  return executeQueryWithResults(response, sql, []);
+  return executeQueryWithResults(response, sql, [false]);
 };
 
 exports.getEpisodes = function(req, response) {
