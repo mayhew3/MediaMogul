@@ -218,8 +218,8 @@ var insertSeries = function(series, response) {
   console.log("Inserting series.");
 
   var sql = "INSERT INTO series (" +
-    "title, tier, metacritic, tvdb_series_id, tvdb_series_ext_id, my_rating, date_added) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
+    "title, tier, metacritic, tvdb_series_id, tvdb_series_ext_id, my_rating, date_added, tvdb_new, metacritic_new) " +
+    "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) " +
     "RETURNING id ";
   var values = [
     series.title,
@@ -228,7 +228,9 @@ var insertSeries = function(series, response) {
     series.tvdb_series_id,
     series.tvdb_series_ext_id,
     series.my_rating,
-    new Date
+    new Date,
+    true,
+    true
   ];
 
   var queryConfig = {
