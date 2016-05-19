@@ -169,7 +169,7 @@ exports.addSeries = function(req, res, next) {
       series.tvdbFirstAired,
       series.tvdbNetwork,
       series.tvdbOverview,
-      series.tvdbRating,
+      (series.tvdbRating == "") ? null : series.tvdbRating,
       series.tvdbRatingCount,
       series.tvdbRuntime,
       series.tvdbStatus,
