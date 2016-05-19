@@ -168,10 +168,10 @@
       <td>
         <button type="button"
                 class="btn btn-success btn-sm"
-                ng-show="episode.rating_value == null"
+                ng-show="ctrl.shouldShowRate(episode)"
                 ng-click="ctrl.openEpisodeRating(episode)">Rate</button>
         <span ng-bind="episode.rating_value"
-              ng-show="episode.rating_value != null"></span>
+              ng-show="!ctrl.shouldShowRate(episode)"></span>
       </td>
     </tr>
   </table>

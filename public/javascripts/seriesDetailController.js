@@ -30,11 +30,31 @@ angular.module('mediaMogulApp')
         var season = episode.season;
         if (season != null && !(self.seasonLabels.indexOf(season) > -1)) {
           self.seasonLabels.push(season);
-          if (!isUnaired(episode)) {
-            self.selectedSeason = season;
-          }
         }
       });
+
+      var unwatchedEpisodes = self.episodes.filter(function (episode) {
+        return episode.season != null && episode.season > 0 &&
+                episode.watched == false &&
+                // todo: remove when MM-236 is resolved.
+                episode.air_date != null;
+      });
+
+      if (unwatchedEpisodes.length > 0) {
+        self.selectedSeason = unwatchedEpisodes[0].season;
+      } else {
+        var allEpisodes = self.episodes.filter(function (episode) {
+          return episode.season != null && episode.season > 0 &&
+                  // todo: remove when MM-236 is resolved.
+                  episode.air_date != null;
+        });
+
+        if (allEpisodes.length > 0) {
+          self.selectedSeason = allEpisodes[0].season;
+        } else {
+          self.selectedSeason = 0;
+        }
+      }
     }
 
     function updateViewingLocations() {
@@ -120,6 +140,10 @@ angular.module('mediaMogulApp')
     self.shouldShowMarkWatched = function(episode) {
       return !episode.watched && episode.rating_value != null &&
       (episode.on_tivo || !isUnaired(episode));
+    };
+
+    self.shouldShowRate = function(episode) {
+      return episode.rating_value == null && (episode.on_tivo || !isUnaired(episode));
     };
 
     function isUnaired(episode) {
