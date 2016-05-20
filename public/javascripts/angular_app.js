@@ -1,5 +1,5 @@
 angular.module('mediaMogulApp', ['ngRoute', 'ui.bootstrap'])
-  .config(function($routeProvider) {
+  .config(function($routeProvider, $locationProvider) {
     $routeProvider.when('/', {
       templateUrl: 'views/tv.html'
     })
@@ -16,5 +16,7 @@ angular.module('mediaMogulApp', ['ngRoute', 'ui.bootstrap'])
     $routeProvider.otherwise({
       redirectTo: '/'
     });
+
+    $locationProvider.html5Mode(true);
   })
 ;
