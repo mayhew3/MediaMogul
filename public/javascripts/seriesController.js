@@ -39,6 +39,10 @@ angular.module('mediaMogulApp')
       return series.tier == null;
     };
 
+    self.countWhere = function(filter) {
+      return self.series.filter(filter).length;
+    };
+
     self.orderByRating = function(series) {
       return (angular.isDefined(series.FullRating) ? -1: 0);
     };

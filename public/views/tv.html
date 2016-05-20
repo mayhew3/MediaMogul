@@ -11,13 +11,17 @@
     <div class="container col-lg-2">
       <ul class="nav nav-pills nav-stacked btn-sm">
         <li role="tv" ng-class="ctrl.isActive('Main')">
-          <a href ng-click="ctrl.selectedPill='Main'">Main</a>
+          <a href ng-click="ctrl.selectedPill='Main'">
+            Main<span class="badge" ng-bind="ctrl.countWhere(ctrl.firstTier)"></span>
+          </a>
         </li>
         <li role="tv" ng-class="ctrl.isActive('Backlog')">
           <a href ng-click="ctrl.selectedPill='Backlog'">Backlog</a>
         </li>
         <li role="tv" ng-class="ctrl.isActive('New')">
-          <a href ng-click="ctrl.selectedPill='New'">New</a>
+          <a href ng-click="ctrl.selectedPill='New'">
+            New<span class="badge" ng-bind="ctrl.countWhere(ctrl.newlyAdded)"></span>
+          </a>
         </li>
       </ul>
     </div>
