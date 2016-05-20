@@ -173,8 +173,9 @@ angular.module('mediaMogulApp')
         controller: 'addSeriesController as ctrl',
         size: 'lg',
         resolve: {
-
         }
+      }).result.finally(function() {
+        self.refreshSeriesList();
       });
     };
   }
