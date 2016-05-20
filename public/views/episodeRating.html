@@ -118,7 +118,7 @@
           <td ng-bind="episode.tvdb_episode_number"></td>
           <td ng-bind="episode.tvdb_episode_name" class="episodeDescription"></td>
           <td ng-bind="episode.air_date|date:'EEE MM/d'"></td>
-          <td ng-style="episode.colorStyle()">
+          <td ng-style="episode.colorStyle()" width="70">
               <span ng-bind="episode.rating_value"
                     ng-show="!ctrl.shouldShowRate(episode)"></span>
           </td>

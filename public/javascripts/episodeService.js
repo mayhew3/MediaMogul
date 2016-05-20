@@ -102,7 +102,8 @@ function EpisodeService($log, $http, $q, $filter) {
                 'background-color': 'hsla(' + hue + ', 50%, 42%, 1)',
                 'font-size': '1.6em',
                 'text-align': 'center',
-                'font-weight': '800'
+                'font-weight': '800',
+                'color': 'white'
               }
             }
           }

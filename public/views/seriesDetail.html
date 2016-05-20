@@ -165,9 +165,8 @@
                 ng-model="episode.watched"
                 ng-change="ctrl.unwatch(episode)">Unwatch</button>
 
-
       </td>
-      <td ng-style="episode.colorStyle()">
+      <td ng-style="episode.colorStyle()" width="70">
         <button type="button"
                 class="btn btn-success btn-sm"
                 ng-show="ctrl.shouldShowRate(episode)"
