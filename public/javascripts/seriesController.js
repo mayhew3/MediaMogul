@@ -1,7 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('seriesController', ['$log', '$modal', 'EpisodeService',
-  function($log, $modal, EpisodeService) {
+  .controller('seriesController', ['$log', '$modal', '$interval', 'EpisodeService',
+  function($log, $modal, $interval, EpisodeService) {
     var self = this;
+
+    self.series = [];
 
     self.tiers = [1, 2, 3, 4, 5];
     self.unwatchedOnly = true;
@@ -96,18 +98,18 @@ angular.module('mediaMogulApp')
       };
     }
 
-    var seriesList = EpisodeService.getSeriesList();
-    if (seriesList.length == 0) {
+    self.refreshSeriesList = function() {
       EpisodeService.updateSeriesList().then(function () {
         self.series = EpisodeService.getSeriesList();
         $log.debug("Controller has " + self.series.length + " shows.");
-        self.series.forEach(function(seri) {
+        self.series.forEach(function (seri) {
           updateFullRating(seri);
         });
       });
-    } else {
-      self.series = seriesList;
-    }
+    };
+    self.refreshSeriesList();
+
+    $interval(self.refreshSeriesList, 30*1000);
 
     self.getButtonClass = function(tier, series) {
       return series.tier === tier ? "btn btn-success" : "btn btn-primary";
