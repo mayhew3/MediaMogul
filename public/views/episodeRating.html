@@ -5,12 +5,33 @@
       novalidate>
 
   <div class="modal-header">
-    <h1 ng-bind="ctrl.episode.series_title + ': ' + ctrl.episode.title"></h1>
+    <h1 ng-bind="ctrl.episode.series_title"></h1>
   </div>
 
   <div class="modal-body clearfix">
 
-    <div class="form-group col-lg-12">
+    <div class="form-group col-lg-6">
+      <img class="img-rounded"
+           ng-src="{{'http://thetvdb.com/banners/'+ctrl.episode.tvdb_filename}}"
+           width="100%"/>
+    </div>
+
+    <div class="form-group col-lg-6">
+      <h3 ng-bind="ctrl.episode.title"></h3>
+    </div>
+
+    <div class="form-group col-lg-6">
+      <span>Season</span>
+      <span ng-bind="ctrl.episode.season"></span>
+      <span>Episode</span>
+      <span ng-bind="ctrl.episode.episode_number"></span>
+    </div>
+
+    <div class="form-group col-lg-6">
+      <span ng-bind="ctrl.episode.tvdb_overview"></span>
+    </div>
+
+    <div class="form-group col-lg-6">
       <label class="control-label" for="watchedDate">Watched</label>
       <div class="date">
         <input type="text"
@@ -22,7 +43,6 @@
     </div>
 
     <div class="form-group col-lg-3">
-
       <label class="control-label" for="ratingFunny">Funny</label>
       <input type="number"
              class="form-control input-lg"
@@ -32,9 +52,9 @@
              min="1"
              max="100"
              ng-model="ctrl.episodeRating.rating_funny"/>
-      </div>
-    <div class="form-group col-lg-3">
+    </div>
 
+    <div class="form-group col-lg-3">
       <label class="control-label" for="ratingCharacter">Character</label>
       <input type="number"
              class="form-control input-lg"
@@ -45,8 +65,8 @@
              max="100"
              ng-model="ctrl.episodeRating.rating_character"/>
     </div>
-    <div class="form-group col-lg-3">
 
+    <div class="form-group col-lg-3">
       <label class="control-label" for="ratingStory">Story</label>
       <input type="number"
              class="form-control input-lg"

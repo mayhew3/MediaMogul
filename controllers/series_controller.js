@@ -23,6 +23,8 @@ exports.getEpisodes = function(req, response) {
   var sql = 'SELECT e.*, ' +
     'te.episode_number as tvdb_episode_number, ' +
     'te.name as tvdb_episode_name, ' +
+    'te.filename as tvdb_filename, ' +
+    'te.overview as tvdb_overview, ' +
     'ti.deleted_date as tivo_deleted_date, ' +
     'ti.suggestion as tivo_suggestion, ' +
     'ti.showing_start_time as showing_start_time, ' +
