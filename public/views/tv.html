@@ -29,52 +29,49 @@
 
         <!-- MAIN pill -->
         <div ng-switch-when="Main">
-      <!--    <div class="container">-->
 
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3>Queue</h3>
-              </div>
-              <div class="panel-body">
-                <div class="row show-list">
-                  <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+          <!-- QUEUE section -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3>Queue</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row show-list">
+                <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.firstTier |
                 orderBy:[ctrl.orderByRating].concat('-FullRating')">
+                  <a ng-click="ctrl.open(show)" href="">
+                    <img class="img-rounded"
+                         ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                         width="100%"/>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- THIS WEEK section -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3>This Week</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row show-list">
+                <div class="fade-repeat col-xs-3 col-md-2 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.upcomingSoon |
+                orderBy:'nextAirDate'">
+                  <div>
                     <a ng-click="ctrl.open(show)" href="">
                       <img class="img-rounded"
                            ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
                            width="100%"/>
                     </a>
                   </div>
-                </div>
-              </div>
-            <!--</div>-->
-          </div>
-
-          <!--<div class="container">-->
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3>This Week</h3>
-              </div>
-              <div class="panel-body">
-                <div class="row show-list">
-                  <div class="fade-repeat col-xs-3 col-md-2 posterRow" ng-repeat="show in ctrl.series |
-                filter:ctrl.upcomingSoon |
-                orderBy:'nextAirDate'">
-                    <div>
-                      <a ng-click="ctrl.open(show)" href="">
-                        <img class="img-rounded"
-                             ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
-                             width="100%"/>
-                      </a>
-                    </div>
-                    <div align="right">
-                      <h5 ng-bind="show.nextAirDateFormatted"></h5>
-                    </div>
+                  <div align="right">
+                    <h5 ng-bind="show.nextAirDateFormatted"></h5>
                   </div>
                 </div>
-              <!--</div>-->
+              </div>
             </div>
           </div>
         </div>
@@ -82,33 +79,52 @@
         <!-- BACKLOG pill -->
         <div ng-switch-when="Backlog">
 
-          <!--<div class="container">-->
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3>Backlog</h3>
-              </div>
-              <div class="panel-body">
-                <div class="row show-list">
-                  <div class="fade-repeat col-xs-3 col-md-2 posterRow" ng-repeat="show in ctrl.series |
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3>Backlog</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row show-list">
+                <div class="fade-repeat col-xs-3 col-md-2 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.secondTier |
                 orderBy:[ctrl.orderByRating].concat('-FullRating')">
-                    <a ng-click="ctrl.open(show)" href="">
-                      <img class="img-rounded"
-                           ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
-                           width="100%"/>
-                    </a>
-                  </div>
+                  <a ng-click="ctrl.open(show)" href="">
+                    <img class="img-rounded"
+                         ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                         width="100%"/>
+                  </a>
                 </div>
               </div>
-            <!--</div>-->
+            </div>
           </div>
 
         </div>
 
         <!-- NEW pill -->
         <div ng-switch-when="New">
-          <!-- New shows -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3>Newly Added</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row show-list">
+                <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.newlyAdded |
+                orderBy:'date_added'">
+                  <div>
+                    <a ng-click="ctrl.open(show)" href="">
+                      <img class="img-rounded"
+                           ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                           width="100%"/>
+                    </a>
+                  </div>
+                  <div align="right">
+                    <h5 ng-bind="show.date_added|date:'shortDate'"></h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>

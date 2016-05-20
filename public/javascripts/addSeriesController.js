@@ -4,7 +4,6 @@ angular.module('mediaMogulApp')
     var self = this;
 
     self.series = {
-      tier: 5,
       IsEpisodic: true
     };
 

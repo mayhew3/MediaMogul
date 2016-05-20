@@ -34,6 +34,10 @@ angular.module('mediaMogulApp')
     self.upcomingSoon = function(series) {
       return airingInNextDays(series.nextAirDate, 7) && !hasUnwatchedEpisodes(series);
     };
+    
+    self.newlyAdded = function(series) {
+      return series.tier == null;
+    };
 
     self.orderByRating = function(series) {
       return (angular.isDefined(series.FullRating) ? -1: 0);
@@ -81,7 +85,8 @@ angular.module('mediaMogulApp')
             'background-color': 'hsla(' + hue + ', 50%, 42%, 1)',
             'font-size': '1.6em',
             'text-align': 'center',
-            'font-weight': '800'
+            'font-weight': '800',
+            'color': 'white'
           }
         }
       };
