@@ -3,9 +3,7 @@ angular.module('mediaMogulApp')
   function($log, EpisodeService, $modalInstance) {
     var self = this;
 
-    self.series = {
-      IsEpisodic: true
-    };
+    self.series = {};
 
     self.tiers = [1, 2, 3, 4, 5];
 
