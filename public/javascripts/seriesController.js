@@ -6,6 +6,12 @@ angular.module('mediaMogulApp')
     self.tiers = [1, 2, 3, 4, 5];
     self.unwatchedOnly = true;
 
+    self.selectedPill = "Main";
+
+    self.isActive = function(pillName) {
+      return (pillName == self.selectedPill) ? "active" : null;
+    };
+
     self.seriesFilter = function(series) {
       return (self.unwatchedOnly ?
           hasUnwatchedEpisodes(series) :

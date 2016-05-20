@@ -1,10 +1,10 @@
 angular.module('mediaMogulApp', ['ngRoute', 'ui.bootstrap'])
   .config(function($routeProvider) {
     $routeProvider.when('/', {
-      templateUrl: 'views/tv.html'
+      templateUrl: 'views/tv_all.html'
     })
       .when('/tv', {
-        templateUrl: 'views/tv.html'
+        templateUrl: 'views/tv_all.html'
       })
       .when('/errors', {
         templateUrl: 'views/errors.html'
