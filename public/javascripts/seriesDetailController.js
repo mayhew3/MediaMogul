@@ -172,7 +172,7 @@ angular.module('mediaMogulApp')
 
 
     self.episodeFilter = function(episode) {
-      return episode.season == self.selectedSeason && !episode.retired;
+      return episode.season == self.selectedSeason && !episode.retired && episode.air_date != null;
     };
 
 
@@ -218,6 +218,36 @@ angular.module('mediaMogulApp')
       $log.debug("Series '" + self.series.title + "' " + self.series.id);
     };
 
+    function getPreviousEpisodes(episode) {
+      var allEarlierEpisodes = self.episodes.filter(function (otherEpisode) {
+        return  otherEpisode.air_date != null &&
+                otherEpisode.season != 0 &&
+                ((otherEpisode.season < episode.season) ||
+                (otherEpisode.season == episode.season &&
+                otherEpisode.episode_number < episode.episode_number));
+      });
+
+      var earlierSorted = allEarlierEpisodes.sort(function(e1, e2) {
+        if (e1.season == e2.season) {
+          return e2.episode_number - e1.episode_number;
+        } else {
+          return e2.season - e1.season;
+        }
+      });
+
+
+      if (earlierSorted.length < 5) {
+        return earlierSorted;
+      }
+
+      return [
+        earlierSorted[0],
+        earlierSorted[1],
+        earlierSorted[2],
+        earlierSorted[3]
+      ];
+
+    }
 
 
     self.changeMetacritic = function(series) {
@@ -269,6 +299,9 @@ angular.module('mediaMogulApp')
         resolve: {
           episode: function() {
             return episode;
+          },
+          previousEpisodes: function() {
+            return getPreviousEpisodes(episode);
           }
         }
       }).result.finally(function() {

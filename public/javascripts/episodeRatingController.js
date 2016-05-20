@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('episodeRatingController', ['$log', 'EpisodeService', '$modalInstance', 'episode',
-  function($log, EpisodeService, $modalInstance, episode) {
+  .controller('episodeRatingController', ['$log', 'EpisodeService', '$modalInstance', 'episode', 'previousEpisodes',
+  function($log, EpisodeService, $modalInstance, episode, previousEpisodes) {
     var self = this;
 
     var options = {
@@ -9,6 +9,7 @@ angular.module('mediaMogulApp')
     };
 
     self.episode = episode;
+    self.previousEpisodes = previousEpisodes;
     self.watched_date = episode.watched_date == null ?
       (new Date()).toLocaleDateString("en-US", options) :
       new Date(episode.watched_date).toLocaleDateString("en-US", options);

@@ -105,6 +105,29 @@
 
     </div>
 
+    <div class="form-group col-lg-12">
+      <h3>Previous Episodes</h3>
+      <table class="table table-striped table-hover ">
+        <thead>
+        <th>Episode</th>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Rating</th>
+        </thead>
+        <tr data-ng-repeat="episode in ctrl.previousEpisodes">
+          <td ng-bind="episode.tvdb_episode_number"></td>
+          <td ng-bind="episode.tvdb_episode_name" class="episodeDescription"></td>
+          <td ng-bind="episode.air_date|date:'EEE MM/d'"></td>
+          <td>
+            <h4>
+              <span ng-bind="episode.rating_value"
+                    ng-show="!ctrl.shouldShowRate(episode)"></span>
+            </h4>
+          </td>
+        </tr>
+      </table>
+    </div>
+
   </div>
 
 
