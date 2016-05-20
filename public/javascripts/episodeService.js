@@ -90,6 +90,23 @@ function EpisodeService($log, $http, $q, $filter) {
         series.viewingLocations = results[1].data;
         $log.debug("Episodes has " + episodes.length + " rows.");
         $log.debug("Locations has " + series.viewingLocations.length + " rows.");
+
+        episodes.forEach( function(episode) {
+          episode.colorStyle = function() {
+            if (episode.rating_value == null) {
+              return {};
+            } else {
+              var hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
+              $log.debug("Rating " + episode.rating_value + ": Hue " + hue);
+              return {
+                'background-color': 'hsla(' + hue + ', 50%, 42%, 1)',
+                'font-size': '1.6em',
+                'text-align': 'center',
+                'font-weight': '800'
+              }
+            }
+          }
+        });
         deferred.resolve();
       },
       function(errors) {
