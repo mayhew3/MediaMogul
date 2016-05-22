@@ -12,7 +12,7 @@
       <ul class="nav nav-pills nav-stacked btn-sm">
         <li role="tv" ng-class="ctrl.isActive('Main')">
           <a href ng-click="ctrl.selectedPill='Main'">
-            Main<span class="badge" ng-show="ctrl.countWhere(ctrl.firstTier) > 0" ng-bind="ctrl.countWhere(ctrl.firstTier)"></span>
+            Main<span class="badge" ng-show="ctrl.countWhere(ctrl.showInQueue) > 0" ng-bind="ctrl.countWhere(ctrl.showInQueue)"></span>
           </a>
         </li>
         <li role="tv" ng-class="ctrl.isActive('Backlog')">
@@ -50,7 +50,30 @@
             <div class="panel-body">
               <div class="row show-list">
                 <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
-                filter:ctrl.firstTier |
+                filter:ctrl.showInQueue |
+                orderBy:[ctrl.orderByRating].concat('-FullRating')">
+                  <a ng-click="ctrl.open(show)" href="">
+                    <img class="img-rounded"
+                        ng-style="ctrl.posterStyle(show)"
+                        ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                         width="100%"/>
+
+
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OTHER ACTIVE section -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3>Active</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row show-list">
+                <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.otherActive |
                 orderBy:[ctrl.orderByRating].concat('-FullRating')">
                   <a ng-click="ctrl.open(show)" href="">
                     <img class="img-rounded"
