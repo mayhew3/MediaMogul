@@ -49,6 +49,18 @@ exports.getEpisodes = function(req, response) {
   return executeQueryWithResults(response, sql, [req.query.SeriesId, 0]);
 };
 
+exports.getRecordingNow = function(req, response) {
+  var sql = 'SELECT e.series_id ' +
+    'FROM tivo_episode te ' +
+    'INNER JOIN edge_tivo_episode ete ' +
+    ' ON ete.tivo_episode_id = te.id ' +
+    'INNER JOIN episode e ' +
+    ' ON ete.episode_id = e.id ' +
+    'WHERE te.recording_now = $1 ';
+
+  return executeQueryWithResults(response, sql, [true]);
+};
+
 exports.getPossibleMatches = function(req, response) {
   console.log("Episode call received. Params: " + req.query.SeriesId);
 

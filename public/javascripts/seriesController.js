@@ -109,7 +109,7 @@ angular.module('mediaMogulApp')
     };
     self.refreshSeriesList();
 
-    $interval(self.refreshSeriesList, 30*1000);
+    // $interval(self.refreshSeriesList, 60*1000*5);
 
     self.getButtonClass = function(tier, series) {
       return series.tier === tier ? "btn btn-success" : "btn btn-primary";
@@ -117,6 +117,14 @@ angular.module('mediaMogulApp')
 
     self.changeTier = function(series) {
       EpisodeService.changeTier(series.id, series.tier);
+    };
+
+    self.posterStyle = function(series) {
+      if (series.recordingNow === true) {
+        return {"border": "solid red"};
+      } else {
+        return {};
+      }
     };
 
     self.markAllWatched = function(series) {

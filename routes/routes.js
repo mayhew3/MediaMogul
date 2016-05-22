@@ -5,6 +5,7 @@ module.exports = function(app) {
 
     app.get('/seriesList', series.getSeries);
     app.get('/episodeList', series.getEpisodes);
+    app.get('/recordingNow', series.getRecordingNow);
     app.get('/possibleMatches', series.getPossibleMatches);
     app.get('/viewingLocations', series.getViewingLocations);
     app.get('/seriesViewingLocations', series.getSeriesViewingLocations);

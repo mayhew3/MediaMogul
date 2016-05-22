@@ -27,7 +27,7 @@ function EpisodeService($log, $http, $q, $filter) {
         $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
         viewingLocations = viewingResponse.data;
 
-        self.updateNextUp();
+        self.updateNextUp().then(self.updateRecordingNow);
       }, function (errViewing) {
         console.error('Error while fetching viewing location list: ' + errViewing);
       });
@@ -54,6 +54,24 @@ function EpisodeService($log, $http, $q, $filter) {
       });
     });
   };
+
+  this.updateRecordingNow = function() {
+    $log.debug("Updating Recording Now.");
+    return $http.get('recordingNow').then(function(recordingNowResults) {
+      recordingNowResults.data.forEach(function (episode) {
+        $log.debug("Found recording in progress for series id " + episode.series_id);
+        var series_id = episode.series_id;
+        var series = findSeriesWithId(series_id);
+        series.recordingNow = true;
+      });
+    });
+  };
+
+  function findSeriesWithId(seriesId) {
+    return shows.find(function(series) {
+      return series.id == seriesId;
+    })
+  }
 
   function findAndUpdateSeries(resultObj) {
     var series_id = resultObj.series_id;
@@ -97,7 +115,7 @@ function EpisodeService($log, $http, $q, $filter) {
               return {};
             } else {
               var hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
-              $log.debug("Rating " + episode.rating_value + ": Hue " + hue);
+              // $log.debug("Rating " + episode.rating_value + ": Hue " + hue);
               return {
                 'background-color': 'hsla(' + hue + ', 50%, 42%, 1)',
                 'font-size': '1.6em',

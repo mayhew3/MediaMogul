@@ -12,7 +12,7 @@
       <ul class="nav nav-pills nav-stacked btn-sm">
         <li role="tv" ng-class="ctrl.isActive('Main')">
           <a href ng-click="ctrl.selectedPill='Main'">
-            Main<span class="badge" ng-bind="ctrl.countWhere(ctrl.firstTier)"></span>
+            Main<span class="badge" ng-show="ctrl.countWhere(ctrl.firstTier) > 0" ng-bind="ctrl.countWhere(ctrl.firstTier)"></span>
           </a>
         </li>
         <li role="tv" ng-class="ctrl.isActive('Backlog')">
@@ -20,7 +20,15 @@
         </li>
         <li role="tv" ng-class="ctrl.isActive('New')">
           <a href ng-click="ctrl.selectedPill='New'">
-            New<span class="badge" ng-bind="ctrl.countWhere(ctrl.newlyAdded)"></span>
+            New<span class="badge" ng-show="ctrl.countWhere(ctrl.newlyAdded) > 0" ng-bind="ctrl.countWhere(ctrl.newlyAdded)"></span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="nav nav-pills nav-stacked btn-sm">
+        <li role="tv">
+          <a href ng-click="ctrl.refreshSeriesList()">
+            Update
           </a>
         </li>
       </ul>
@@ -46,8 +54,11 @@
                 orderBy:[ctrl.orderByRating].concat('-FullRating')">
                   <a ng-click="ctrl.open(show)" href="">
                     <img class="img-rounded"
-                         ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                        ng-style="ctrl.posterStyle(show)"
+                        ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
                          width="100%"/>
+
+
                   </a>
                 </div>
               </div>
