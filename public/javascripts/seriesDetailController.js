@@ -143,14 +143,32 @@ angular.module('mediaMogulApp')
     };
 
     self.shouldShowRate = function(episode) {
-      return episode.rating_value == null && (episode.on_tivo || !isUnaired(episode));
+      return episode.rating_value == null && (isTiVoAvailable(episode) || isStreamingAvailable(episode));
     };
+
+    function isStreamingAvailable(episode) {
+      return episode.streaming && !airsInTheNextXDays(episode, 0);
+    }
+
+    function isTiVoAvailable(episode) {
+      return episode.on_tivo || !isUnaired(episode)
+    }
 
     function isUnaired(episode) {
       // unaired if the air date is more than a day after now.
 
       var isNull = episode.air_date == null;
       var diff = (new Date(episode.air_date) - new Date + (1000 * 60 * 60 * 24));
+      var hasSufficientDiff = (diff > 0);
+
+      return isNull || hasSufficientDiff;
+    }
+
+    function airsInTheNextXDays(episode, days) {
+      // unaired if the air date is more than a day after now.
+
+      var isNull = episode.air_date == null;
+      var diff = (new Date(episode.air_date) - new Date + (1000 * 60 * 60 * 24 * days));
       var hasSufficientDiff = (diff > 0);
 
       return isNull || hasSufficientDiff;
