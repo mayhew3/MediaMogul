@@ -376,12 +376,12 @@ function EpisodeService($log, $http, $q, $filter) {
         }
 
         // STREAMING
-        if (!onTiVo && streaming && airDate < now) {
+        if ((!onTiVo || deleted) && streaming && airDate < now) {
           streamingEpisodes++;
         }
 
         // UNWATCHED STREAMING
-        if (!onTiVo && streaming && airDate < now && !watched) {
+        if ((!onTiVo || deleted) && streaming && airDate < now && !watched) {
           unwatchedStreaming++;
         }
       }
