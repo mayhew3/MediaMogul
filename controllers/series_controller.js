@@ -581,9 +581,10 @@ exports.getUpcomingEpisodes = function(req, response) {
   "and e.air_date is not null " +
   "and e.air_date >= (current_date - integer '1') " +
   "and e.watched = $2 " +
+  "and e.season <> $3 " +    
   "order by e.air_date asc;";
 
-  return executeQueryWithResults(response, sql, [1, false]);
+  return executeQueryWithResults(response, sql, [1, false, 0]);
 };
 
 // utility methods
