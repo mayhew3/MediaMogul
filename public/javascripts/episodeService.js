@@ -44,6 +44,7 @@ function EpisodeService($log, $http, $q, $filter) {
     if (show.metacritic != null) {
       show.metacritic = parseInt(show.metacritic);
     }
+    show.posterResolved = show.poster ? 'http://thetvdb.com/banners/'+show.poster : 'images/GenericSeries.gif';
   };
   
   this.updateNextUp = function() {
@@ -110,6 +111,7 @@ function EpisodeService($log, $http, $q, $filter) {
         $log.debug("Locations has " + series.viewingLocations.length + " rows.");
 
         episodes.forEach( function(episode) {
+          episode.imageResolved = episode.tvdb_filename ? 'http://thetvdb.com/banners/'+episode.tvdb_filename : 'images/GenericEpisode.gif';
           episode.colorStyle = function() {
             if (episode.rating_value == null) {
               return {};

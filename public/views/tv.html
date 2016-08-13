@@ -55,7 +55,7 @@
                   <a ng-click="ctrl.open(show)" href="">
                     <img class="img-rounded"
                         ng-style="ctrl.posterStyle(show)"
-                        ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                        ng-src="{{show.posterResolved}}"
                          width="100%"/>
 
 
@@ -78,7 +78,7 @@
                   <a ng-click="ctrl.open(show)" href="">
                     <img class="img-rounded"
                         ng-style="ctrl.posterStyle(show)"
-                        ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                        ng-src="{{show.posterResolved}}"
                          width="100%"/>
 
 
@@ -101,7 +101,7 @@
                   <div>
                     <a ng-click="ctrl.open(show)" href="">
                       <img class="img-rounded"
-                           ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                           ng-src="{{show.posterResolved}}"
                            width="100%"/>
                     </a>
                   </div>
@@ -128,7 +128,7 @@
                 orderBy:[ctrl.orderByRating].concat('-FullRating')">
                   <a ng-click="ctrl.open(show)" href="">
                     <img class="img-rounded"
-                         ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                         ng-src="{{show.posterResolved}}"
                          width="100%"/>
                   </a>
                 </div>
@@ -152,7 +152,7 @@
                   <div>
                     <a ng-click="ctrl.open(show)" href="">
                       <img class="img-rounded"
-                           ng-src="{{'http://thetvdb.com/banners/'+show.poster}}"
+                           ng-src="{{show.posterResolved}}"
                            width="100%"/>
                     </a>
                   </div>
