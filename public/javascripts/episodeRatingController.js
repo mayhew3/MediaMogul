@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('episodeRatingController', ['$log', 'EpisodeService', '$modalInstance', 'episode', 'previousEpisodes', '$q',
-  function($log, EpisodeService, $modalInstance, episode, previousEpisodes, $q) {
+  .controller('episodeRatingController', ['$log', 'EpisodeService', '$modalInstance', 'episode', 'previousEpisodes',
+  function($log, EpisodeService, $modalInstance, episode, previousEpisodes) {
     var self = this;
     self.rating_id = episode.rating_id;
 
@@ -35,13 +35,15 @@ angular.module('mediaMogulApp')
     };
 
     self.updateOrAddRating = function() {
-      // var deferred = $q.defer();
       var changedFields = self.getChangedFields();
       if (Object.keys(changedFields).length > 0) {
         return self.rating_id == null ?
           EpisodeService.addRating(self.interfaceRating) :
           EpisodeService.updateRating(changedFields, self.rating_id);
       }
+      return new Promise(function(resolve) {
+        resolve();
+      });
     };
 
 
@@ -65,7 +67,7 @@ angular.module('mediaMogulApp')
 
     self.updateAndClose = function() {
       self.updateOrAddRating().then(function (response) {
-        if (response.data.hasOwnProperty("RatingId")) {
+        if (response && response.data.hasOwnProperty("RatingId")) {
           episode.rating_id = response.data.RatingId;
         }
         episode.watched = true;
