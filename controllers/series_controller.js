@@ -496,19 +496,51 @@ exports.addRating = function(req, response) {
   console.log("Adding rating: " + JSON.stringify(episodeRating));
 
   var sql = "INSERT INTO episode_rating (episode_id, rating_date, rating_funny, rating_character, rating_story, rating_value, review, date_added) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
+    "VALUES ($1, $2, $3, $4, $5, $6, $7, $8) " +
+    "RETURNING id";
 
-  executeQueryNoResults(response, sql,
-    [
-      episodeRating.episode_id,
-      new Date,
-      episodeRating.rating_funny,
-      episodeRating.rating_character,
-      episodeRating.rating_story,
-      episodeRating.rating_value,
-      episodeRating.review,
-      new Date
-    ]);
+  var values = [
+    episodeRating.episode_id,
+    new Date,
+    episodeRating.rating_funny,
+    episodeRating.rating_character,
+    episodeRating.rating_story,
+    episodeRating.rating_value,
+    episodeRating.review,
+    new Date
+  ];
+
+
+  var queryConfig = {
+    text: sql,
+    values: values
+  };
+
+  var client = new pg.Client(config);
+  if (client == null) {
+    return console.error('null client');
+  }
+
+  client.connect(function(err) {
+    if (err) {
+      return console.error('could not connect to postgres', err);
+    }
+
+    client.query(queryConfig, function(err, result) {
+      if (err) {
+        console.error(err);
+        response.send("Error " + err);
+      }
+      console.log("rating insert successful.");
+
+      // NOTE: This only works because the query has "RETURNING id" at the end.
+      var rating_id = result.rows[0].id;
+
+      console.log("rating id found: " + rating_id);
+      return response.json({RatingId: rating_id});
+    });
+
+  });
 };
 
 exports.updateRating = function(req, response) {

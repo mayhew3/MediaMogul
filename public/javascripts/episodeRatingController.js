@@ -39,7 +39,7 @@ angular.module('mediaMogulApp')
       if (Object.keys(changedFields).length > 0) {
         return self.rating_id == null ?
           EpisodeService.addRating(self.interfaceRating) :
-          EpisodeService.updateRating(changedFields, rating_id);
+          EpisodeService.updateRating(changedFields, self.rating_id);
       }
     };
 
@@ -63,7 +63,10 @@ angular.module('mediaMogulApp')
     };
 
     self.updateAndClose = function() {
-      self.updateOrAddRating().then(function () {
+      self.updateOrAddRating().then(function (response) {
+        if (response.data.hasOwnProperty("RatingId")) {
+          episode.rating_id = response.data.RatingId;
+        }
         episode.watched = true;
         self.watched_date = (self.watched_date == '' || self.watched_date == null) ?
           null :
@@ -81,6 +84,6 @@ angular.module('mediaMogulApp')
     };
 
     self.cancel = function() {
-      $modalInstance.close();
+      $modalInstance.dismiss();
     }
   }]);
