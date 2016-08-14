@@ -25,6 +25,10 @@ exports.getEpisodes = function(req, response) {
     'te.name as tvdb_episode_name, ' +
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview, ' +
+    'te.production_code as tvdb_production_code, ' +
+    'te.rating as tvdb_rating, ' +
+    'te.director as tvdb_director, ' +
+    'te.writer as tvdb_writer, ' +
     'ti.deleted_date as tivo_deleted_date, ' +
     'ti.suggestion as tivo_suggestion, ' +
     'ti.showing_start_time as showing_start_time, ' +
@@ -32,6 +36,9 @@ exports.getEpisodes = function(req, response) {
     'ti.title as tivo_title, ' +
     'ti.description as tivo_description, ' +
     'ti.id as tivo_episode_id,' +
+    'ti.station as tivo_station,' +
+    'ti.channel as tivo_channel,' +
+    'ti.rating as tivo_rating,' +
     'er.rating_funny, ' +
     'er.rating_character, ' +
     'er.rating_story, ' +

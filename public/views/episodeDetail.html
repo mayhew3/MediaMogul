@@ -10,17 +10,22 @@
 
   <div class="modal-body clearfix">
 
+    <!-- Top Group -->
     <div class="form-group col-lg-12">
+
+      <!-- Episode Image -->
       <div class="form-group col-lg-6">
         <img class="img-rounded"
              ng-src="{{ctrl.episode.imageResolved}}"
              width="100%"/>
       </div>
 
+      <!-- Title -->
       <div class="form-group col-lg-6">
         <h2 ng-bind="ctrl.episode.title"></h2>
       </div>
 
+      <!-- Episode Number -->
       <div class="form-group col-lg-6">
         <h4>
           <span>Season</span>
@@ -30,12 +35,15 @@
         </h4>
       </div>
 
+      <!-- Episode Summary -->
       <div class="form-group col-lg-6">
         <span ng-bind="ctrl.episode.tvdb_overview"></span>
       </div>
 
     </div>
 
+
+    <!-- Air Date -->
     <div class="form-group col-lg-6">
       <label class="control-label" for="airDate">Aired</label>
       <div class="date">
@@ -48,6 +56,7 @@
       </div>
     </div>
 
+    <!-- Watch Date -->
     <div class="form-group col-lg-6">
       <label class="control-label" for="watchedDate">Watched</label>
       <div class="date">
@@ -59,6 +68,7 @@
       </div>
     </div>
 
+    <!-- Funny -->
     <div class="form-group col-lg-3">
       <label class="control-label" for="ratingFunny">Funny</label>
       <input type="number"
@@ -71,6 +81,7 @@
              ng-model="ctrl.interfaceRating.rating_funny"/>
     </div>
 
+    <!-- Character -->
     <div class="form-group col-lg-3">
       <label class="control-label" for="ratingCharacter">Character</label>
       <input type="number"
@@ -83,6 +94,7 @@
              ng-model="ctrl.interfaceRating.rating_character"/>
     </div>
 
+    <!-- Story -->
     <div class="form-group col-lg-3">
       <label class="control-label" for="ratingStory">Story</label>
       <input type="number"
@@ -95,6 +107,7 @@
              ng-model="ctrl.interfaceRating.rating_story"/>
     </div>
 
+    <!-- Rating -->
     <div class="form-group col-lg-3">
       <label class="control-label" for="ratingValue">Overall</label>
       <input type="number"
@@ -107,6 +120,7 @@
              ng-model="ctrl.interfaceRating.rating_value"/>
     </div>
 
+    <!-- Review -->
     <div class="form-group col-lg-12">
 
       <label class="control-label" for="review">Review</label>
@@ -120,6 +134,7 @@
 
     </div>
 
+    <!-- Previous Episodes -->
     <div class="form-group col-lg-12">
       <h3>Previous Episodes</h3>
       <table class="table table-striped table-hover ">
@@ -139,6 +154,67 @@
           </td>
         </tr>
       </table>
+    </div>
+
+    <div class="form-group col-lg-12">
+
+      <!-- TVDB Info -->
+      <div class="form-group col-lg-6" ng-show="ctrl.episode.tvdb_episode_id != null">
+
+        <!-- Director -->
+        <div ng-show="ctrl.episode.tvdb_director != null">
+          <h3>Director</h3>
+          <span ng-bind="ctrl.episode.tvdb_director"></span>
+        </div>
+
+        <!-- Writer -->
+        <div ng-show="ctrl.episode.tvdb_writer != null">
+          <h3>Writer</h3>
+          <span ng-bind="ctrl.episode.tvdb_writer"></span>
+        </div>
+
+
+        <!-- Production Code -->
+        <div ng-show="ctrl.episode.tvdb_production_code != null">
+          <h3>Production Code</h3>
+          <span ng-bind="ctrl.episode.tvdb_production_code"></span>
+        </div>
+
+        <!-- Rating -->
+        <div ng-show="ctrl.episode.tvdb_rating != null">
+          <h3>TVDB Rating</h3>
+          <span ng-bind="ctrl.episode.tvdb_rating"></span>
+        </div>
+
+
+      </div>
+
+      <!-- TiVo Info-->
+      <div class="form-group col-lg-6" ng-show="ctrl.episode.on_tivo">
+
+
+        <!-- Station -->
+        <div ng-show="ctrl.episode.tivo_station != null">
+          <h3>Station</h3>
+          <span ng-bind="ctrl.episode.tivo_station"></span>
+        </div>
+
+        <!-- Channel -->
+        <div ng-show="ctrl.episode.tivo_channel != null">
+          <h3>Channel</h3>
+          <span ng-bind="ctrl.episode.tivo_channel"></span>
+        </div>
+
+        <!-- Rating -->
+        <div ng-show="ctrl.episode.tivo_rating != null">
+          <h3>Rating</h3>
+          <span ng-bind="ctrl.episode.tivo_rating"></span>
+        </div>
+
+
+      </div>
+
+
     </div>
 
   </div>
