@@ -11,10 +11,13 @@ angular.module('mediaMogulApp')
 
     self.episode = episode;
     self.previousEpisodes = previousEpisodes;
-    self.watched_date = episode.watched_date == null ?
-      (new Date()).toLocaleDateString("en-US", options) :
+
+    self.watched = episode.watched;
+    self.watched_date = episode.watched_date == null ? null :
       new Date(episode.watched_date).toLocaleDateString("en-US", options);
-    self.air_date = episode.air_date == null ? '' : new Date(episode.air_date).toLocaleDateString("en-US", options);
+
+    self.air_date = episode.air_date == null ? null :
+      new Date(episode.air_date).toLocaleDateString("en-US", options);
     
     self.originalRating = {
       episode_id: episode.id,
@@ -46,6 +49,15 @@ angular.module('mediaMogulApp')
       });
     };
 
+    self.changeWatched = function() {
+      if (!self.watched) {
+        self.watched_date = null;
+      }
+    };
+
+    self.changeWatchedDate = function() {
+      self.watched = self.watched_date != null;
+    };
 
     self.getChangedFields = function() {
       var changedFields = {};
@@ -65,23 +77,55 @@ angular.module('mediaMogulApp')
       return changedFields;
     };
 
+
+    function updateWatchedStatus() {
+      self.watched_date = (self.watched_date == '' || self.watched_date == null) ?
+        null :
+        new Date(self.watched_date);
+      var originalDate = (self.episode.watched_date == '' || self.episode.watched_date == null) ? null :
+        new Date(self.episode.watched_date);
+      if (originalDate != null) {
+        originalDate.setHours(0, 0, 0, 0);
+      }
+
+      if (self.watched != self.episode.watched || watchedDateHasChanged(originalDate)) {
+        return EpisodeService.markWatched(self.episode.series_id, self.episode.id, self.watched, self.watched_date);
+      }
+    }
+
+    function watchedDateHasChanged(originalDate) {
+      if (self.watched_date == null && originalDate == null) {
+        return false;
+      } else if (self.watched_date == null) {
+        return true;
+      } else if (originalDate == null) {
+        return true;
+      } else {
+        return self.watched_date.getTime() != originalDate.getTime();
+      }
+    }
+
+    function updateEpisodeFields() {
+      episode.rating_funny = self.interfaceRating.rating_funny;
+      episode.rating_character = self.interfaceRating.rating_character;
+      episode.rating_story = self.interfaceRating.rating_story;
+      episode.rating_value = self.interfaceRating.rating_value;
+      episode.review = self.interfaceRating.review;
+
+      episode.watched = self.watched;
+      episode.watched_date = self.watched_date;
+    }
+
+
     self.updateAndClose = function() {
-      self.updateOrAddRating().then(function (response) {
+      self.updateOrAddRating()
+        .then(function (response) {
         if (response && response.data.hasOwnProperty("RatingId")) {
           episode.rating_id = response.data.RatingId;
         }
-        episode.watched = true;
-        self.watched_date = (self.watched_date == '' || self.watched_date == null) ?
-          null :
-          new Date(self.watched_date);
-        episode.watched_date = self.watched_date;
-        return EpisodeService.markWatched(self.episode.series_id, self.episode.id, true, self.watched_date);
+        return updateWatchedStatus();
       }).then(function () {
-        episode.rating_funny = self.interfaceRating.rating_funny;
-        episode.rating_character = self.interfaceRating.rating_character;
-        episode.rating_story = self.interfaceRating.rating_story;
-        episode.rating_value = self.interfaceRating.rating_value;
-        episode.review = self.interfaceRating.review;
+        updateEpisodeFields();
         $modalInstance.close();
       });
     };

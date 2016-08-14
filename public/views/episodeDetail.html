@@ -43,8 +43,10 @@
     </div>
 
 
+
+
     <!-- Air Date -->
-    <div class="form-group col-lg-6">
+    <div class="form-group col-lg-3">
       <label class="control-label" for="airDate">Aired</label>
       <div class="date">
         <input type="text"
@@ -56,68 +58,87 @@
       </div>
     </div>
 
+    <!-- Watched (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
+    <div class="form-group col-lg-3">
+      <label class="control-label" for="watched">Watched</label>
+      <div>
+        <input type="checkbox"
+               id="watched"
+               name="watched"
+               checked
+               class="form-control"
+               ng-model="ctrl.watched"
+               ng-change="ctrl.changeWatched()">
+      </div>
+    </div>
+
     <!-- Watch Date -->
-    <div class="form-group col-lg-6">
+    <div class="form-group col-lg-3">
       <label class="control-label" for="watchedDate">Watched</label>
       <div class="date">
         <input type="text"
                id="watchedDate"
                name="watchedDate"
                class="form-control"
-               ng-model="ctrl.watched_date">
+               ng-model="ctrl.watched_date"
+               ng-change="ctrl.changeWatchedDate()">
       </div>
     </div>
 
-    <!-- Funny -->
-    <div class="form-group col-lg-3">
-      <label class="control-label" for="ratingFunny">Funny</label>
-      <input type="number"
-             class="form-control input-lg"
-             id="ratingFunny"
-             name="ratingFunny"
-             ng-required="false"
-             min="1"
-             max="100"
-             ng-model="ctrl.interfaceRating.rating_funny"/>
-    </div>
+    <div class="form-group col-lg-12">
 
-    <!-- Character -->
-    <div class="form-group col-lg-3">
-      <label class="control-label" for="ratingCharacter">Character</label>
-      <input type="number"
-             class="form-control input-lg"
-             id="ratingCharacter"
-             name="ratingCharacter"
-             ng-required="false"
-             min="1"
-             max="100"
-             ng-model="ctrl.interfaceRating.rating_character"/>
-    </div>
+      <!-- Funny -->
+      <div class="form-group col-lg-3">
+        <label class="control-label" for="ratingFunny">Funny</label>
+        <input type="number"
+               class="form-control input-lg"
+               id="ratingFunny"
+               name="ratingFunny"
+               ng-required="false"
+               min="1"
+               max="100"
+               ng-model="ctrl.interfaceRating.rating_funny"/>
+      </div>
 
-    <!-- Story -->
-    <div class="form-group col-lg-3">
-      <label class="control-label" for="ratingStory">Story</label>
-      <input type="number"
-             class="form-control input-lg"
-             id="ratingStory"
-             name="ratingStory"
-             ng-required="false"
-             min="1"
-             max="100"
-             ng-model="ctrl.interfaceRating.rating_story"/>
-    </div>
+      <!-- Character -->
+      <div class="form-group col-lg-3">
+        <label class="control-label" for="ratingCharacter">Character</label>
+        <input type="number"
+               class="form-control input-lg"
+               id="ratingCharacter"
+               name="ratingCharacter"
+               ng-required="false"
+               min="1"
+               max="100"
+               ng-model="ctrl.interfaceRating.rating_character"/>
+      </div>
 
-    <!-- Rating -->
-    <div class="form-group col-lg-3">
-      <label class="control-label" for="ratingValue">Overall</label>
-      <input type="number"
-             class="form-control input-lg"
-             id="ratingValue"
-             name="ratingValue"
-             ng-required="false"
-             min="1"
-             max="100"
-             ng-model="ctrl.interfaceRating.rating_value"/>
+      <!-- Story -->
+      <div class="form-group col-lg-3">
+        <label class="control-label" for="ratingStory">Story</label>
+        <input type="number"
+               class="form-control input-lg"
+               id="ratingStory"
+               name="ratingStory"
+               ng-required="false"
+               min="1"
+               max="100"
+               ng-model="ctrl.interfaceRating.rating_story"/>
+      </div>
+
+      <!-- Rating -->
+      <div class="form-group col-lg-3">
+        <label class="control-label" for="ratingValue">Overall</label>
+        <input type="number"
+               class="form-control input-lg"
+               id="ratingValue"
+               name="ratingValue"
+               ng-required="false"
+               min="1"
+               max="100"
+               ng-model="ctrl.interfaceRating.rating_value"/>
+      </div>
+
     </div>
 
     <!-- Review -->
