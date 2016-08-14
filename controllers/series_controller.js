@@ -32,7 +32,12 @@ exports.getEpisodes = function(req, response) {
     'ti.title as tivo_title, ' +
     'ti.description as tivo_description, ' +
     'ti.id as tivo_episode_id,' +
-    'er.rating_value as rating_value ' +
+    'er.rating_funny, ' +
+    'er.rating_character, ' +
+    'er.rating_story, ' +
+    'er.rating_value, ' +
+    'er.review, ' +
+    'er.id as rating_id ' +
     'FROM episode e ' +
     'LEFT OUTER JOIN tvdb_episode te ' +
     ' ON e.tvdb_episode_id = te.id ' +
@@ -504,6 +509,20 @@ exports.addRating = function(req, response) {
       episodeRating.review,
       new Date
     ]);
+};
+
+exports.updateRating = function(req, response) {
+  var changedFields = req.body.ChangedFields;
+  var rating_id = req.body.RatingID;
+
+  console.log("Changing rating: " + JSON.stringify(changedFields));
+
+  var queryConfig = buildUpdateQueryConfig(changedFields, "episode_rating", rating_id);
+
+  console.log("SQL: " + queryConfig.text);
+  console.log("Values: " + queryConfig.values);
+
+  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
 

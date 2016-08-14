@@ -126,7 +126,8 @@ function EpisodeService($log, $http, $q, $filter) {
                 'color': 'white'
               }
             }
-          }
+          };
+          self.updateNumericEpisodeFields(episode);
         });
         deferred.resolve();
       },
@@ -134,6 +135,21 @@ function EpisodeService($log, $http, $q, $filter) {
         deferred.reject(errors);
       });
     return deferred.promise;
+  };
+
+  this.updateNumericEpisodeFields = function(episode) {
+    if (episode.rating_funny != null) {
+      episode.rating_funny = parseInt(episode.rating_funny);
+    }
+    if (episode.rating_character != null) {
+      episode.rating_character = parseInt(episode.rating_character);
+    }
+    if (episode.rating_story != null) {
+      episode.rating_story = parseInt(episode.rating_story);
+    }
+    if (episode.rating_value != null) {
+      episode.rating_value = parseInt(episode.rating_value);
+    }
   };
 
   this.updatePossibleMatches = function(series) {
@@ -298,6 +314,9 @@ function EpisodeService($log, $http, $q, $filter) {
 
   this.addRating = function(episodeRating) {
     return $http.post('/addRating', {EpisodeRating: episodeRating});
+  };
+  this.updateRating = function(changedFields, rating_id) {
+    return $http.post('/updateRating', {ChangedFields: changedFields, RatingID: rating_id});
   };
 
 
