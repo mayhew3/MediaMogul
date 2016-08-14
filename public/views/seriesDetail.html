@@ -133,7 +133,7 @@
     <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.episodeFilter |
                           orderBy:['tvdb_episode_number']"
-      ng-click="ctrl.openEpisodeRating(episode)">
+      ng-click="ctrl.openEpisodeDetail(episode)">
       <td ng-bind="episode.tvdb_episode_number"></td>
       <td ng-bind="episode.tvdb_episode_name" class="episodeDescription"></td>
       <td ng-bind="episode.air_date|date:'EEE MM/d'"></td>
@@ -176,7 +176,7 @@
         <!--<button type="button"
                 class="btn btn-success btn-sm"
                 ng-show="ctrl.shouldShowRate(episode)"
-                ng-click="ctrl.openEpisodeRating(episode)">Rate</button>-->
+                ng-click="ctrl.openEpisodeDetail(episode)">Rate</button>-->
         <span ng-bind="episode.rating_value"
               ng-show="!ctrl.shouldShowRate(episode)"></span>
       </td>

@@ -309,10 +309,10 @@ angular.module('mediaMogulApp')
       });
     };
 
-    self.openEpisodeRating = function(episode) {
+    self.openEpisodeDetail = function(episode) {
       $modal.open({
-        templateUrl: 'views/episodeRating.html',
-        controller: 'episodeRatingController as ctrl',
+        templateUrl: 'views/episodeDetail.html',
+        controller: 'episodeDetailController as ctrl',
         size: 'lg',
         resolve: {
           episode: function() {

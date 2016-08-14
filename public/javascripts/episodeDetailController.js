@@ -1,5 +1,5 @@
 angular.module('mediaMogulApp')
-  .controller('episodeRatingController', ['$log', 'EpisodeService', '$modalInstance', 'episode', 'previousEpisodes',
+  .controller('episodeDetailController', ['$log', 'EpisodeService', '$modalInstance', 'episode', 'previousEpisodes',
   function($log, EpisodeService, $modalInstance, episode, previousEpisodes) {
     var self = this;
     self.rating_id = episode.rating_id;
