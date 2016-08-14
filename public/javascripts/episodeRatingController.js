@@ -14,6 +14,7 @@ angular.module('mediaMogulApp')
     self.watched_date = episode.watched_date == null ?
       (new Date()).toLocaleDateString("en-US", options) :
       new Date(episode.watched_date).toLocaleDateString("en-US", options);
+    self.air_date = episode.air_date == null ? '' : new Date(episode.air_date).toLocaleDateString("en-US", options);
     
     self.originalRating = {
       episode_id: episode.id,
