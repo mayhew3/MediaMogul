@@ -96,7 +96,7 @@ exports.getUnmatchedEpisodes = function(req, response) {
 
   var sql = 'SELECT te.* ' +
   'FROM tivo_episode te ' +
-  'WHERE te.tivo_series_ext_id = $1 ' +
+  'WHERE te.tivo_series_v2_ext_id = $1 ' +
     'AND te.retired = $2 ' +
     'AND id not in (select ete.tivo_episode_id from edge_tivo_episode ete)';
 

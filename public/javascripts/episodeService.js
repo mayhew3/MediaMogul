@@ -162,7 +162,7 @@ function EpisodeService($log, $http, $q, $filter) {
   };
 
   this.updateUnmatchedList = function(series) {
-    return $http.get('/unmatchedEpisodes', {params: {TiVoSeriesId: series.tivo_series_ext_id}}).then(function(episodeResponse) {
+    return $http.get('/unmatchedEpisodes', {params: {TiVoSeriesId: series.tivo_series_v2_ext_id}}).then(function(episodeResponse) {
       $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
       unmatchedEpisodes = episodeResponse.data;
     }, function(errResponse) {
