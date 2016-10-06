@@ -53,8 +53,7 @@
                id="airDate"
                name="airDate"
                class="form-control"
-               ng-model="ctrl.air_date"
-               readonly="readonly">
+               ng-model="ctrl.air_date">
       </div>
     </div>
 
@@ -257,6 +256,13 @@
 <script>
   $(document).ready(function()  {
     $('#watchedDate').datepicker({
+      todayBtn: "linked",
+      clearBtn: true,
+      daysOfWeekHighlighted: "0,6",
+      autoclose: true,
+      todayHighlight: true
+    });
+    $('#airDate').datepicker({
       todayBtn: "linked",
       clearBtn: true,
       daysOfWeekHighlighted: "0,6",

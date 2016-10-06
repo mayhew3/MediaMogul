@@ -142,41 +142,11 @@
                     ng-hide="ctrl.getLabelInfo(episode) == null"
                     ng-bind="ctrl.getLabelInfo(episode).labelText"></span>
       </td>
-      <td><!--
-        <button type="button"
-                class="btn btn-success btn-sm"
-                btn-checkbox
-                btn-checkbox-true="true"
-                btn-checkbox-false="false"
-                ng-show="ctrl.shouldShowMarkWatched(episode)"
-                ng-model="episode.watched"
-                ng-change="ctrl.markWatched(episode, false)">Mark Watched</button>
-        <button type="button"
-                class="btn btn-success btn-sm"
-                btn-checkbox
-                btn-checkbox-true="true"
-                btn-checkbox-false="false"
-                ng-show="ctrl.shouldShowMarkWatched(episode)"
-                ng-model="episode.watched"
-                ng-change="ctrl.markWatched(episode, true)">Without Date</button>-->
+      <td>
         <span ng-bind="episode.watched_date|date:'shortDate'"
               ng-show="episode.watched_date != null"></span>
-        <!--
-        <button type="button"
-                class="btn btn-primary btn-sm"
-                btn-checkbox
-                btn-checkbox-true="true"
-                btn-checkbox-false="false"
-                ng-show="episode.watched && episode.watched_date == null"
-                ng-model="episode.watched"
-                ng-change="ctrl.unwatch(episode)">Unwatch</button>-->
-
       </td>
       <td ng-style="episode.colorStyle()" width="70">
-        <!--<button type="button"
-                class="btn btn-success btn-sm"
-                ng-show="ctrl.shouldShowRate(episode)"
-                ng-click="ctrl.openEpisodeDetail(episode)">Rate</button>-->
         <span ng-bind="episode.rating_value"
               ng-show="!ctrl.shouldShowRate(episode)"></span>
       </td>

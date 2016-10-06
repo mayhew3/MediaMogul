@@ -79,29 +79,53 @@ angular.module('mediaMogulApp')
 
 
     function updateWatchedStatus() {
-      self.watched_date = (self.watched_date == '' || self.watched_date == null) ?
-        null :
-        new Date(self.watched_date);
-      var originalDate = (self.episode.watched_date == '' || self.episode.watched_date == null) ? null :
-        new Date(self.episode.watched_date);
-      if (originalDate != null) {
-        originalDate.setHours(0, 0, 0, 0);
+      self.watched_date = formatDate(self.watched_date);
+      self.air_date = formatDate(self.air_date);
+
+      var originalWatchedDate = formatDate(self.episode.watched_date);
+      var originalAirDate = formatDate(self.episode.air_date);
+
+      var changedFields = {};
+
+      if (self.watched != self.episode.watched) {
+        changedFields.watched = self.watched;
       }
 
-      if (self.watched != self.episode.watched || watchedDateHasChanged(originalDate)) {
-        return EpisodeService.markWatched(self.episode.series_id, self.episode.id, self.watched, self.watched_date);
+      if (dateHasChanged(originalWatchedDate, self.watched_date)) {
+        changedFields.watched_date = self.watched_date;
+      }
+
+      if (dateHasChanged(originalAirDate, self.air_date)) {
+        changedFields.air_date = self.air_date;
+      }
+
+      if (isEmpty(changedFields)) {
+        return EpisodeService.updateEpisode(self.episode.id, changedFields);
       }
     }
 
-    function watchedDateHasChanged(originalDate) {
-      if (self.watched_date == null && originalDate == null) {
+    function isEmpty(obj) {
+      return Object.keys(obj).length !== 0 && obj.constructor === Object;
+    }
+
+    function formatDate(unformattedDate) {
+      var originalDate = (unformattedDate == '' || unformattedDate == null) ? null :
+        new Date(unformattedDate);
+      if (originalDate != null) {
+        originalDate.setHours(0, 0, 0, 0);
+      }
+      return originalDate;
+    }
+
+    function dateHasChanged(originalDate, updatedDate) {
+      if (updatedDate == null && originalDate == null) {
         return false;
-      } else if (self.watched_date == null) {
+      } else if (updatedDate == null) {
         return true;
       } else if (originalDate == null) {
         return true;
       } else {
-        return self.watched_date.getTime() != originalDate.getTime();
+        return updatedDate.getTime() != originalDate.getTime();
       }
     }
 
@@ -114,6 +138,7 @@ angular.module('mediaMogulApp')
 
       episode.watched = self.watched;
       episode.watched_date = self.watched_date;
+      episode.air_date = self.air_date;
     }
 
 

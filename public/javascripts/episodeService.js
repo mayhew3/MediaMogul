@@ -205,6 +205,9 @@ function EpisodeService($log, $http, $q, $filter) {
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
     // todo: add some error handling.
   };
+  this.updateEpisode = function(episodeId, changedFields) {
+    return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
+  };
   this.changeTier = function(SeriesId, Tier) {
     $http.post('/changeTier', {SeriesId: SeriesId, tier: Tier});
     // todo: add some error handling.
