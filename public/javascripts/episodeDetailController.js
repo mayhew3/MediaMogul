@@ -50,6 +50,7 @@ angular.module('mediaMogulApp')
     };
 
     self.changeWatched = function() {
+      $log.debug("On Change");
       if (!self.watched) {
         self.watched_date = null;
       }
@@ -57,6 +58,17 @@ angular.module('mediaMogulApp')
 
     self.changeWatchedDate = function() {
       self.watched = self.watched_date != null;
+    };
+
+    self.anyRatingChanged = function() {
+      return !isEmpty(self.getChangedFields())
+    };
+
+    self.onRatingChange = function() {
+      if (!self.watched) {
+        self.watched = true;
+        self.watched_date = new Date().toLocaleDateString("en-US", options);;
+      }
     };
 
     self.getChangedFields = function() {
