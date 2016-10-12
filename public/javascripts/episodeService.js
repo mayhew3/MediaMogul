@@ -105,7 +105,15 @@ function EpisodeService($log, $http, $q, $filter) {
 
     $q.all(urlCalls).then(
       function(results) {
-        episodes = results[0].data;
+        var tempEpisodes = results[0].data;
+        tempEpisodes.forEach(function(episode) {
+          var existing = self.findEpisodeWithId(episode.id);
+          if (existing) {
+            self.removeFromArray(episodes, existing);
+          }
+          episodes.push(episode);
+        });
+
         series.viewingLocations = results[1].data;
         $log.debug("Episodes has " + episodes.length + " rows.");
         $log.debug("Locations has " + series.viewingLocations.length + " rows.");
@@ -135,6 +143,21 @@ function EpisodeService($log, $http, $q, $filter) {
         deferred.reject(errors);
       });
     return deferred.promise;
+  };
+
+  this.removeFromArray = function(objArray, obj) {
+    var idx = objArray.indexOf(obj);
+    objArray.splice(idx, 1);
+  };
+
+  this.findEpisodeWithId = function(id) {
+    var matching = episodes.filter(function(episode) {
+      return episode.id === id;
+    });
+    if (matching.length > 0) {
+      return matching[0];
+    }
+    return null;
   };
 
   this.updateNumericEpisodeFields = function(episode) {

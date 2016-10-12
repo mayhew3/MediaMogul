@@ -56,7 +56,7 @@ exports.getEpisodes = function(req, response) {
     ' ON er.episode_id = e.id ' +
     'WHERE e.series_id = $1 ' +
     'AND e.retired = $2 ' +
-    'ORDER BY e.season, te.episode_number';
+    'ORDER BY e.season, te.episode_number, ti.id';
 
   return executeQueryWithResults(response, sql, [req.query.SeriesId, 0]);
 };
