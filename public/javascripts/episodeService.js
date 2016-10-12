@@ -63,7 +63,11 @@ function EpisodeService($log, $http, $q, $filter) {
         $log.debug("Found recording in progress for series id " + episode.series_id);
         var series_id = episode.series_id;
         var series = findSeriesWithId(series_id);
-        series.recordingNow = true;
+        if (series == null) {
+          $log.debug("Unable to find recording now with series id '" + series_id + "'.");
+        } else {
+          series.recordingNow = true;
+        }
       });
     });
   };
@@ -105,6 +109,7 @@ function EpisodeService($log, $http, $q, $filter) {
 
     $q.all(urlCalls).then(
       function(results) {
+        episodes = [];
         var tempEpisodes = results[0].data;
         tempEpisodes.forEach(function(episode) {
           var existing = self.findEpisodeWithId(episode.id);
