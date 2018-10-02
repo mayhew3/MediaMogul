@@ -7,6 +7,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/',
           templateUrl: 'views/home.html'
         })
+        .state('callback', {
+          url: '/callback',
+          controller: 'CallbackController',
+          templateUrl: 'callback.html',
+          controllerAs: 'ctrl'
+        })
         .state('tv', {
           url: '/tv',
           controller: 'mytvTopController',
