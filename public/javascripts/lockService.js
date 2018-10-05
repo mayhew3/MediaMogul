@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper',
-    function ($log, $http, store, $location, jwtHelper) {
+  .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper', '__env',
+    function ($log, $http, store, $location, jwtHelper, __env) {
 
       var self = this;
 
@@ -20,7 +20,7 @@ angular.module('mediaMogulApp')
         autoclose: true,
         auth: {
           responseType: 'token id_token',
-          redirectUrl: 'http://media-mogul.herokuapp.com/callback'
+          redirectUrl: __env.callbackUrl
         }
       };
       

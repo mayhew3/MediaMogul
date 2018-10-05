@@ -1,3 +1,9 @@
+var env = {};
+
+if (window) {
+  Object.assign(env, window.__env);
+}
+
 angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt', 'ui.bootstrap', 'ui.router'])
   .config(['lockProvider', '$httpProvider', '$locationProvider', 'jwtInterceptorProvider', '$provide', '$stateProvider',
     function(lockProvider, $httpProvider, $locationProvider, jwtInterceptorProvider, $provide, $stateProvider) {
@@ -189,4 +195,5 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         });
       }
     }
-  });
+  })
+  .constant('__env', env);
