@@ -118,7 +118,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           function(rejection) {
 
             if (rejection.status === 401) {
-              lockService.signout();
+              lockService.logout();
             }
             return $q.reject(rejection);
           }

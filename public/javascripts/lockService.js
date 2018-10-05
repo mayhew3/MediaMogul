@@ -1,9 +1,20 @@
 angular.module('mediaMogulApp')
-  .service('LockService', ['$log', '$http', 'store', '$location',
-    function ($log, $http, store, $location) {
+  .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper',
+    function ($log, $http, store, $location, jwtHelper) {
 
       var self = this;
-      var isAuthenticated = false;
+
+      const token = store.get('token');
+      self.isAuthenticated = token && !jwtHelper.isTokenExpired(token);
+
+      if (self.isAuthenticated) {
+        const profile = store.get('profile');
+        if (isNaN(self.person_id)) {
+          console.log("Setting LockService person id to: " + store.get('person_id'));
+          self.person_id = store.get('person_id');
+        }
+        self.roles = profile.app_metadata.roles;
+      }
 
       self.options = {
         autoclose: true,
@@ -47,9 +58,9 @@ angular.module('mediaMogulApp')
         })
       };
 
-      self.signout = function() {
+      self.logout = function() {
         self.isAuthenticated = false;
-        self.lock.signout();
+        self.lock.logout();
         store.remove('profile');
         store.remove('token');
         store.remove('person_id');
