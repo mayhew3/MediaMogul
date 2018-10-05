@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper', '__env',
-    function ($log, $http, store, $location, jwtHelper, __env) {
+  .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper', '__env', '$q',
+    function ($log, $http, store, $location, jwtHelper, __env, $q) {
 
       var self = this;
 
@@ -43,24 +43,29 @@ angular.module('mediaMogulApp')
       });
 
       self.renew = function() {
+        var deferred = $q.defer();
+        console.log("Attempting to renew token...");
         self.lock.checkSession({}, function(err, authResult) {
           if (err || !authResult) {
             self.isAuthenticated = false;
             if (err) {
               console.log("Error on renew: " + err);
               alert('Failed to renew. Error: ' + err.error + ". Check the console for further details.");
+              deferred.reject("Error on renew: " + err);
             } else {
               console.log("No result received on renew.");
+              deferred.reject("No result received on renew.");
             }
-            $location.path('/');
           } else {
             if (authResult.accessToken && authResult.idToken) {
               console.log('Authentication renewed!', authResult);
               self.isAuthenticated = true;
               self.setSession(authResult);
+              deferred.resolve();
             }
           }
-        })
+        });
+        return deferred.promise;
       };
 
       self.logout = function() {

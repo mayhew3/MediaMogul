@@ -153,7 +153,10 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
   .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location',
     function($rootScope, LockService, store, jwtHelper, $location) {
 
-      $rootScope.$on('$locationChangeStart', function() {
+      // return value is a "deregistration" function that can be called to detach from the event.
+      const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);
+
+      function routeChange(event, next) {
         // Get the JWT that is saved in local storage
         // and if it is there, check whether it is expired.
         // If it isn't, set the user's auth state
@@ -165,16 +168,30 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         if (token) {
           if (jwtHelper.isTokenExpired(token)) {
             console.log("Token is expired. Trying to renew.");
-            LockService.renew();
+            // Prevent navigation by default since we'll handle it once the token is renewed.
+            event.preventDefault();
+
+            LockService.renew().then(function () {
+              // detach change event so we can change location to original destination without triggering this event again.
+              onRouteChangeOff();
+              $location.path(next);
+
+            }, function (err) {
+              console.log("Received error from renewal: " + err);
+              onRouteChangeOff();
+              $location.path('/');
+            });
           }
         } else {
-          console.log("No token found. Redirecting to home page for login.");
+          console.log("No auth token found. Redirecting to home page for login.");
           // Otherwise, redirect to the home route
+          event.preventDefault();
+          onRouteChangeOff();
           $location.path('/');
         }
-      });
+      }
 
-  }])
+    }])
   .directive('errSrc', function() {
     return {
       link: function(scope, element, attrs) {
