@@ -24,7 +24,7 @@ angular.module('mediaMogulApp')
         }
       };
       
-      self.lock = new Auth0Lock('QdwQv7LcXgmiUpYhXnTYyGQsXie2UQNb','mayhew3.auth0.com', self.options);
+      self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
       
       console.log("Listeners being added.");
       self.lock.on('authenticated', function(authResult) {
