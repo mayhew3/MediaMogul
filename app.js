@@ -16,4 +16,8 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 require('./routes/routes.js')(app);
 
+app.get('/*', function(req, res) {
+  res.sendFile(path.join(__dirname + '/public/index.html'));
+});
+
 module.exports = app;
