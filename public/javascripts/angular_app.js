@@ -163,17 +163,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         console.log("On Refresh: Store PersonID: " + person_id + ", Auth PersonID: " + LockService.person_id);
 
         if (token) {
-          if (!jwtHelper.isTokenExpired(token)) {
-            if (!LockService.isAuthenticated) {
-              console.log("Not authenticated!");
-              $location.path('/');
-            }
-          } else {
-            console.log("Token is expired. Going to home.");
-            // $location.path('/');
+          if (jwtHelper.isTokenExpired(token)) {
+            console.log("Token is expired. Trying to renew.");
+            LockService.renew();
           }
-
         } else {
+          console.log("No token found. Redirecting to home page for login.");
           // Otherwise, redirect to the home route
           $location.path('/');
         }

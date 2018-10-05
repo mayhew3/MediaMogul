@@ -43,14 +43,19 @@ angular.module('mediaMogulApp')
       });
 
       self.renew = function() {
-        self.lock.checkSession(self.options, function(err, authResult) {
-          if (err) {
+        self.lock.checkSession({}, function(err, authResult) {
+          if (err || !authResult) {
             self.isAuthenticated = false;
-            console.log(err);
-            alert('Error: ' + err.error + ". Check the console for further details.");
+            if (err) {
+              console.log("Error on renew: " + err);
+              alert('Failed to renew. Error: ' + err.error + ". Check the console for further details.");
+            } else {
+              console.log("No result received on renew.");
+            }
+            $location.path('/');
           } else {
-            if (authResult && authResult.accessToken && authResult.idToken) {
-              console.log('Authenticated!', authResult);
+            if (authResult.accessToken && authResult.idToken) {
+              console.log('Authentication renewed!', authResult);
               self.isAuthenticated = true;
               self.setSession(authResult);
             }
