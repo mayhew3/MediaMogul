@@ -6,16 +6,17 @@
     "Mayhew Seavey <commander.boffo@gmail.com>"
   ],
   "dependencies": {
-    "angular-ui-router": "^1.0.12",
-    "angular": "^1.6.8",
+    "angular-ui-router": "^1.0.20",
+    "angular": "^1.7.5",
     "angular-auth0": "^3.0.0",
-    "angular-lock": "^2.0.3",
-    "auth0.js": "^9.0.1",
-    "angular-route": "^1.6.8",
-    "angular-cookies": "^1.6.8"
+    "angular-lock": "^3.0.0",
+    "auth0.js": "^9.8.0",
+    "angular-route": "^1.7.5",
+    "angular-cookies": "^1.7.5"
   },
   "resolutions": {
-    "auth0.js": "9.8.0"
+    "auth0.js": "9.8.0",
+    "angular": "^1.7.5"
   },
   "license": "UNLICENSED",
   "keywords": [

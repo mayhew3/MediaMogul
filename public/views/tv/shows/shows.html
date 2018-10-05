@@ -5,17 +5,17 @@
 
   <ul class="nav nav-pills nav-stacked btn-sm">
     <li role="tv" ng-class="ctrl.isActive('Main')">
-      <a href ui-sref="tv.shows.main" ng-click="ctrl.selectedPill='Main'">
+      <a ui-sref="tv.shows.main" ng-click="ctrl.selectedPill='Main'">
         Main<span class="badge" ng-show="ctrl.countWhere(ctrl.showInQueue) > 0" ng-bind="ctrl.countWhere(ctrl.showInQueue)"></span>
       </a>
     </li>
     <li role="tv" ng-class="ctrl.isActive('Backlog')">
-      <a href ui-sref="tv.shows.backlog" ng-click="ctrl.selectedPill='Backlog'">
+      <a ui-sref="tv.shows.backlog" ng-click="ctrl.selectedPill='Backlog'">
         Backlog
       </a>
     </li>
     <li role="tv" ng-class="ctrl.isActive('Unmatched')" ng-show="ctrl.LockService.isAdmin()">
-      <a href ui-sref="tv.shows.unmatched" ng-click="ctrl.selectedPill='Unmatched'">
+      <a ui-sref="tv.shows.unmatched" ng-click="ctrl.selectedPill='Unmatched'">
         Unmatched
         <span class="badge pillTabRed"
               ng-show="ctrl.countWhere(ctrl.hasImportantUnmatched) > 0"
@@ -26,7 +26,7 @@
       </a>
     </li>
     <li role="tv" ng-class="ctrl.isActive('BlogTest')">
-      <a href ui-sref="tv.shows.blogtest" ng-click="ctrl.selectedPill='BlogTest'">
+      <a ui-sref="tv.shows.blogtest" ng-click="ctrl.selectedPill='BlogTest'">
         BlogTest
       </a>
     </li>

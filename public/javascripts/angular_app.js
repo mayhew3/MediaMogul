@@ -42,7 +42,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           templateUrl: 'views/tv/shows/unmatched.html'
         })
         .state('tv.rate', {
-          url: '/tv/rate/yearly',
+          url: '/rate/yearly',
           controller: 'yearlyRatingController',
           controllerAs: 'ctrl',
           templateUrl: 'views/tv/rate/tvyearly.html'
