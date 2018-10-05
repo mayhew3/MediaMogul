@@ -164,7 +164,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             }
           } else {
             console.log("Token is expired. Going to home.");
-            $location.path('/');
+            // $location.path('/');
           }
 
         } else {
