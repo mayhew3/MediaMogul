@@ -14,13 +14,13 @@
         <td width="70px" align="right">
           <input type="button"
                  class="btn btn-sm btn-danger"
-                 ng-show="!series.temp_ignored && ctrl.auth.isAdmin()"
+                 ng-show="!series.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-disabled="series.temp_confirmed"
                  ng-click="ctrl.ignoreSeries(series)"
                  value="Ignore">
           <input type="button"
                  class="btn btn-sm btn-warning"
-                 ng-show="series.temp_ignored && ctrl.auth.isAdmin()"
+                 ng-show="series.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-click="ctrl.unIgnoreSeries(series)"
                  value="Un-ignore">
         </td>
@@ -42,13 +42,13 @@
         <td width="70px" align="right">
           <input type="button"
                  class="btn btn-sm btn-danger"
-                 ng-show="!series.temp_ignored && ctrl.auth.isAdmin()"
+                 ng-show="!series.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-disabled="series.temp_confirmed"
                  ng-click="ctrl.ignoreSeries(series)"
                  value="Ignore">
           <input type="button"
                  class="btn btn-sm btn-warning"
-                 ng-show="series.temp_ignored && ctrl.auth.isAdmin()"
+                 ng-show="series.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-click="ctrl.unIgnoreSeries(series)"
                  value="Un-ignore">
         </td>
@@ -82,25 +82,25 @@
           <br/>
           <br/>
           <input type="button"
-                 ng-show="!series.temp_confirmed && ctrl.auth.isAdmin()"
+                 ng-show="!series.temp_confirmed && ctrl.LockService.isAdmin()"
                  class="btn btn-sm btn-success"
                  ng-disabled="series.temp_ignored"
                  ng-click="ctrl.confirmMatch(series)"
                  value="Confirm">
           <input type="button"
-                 ng-show="series.temp_confirmed && ctrl.auth.isAdmin()"
+                 ng-show="series.temp_confirmed && ctrl.LockService.isAdmin()"
                  class="btn btn-sm btn-warning"
                  ng-click="ctrl.unConfirmMatch(series)"
                  value="Un-Confirm">
           <input type="button"
                  class="btn btn-sm btn-danger"
-                 ng-show="!series.temp_ignored && ctrl.auth.isAdmin()"
+                 ng-show="!series.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-disabled="series.temp_confirmed"
                  ng-click="ctrl.ignoreSeries(series)"
                  value="Ignore">
           <input type="button"
                  class="btn btn-sm btn-warning"
-                 ng-show="series.temp_ignored && ctrl.auth.isAdmin()"
+                 ng-show="series.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-click="ctrl.unIgnoreSeries(series)"
                  value="Un-ignore">
         </div>
@@ -132,25 +132,25 @@
           <br/>
           <br/>
           <input type="button"
-                 ng-show="!series.temp_confirmed && ctrl.auth.isAdmin()"
+                 ng-show="!series.temp_confirmed && ctrl.LockService.isAdmin()"
                  class="btn btn-sm btn-success"
                  ng-disabled="series.temp_ignored"
                  ng-click="ctrl.confirmMatch(series)"
                  value="Confirm">
           <input type="button"
-                 ng-show="series.temp_confirmed && ctrl.auth.isAdmin()"
+                 ng-show="series.temp_confirmed && ctrl.LockService.isAdmin()"
                  class="btn btn-sm btn-warning"
                  ng-click="ctrl.unConfirmMatch(series)"
                  value="Un-Confirm">
           <input type="button"
                  class="btn btn-sm btn-danger"
-                 ng-show="!series.temp_ignored && ctrl.auth.isAdmin()"
+                 ng-show="!series.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-disabled="series.temp_confirmed"
                  ng-click="ctrl.ignoreSeries(series)"
                  value="Ignore">
           <input type="button"
                  class="btn btn-sm btn-warning"
-                 ng-show="series.temp_ignored && ctrl.auth.isAdmin()"
+                 ng-show="series.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-click="ctrl.unIgnoreSeries(series)"
                  value="Un-ignore">
         </div>

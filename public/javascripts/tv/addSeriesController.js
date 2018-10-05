@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'auth',
-  function($log, EpisodeService, $uibModalInstance, auth) {
+  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'LockService',
+  function($log, EpisodeService, $uibModalInstance, LockService) {
     var self = this;
 
-    self.auth = auth;
+    self.LockService = LockService;
 
     self.series = {};
 
@@ -36,7 +36,7 @@ angular.module('mediaMogulApp')
     self.ok = function() {
       self.series.ViewingLocations = [self.selectedLocation];
       self.series.date_added = new Date;
-      self.series.person_id = auth.person_id;
+      self.series.person_id = LockService.person_id;
       var errorResponse = EpisodeService.addSeries(self.series);
       if (errorResponse) {
         $log.debug("Error adding series. Response: " + errorResponse);

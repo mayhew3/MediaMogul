@@ -88,8 +88,8 @@
     <input class="btn btn-default"
            type="submit"
            value="Update"
-           ng-show="ctrl.auth.isAdmin()"
-           ng-disabled="seriesFields.$invalid || !ctrl.auth.isAuthenticated">
+           ng-show="ctrl.LockService.isAdmin()"
+           ng-disabled="seriesFields.$invalid || !ctrl.LockService.isAuthenticated">
     <button class="btn btn-primary" ng-click="ctrl.cancel()">Cancel</button>
   </div>
 </form>

@@ -16,6 +16,8 @@
     var self = this;
     self.login = login;
     self.logout = logout;
+
+    self.LockService = LockService;
     self.lock = LockService.lock;
 
     function login() {

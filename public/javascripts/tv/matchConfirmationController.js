@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('matchConfirmationController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'auth',
-    function($log, EpisodeService, $uibModalInstance, series, $uibModal, $filter, auth) {
+  .controller('matchConfirmationController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'LockService',
+    function($log, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService) {
       var self = this;
 
-      self.auth = auth;
+      self.LockService = LockService;
 
       self.series = series;
       self.possibleMatches = [];

@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'auth',
-  function($log, $uibModal, $interval, EpisodeService, auth) {
+  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService',
+  function($log, $uibModal, $interval, EpisodeService, LockService) {
     var self = this;
 
-    self.auth = auth;
+    self.LockService = LockService;
 
     self.series = [];
 

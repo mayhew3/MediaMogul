@@ -13,7 +13,7 @@
       <li ui-sref="tv.shows.main" ui-sref-active="active">
         <a>My Shows</a>
       </li>
-      <li ui-sref="tv.rate" ui-sref-active="active" ng-show="ctrl.auth.isAdmin()">
+      <li ui-sref="tv.rate" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
         <a>
           Rate
           <span class="badge"
@@ -24,7 +24,7 @@
       <li ui-sref="tv.addshows.main" ui-sref-active="active">
         <a>Add More</a>
       </li>
-      <li ui-sref="tv.match.seriesmatching" ui-sref-active="active" ng-show="ctrl.auth.isAdmin()">
+      <li ui-sref="tv.match.seriesmatching" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
         <a>
           Match
           <span class="badge pillTabRed"

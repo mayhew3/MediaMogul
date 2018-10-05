@@ -167,8 +167,8 @@
     <input class="btn btn-primary"
            type="submit"
            value="Submit"
-           ng-show="ctrl.auth.isAdmin()"
-           ng-disabled="gameFields.$invalid || !ctrl.auth.isAuthenticated">
+           ng-show="ctrl.LockService.isAdmin()"
+           ng-disabled="gameFields.$invalid || !ctrl.LockService.isAuthenticated">
     <input class="btn btn-default"
            type="button"
            value="Cancel"

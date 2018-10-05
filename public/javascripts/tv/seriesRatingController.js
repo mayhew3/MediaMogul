@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('seriesRatingController', ['$log', 'EpisodeService', '$uibModalInstance', 'episodeGroup', '$uibModal', '$filter', 'auth',
-  function($log, EpisodeService, $uibModalInstance, episodeGroup, $uibModal, $filter, auth) {
+  .controller('seriesRatingController', ['$log', 'EpisodeService', '$uibModalInstance', 'episodeGroup', '$uibModal', '$filter', 'LockService',
+  function($log, EpisodeService, $uibModalInstance, episodeGroup, $uibModal, $filter, LockService) {
     var self = this;
 
-    self.auth = auth;
+    self.LockService = LockService;
 
     self.episodeGroup = episodeGroup;
     self.episodeGroup.rating = self.episodeGroup.rating === null ? null : parseFloat(self.episodeGroup.rating);

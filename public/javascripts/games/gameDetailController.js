@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
-.controller('gameDetailController', ['$log', 'GamesService', '$uibModalInstance', 'game', 'auth', '$uibModal',
-  function($log, GamesService, $uibModalInstance, game, auth, $uibModal) {
+.controller('gameDetailController', ['$log', 'GamesService', '$uibModalInstance', 'game', 'LockService', '$uibModal',
+  function($log, GamesService, $uibModalInstance, game, LockService, $uibModal) {
     var self = this;
 
-    self.auth = auth;
+    self.LockService = LockService;
 
     self.game = game;
 

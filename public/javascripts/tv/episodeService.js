@@ -1,4 +1,4 @@
-function EpisodeService($log, $http, $q, $filter, auth) {
+function EpisodeService($log, $http, $q, $filter, LockService) {
   var shows = [];
   var myShows = [];
   var notMyShows = [];
@@ -53,7 +53,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
   };
 
   this.updateMyShowsList = function() {
-    return $http.get('/myShows', {params: {PersonId: auth.person_id}}).then(function (response) {
+    return $http.get('/myShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
       $log.debug("Shows returned " + response.data.length + " items.");
       var tempShows = response.data;
       tempShows.forEach(function (show) {
@@ -77,7 +77,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
   };
 
   this.updateNotMyShowsList = function() {
-    return $http.get('/notMyShows', {params: {PersonId: auth.person_id}}).then(function (response) {
+    return $http.get('/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
       $log.debug("Shows returned " + response.data.length + " items.");
       var tempShows = response.data;
       tempShows.forEach(function (show) {
@@ -212,7 +212,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
   };
 
   this.updateMyUpcomingEpisodes = function() {
-    return $http.get('/myUpcomingEpisodes', {params: {PersonId: auth.person_id}}).then(function (upcomingResults) {
+    return $http.get('/myUpcomingEpisodes', {params: {PersonId: LockService.person_id}}).then(function (upcomingResults) {
       // $log.debug(JSON.stringify(upcomingResults));
       upcomingResults.data.forEach(function(episode) {
         findAndUpdateMyShows(episode);
@@ -380,7 +380,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
   this.updateMyEpisodeList = function(series) {
     var deferred = $q.defer();
     var urlCalls = [];
-    urlCalls.push($http.get('/getMyEpisodes', {params: {SeriesId: series.id, PersonId: auth.person_id}}));
+    urlCalls.push($http.get('/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
     urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
 
     $q.all(urlCalls).then(
@@ -562,7 +562,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
     var changedFields = {
       tier: Tier
     };
-    $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: auth.person_id, ChangedFields: changedFields});
+    $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
   };
   this.updateSeries = function(SeriesId, ChangedFields) {
     $log.debug('Received update for Series ' + SeriesId + " with data " + JSON.stringify(ChangedFields));
@@ -579,7 +579,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
 
   this.addToMyShows = function(show) {
     $log.debug("Adding show " + JSON.stringify(show));
-    return $http.post('/addToMyShows', {SeriesId: show.id, PersonId: auth.person_id}).then(function () {
+    return $http.post('/addToMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function () {
       show.addedSuccessfully = true;
     }, function(errResponse) {
       $log.debug("Error adding to my shows: " + errResponse);
@@ -607,7 +607,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
   };
 
   this.rateMyShow = function(series, rating) {
-    return $http.post('/rateMyShow', {PersonId: auth.person_id, SeriesId: series.id, Rating: rating});
+    return $http.post('/rateMyShow', {PersonId: LockService.person_id, SeriesId: series.id, Rating: rating});
   };
 
   this.addViewingLocation = function(series, episodes, viewingLocation) {
@@ -627,7 +627,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
   };
 
   this.removeFromMyShows = function(show) {
-    return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: auth.person_id}).then(function() {
+    return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
       removeFromArray(myShows, show);
     });
   };
@@ -689,7 +689,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
   }
 
   this.markMyPastWatched = function(SeriesId, lastWatched) {
-    return $http.post('/markMyPastWatched', {SeriesId: SeriesId, LastWatched: lastWatched, PersonId: auth.person_id}).then(function() {
+    return $http.post('/markMyPastWatched', {SeriesId: SeriesId, LastWatched: lastWatched, PersonId: LockService.person_id}).then(function() {
       $log.debug("Success?")
     }, function(errResponse) {
       $log.debug("Error calling the method: " + errResponse);
@@ -995,7 +995,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
         });
         var nextUnwatched = _.first(unwatchedEpisodes);
 
-        var aired = auth.isAdmin() ?
+        var aired = LockService.isAdmin() ?
           _.filter(eligibleEpisodes, function(episode) {
             return episode.air_time !== null && episode.air_time < new Date;
           }).length :
@@ -1124,7 +1124,7 @@ function EpisodeService($log, $http, $q, $filter, auth) {
 
 
     if (Object.keys(changedFields).length > 0) {
-      return $http.post('/updateMyShow', {SeriesId: series.id, PersonId: auth.person_id, ChangedFields: changedFields}).then(function() {
+      return $http.post('/updateMyShow', {SeriesId: series.id, PersonId: LockService.person_id, ChangedFields: changedFields}).then(function() {
         $log.debug("Updating my series denorms: " + _.keys(changedFields));
         series.unwatched_episodes = unwatchedEpisodes;
         series.last_unwatched = lastUnwatched;
@@ -1148,4 +1148,4 @@ function EpisodeService($log, $http, $q, $filter, auth) {
 }
 
 angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'auth', EpisodeService]);
+  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', EpisodeService]);

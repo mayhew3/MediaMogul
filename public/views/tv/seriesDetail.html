@@ -25,8 +25,8 @@
           <button type="button"
                   class="btn btn-default"
                   ng-click="ctrl.openEditSeries()"
-                  ng-show="ctrl.auth.isAdmin()"
-                  ng-disabled="!ctrl.auth.isAuthenticated">Edit Details</button>
+                  ng-show="ctrl.LockService.isAdmin()"
+                  ng-disabled="!ctrl.LockService.isAuthenticated">Edit Details</button>
         </div>
         <div class="col-lg-4" ng-show="ctrl.owned">
           <label ng-repeat="tier in ctrl.tiers"
@@ -61,14 +61,14 @@
             <input class="btn btn-default"
                    type="submit"
                    value="Update"
-                   ng-show="ctrl.auth.isUser()"
-                   ng-disabled="seriesFields.$invalid || !ctrl.auth.isUser()">
+                   ng-show="ctrl.LockService.isUser()"
+                   ng-disabled="seriesFields.$invalid || !ctrl.LockService.isUser()">
           </div>
           <div class="col-lg-4">
             <button type="button"
                     class="btn btn-default"
                     ng-click="ctrl.removeFromMyShows()"
-                    ng-show="ctrl.auth.isUser() && !ctrl.removed">Remove From My Shows</button>
+                    ng-show="ctrl.LockService.isUser() && !ctrl.removed">Remove From My Shows</button>
             <span ng-show="ctrl.removed">Removed!</span>
           </div>
         </form>
@@ -79,13 +79,13 @@
           <button type="button"
                   class="btn btn-success"
                   ng-click="ctrl.markAllPastWatched()"
-                  ng-show="ctrl.auth.isUser()"
-                  ng-disabled="!ctrl.auth.isAuthenticated">All Past Watched</button>
+                  ng-show="ctrl.LockService.isUser()"
+                  ng-disabled="!ctrl.LockService.isAuthenticated">All Past Watched</button>
         </div>
         <div class="col-lg-8">
           <button type="button"
                   class="btn btn-warning"
-                  ng-show="ctrl.auth.isAdmin()"
+                  ng-show="ctrl.LockService.isAdmin()"
                   ng-disabled="ctrl.series.tvdb_manual_queue"
                   ng-click="ctrl.queueForManualUpdate()">TVDB Update</button>
           <span ng-bind="'Last Update: ' + ctrl.daysSinceLastUpdate + ' days.'"></span>

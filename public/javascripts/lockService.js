@@ -3,36 +3,58 @@ angular.module('mediaMogulApp')
     function ($log, $http, store, $location) {
 
       var self = this;
-      
-      self.lock = new Auth0Lock('QdwQv7LcXgmiUpYhXnTYyGQsXie2UQNb','mayhew3.auth0.com', {
+      var isAuthenticated = false;
+
+      self.options = {
         autoclose: true,
         auth: {
           responseType: 'token id_token',
           redirectUrl: 'http://localhost:5000/callback'
         }
-      });
+      };
+      
+      self.lock = new Auth0Lock('QdwQv7LcXgmiUpYhXnTYyGQsXie2UQNb','mayhew3.auth0.com', self.options);
       
       console.log("Listeners being added.");
       self.lock.on('authenticated', function(authResult) {
         console.log("Authenticated event detected.");
         if (authResult && authResult.accessToken && authResult.idToken) {
           console.log('Authenticated!', authResult);
+          self.isAuthenticated = true;
           self.setSession(authResult);
         }
       });
       
       self.lock.on('authorization_error', function(err) {
+        self.isAuthenticated = false;
         console.log(err);
         alert('Error: ' + err.error + ". Check the console for further details.");
       });
-      
+
+      self.renew = function() {
+        self.lock.checkSession(self.options, function(err, authResult) {
+          if (err) {
+            self.isAuthenticated = false;
+            console.log(err);
+            alert('Error: ' + err.error + ". Check the console for further details.");
+          } else {
+            if (authResult && authResult.accessToken && authResult.idToken) {
+              console.log('Authenticated!', authResult);
+              self.isAuthenticated = true;
+              self.setSession(authResult);
+            }
+          }
+        })
+      };
+
       self.signout = function() {
+        self.isAuthenticated = false;
         self.lock.signout();
         store.remove('profile');
         store.remove('token');
         store.remove('person_id');
-        self.lock.roles = [];
-        self.lock.person_id = undefined;
+        self.roles = [];
+        self.person_id = undefined;
       };
       
       self.setSession = function(authResult) {
@@ -44,12 +66,19 @@ angular.module('mediaMogulApp')
         store.set('profile', authResult.idTokenPayload);
         store.set('access_token', authResult.accessToken);
         store.set('token', authResult.idToken);
-        // store.set('refresh_token', authResult.refreshToken);
+        store.set('refresh_token', authResult.refreshToken);
         store.set('expires_at', expiresAt);
 
         syncPersonWithDB(authResult.idTokenPayload);
       };
 
+      self.isAdmin = function () {
+        return this.isAuthenticated && _.contains(this.roles, 'admin');
+      };
+
+      self.isUser = function () {
+        return this.isAuthenticated && _.contains(this.roles, 'user');
+      };
 
       // user management functions
 
@@ -66,14 +95,9 @@ angular.module('mediaMogulApp')
             copyPersonInfoToAuth(personData);
           }
 
-          self.lock.roles = profile.app_metadata.roles;
-          console.log("roles found: " + self.lock.roles.length);
-          self.lock.isAdmin = function () {
-            return this.isAuthenticated && _.contains(this.roles, 'admin');
-          };
-          self.lock.isUser = function () {
-            return this.isAuthenticated && _.contains(this.roles, 'user');
-          };
+          self.roles = profile.app_metadata.roles;
+          console.log("roles found: " + self.roles.length);
+
           $location.path('/tv/shows/main');
         });
       }
@@ -89,10 +113,10 @@ angular.module('mediaMogulApp')
           }
         }).then(function (response) {
           console.log("Added successfully. Person ID: " + response.data.PersonId);
-          self.lock.person_id = response.data.PersonId;
+          self.person_id = response.data.PersonId;
 
-          console.log("Setting store with person id: " + self.lock.person_id);
-          store.set('person_id', self.lock.person_id);
+          console.log("Setting store with person id: " + self.person_id);
+          store.set('person_id', self.person_id);
         }, function (err) {
           console.log("Error adding person to DB: " + err);
         });
@@ -103,12 +127,12 @@ angular.module('mediaMogulApp')
         console.log("Name: " + personInfo.first_name + " " + personInfo.last_name);
         console.log("ID: " + personInfo.id);
 
-        self.lock.firstName = personInfo.first_name;
-        self.lock.lastName = personInfo.last_name;
-        self.lock.person_id = personInfo.id;
+        self.firstName = personInfo.first_name;
+        self.lastName = personInfo.last_name;
+        self.person_id = personInfo.id;
 
-        console.log("Setting store with person id: " + self.lock.person_id);
-        store.set('person_id', self.lock.person_id);
+        console.log("Setting store with person id: " + self.person_id);
+        store.set('person_id', self.person_id);
       }
 
 

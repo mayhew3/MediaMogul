@@ -124,8 +124,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           }
         }
       }
-      // $provide.factory('redirect', redirect);
-      // $httpProvider.interceptors.push('redirect');
+      $provide.factory('redirect', redirect);
+      $httpProvider.interceptors.push('redirect');
 
       var refreshingToken = null;
 
@@ -139,7 +139,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
               if (!jwtHelper.isTokenExpired(token)) {
                 return token;
               } else {
-                console.log("RefreshToken: " + refreshToken);
+                console.log("Token is expired! RefreshToken: " + refreshToken);
                 if (refreshingToken === null) {
                   if (refreshToken !== null) {
                     refreshingToken = LockService.lock.refreshIdToken(refreshToken).then(function (idToken) {
@@ -161,12 +161,11 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           }];
 
       //Push interceptor function to $httpProvider's interceptors
-      // $httpProvider.interceptors.push('jwtInterceptor');
+      $httpProvider.interceptors.push('jwtInterceptor');
 
     }])
   .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location',
     function($rootScope, LockService, store, jwtHelper, $location) {
-/*
       var lock = LockService.lock;
       var refreshingToken = null;
 
@@ -180,20 +179,22 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         var profile = store.get('profile');
         var person_id = store.get('person_id');
 
-        console.log("On Refresh: Store PersonID: " + person_id + ", Auth PersonID: " + lock.person_id);
+        console.log("On Refresh: Store PersonID: " + person_id + ", Auth PersonID: " + LockService.person_id);
 
         if (token) {
           if (!jwtHelper.isTokenExpired(token)) {
-            if (!lock.isAuthenticated) {
-              lock.authenticate(profile, token);
+            if (!LockService.isAuthenticated) {
+              console.log("Not authenticated! Trying to renew:");
+              LockService.renew();
               updateAuthObjectFromStore(profile);
             }
           } else {
+            console.log("Token is expired. Trying to renew.");
             if (refreshToken) {
               if (refreshingToken === null) {
                 refreshingToken = lock.refreshIdToken(refreshToken).then(function(idToken) {
                   store.set('token', idToken);
-                  lock.authenticate(profile, idToken);
+                  lock.renew();
                   updateAuthObjectFromStore(profile);
                 }, function(err) {
                   console.log(err);
@@ -219,20 +220,13 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       });
 
       function updateAuthObjectFromStore(profile) {
-        if (isNaN(lock.person_id)) {
-          console.log("Setting auth person id to: " + store.get('person_id'));
-          lock.person_id = store.get('person_id');
+        if (isNaN(LockService.person_id)) {
+          console.log("Setting LockService person id to: " + store.get('person_id'));
+          LockService.person_id = store.get('person_id');
         }
 
-        lock.roles = profile.app_metadata.roles;
-        lock.isAdmin = function () {
-          return lock.isAuthenticated && _.contains(lock.roles, 'admin');
-        };
-        lock.isUser = function () {
-          return lock.isAuthenticated && _.contains(lock.roles, 'user');
-        };
+        LockService.roles = profile.app_metadata.roles;
       }
-*/
   }])
   .directive('errSrc', function() {
     return {

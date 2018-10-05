@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('myEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode', 'previousEpisodes', 'series', 'auth',
-    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, auth) {
+  .controller('myEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode', 'previousEpisodes', 'series', 'LockService',
+    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService) {
       var self = this;
       self.rating_id = episode.rating_id;
-      self.auth = auth;
+      self.LockService = LockService;
 
       var options = {
         year: "numeric", month: "2-digit",
@@ -22,7 +22,7 @@ angular.module('mediaMogulApp')
       // leave watched_date out of the interface fields because I want to use a date comparison before adding to changedFields.
       self.originalRating = {
         episode_id: episode.id,
-        person_id: auth.person_id,
+        person_id: LockService.person_id,
         watched: episode.watched,
         rating_funny: episode.rating_funny,
         rating_character: episode.rating_character,
@@ -33,7 +33,7 @@ angular.module('mediaMogulApp')
 
       self.interfaceRating = {
         episode_id: episode.id,
-        person_id: auth.person_id,
+        person_id: LockService.person_id,
         watched: episode.watched,
         rating_funny: episode.rating_funny,
         rating_character: episode.rating_character,
@@ -133,7 +133,7 @@ angular.module('mediaMogulApp')
           changedFields.air_time = EpisodeService.combineDateAndTime(self.air_date, series.air_time);
         }
 
-        if (isNotEmpty(changedFields) && auth.isAdmin()) {
+        if (isNotEmpty(changedFields) && LockService.isAdmin()) {
           return EpisodeService.updateEpisode(self.episode.id, changedFields);
         }
       }
@@ -177,7 +177,7 @@ angular.module('mediaMogulApp')
           self.episode.nextUp = false;
         }
 
-        if (auth.isAdmin()) {
+        if (LockService.isAdmin()) {
           var originalAirDate = formatDate(self.episode.air_date);
 
           if (dateHasChanged(originalAirDate, self.air_date)) {

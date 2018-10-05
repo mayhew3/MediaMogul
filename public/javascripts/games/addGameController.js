@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('addGameController', ['$log', 'GamesService', '$uibModalInstance', 'auth',
-    function($log, GamesService, $uibModalInstance, auth) {
+  .controller('addGameController', ['$log', 'GamesService', '$uibModalInstance', 'LockService',
+    function($log, GamesService, $uibModalInstance, LockService) {
       var self = this;
 
-      self.auth = auth;
+      self.LockService = LockService;
 
       self.game = {
         owned: 'owned'

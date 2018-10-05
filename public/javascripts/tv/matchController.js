@@ -1,11 +1,11 @@
 angular.module('mediaMogulApp')
-  .controller('matchController', ['$log', '$uibModal', 'EpisodeService', 'auth',
-    function($log, $uibModal, EpisodeService, auth) {
+  .controller('matchController', ['$log', '$uibModal', 'EpisodeService', 'LockService',
+    function($log, $uibModal, EpisodeService, LockService) {
       var self = this;
 
       self.series = [];
 
-      self.auth = auth;
+      self.LockService = LockService;
 
       self.selectedPill = "Series";
 

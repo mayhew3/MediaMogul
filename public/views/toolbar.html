@@ -2,19 +2,19 @@
   <div class="container">
     <div class="navbar-collapse collapse" id="navbar-main">
       <ul class="nav navbar-nav">
-        <li ng-show="toolbar.auth.isUser()">
+        <li ng-show="toolbar.LockService.isUser()">
           <a ui-sref="tv.shows.main">TV</a>
         </li>
-        <li ng-show="toolbar.auth.isAdmin()">
+        <li ng-show="toolbar.LockService.isAdmin()">
           <a ui-sref="games.list">Games</a>
         </li>
-        <li ng-show="toolbar.auth.isAdmin()">
+        <li ng-show="toolbar.LockService.isAdmin()">
           <a ui-sref="admin.tv.tvdb">Admin</a>
         </li>
-        <li ng-show="!toolbar.auth.isAuthenticated">
+        <li ng-show="!toolbar.LockService.isAuthenticated">
           <a href="#" ng-click="toolbar.login()">Sign In</a>
         </li>
-        <li ng-show="toolbar.auth.isAuthenticated">
+        <li ng-show="toolbar.LockService.isAuthenticated">
           <a href="#" ng-click="toolbar.logout()">Sign Out</a>
         </li>
       </ul>

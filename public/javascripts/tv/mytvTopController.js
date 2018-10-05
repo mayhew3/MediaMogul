@@ -1,12 +1,12 @@
 angular.module('mediaMogulApp')
-  .controller('mytvTopController', ['auth', 'EpisodeService',
-    function(auth, EpisodeService) {
+  .controller('mytvTopController', ['LockService', 'EpisodeService',
+    function(LockService, EpisodeService) {
       var self = this;
 
-      self.auth = auth;
+      self.LockService = LockService;
       self.year = 2017;
 
-      if (self.auth.isAdmin()) {
+      if (LockService.isAdmin()) {
         EpisodeService.updateNumberOfShowsToRate(self.year);
         EpisodeService.updateNumberOfPendingMatches();
       }

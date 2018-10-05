@@ -60,32 +60,32 @@
         <li role="yearMethods">
           <a href
              ng-click="ctrl.lockRatings()"
-             ng-show="ctrl.auth.isAdmin() && !ctrl.isRatingLocked()"
-             ng-disabled="!ctrl.auth.isAuthenticated">
+             ng-show="ctrl.LockService.isAdmin() && !ctrl.isRatingLocked()"
+             ng-disabled="!ctrl.LockService.isAuthenticated">
             Lock Ratings
           </a>
         </li>
         <li role="yearMethods">
           <a href
              ng-click="ctrl.unlockRatings()"
-             ng-show="ctrl.auth.isAdmin() && ctrl.isRatingLocked()"
-             ng-disabled="!ctrl.auth.isAuthenticated">
+             ng-show="ctrl.LockService.isAdmin() && ctrl.isRatingLocked()"
+             ng-disabled="!ctrl.LockService.isAuthenticated">
             Unlock Ratings
           </a>
         </li>
         <li role="yearMethods">
           <a href
              ng-click="ctrl.increaseYear()"
-             ng-show="ctrl.auth.isAdmin() && ctrl.readyToChangeYear()"
-             ng-disabled="!ctrl.auth.isAuthenticated">
+             ng-show="ctrl.LockService.isAdmin() && ctrl.readyToChangeYear()"
+             ng-disabled="!ctrl.LockService.isAuthenticated">
             Update Year
           </a>
         </li>
         <li role="yearMethods">
           <a href
              ng-click="ctrl.revertYear()"
-             ng-show="ctrl.auth.isAdmin() && ctrl.initialYear !== null && ctrl.year !== ctrl.initialYear"
-             ng-disabled="!ctrl.auth.isAuthenticated">
+             ng-show="ctrl.LockService.isAdmin() && ctrl.initialYear !== null && ctrl.year !== ctrl.initialYear"
+             ng-disabled="!ctrl.LockService.isAuthenticated">
             Revert Year
           </a>
         </li>

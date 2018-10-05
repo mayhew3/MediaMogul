@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned', '$uibModal', '$filter', 'auth',
-  function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, auth) {
+  .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned', '$uibModal', '$filter', 'LockService',
+  function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService) {
     var self = this;
 
-    self.auth = auth;
+    self.LockService = LockService;
 
     self.series = series;
     self.owned = owned;
@@ -305,7 +305,7 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function() {
-        if (auth.isAdmin()) {
+        if (LockService.isAdmin()) {
           EpisodeService.updateMySeriesDenorms(self.series, self.episodes);
           EpisodeService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
         }
@@ -314,7 +314,7 @@ angular.module('mediaMogulApp')
     };
 
     self.openChangePoster = function () {
-      if (self.auth.isAdmin()) {
+      if (LockService.isAdmin()) {
         $uibModal.open({
           templateUrl: 'views/tv/shows/changePoster.html',
           controller: 'changePosterController',

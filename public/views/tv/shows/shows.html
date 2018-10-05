@@ -14,7 +14,7 @@
         Backlog
       </a>
     </li>
-    <li role="tv" ng-class="ctrl.isActive('Unmatched')" ng-show="ctrl.auth.isAdmin()">
+    <li role="tv" ng-class="ctrl.isActive('Unmatched')" ng-show="ctrl.LockService.isAdmin()">
       <a href ui-sref="tv.shows.unmatched" ng-click="ctrl.selectedPill='Unmatched'">
         Unmatched
         <span class="badge pillTabRed"
@@ -44,8 +44,8 @@
     <li role="tv">
       <a href
          ng-click="ctrl.addSeries()"
-         ng-show="ctrl.auth.isAdmin()"
-         ng-disabled="!ctrl.auth.isAuthenticated">
+         ng-show="ctrl.LockService.isAdmin()"
+         ng-disabled="!ctrl.LockService.isAuthenticated">
         Add Series
       </a>
     </li>
