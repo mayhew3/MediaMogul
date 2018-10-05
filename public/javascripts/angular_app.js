@@ -190,7 +190,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             }
           } else {
             console.log("Token is expired. Trying to renew.");
-            if (refreshToken) {
+            $location.path('/');
+            /*if (refreshToken) {
               if (refreshingToken === null) {
                 refreshingToken = lock.refreshIdToken(refreshToken).then(function(idToken) {
                   store.set('token', idToken);
@@ -211,6 +212,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             } else {
               $location.path('/');
             }
+            */
           }
 
         } else {
