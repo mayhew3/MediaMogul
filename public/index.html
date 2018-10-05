@@ -24,10 +24,10 @@
   <!-- Auth0's lock widget library -->
   <script type="text/javascript" src="https://cdn.auth0.com/js/lock/11.0.1/lock.min.js"></script>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.js"></script>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-cookies.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-route.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
+  <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+  <script type="text/javascript" src="bower_components/angular-cookies/angular-cookies.js"></script>
+  <!--<script type="text/javascript" src="bower_components/angular-route/angular-route.js"></script>-->
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
 
   <script type="text/javascript" src="bower_components/angular-lock/dist/angular-lock.min.js"></script>
   <script type="text/javascript" src="bower_components/auth0.js/build/auth0.js"></script>
@@ -36,7 +36,7 @@
   <script src="http://cdn.rawgit.com/auth0/angular-storage/master/dist/angular-storage.js" type="text/javascript"> </script>
 
   <!-- UI-Router for nested navigation -->
-  <script src="//unpkg.com/angular-ui-router/release/angular-ui-router.js"></script>
+  <script type="text/javascript" src="//unpkg.com/@uirouter/angularjs@1.0.12/release/angular-ui-router.min.js"></script>
 
   <!-- Angular wrapper library for JWT-->
   <script src="http://cdn.rawgit.com/auth0/angular-jwt/master/dist/angular-jwt.js" type="text/javascript"> </script>
@@ -52,6 +52,7 @@
   <script src="javascripts/games/gamesService.js"></script>
   <script src="javascripts/tv/episodeService.js"></script>
   <script src="javascripts/lockService.js"></script>
+  <script src="javascripts/callbackController.js"></script>
 
   <script src="javascripts/games/addGameController.js"></script>
   <script src="javascripts/games/addPlaytimeController.js"></script>

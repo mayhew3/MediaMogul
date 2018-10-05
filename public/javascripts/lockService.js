@@ -4,7 +4,13 @@ angular.module('mediaMogulApp')
 
       var self = this;
       
-      self.lock = new Auth0Lock('QdwQv7LcXgmiUpYhXnTYyGQsXie2UQNb','mayhew3.auth0.com');
+      self.lock = new Auth0Lock('QdwQv7LcXgmiUpYhXnTYyGQsXie2UQNb','mayhew3.auth0.com', {
+        autoclose: true,
+        auth: {
+          responseType: 'token id_token',
+          redirectUrl: 'http://localhost:5000/callback'
+        }
+      });
       
       console.log("Listeners being added.");
       self.lock.on('authenticated', function(authResult) {
@@ -35,13 +41,13 @@ angular.module('mediaMogulApp')
           authResult.expiresIn * 1000 + new Date().getTime()
         );
         // Save tokens and expiration to localStorage
-        store.set('profile', authResult.profile);
+        store.set('profile', authResult.idTokenPayload);
         store.set('access_token', authResult.accessToken);
         store.set('token', authResult.idToken);
-        store.set('refresh_token', authResult.refreshToken);
+        // store.set('refresh_token', authResult.refreshToken);
         store.set('expires_at', expiresAt);
 
-        syncPersonWithDB(authResult.profile);
+        syncPersonWithDB(authResult.idTokenPayload);
       };
 
 

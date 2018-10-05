@@ -1,4 +1,4 @@
-angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt', 'ngRoute', 'ui.bootstrap', 'ui.router'])
+angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt', 'ui.bootstrap', 'ui.router'])
   .config(['lockProvider', '$httpProvider', '$locationProvider', 'jwtInterceptorProvider', '$provide', '$stateProvider',
     function(lockProvider, $httpProvider, $locationProvider, jwtInterceptorProvider, $provide, $stateProvider) {
 
@@ -10,7 +10,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         .state('callback', {
           url: '/callback',
           controller: 'CallbackController',
-          templateUrl: 'callback.html',
+          templateUrl: 'views/callback.html',
           controllerAs: 'ctrl'
         })
         .state('tv', {
@@ -124,8 +124,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           }
         }
       }
-      $provide.factory('redirect', redirect);
-      $httpProvider.interceptors.push('redirect');
+      // $provide.factory('redirect', redirect);
+      // $httpProvider.interceptors.push('redirect');
 
       var refreshingToken = null;
 
@@ -161,14 +161,16 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           }];
 
       //Push interceptor function to $httpProvider's interceptors
-      $httpProvider.interceptors.push('jwtInterceptor');
+      // $httpProvider.interceptors.push('jwtInterceptor');
 
     }])
   .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location',
     function($rootScope, LockService, store, jwtHelper, $location) {
-
+/*
       var lock = LockService.lock;
       var refreshingToken = null;
+
+
       $rootScope.$on('$locationChangeStart', function() {
         // Get the JWT that is saved in local storage
         // and if it is there, check whether it is expired.
@@ -230,7 +232,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           return lock.isAuthenticated && _.contains(lock.roles, 'user');
         };
       }
-
+*/
   }])
   .directive('errSrc', function() {
     return {

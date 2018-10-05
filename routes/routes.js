@@ -1,5 +1,6 @@
 module.exports = function(app) {
   var jwt = require('express-jwt');
+  var path = require('path');
   var games = require('../controllers/games_controller');
   var series = require('../controllers/series_controller');
   var persons = require('../controllers/person_controller');
@@ -75,6 +76,10 @@ module.exports = function(app) {
   app.post('/increaseYear', authCheck, persons.increaseYear);
   app.post('/revertYear', authCheck, persons.revertYear);
   app.post('/setRatingEndDate', authCheck, persons.setRatingEndDate);
+
+  app.get('/*', function(req, res) {
+    res.sendFile(path.join(__dirname + '/public/index.html'));
+  });
 
   // error handlers
 
