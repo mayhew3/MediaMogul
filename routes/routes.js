@@ -77,11 +77,10 @@ module.exports = function(app) {
   app.post('/revertYear', authCheck, persons.revertYear);
   app.post('/setRatingEndDate', authCheck, persons.setRatingEndDate);
 
-  /*
-  app.get('/!*', function(req, res) {
+  app.get('/*', function(req, res) {
     res.sendFile(path.join(__dirname + '/public/index.html'));
   });
-*/
+  
   // error handlers
 
   // development error handler

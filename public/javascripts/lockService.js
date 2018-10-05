@@ -9,7 +9,7 @@ angular.module('mediaMogulApp')
         autoclose: true,
         auth: {
           responseType: 'token id_token',
-          redirectUrl: 'http://media-mogul.herokuapp.com/#/callback'
+          redirectUrl: 'http://media-mogul.herokuapp.com/callback'
         }
       };
       
