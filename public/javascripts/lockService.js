@@ -32,7 +32,9 @@ angular.module('mediaMogulApp')
         if (authResult && authResult.accessToken && authResult.idToken) {
           console.log('Authenticated!', authResult);
           self.isAuthenticated = true;
-          self.setSession(authResult);
+          self.setSession(authResult, function() {
+            $location.path('/tv/shows/main');
+          });
         }
       });
       
@@ -60,7 +62,7 @@ angular.module('mediaMogulApp')
             if (authResult.accessToken && authResult.idToken) {
               console.log('Authentication renewed!', authResult);
               self.isAuthenticated = true;
-              self.setSession(authResult);
+              self.setSession(authResult, function () {});
               deferred.resolve();
             }
           }
@@ -70,7 +72,8 @@ angular.module('mediaMogulApp')
 
       self.logout = function() {
         self.isAuthenticated = false;
-        self.lock.logout();
+        // todo: re-enable for MM-495
+        // self.lock.logout();
         store.remove('profile');
         store.remove('token');
         store.remove('person_id');
@@ -78,7 +81,7 @@ angular.module('mediaMogulApp')
         self.person_id = undefined;
       };
       
-      self.setSession = function(authResult) {
+      self.setSession = function(authResult, callback) {
         // Set the time that the Access Token will expire
         var expiresAt = JSON.stringify(
           authResult.expiresIn * 1000 + new Date().getTime()
@@ -90,7 +93,7 @@ angular.module('mediaMogulApp')
         store.set('refresh_token', authResult.refreshToken);
         store.set('expires_at', expiresAt);
 
-        syncPersonWithDB(authResult.idTokenPayload);
+        syncPersonWithDB(authResult.idTokenPayload, callback);
       };
 
       self.isAdmin = function () {
@@ -103,7 +106,7 @@ angular.module('mediaMogulApp')
 
       // user management functions
 
-      function syncPersonWithDB(profile) {
+      function syncPersonWithDB(profile, callback) {
         var email = profile.email;
 
         $http.get('/person', {params: {email: email}}).then(function (response) {
@@ -119,7 +122,7 @@ angular.module('mediaMogulApp')
           self.roles = profile.app_metadata.roles;
           console.log("roles found: " + self.roles.length);
 
-          $location.path('/tv/shows/main');
+          callback();
         });
       }
 
