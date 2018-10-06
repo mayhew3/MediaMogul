@@ -7,9 +7,8 @@
   "image": "heroku/nodejs",
   "stack": "heroku-18",
   "env": {
-    "INHERIT_THIS_CONFIG_VAR": {
+    "AUTH0_CLIENT_SECRET": {
       "required": true
-    },
-    "DONT_INHERIT_THIS_CONFIG_VAR": "production"
+    }
   }
 }
