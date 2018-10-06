@@ -5,6 +5,9 @@ module.exports = function(app) {
   var series = require('../controllers/series_controller');
   var persons = require('../controllers/person_controller');
 
+  console.log("ClientID: " + process.env.AUTH0_CLIENT_ID);
+  console.log("Secret: " + process.env.AUTH0_CLIENT_SECRET);
+
   var authCheck = jwt({
     secret: new Buffer(process.env.AUTH0_CLIENT_SECRET, 'base64'),
     audience: process.env.AUTH0_CLIENT_ID
