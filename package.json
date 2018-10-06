@@ -8,21 +8,21 @@
     "postinstall": "bower install"
   },
   "dependencies": {
-    "pg": "5.2.1",
-    "express": "4.16.3",
     "body-parser": "1.18.3",
+    "bower": "1.8.4",
     "cookie-parser": "1.4.3",
-    "morgan": "1.9.0",
-    "serve-favicon": "2.5.0",
-    "debug": "3.1.0",
-    "request": "2.88.0",
+    "debug": "^4.0.1",
+    "express": "4.16.3",
     "express-jwt": "5.3.1",
-    "underscore": "1.9.0",
-    "bower": "1.8.4"
+    "morgan": "^1.9.1",
+    "pg": "5.2.1",
+    "request": "2.88.0",
+    "serve-favicon": "2.5.0",
+    "underscore": "^1.9.1"
   },
   "engines": {
     "node": "8.11.2",
-    "npm": "6.0.1"
+    "npm": "6.4.1"
   },
   "keywords": [
     "node",
