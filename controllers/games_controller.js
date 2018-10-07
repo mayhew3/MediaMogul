@@ -1,6 +1,4 @@
-var pg = require('pg');
-var config = process.env.DATABASE_URL;
-var db = require('./database_util');
+const db = require('./database_util');
 
 exports.getGames = function (request, response) {
 
@@ -17,55 +15,9 @@ exports.getGames = function (request, response) {
 };
 
 exports.updateGame = function(request, response) {
-  console.log("Updating game with " + JSON.stringify(request.body.ChangedFields));
   console.log("User: " + request.user);
 
-  var sql = "UPDATE game SET ";
-  var values = [];
-  var i = 1;
-  var changedFields = request.body.ChangedFields;
-  for (var key in changedFields) {
-    if (changedFields.hasOwnProperty(key)) {
-      if (values.length !== 0) {
-        sql += ", ";
-      }
-
-      sql += (key + " = $" + i);
-
-      var value = changedFields[key];
-      values.push(value);
-
-      i++;
-    }
-  }
-
-  sql += (" WHERE id = $" + i);
-
-  values.push(request.body.GameId);
-
-  console.log("SQL: " + sql);
-  console.log("Values: " + values);
-
-  var pool = new pg.Pool();
-
-  pool.connect(config, function(err, client) {
-    var queryConfig = {
-      text: sql,
-      values: values
-    };
-
-    var query = client.query(queryConfig);
-
-    query.on('end', function() {
-      client.end();
-      return response.json({msg: "Success"});
-    });
-
-    if (err) {
-      console.error(err); response.send("Error " + err);
-    }
-  });
-
+  db.updateObjectWithChangedFields(response, request.body.ChangedFields, "game", request.body.GameId);
 };
 
 exports.addGame = function(request, response) {
@@ -84,25 +36,7 @@ exports.addGame = function(request, response) {
   console.log("SQL: " + sql);
   console.log("Values: " + values);
 
-  var pool = new pg.Pool();
-
-  pool.connect(config, function(err, client) {
-    var queryConfig = {
-      text: sql,
-      values: values
-    };
-
-    var query = client.query(queryConfig);
-
-    query.on('end', function() {
-      client.end();
-      return response.json({msg: "Success"});
-    });
-
-    if (err) {
-      console.error(err); response.send("Error " + err);
-    }
-  });
+  db.executeQueryNoResults(response, sql, values);
 };
 
 exports.addGameplaySession = function(request, response) {
@@ -119,40 +53,6 @@ exports.addGameplaySession = function(request, response) {
   console.log("SQL: " + sql);
   console.log("Values: " + values);
 
-  executeQueryNoResults(response, sql, values);
+  db.executeQueryNoResults(response, sql, values);
 };
 
-
-function executeQueryNoResults(response, sql, values) {
-
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var query = client.query(queryConfig);
-
-    query.on('error', function(err) {
-      if (err) {
-        console.error(err.stack);
-        return response.send("Error " + err);
-      }
-    });
-
-    query.on('end', function() {
-      client.end();
-      return response.json({msg: "Success"});
-    });
-
-  });
-}

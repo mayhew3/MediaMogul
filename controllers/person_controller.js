@@ -1,6 +1,7 @@
 var pg = require('pg');
 var _ = require('underscore');
 var config = process.env.DATABASE_URL;
+const db = require('./database_util');
 
 exports.getPersonInfo = function(request, response) {
   var email = request.query.email;
@@ -11,7 +12,7 @@ exports.getPersonInfo = function(request, response) {
           'WHERE p.email = $1 ' +
           'AND p.retired = $2 ';
 
-  return executeQueryWithResults(response, sql, [email, 0]);
+  return db.executeQueryWithResults(response, sql, [email, 0]);
 };
 
 exports.addPerson = function(request, response) {
