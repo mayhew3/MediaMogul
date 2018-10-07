@@ -1,33 +1,19 @@
 var pg = require('pg');
-const config = process.env.DATABASE_URL;
+var config = process.env.DATABASE_URL;
+var db = require('./database_util');
 
 exports.getGames = function (request, response) {
-  var results = [];
 
-  pg.connect(config, function(err, client) {
-    var query = client.query('SELECT id, logo, title, steamid, playtime, metacritic, platform, owned, metacritic_hint, mayhew, ' +
-                                      'timeplayed, timetotal, finished, finalscore, replay, guess, date_added, ' +
-                                      'steam_cloud, last_played, natural_end, metacritic_matched, ' +
-                                      'giantbomb_small_url, giantbomb_thumb_url, giantbomb_medium_url, howlong_extras, ' +
-                                      'howlong_id, giantbomb_id, giantbomb_manual_guess ' +
-                              'FROM game ' +
-                              'WHERE owned IN (\'owned\', \'borrowed\') ' +
-                              'ORDER BY metacritic DESC, playtime DESC, date_added DESC');
+  var sql = 'SELECT id, logo, title, steamid, playtime, metacritic, platform, owned, metacritic_hint, mayhew, ' +
+                  'timeplayed, timetotal, finished, finalscore, replay, guess, date_added, ' +
+                  'steam_cloud, last_played, natural_end, metacritic_matched, ' +
+                  'giantbomb_small_url, giantbomb_thumb_url, giantbomb_medium_url, howlong_extras, ' +
+                  'howlong_id, giantbomb_id, giantbomb_manual_guess ' +
+    'FROM game ' +
+    'WHERE owned IN ($1, $2) ' +
+    'ORDER BY metacritic DESC, playtime DESC, date_added DESC';
 
-    query.on('row', function(row) {
-      results.push(row);
-    });
-
-    query.on('end', function() {
-      client.end();
-      return response.json(results);
-    });
-
-    if (err) {
-      console.error(err); response.send("Error " + err);
-    }
-
-  });
+  return db.executeQueryWithResults(response, sql, ['owned', 'borrowed']);
 };
 
 exports.updateGame = function(request, response) {
@@ -60,7 +46,9 @@ exports.updateGame = function(request, response) {
   console.log("SQL: " + sql);
   console.log("Values: " + values);
 
-  pg.connect(config, function(err, client) {
+  var pool = new pg.Pool();
+
+  pool.connect(config, function(err, client) {
     var queryConfig = {
       text: sql,
       values: values
@@ -96,7 +84,9 @@ exports.addGame = function(request, response) {
   console.log("SQL: " + sql);
   console.log("Values: " + values);
 
-  pg.connect(config, function(err, client) {
+  var pool = new pg.Pool();
+
+  pool.connect(config, function(err, client) {
     var queryConfig = {
       text: sql,
       values: values
