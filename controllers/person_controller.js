@@ -102,7 +102,7 @@ exports.getMyShows = function(request, response) {
     personId, false, 'Match Completed', 0, 0, 0
   ];
 
-  return executeQueryWithResults(response, sql, values);
+  return db.executeQueryWithResults(response, sql, values);
 };
 
 exports.getShowBasicInfo = function(request, response) {
@@ -111,7 +111,7 @@ exports.getShowBasicInfo = function(request, response) {
     "FROM series " +
     "WHERE retired = $1";
 
-  return executeQueryWithResults(response, sql, [0]);
+  return db.executeQueryWithResults(response, sql, [0]);
 };
 
 exports.getMyUpcomingEpisodes = function(request, response) {
@@ -131,7 +131,7 @@ exports.getMyUpcomingEpisodes = function(request, response) {
     "AND ps.tier = $4 " +
     "ORDER BY e.air_time ASC;";
 
-  return executeQueryWithResults(response, sql, [personId, 0, 0, 1]);
+  return db.executeQueryWithResults(response, sql, [personId, 0, 0, 1]);
 };
 
 exports.addToMyShows = function(request, response) {
@@ -154,7 +154,7 @@ exports.addToMyShows = function(request, response) {
     personId, seriesId, 1, 0, seriesId, 0, personId, true
   ];
 
-  return executeQueryNoResults(response, sql, values);
+  return db.executeQueryNoResults(response, sql, values);
 };
 
 exports.removeFromMyShows = function(request, response) {
@@ -169,7 +169,7 @@ exports.removeFromMyShows = function(request, response) {
     personId, seriesId
   ];
 
-  return executeQueryNoResults(response, sql, values);
+  return db.executeQueryNoResults(response, sql, values);
 };
 
 
@@ -189,7 +189,7 @@ exports.getNotMyShows = function(request, response) {
     personId, 0, false, 'Match Completed'
   ];
 
-  return executeQueryWithResults(response, sql, values);
+  return db.executeQueryWithResults(response, sql, values);
 };
 
 exports.rateMyShow = function(request, response) {
@@ -206,7 +206,7 @@ exports.rateMyShow = function(request, response) {
     rating, personId, seriesId
   ];
 
-  return executeQueryNoResults(response, sql, values);
+  return db.executeQueryNoResults(response, sql, values);
 };
 
 exports.getMyEpisodes = function(request, response) {
@@ -240,7 +240,7 @@ exports.getMyEpisodes = function(request, response) {
     'AND te.retired = $3 ' +
     'ORDER BY e.season, e.episode_number';
 
-  return selectWithJSON(sql, [seriesId, 0, 0]).then(function (episodeResult) {
+  return db.selectWithJSON(sql, [seriesId, 0, 0]).then(function (episodeResult) {
 
     var sql =
       'SELECT er.episode_id, ' +
@@ -259,7 +259,7 @@ exports.getMyEpisodes = function(request, response) {
       'AND e.retired = $2 ' +
       'AND er.person_id = $3 ';
 
-    return selectWithJSON(sql, [seriesId, 0, personId]).then(function (ratingResult) {
+    return db.selectWithJSON(sql, [seriesId, 0, personId]).then(function (ratingResult) {
 
       ratingResult.forEach(function (episodeRating) {
         var episodeMatch = _.find(episodeResult, function (episode) {
@@ -295,7 +295,7 @@ exports.rateMyEpisode = function(request, response) {
 exports.updateMyShow = function(request, response) {
   console.log("Update Person-Series with " + JSON.stringify(request.body.ChangedFields));
 
-  var queryConfig = buildUpdateQueryConfigNoID(
+  var queryConfig = db.buildUpdateQueryConfigNoID(
     request.body.ChangedFields,
     "person_series",
     {
@@ -306,7 +306,7 @@ exports.updateMyShow = function(request, response) {
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
 function addRating(episodeRating, response) {
@@ -366,14 +366,7 @@ function addRating(episodeRating, response) {
 }
 
 function editRating(changedFields, rating_id, response) {
-  console.log("Changing rating: " + JSON.stringify(changedFields));
-
-  var queryConfig = buildUpdateQueryConfig(changedFields, "episode_rating", rating_id);
-
-  console.log("SQL: " + queryConfig.text);
-  console.log("Values: " + queryConfig.values);
-
-  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.updateObjectWithChangedFields(response, changedFields, "episode_rating", rating_id);
 }
 
 
@@ -408,7 +401,7 @@ exports.markAllPastEpisodesAsWatched = function(request, response) {
     0                 // retired
   ];
 
-  return updateNoJSON(sql, values).then(function() {
+  return db.updateNoJSON(sql, values).then(function() {
     var sql = "INSERT INTO episode_rating (episode_id, person_id, watched, date_added) " +
       "SELECT e.id, $1, $2, now() " +
       "FROM episode e " +
@@ -432,7 +425,7 @@ exports.markAllPastEpisodesAsWatched = function(request, response) {
       0            // retired
     ];
 
-    return executeQueryNoResults(response, sql, values);
+    return db.executeQueryNoResults(response, sql, values);
   });
 };
 
@@ -440,14 +433,14 @@ exports.getSystemVars = function(request, response) {
   console.log("Getting system vars.");
 
   var sql = "SELECT * FROM system_vars";
-  return executeQueryWithResults(response, sql, []);
+  return db.executeQueryWithResults(response, sql, []);
 };
 
 exports.increaseYear = function(request, response) {
   console.log("Incrementing rating year.");
 
   var sql = "SELECT rating_year FROM system_vars";
-  return selectWithJSON(sql, []).then(function (result) {
+  return db.selectWithJSON(sql, []).then(function (result) {
     var system_vars = result[0];
     var ratingYear = system_vars.rating_year;
     console.log("Current year: " + ratingYear);
@@ -459,7 +452,7 @@ exports.increaseYear = function(request, response) {
       var sql = "UPDATE system_vars " +
         "SET rating_year = $1, " +
         "    rating_end_date = NULL ";
-      return executeQueryNoResults(response, sql, [nextYear]);
+      return db.executeQueryNoResults(response, sql, [nextYear]);
     }
 
   });
@@ -470,7 +463,7 @@ exports.revertYear = function(request, response) {
   console.log("Reverting rating year increase with end date: " + endDate);
 
   var sql = "SELECT rating_year FROM system_vars";
-  return selectWithJSON(sql, []).then(function (result) {
+  return db.selectWithJSON(sql, []).then(function (result) {
     var system_vars = result[0];
     var ratingYear = system_vars.rating_year;
     console.log("Current year: " + ratingYear);
@@ -482,7 +475,7 @@ exports.revertYear = function(request, response) {
       var sql = "UPDATE system_vars " +
         "SET rating_year = $1, " +
         "    rating_end_date = $2 ";
-      return executeQueryNoResults(response, sql, [nextYear, endDate]);
+      return db.executeQueryNoResults(response, sql, [nextYear, endDate]);
     }
 
   });
@@ -493,221 +486,7 @@ exports.setRatingEndDate = function(request, response) {
   console.log("Changing rating end date to " + ratingEndDate);
 
   var sql = "UPDATE system_vars SET rating_end_date = $1 ";
-  return executeQueryNoResults(response, sql, [ratingEndDate]);
+  return db.executeQueryNoResults(response, sql, [ratingEndDate]);
 };
 
-// utility methods
-
-
-function executeQueryWithResults(response, sql, values) {
-  var results = [];
-
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var query = client.query(queryConfig);
-
-    query.on('row', function(row) {
-      results.push(row);
-    });
-
-    query.on('end', function() {
-      client.end();
-      return response.json(results);
-    });
-
-    if (err) {
-      console.error(err);
-      response.send("Error " + err);
-    }
-  })
-}
-
-function selectWithJSON(sql, values) {
-  return new Promise(function(resolve, reject) {
-
-    var results = [];
-
-    var queryConfig = {
-      text: sql,
-      values: values
-    };
-
-    var client = new pg.Client(config);
-    if (client === null) {
-      return console.error('null client');
-    }
-
-    client.connect(function(err) {
-      if (err) {
-        console.error(err);
-        reject("Error " + err);
-      }
-
-      var query = client.query(queryConfig);
-
-      query.on('row', function(row) {
-        results.push(row);
-      });
-
-      query.on('end', function() {
-        client.end();
-        resolve(results);
-      });
-    })
-
-  });
-}
-
-function executeQueryNoResults(response, sql, values) {
-
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var query = client.query(queryConfig);
-
-    query.on('error', function(err) {
-      if (err) {
-        console.error(err.stack);
-        return response.send("Error " + err);
-      }
-    });
-
-    query.on('end', function() {
-      client.end();
-      return response.json({msg: "Success"});
-    });
-
-  });
-}
-
-function buildUpdateQueryConfig(changedFields, tableName, rowID) {
-
-  var sql = "UPDATE " + tableName + " SET ";
-  var values = [];
-  var i = 1;
-  for (var key in changedFields) {
-    if (changedFields.hasOwnProperty(key)) {
-      if (values.length !== 0) {
-        sql += ", ";
-      }
-
-      sql += (key + " = $" + i);
-
-      var value = changedFields[key];
-      values.push(value);
-
-      i++;
-    }
-  }
-
-  sql += (" WHERE id = $" + i);
-
-  values.push(rowID);
-
-  return {
-    text: sql,
-    values: values
-  };
-}
-
-function updateNoJSON(sql, values) {
-  return new Promise(function(resolve, reject) {
-
-    var queryConfig = {
-      text: sql,
-      values: values
-    };
-
-    var client = new pg.Client(config);
-    if (client === null) {
-      return console.error('null client');
-    }
-
-    client.connect(function(err) {
-      if (err) {
-        console.error(err);
-        reject(Error(err));
-      }
-
-      var query = client.query(queryConfig);
-
-      query.on('end', function() {
-        client.end();
-        resolve("Success!");
-      });
-
-    });
-
-  });
-}
-
-function buildUpdateQueryConfigNoID(changedFields, tableName, identifyingColumns) {
-
-  var sql = "UPDATE " + tableName + " SET ";
-  var values = [];
-  var i = 1;
-  for (var key in changedFields) {
-    if (changedFields.hasOwnProperty(key)) {
-      if (values.length !== 0) {
-        sql += ", ";
-      }
-
-      sql += (key + " = $" + i);
-
-      var value = changedFields[key];
-      values.push(value);
-
-      i++;
-    }
-  }
-
-  var lengthBeforeWheres = values.length;
-
-  sql += " WHERE ";
-
-  for (key in identifyingColumns) {
-    if (identifyingColumns.hasOwnProperty(key)) {
-      if (values.length !== lengthBeforeWheres) {
-        sql += " AND ";
-      }
-
-      sql += (key + " = $" + i);
-
-      value = identifyingColumns[key];
-      values.push(value);
-
-      i++;
-    }
-  }
-
-  return {
-    text: sql,
-    values: values
-  };
-}
 
