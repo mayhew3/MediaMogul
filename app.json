@@ -1,10 +1,8 @@
 {
-  "name": "Node.js Getting Started",
-  "description": "A barebones Node.js app using Express 4",
-  "repository": "https://github.com/heroku/node-js-getting-started",
-  "logo": "http://node-js-sample.herokuapp.com/node.svg",
-  "keywords": ["node", "express", "static"],
-  "image": "heroku/nodejs",
+  "name": "MediaMogul",
+  "description": "A Node.js application for organizing and tracking progress for your TV and Games media collection.",
+  "repository": "https://github.com/mayhew3/MediaMogul.git",
+  "keywords": ["node", "express", "static", "tv", "games"],
   "stack": "heroku-18",
   "env": {
     "AUTH0_CLIENT_SECRET": {
