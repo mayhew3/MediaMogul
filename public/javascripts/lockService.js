@@ -137,7 +137,7 @@ angular.module('mediaMogulApp')
           }
         }).then(function (response) {
           console.log("Added successfully. Person ID: " + response.data.PersonId);
-          self.person_id = response.data.PersonId;
+          self.person_id = response.data[0].id;
 
           console.log("Setting store with person id: " + self.person_id);
           store.set('person_id', self.person_id);

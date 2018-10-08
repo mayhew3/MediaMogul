@@ -1,6 +1,4 @@
-var pg = require('pg');
 var _ = require('underscore');
-var config = process.env.DATABASE_URL;
 const db = require('./database_util');
 
 exports.getPersonInfo = function(request, response) {
@@ -28,36 +26,8 @@ exports.addPerson = function(request, response) {
     person.last_name
   ];
 
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    client.query(queryConfig, function(err, result) {
-      if (err) {
-        console.error(err);
-        response.send("Error " + err);
-      }
-      console.log("person insert successful.");
-
-      // NOTE: This only works because the query has "RETURNING id" at the end.
-      var person_id = result.rows[0].id;
-
-      console.log("person id found: " + person_id);
-      return response.json({PersonId: person_id});
-    });
-
-  });
+  // return data because it contains the new row id. (RETURNING id is in the sql)
+  return db.executeQueryWithResults(response, sql, values);
 };
 
 exports.getMyShows = function(request, response) {
@@ -332,37 +302,8 @@ function addRating(episodeRating, response) {
     new Date
   ];
 
-
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    client.query(queryConfig, function(err, result) {
-      if (err) {
-        console.error(err);
-        response.send("Error " + err);
-      }
-      console.log("rating insert successful.");
-
-      // NOTE: This only works because the query has "RETURNING id" at the end.
-      var rating_id = result.rows[0].id;
-
-      console.log("rating id found: " + rating_id);
-      return response.json({RatingId: rating_id});
-    });
-
-  });
+  // return data because it contains the new row id. (RETURNING id is in the sql)
+  return db.executeQueryWithResults(response, sql, values);
 }
 
 function editRating(changedFields, rating_id, response) {
