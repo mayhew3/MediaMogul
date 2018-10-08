@@ -16,9 +16,6 @@ angular.module('mediaMogulApp')
         self.roles = profile.app_metadata.roles;
       }
 
-      console.log('Host: ' + $location.host());
-      console.log('Port: ' + $location.port());
-
       self.callbackBase = function() {
         var protocol_host = $location.protocol() + "://" + $location.host();
         var optional_port = $location.port() === 80 ? '' : ':' + $location.port();
@@ -31,7 +28,7 @@ angular.module('mediaMogulApp')
         autoclose: true,
         auth: {
           responseType: 'token id_token',
-          redirectUrl: __env.callbackUrl
+          redirectUrl: self.callbackBase() + "/callback"
         }
       };
       
