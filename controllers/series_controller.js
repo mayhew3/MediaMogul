@@ -1,5 +1,4 @@
-var pg = require('pg');
-const config = process.env.DATABASE_URL;
+const db = require('./database_util');
 
 exports.getSeriesWithPossibleMatchInfo = function(request, response) {
   console.log("Series with Matches call received.");
@@ -13,7 +12,7 @@ exports.getSeriesWithPossibleMatchInfo = function(request, response) {
       'AND s.retired = $3 ' +
       'ORDER BY s.title';
 
-  return executeQueryWithResults(response, sql, [false, 'Match Completed', 0]);
+  return db.executeQueryWithResults(response, sql, [false, 'Match Completed', 0]);
 };
 
 exports.getNumberOfShowsToRate = function(request, response) {
@@ -28,7 +27,7 @@ exports.getNumberOfShowsToRate = function(request, response) {
   'and (watched = aired or watched > $2) ' +
   'and rating is null ';
 
-  return executeQueryWithResults(response, sql, [year, 4]);
+  return db.executeQueryWithResults(response, sql, [year, 4]);
 };
 
 exports.getNumberOfPendingMatches = function(request, response) {
@@ -38,7 +37,7 @@ exports.getNumberOfPendingMatches = function(request, response) {
     'AND retired = $2 ' +
     'AND tvdb_match_status IN ($3, $4) ';
 
-  return executeQueryWithResults(response, sql, [false, 0, 'Needs Confirmation', 'Duplicate']);
+  return db.executeQueryWithResults(response, sql, [false, 0, 'Needs Confirmation', 'Duplicate']);
 };
 
 exports.getEpisodeGroupRating = function(request, response) {
@@ -53,7 +52,7 @@ exports.getEpisodeGroupRating = function(request, response) {
     'AND retired = $2 ' +
     'AND series_id = $3 ';
 
-  return executeQueryWithResults(response, sql, [year, 0, seriesId]);
+  return db.executeQueryWithResults(response, sql, [year, 0, seriesId]);
 };
 
 exports.getEpisodeGroupRatings = function(request, response) {
@@ -66,7 +65,7 @@ exports.getEpisodeGroupRatings = function(request, response) {
     'WHERE year = $1 ' +
     'AND s.retired = $2 ';
 
-  return executeQueryWithResults(response, sql, [year, 0]);
+  return db.executeQueryWithResults(response, sql, [year, 0]);
 };
 
 exports.getAllRatingYears = function(request, response) {
@@ -75,7 +74,7 @@ exports.getAllRatingYears = function(request, response) {
     'WHERE retired = $1 ' +
     'ORDER BY year DESC ';
 
-  return executeQueryWithResults(response, sql, [0]);
+  return db.executeQueryWithResults(response, sql, [0]);
 };
 
 exports.getEpisodes = function(req, response) {
@@ -120,7 +119,7 @@ exports.getEpisodes = function(req, response) {
       'AND te.retired = $3 ' +
       'ORDER BY e.season, e.episode_number, ti.id';
 
-  return executeQueryWithResults(response, sql, [req.query.SeriesId, 0, 0]);
+  return db.executeQueryWithResults(response, sql, [req.query.SeriesId, 0, 0]);
 };
 
 exports.getRecordingNow = function(req, response) {
@@ -132,7 +131,7 @@ exports.getRecordingNow = function(req, response) {
       ' ON ete.episode_id = e.id ' +
       'WHERE te.recording_now = $1 ';
 
-  return executeQueryWithResults(response, sql, [true]);
+  return db.executeQueryWithResults(response, sql, [true]);
 };
 
 exports.getPossibleMatches = function(req, response) {
@@ -143,7 +142,7 @@ exports.getPossibleMatches = function(req, response) {
       'WHERE psm.series_id = $1 ' +
       'AND psm.retired = $2 ';
 
-  return executeQueryWithResults(response, sql, [req.query.SeriesId, 0]);
+  return db.executeQueryWithResults(response, sql, [req.query.SeriesId, 0]);
 };
 
 exports.getViewingLocations = function(req, response) {
@@ -151,7 +150,7 @@ exports.getViewingLocations = function(req, response) {
 
   var sql = 'SELECT * FROM viewing_location';
 
-  return executeQueryWithResults(response, sql, []);
+  return db.executeQueryWithResults(response, sql, []);
 };
 
 exports.getAllPosters = function(req, response) {
@@ -162,7 +161,7 @@ exports.getAllPosters = function(req, response) {
     'FROM tvdb_poster ' +
     'WHERE tvdb_series_id = $1 ' +
     'AND retired = $2 ';
-  return executeQueryWithResults(response, sql, [tvdbSeriesId, 0]);
+  return db.executeQueryWithResults(response, sql, [tvdbSeriesId, 0]);
 };
 
 exports.getUnmatchedEpisodes = function(req, response) {
@@ -175,7 +174,7 @@ exports.getUnmatchedEpisodes = function(req, response) {
       'AND te.ignore_matching = $3 ' +
       'AND id not in (select ete.tivo_episode_id from edge_tivo_episode ete)';
 
-  return executeQueryWithResults(response, sql, [req.query.TiVoSeriesId, 0, false]);
+  return db.executeQueryWithResults(response, sql, [req.query.TiVoSeriesId, 0, false]);
 };
 
 exports.getTVDBErrors = function(req, response) {
@@ -185,7 +184,7 @@ exports.getTVDBErrors = function(req, response) {
     'FROM tvdb_update_error ' +
     'ORDER BY id DESC ';
 
-  return executeQueryWithResults(response, sql, []);
+  return db.executeQueryWithResults(response, sql, []);
 };
 
 exports.getPrimeTV = function(req, response) {
@@ -208,7 +207,7 @@ exports.getPrimeTV = function(req, response) {
     'AND ps.person_id = $5 ' +
     'ORDER BY CASE WHEN ps.rating IS NULL THEN s.metacritic ELSE ps.rating END DESC NULLS LAST';
 
-  return executeQueryWithResults(response, sql, [1, 0, 'Match Completed', 0, 1])
+  return db.executeQueryWithResults(response, sql, [1, 0, 'Match Completed', 0, 1])
 };
 
 exports.getPrimeSeriesInfo = function(req, response) {
@@ -244,7 +243,7 @@ exports.getPrimeSeriesInfo = function(req, response) {
     'ORDER BY e.season, e.episode_number ' +
     'LIMIT 1 ';
 
-  return executeQueryWithResults(response, sql, [
+  return db.executeQueryWithResults(response, sql, [
     req.query.SeriesId,
     0,    // e.retired
     0,    // te.retired
@@ -262,7 +261,7 @@ exports.changeTier = function(req, response) {
 
   var sql = "UPDATE series SET tier = $1 WHERE id = $2";
 
-  executeQueryNoResults(response, sql, [tier, seriesId]);
+  db.executeQueryNoResults(response, sql, [tier, seriesId]);
 };
 
 exports.addSeries = function(req, res) {
@@ -292,35 +291,11 @@ var insertSeries = function(series, response) {
     series.person_id
   ];
 
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    client.query(queryConfig, function(err, result) {
-      if (err) {
-        console.error(err);
-        response.send("Error " + err);
-      }
-      console.log("series insert successful.");
-
-      // NOTE: This only works because the query has "RETURNING id" at the end.
-      series.id = result.rows[0].id;
-
-      console.log("series id found: " + series.id);
-      return insertSeriesViewingLocation(series.id, series.ViewingLocations[0].id, response);
-    });
-
+  db.selectWithJSON(sql, values).then(function (results) {
+    var seriesId = results[0].id;
+    return insertSeriesViewingLocation(seriesId, series.ViewingLocations[0].id, response);
+  }, function(err) {
+    response.json("Error inserting series: " + err);
   });
 
 };
@@ -336,7 +311,7 @@ exports.getSeriesViewingLocations = function(req, response) {
       ' ON svl.viewing_location_id = vl.id ' +
       'WHERE svl.series_id = $1';
 
-  return executeQueryWithResults(response, sql, [seriesId]);
+  return db.executeQueryWithResults(response, sql, [seriesId]);
 };
 
 exports.addViewingLocation = function(req, response) {
@@ -350,7 +325,7 @@ exports.removeViewingLocation = function(req, response) {
   var sql = "DELETE FROM series_viewing_location " +
       "WHERE series_id = $1 AND viewing_location_id = $2";
 
-  return executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
+  return db.executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
 };
 
 var insertSeriesViewingLocation = function(seriesId, viewingLocationId, response) {
@@ -360,7 +335,7 @@ var insertSeriesViewingLocation = function(seriesId, viewingLocationId, response
   var sql = 'INSERT INTO series_viewing_location (series_id, viewing_location_id, date_added) ' +
       'VALUES ($1, $2, now())';
 
-  return executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
+  return db.executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
 };
 
 exports.changeEpisodesStreaming = function(req, response) {
@@ -375,45 +350,45 @@ exports.changeEpisodesStreaming = function(req, response) {
       "AND season <> $3 " +
       "AND retired = $4 ";
 
-  return executeQueryNoResults(response, sql, [streaming, seriesId, 0, 0]);
+  return db.executeQueryNoResults(response, sql, [streaming, seriesId, 0, 0]);
 };
 
 exports.updateSeries = function(req, response) {
   console.log("Update Series with " + JSON.stringify(req.body.ChangedFields));
 
-  var queryConfig = buildUpdateQueryConfig(req.body.ChangedFields, "series", req.body.SeriesId);
+  var queryConfig = db.buildUpdateQueryConfig(req.body.ChangedFields, "series", req.body.SeriesId);
 
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
 exports.updateEpisode = function(req, response) {
   console.log("Update Episode with " + JSON.stringify(req.body.ChangedFields));
 
-  var queryConfig = buildUpdateQueryConfig(req.body.ChangedFields, "episode", req.body.EpisodeId);
+  var queryConfig = db.buildUpdateQueryConfig(req.body.ChangedFields, "episode", req.body.EpisodeId);
 
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
 exports.updateEpisodeGroupRating = function(req, response) {
   console.log("Update EpisodeGroupRating with " + JSON.stringify(req.body.ChangedFields));
 
-  var queryConfig = buildUpdateQueryConfig(req.body.ChangedFields, "episode_group_rating", req.body.EpisodeGroupRatingId);
+  var queryConfig = db.buildUpdateQueryConfig(req.body.ChangedFields, "episode_group_rating", req.body.EpisodeGroupRatingId);
 
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
 exports.addEpisodeGroupRating = function(request, response) {
   var episodeGroupRating = request.body.EpisodeGroupRating;
-  console.log("Add new EpisodeGroupoRating: " + JSON.stringify(episodeGroupRating));
+  console.log("Add new EpisodeGroupRating: " + JSON.stringify(episodeGroupRating));
 
   var sql = "INSERT INTO episode_group_rating (series_id, year, start_date, end_date, avg_rating, max_rating, last_rating, " +
     "suggested_rating, num_episodes, watched, rated, last_aired, avg_funny, avg_story, avg_character, aired, next_air_date, " +
@@ -443,36 +418,7 @@ exports.addEpisodeGroupRating = function(request, response) {
     episodeGroupRating.post_update_episodes
   ];
 
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    client.query(queryConfig, function(err, result) {
-      if (err) {
-        console.error(err);
-        response.send("Error " + err);
-      }
-      console.log("episode group rating insert successful.");
-
-      // NOTE: This only works because the query has "RETURNING id" at the end.
-      var rating_id = result.rows[0].id;
-
-      console.log("rating id found: " + rating_id);
-      return response.json({RatingId: rating_id});
-    });
-
-  });
+  return db.executeQueryWithResults(response, sql, values);
 };
 
 exports.retireTiVoEpisode = function(req, response) {
@@ -480,7 +426,7 @@ exports.retireTiVoEpisode = function(req, response) {
 
   var sql = 'UPDATE tivo_episode SET retired = id WHERE id = $1';
 
-  return executeQueryNoResults(response, sql, [req.body.TiVoEpisodeId]);
+  return db.executeQueryNoResults(response, sql, [req.body.TiVoEpisodeId]);
 };
 
 exports.ignoreTiVoEpisode = function(req, response) {
@@ -488,7 +434,7 @@ exports.ignoreTiVoEpisode = function(req, response) {
 
   var sql = 'UPDATE tivo_episode SET ignore_matching = true WHERE id = $1';
 
-  return executeQueryNoResults(response, sql, [req.body.TiVoEpisodeId]);
+  return db.executeQueryNoResults(response, sql, [req.body.TiVoEpisodeId]);
 };
 
 exports.matchTiVoEpisodes = function(req, response) {
@@ -543,73 +489,6 @@ exports.unlinkEpisode = function(req, response) {
   });
 };
 
-exports.addRating = function(req, response) {
-  var episodeRating = req.body.EpisodeRating;
-
-  console.log("Adding rating: " + JSON.stringify(episodeRating));
-
-  var sql = "INSERT INTO episode_rating (episode_id, rating_date, rating_funny, rating_character, rating_story, rating_value, review, date_added) " +
-      "VALUES ($1, $2, $3, $4, $5, $6, $7, $8) " +
-      "RETURNING id";
-
-  var values = [
-    episodeRating.episode_id,
-    new Date,
-    episodeRating.rating_funny,
-    episodeRating.rating_character,
-    episodeRating.rating_story,
-    episodeRating.rating_value,
-    episodeRating.review,
-    new Date
-  ];
-
-
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    client.query(queryConfig, function(err, result) {
-      if (err) {
-        console.error(err);
-        response.send("Error " + err);
-      }
-      console.log("rating insert successful.");
-
-      // NOTE: This only works because the query has "RETURNING id" at the end.
-      var rating_id = result.rows[0].id;
-
-      console.log("rating id found: " + rating_id);
-      return response.json({RatingId: rating_id});
-    });
-
-  });
-};
-
-exports.updateRating = function(req, response) {
-  var changedFields = req.body.ChangedFields;
-  var rating_id = req.body.RatingID;
-
-  console.log("Changing rating: " + JSON.stringify(changedFields));
-
-  var queryConfig = buildUpdateQueryConfig(changedFields, "episode_rating", rating_id);
-
-  console.log("SQL: " + queryConfig.text);
-  console.log("Values: " + queryConfig.values);
-
-  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
-};
-
 
 exports.getUpcomingEpisodes = function(req, response) {
   var sql = "select e.series_id, e.title, e.season, e.episode_number, e.air_date, e.air_time " +
@@ -624,79 +503,10 @@ exports.getUpcomingEpisodes = function(req, response) {
       "and e.retired = $4 " +
       "order by e.air_time asc;";
 
-  return executeQueryWithResults(response, sql, [1, false, 0, 0]);
+  return db.executeQueryWithResults(response, sql, [1, false, 0, 0]);
 };
 
 // utility methods
-
-
-function executeQueryWithResults(response, sql, values) {
-  var results = [];
-
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var query = client.query(queryConfig);
-
-    query.on('row', function(row) {
-      results.push(row);
-    });
-
-    query.on('end', function() {
-      client.end();
-      return response.json(results);
-    });
-
-    if (err) {
-      console.error(err);
-      response.send("Error " + err);
-    }
-  })
-}
-
-
-function executeQueryNoResults(response, sql, values) {
-
-  var queryConfig = {
-    text: sql,
-    values: values
-  };
-
-  var client = new pg.Client(config);
-  if (client === null) {
-    return console.error('null client');
-  }
-
-  client.connect(function(err) {
-    if (err) {
-      return console.error('could not connect to postgres', err);
-    }
-
-    var query = client.query(queryConfig);
-
-    query.on('end', function() {
-      client.end();
-      return response.json({msg: "Success"});
-    });
-
-    if (err) {
-      console.error(err);
-      response.send("Error " + err);
-    }
-  });
-}
 
 function insertEdgeRow(tivoEpisodeId, tvdbEpisodeIds) {
   var wildcards = [];
@@ -721,7 +531,7 @@ function insertEdgeRow(tivoEpisodeId, tvdbEpisodeIds) {
   console.log("SQL:" + sql);
   console.log("Values:" + values);
 
-  return updateNoJSON(sql, values);
+  return db.updateNoJSON(sql, values);
 }
 
 function retireEdgeRows(episodeId) {
@@ -735,7 +545,7 @@ function retireEdgeRows(episodeId) {
   console.log("SQL:" + sql);
   console.log("Values:" + values);
 
-  return updateNoJSON(sql, values);
+  return db.updateNoJSON(sql, values);
 }
 
 function setMatchStatusOnLinkedEpisodes(episodeId, matchStatus) {
@@ -755,7 +565,7 @@ function setMatchStatusOnLinkedEpisodes(episodeId, matchStatus) {
     0
   ];
 
-  return updateNoJSON(sql, values);
+  return db.updateNoJSON(sql, values);
 }
 
 function updateOnTivo(tvdbEpisodeIds, onTiVoValue) {
@@ -780,7 +590,7 @@ function updateOnTivo(tvdbEpisodeIds, onTiVoValue) {
   console.log("SQL:" + sql);
   console.log("Values:" + values);
 
-  return updateNoJSON(sql, values);
+  return db.updateNoJSON(sql, values);
 }
 
 function updateEpisodeMatchStatus(tivoEpisodeId, matchStatus, response) {
@@ -790,71 +600,10 @@ function updateEpisodeMatchStatus(tivoEpisodeId, matchStatus, response) {
     tvdb_match_status: matchStatus
   };
 
-  var queryConfig = buildUpdateQueryConfig(changedFields, "tivo_episode", tivoEpisodeId);
+  var queryConfig = db.buildUpdateQueryConfig(changedFields, "tivo_episode", tivoEpisodeId);
 
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return executeQueryNoResults(response, queryConfig.text, queryConfig.values);
-}
-
-function updateNoJSON(sql, values) {
-  return new Promise(function(resolve, reject) {
-
-    var queryConfig = {
-      text: sql,
-      values: values
-    };
-
-    var client = new pg.Client(config);
-    if (client === null) {
-      return console.error('null client');
-    }
-
-    client.connect(function(err) {
-      if (err) {
-        console.error(err);
-        reject(Error(err));
-      }
-
-      var query = client.query(queryConfig);
-
-      query.on('end', function() {
-        client.end();
-        resolve("Success!");
-      });
-
-    });
-
-  });
-}
-
-function buildUpdateQueryConfig(changedFields, tableName, rowID) {
-
-  var sql = "UPDATE " + tableName + " SET ";
-  var values = [];
-  var i = 1;
-  for (var key in changedFields) {
-    if (changedFields.hasOwnProperty(key)) {
-      if (values.length !== 0) {
-        sql += ", ";
-      }
-
-      sql += (key + " = $" + i);
-
-      var value = changedFields[key];
-      values.push(value);
-
-      i++;
-    }
-  }
-
-  sql += (" WHERE id = $" + i);
-
-  values.push(rowID);
-
-  return {
-    text: sql,
-    values: values
-  };
+  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 }

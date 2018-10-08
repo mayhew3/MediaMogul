@@ -717,13 +717,6 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     return $http.post('/ignoreTiVoEpisode', {TiVoEpisodeId: episodeId});
   };
 
-  this.addRating = function(episodeRating) {
-    return $http.post('/addRating', {EpisodeRating: episodeRating});
-  };
-  this.updateRating = function(changedFields, rating_id) {
-    return $http.post('/updateRating', {ChangedFields: changedFields, RatingID: rating_id});
-  };
-
 
   this.updateDenorms = function(series, episodes) {
     var activeEpisodes = 0;
