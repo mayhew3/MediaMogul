@@ -73,7 +73,7 @@ exports.getMyShows = function(request, response) {
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
-    var sql = "SELECT e.series_id, e.air_time, e.air_date " +
+    var sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = e.series_id " +
@@ -85,7 +85,7 @@ exports.getMyShows = function(request, response) {
       "                   AND er.watched = $4) " +
       "AND ps.person_id = $5 " +
       "AND ps.tier = $6 " +
-      "ORDER BY e.series_id, e.air_time ";
+      "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
     var values = [
       0,
@@ -108,13 +108,19 @@ exports.getMyShows = function(request, response) {
 
           let seriesObj = _.findWhere(seriesResults, {id: parseInt(seriesId)});
           seriesObj.unwatched_all = airedEpisodes.length;
-          seriesObj.first_unwatched = airedEpisodes.length === 0 ? null : _.first(airedEpisodes).air_time;
 
-          let nextEpisode = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
+          let nextEpisodeToWatch = airedEpisodes.length === 0 ? null : _.first(airedEpisodes);
+          let nextEpisodeToAir = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
 
-          if (nextEpisode !== null) {
-            seriesObj.nextAirDate = nextEpisode.air_time === null ? nextEpisode.air_date : nextEpisode.air_time;
+          if (nextEpisodeToWatch !== null) {
+            seriesObj.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
           }
+
+          if (nextEpisodeToAir !== null) {
+            seriesObj.nextAirDate = nextEpisodeToAir.air_time === null ? nextEpisodeToAir.air_date : nextEpisodeToAir.air_time;
+          }
+
+          seriesObj.midSeason = stoppedMidseason(nextEpisodeToWatch);
         }
       }
 
@@ -136,6 +142,11 @@ function isAired(episode) {
   return !isUnaired(episode);
 }
 
+function stoppedMidseason(nextEpisode) {
+  return nextEpisode !== null &&
+    _.isNumber(nextEpisode.episode_number) &&
+    nextEpisode.episode_number > 1;
+}
 
 
 exports.getShowBasicInfo = function(request, response) {

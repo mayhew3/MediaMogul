@@ -1061,17 +1061,17 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       return isBefore(airTime, now);
     };
 
-    var airedEpisodes = _.filter(eligibleEpisodes, this.hasAired);
+    var airedEpisodes = _.sortBy(_.filter(eligibleEpisodes, this.hasAired), function(episode) {
+      return episode.absolute_number;
+    });
 
     $log.debug("There are " + airedEpisodes.length + " aired episodes.");
 
-    this.isUnwatched = function(episode) {
+    var unwatchedEpisodesList = _.filter(airedEpisodes, function(episode) {
       return !episode.watched;
-    };
-
-    var arr = _.filter(airedEpisodes, this.isUnwatched);
-    var unwatchedEpisodesList = _.sortBy(arr, function(episode) {
-      return episode.absolute_number;
+    });
+    var watchedEpisodesList = _.filter(airedEpisodes, function(episode) {
+      return episode.watched;
     });
 
     $log.debug("Found " + unwatchedEpisodesList.length + " unwatched episodes:");
@@ -1105,10 +1105,13 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       return $http.post('/updateMyShow', {SeriesId: series.id, PersonId: LockService.person_id, ChangedFields: changedFields}).then(function() {
         $log.debug("Updating my series denorms: " + _.keys(changedFields));
         series.unwatched_episodes = unwatchedEpisodes;
+        series.last_watched = _.last(watchedEpisodesList).watched_date;
         series.last_unwatched = lastUnwatched;
         series.first_unwatched = firstUnwatched;
         series.unwatched_streaming = 0;
         series.unwatched_all = unwatchedEpisodes;
+
+        series.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
       });
 
     } else {
@@ -1123,6 +1126,13 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
   function isAfter(newDate, trackingDate) {
     return trackingDate === null || newDate > trackingDate;
   }
+
+  function stoppedMidseason(nextEpisode) {
+    return nextEpisode !== null &&
+      _.isNumber(nextEpisode.episode_number) &&
+      nextEpisode.episode_number > 1;
+  }
+
 }
 
 angular.module('mediaMogulApp')

@@ -53,6 +53,14 @@ angular.module('mediaMogulApp')
     self.otherActive = function(series) {
       return self.firstTier(series) &&
         !self.showInQueue(series) &&
+        series.midSeason === true &&
+        series.last_watched !== null;
+    };
+
+    self.newSeason = function(series) {
+      return self.firstTier(series) &&
+        !self.showInQueue(series) &&
+        !self.otherActive(series) &&
         series.last_watched !== null;
     };
 

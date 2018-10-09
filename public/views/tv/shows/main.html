@@ -2,7 +2,7 @@
 <!-- QUEUE section -->
 <div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.showInQueue) > 0">
   <div class="panel-heading">
-    <h3>Queue</h3>
+    <h3>Up Next</h3>
   </div>
   <div class="panel-body">
     <div class="row">
@@ -29,12 +29,40 @@
 <!-- OTHER ACTIVE section -->
 <div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.otherActive) > 0">
   <div class="panel-heading">
-    <h3>Active</h3>
+    <h3>Continue</h3>
   </div>
   <div class="panel-body">
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.otherActive">
+        <a ng-click="ctrl.open(show)" href="">
+          <img class="img-rounded"
+               ng-style="ctrl.posterStyle(show)"
+               ng-src="{{show.posterResolved}}"
+               err-src="images/GenericSeries.gif"
+               width="100%"/>
+          <div class="posterBadge">
+            <span ng-bind="show.unwatched_all"></span>
+          </div>
+
+          <div class="posterTitle" ng-show="show.imageDoesNotExist">
+            <span ng-bind="show.title"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW SEASON section -->
+<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.otherActive) > 0">
+  <div class="panel-heading">
+    <h3>New Season</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.newSeason">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
                ng-style="ctrl.posterStyle(show)"
