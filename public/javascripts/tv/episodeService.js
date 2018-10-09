@@ -65,8 +65,6 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       $http.get('/viewingLocations').then(function (viewingResponse) {
         $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
         viewingLocations = viewingResponse.data;
-
-        self.updateMyUpcomingEpisodes();
       }, function (errViewing) {
         console.error('Error while fetching viewing location list: ' + errViewing);
       });
@@ -210,15 +208,6 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     });
   };
 
-  this.updateMyUpcomingEpisodes = function() {
-    return $http.get('/myUpcomingEpisodes', {params: {PersonId: LockService.person_id}}).then(function (upcomingResults) {
-      // $log.debug(JSON.stringify(upcomingResults));
-      upcomingResults.data.forEach(function(episode) {
-        findAndUpdateMyShows(episode);
-      });
-    });
-  };
-
   this.updateTVDBErrors = function() {
     return $http.get('/tvdbErrors').then(function (payload) {
       tvdbErrors = payload.data;
@@ -291,15 +280,6 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       if (series.id === series_id && series.nextAirDate === undefined) {
         self.updateNextAirDate(series, resultObj);
         self.updateNextEpisode(series, resultObj);
-      }
-    });
-  }
-
-  function findAndUpdateMyShows(resultObj) {
-    var series_id = resultObj.series_id;
-    myShows.forEach(function (series) {
-      if (series.id === series_id && (series.nextAirDate === undefined || series.nextAirDate === null)) {
-        self.updateNextAirDate(series, resultObj);
       }
     });
   }
