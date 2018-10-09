@@ -199,7 +199,6 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       show.metacritic = parseInt(show.metacritic);
     }
     updatePosterLocation(show);
-    show.unwatched_all = show.unwatched_episodes + show.unwatched_streaming;
   };
   
   this.updateNextUp = function() {
@@ -299,9 +298,8 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
   function findAndUpdateMyShows(resultObj) {
     var series_id = resultObj.series_id;
     myShows.forEach(function (series) {
-      if (series.id === series_id && series.nextAirDate === undefined) {
+      if (series.id === series_id && (series.nextAirDate === undefined || series.nextAirDate === null)) {
         self.updateNextAirDate(series, resultObj);
-        self.updateNextEpisode(series, resultObj);
       }
     });
   }

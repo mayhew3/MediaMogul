@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var moment = require('moment');
 const db = require('./database_util');
 
 exports.getPersonInfo = function(request, response) {
@@ -72,8 +73,101 @@ exports.getMyShows = function(request, response) {
     personId, false, 'Match Completed', 0, 0, 0
   ];
 
-  return db.executeQueryWithResults(response, sql, values);
+  db.selectWithJSON(sql, values).then(function (seriesResults) {
+    var sql = "SELECT e.series_id, e.air_time, e.air_date " +
+      "FROM episode e " +
+      "INNER JOIN person_series ps " +
+      "  ON ps.series_id = e.series_id " +
+      "WHERE e.retired = $1 " +
+      "AND e.season <> $2 " +
+      "AND e.id NOT IN (SELECT er.episode_id " +
+      "                   FROM episode_rating er " +
+      "                   WHERE er.person_id = $3 " +
+      "                   AND er.watched = $4) " +
+      "AND ps.person_id = $5 " +
+      "AND ps.tier = $6 " +
+      "ORDER BY e.series_id, e.air_time ";
+
+    var values = [
+      0,
+      0,
+      personId,
+      true,
+      personId,
+      1
+    ];
+
+    db.selectWithJSON(sql, values).then(function(episodeResults) {
+      // merge results
+
+      var groupedBySeries = _.groupBy(episodeResults, "series_id");
+      for (var seriesId in groupedBySeries) {
+        if (groupedBySeries.hasOwnProperty(seriesId)) {
+          let episodeGroup = groupedBySeries[seriesId];
+          let unairedEpisodes = _.filter(episodeGroup, isUnaired);
+          let airedEpisodes = _.filter(episodeGroup, isAired);
+
+          let seriesObj = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+          seriesObj.unwatched_all = airedEpisodes.length;
+          seriesObj.first_unwatched = airedEpisodes.length === 0 ? null : _.first(airedEpisodes).air_time;
+
+          let nextEpisode = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
+
+          if (nextEpisode !== null) {
+            seriesObj.nextAirDate = nextEpisode.air_time === null ? nextEpisode.air_date : nextEpisode.air_time;
+
+            if (nextEpisode.air_date !== null) {
+              var combinedDate = getAirTime(nextEpisode, seriesObj.air_time);
+              seriesObj.nextAirDateFormatted = formatAirTime(combinedDate);
+            }
+          }
+        }
+      }
+
+      return response.json(seriesResults);
+    });
+  });
+
 };
+
+
+// aired helpers
+
+function isUnaired(episode) {
+  // unaired if the air time after now.
+  return episode.air_time === null || ((episode.air_time - new Date) > 0);
+}
+
+function isAired(episode) {
+  return !isUnaired(episode);
+}
+
+
+// time helpers
+
+function combineDateAndTime(date, time) {
+  var dateMoment = moment(date + " " + time);
+  return dateMoment.toDate();
+}
+
+function getAirTime(episode, seriesAirTime) {
+  if (episode.air_time === null) {
+    return combineDateAndTime(episode.air_date, seriesAirTime);
+  } else {
+    return episode.air_time;
+  }
+}
+
+function formatAirTime(combinedDate) {
+  let combinedMoment = moment(combinedDate);
+  if (combinedMoment.minutes() === 0) {
+    return combinedMoment.format('dddd hA');
+  } else {
+    return combinedMoment.format('dddd h:mm A');
+  }
+}
+
+
 
 exports.getShowBasicInfo = function(request, response) {
   var sql =
