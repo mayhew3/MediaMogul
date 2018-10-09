@@ -1,5 +1,4 @@
 var _ = require('underscore');
-var moment = require('moment-timezone');
 const db = require('./database_util');
 
 exports.getPersonInfo = function(request, response) {
@@ -115,11 +114,6 @@ exports.getMyShows = function(request, response) {
 
           if (nextEpisode !== null) {
             seriesObj.nextAirDate = nextEpisode.air_time === null ? nextEpisode.air_date : nextEpisode.air_time;
-
-            if (nextEpisode.air_date !== null) {
-              var combinedDate = getAirTime(nextEpisode, seriesObj.air_time);
-              seriesObj.nextAirDateFormatted = formatAirTime(combinedDate);
-            }
           }
         }
       }
@@ -140,31 +134,6 @@ function isUnaired(episode) {
 
 function isAired(episode) {
   return !isUnaired(episode);
-}
-
-
-// time helpers
-
-function combineDateAndTime(date, time) {
-  var dateMoment = moment(date + " " + time).tz("America/Los_Angeles");
-  return dateMoment.toDate();
-}
-
-function getAirTime(episode, seriesAirTime) {
-  if (episode.air_time === null) {
-    return combineDateAndTime(episode.air_date, seriesAirTime);
-  } else {
-    return episode.air_time;
-  }
-}
-
-function formatAirTime(combinedDate) {
-  let combinedMoment = moment(combinedDate).tz("America/Los_Angeles");
-  if (combinedMoment.minutes() === 0) {
-    return combinedMoment.format('dddd hA');
-  } else {
-    return combinedMoment.format('dddd h:mm A');
-  }
 }
 
 

@@ -58,6 +58,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       var tempShows = response.data;
       tempShows.forEach(function (show) {
         self.updateNumericFields(show);
+        self.formatNextAirDate(show);
       });
       $log.debug("Finished updating.");
       myShows = tempShows;
@@ -198,7 +199,13 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     }
     updatePosterLocation(show);
   };
-  
+
+  self.formatNextAirDate = function(show) {
+    if (!_.isUndefined(show.nextAirDate) && !_.isNull(show.nextAirDate)) {
+      show.nextAirDateFormatted = self.formatAirTime(new Date(show.nextAirDate));
+    }
+  };
+
   this.updateNextUp = function() {
     return $http.get('/upcomingEpisodes').then(function (upcomingResults) {
       // $log.debug(JSON.stringify(upcomingResults));
