@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var moment = require('moment');
+var moment = require('moment-timezone');
 const db = require('./database_util');
 
 exports.getPersonInfo = function(request, response) {
@@ -146,7 +146,7 @@ function isAired(episode) {
 // time helpers
 
 function combineDateAndTime(date, time) {
-  var dateMoment = moment(date + " " + time);
+  var dateMoment = moment(date + " " + time).tz("America/Los_Angeles");
   return dateMoment.toDate();
 }
 
@@ -159,7 +159,7 @@ function getAirTime(episode, seriesAirTime) {
 }
 
 function formatAirTime(combinedDate) {
-  let combinedMoment = moment(combinedDate);
+  let combinedMoment = moment(combinedDate).tz("America/Los_Angeles");
   if (combinedMoment.minutes() === 0) {
     return combinedMoment.format('dddd hA');
   } else {
