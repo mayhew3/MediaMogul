@@ -191,11 +191,8 @@ angular.module('mediaMogulApp')
       self.updateAndClose = function() {
         self.updateOrAddRating()
           .then(function (response) {
-            if (response) {
-              var ratingId = response.data[0].id;
-              if (!_.isUndefined(ratingId)) {
-                episode.rating_id = ratingId;
-              }
+            if (response && _.isArray(response.data)) {
+              episode.rating_id = response.data[0].id;
             }
             return updateWatchedStatus();
           }).then(function () {
