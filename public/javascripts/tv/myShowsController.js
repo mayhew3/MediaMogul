@@ -55,7 +55,7 @@ angular.module('mediaMogulApp')
 
     self.showInQueue = function(series) {
       return self.firstTier(series) &&
-        (airedRecently(series) || watchedRecently(series));
+        (airedRecently(series) || watchedRecently(series) || addedRecently(series));
     };
 
     self.continuePinned = function(series) {
