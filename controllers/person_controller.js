@@ -46,7 +46,8 @@ exports.getMyShows = function(request, response) {
     "    where e.series_id = s.id " +
     "    and e.retired = $7" +
     "    and e.season <> $8 " +
-    "    and e.air_date IS NOT NULL) as total_episodes, " +
+    "    and e.air_date IS NOT NULL" +
+    "    and e.air_date < NOW()) as aired_episodes, " +
     "s.tvdb_series_id, " +
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +

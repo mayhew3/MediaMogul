@@ -55,7 +55,7 @@ angular.module('mediaMogulApp')
 
     self.showInQueue = function(series) {
       return self.firstTier(series) &&
-        (airedRecently(series) || watchedRecently(series) || addedRecently(series));
+        (airedRecently(series) || watchedRecently(series));
     };
 
     self.continuePinned = function(series) {
@@ -120,7 +120,7 @@ angular.module('mediaMogulApp')
     }
 
     function hasWatchedEpisodes(series) {
-      return (series.total_episodes - series.unwatched_all) !== 0;
+      return (series.aired_episodes - series.unwatched_all) !== 0;
     }
 
     function hasInactiveUnmatchedEpisodes(series) {
