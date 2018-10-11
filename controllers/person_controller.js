@@ -41,13 +41,6 @@ exports.getMyShows = function(request, response) {
     "s.streaming_episodes, " +
     "s.matched_episodes, " +
     "s.unmatched_episodes, " +
-    "(SELECT COUNT(1) " +
-    "    from episode e " +
-    "    where e.series_id = s.id " +
-    "    and e.retired = $7" +
-    "    and e.season <> $8 " +
-    "    and e.air_date IS NOT NULL" +
-    "    and e.air_date < NOW()) as aired_episodes, " +
     "s.tvdb_series_id, " +
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +
@@ -61,14 +54,7 @@ exports.getMyShows = function(request, response) {
     "ps.last_unwatched, " +
     "ps.first_unwatched, " +
     "ps.tier AS my_tier, " +
-    "ps.date_added, " +
-    "(SELECT MAX(er.watched_date) " +
-    "  from episode_rating er " +
-    "  inner join episode e " +
-    "   on er.episode_id = e.id " +
-    "  where e.series_id = s.id " +
-    "  and er.retired = $5 " +
-    "  and e.retired = $6) as last_watched " +
+    "ps.date_added " +
     "FROM series s " +
     "INNER JOIN person_series ps " +
     "  ON ps.series_id = s.id " +
@@ -77,11 +63,11 @@ exports.getMyShows = function(request, response) {
     "AND s.tvdb_match_status = $3 " +
     "AND s.retired = $4 ";
   var values = [
-    personId, false, 'Match Completed', 0, 0, 0, 0, 0
+    personId, false, 'Match Completed', 0
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
-    var sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
+    var sql = "SELECT DISTINCT e.series_id " +
       "FROM episode e " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = e.series_id " +
@@ -92,7 +78,7 @@ exports.getMyShows = function(request, response) {
       "                   WHERE er.person_id = $3 " +
       "                   AND er.watched = $4) " +
       "AND ps.person_id = $5 " +
-      "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
+      "ORDER BY e.series_id ";
 
     var values = [
       0,
@@ -102,40 +88,135 @@ exports.getMyShows = function(request, response) {
       personId
     ];
 
-    db.selectWithJSON(sql, values).then(function(episodeResults) {
-      // merge results
+    db.selectWithJSON(sql, values).then(function(unwatchedSeriesResults) {
 
-      var groupedBySeries = _.groupBy(episodeResults, "series_id");
-      for (var seriesId in groupedBySeries) {
-        if (groupedBySeries.hasOwnProperty(seriesId)) {
-          let episodeGroup = groupedBySeries[seriesId];
-          let unairedEpisodes = _.filter(episodeGroup, isUnaired);
-          let airedEpisodes = _.filter(episodeGroup, isAired);
+      var unwatchedSeriesIds = _.pluck(unwatchedSeriesResults, 'series_id');
 
-          let seriesObj = _.findWhere(seriesResults, {id: parseInt(seriesId)});
-          seriesObj.unwatched_all = airedEpisodes.length;
-
-          let nextEpisodeToWatch = airedEpisodes.length === 0 ? null : _.first(airedEpisodes);
-          let nextEpisodeToAir = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
-
-          if (nextEpisodeToWatch !== null) {
-            seriesObj.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
-          }
-
-          if (nextEpisodeToAir !== null) {
-            seriesObj.nextAirDate = nextEpisodeToAir.air_time === null ? nextEpisodeToAir.air_date : nextEpisodeToAir.air_time;
-          }
-
-          seriesObj.midSeason = stoppedMidseason(nextEpisodeToWatch);
-        }
-      }
-
-      return response.json(seriesResults);
+      updateAllSeriesWithEpisodeInfo(seriesResults, unwatchedSeriesIds, personId).then(function() {
+        return response.json(seriesResults);
+      });
     });
   });
 
 };
 
+// denorm helper
+
+function updateAllSeriesWithEpisodeInfo(seriesResults, unwatchedSeriesIds, personId) {
+  var seriesPromises = [];
+
+  unwatchedSeriesIds.forEach(function (seriesId) {
+    let seriesObj = _.findWhere(seriesResults, {id: seriesId});
+    seriesPromises.push(updateWithEpisodeInfo(seriesObj, personId));
+  });
+
+  return Promise.all(seriesPromises);
+}
+
+function updateWithEpisodeInfo(series, personId) {
+  return new Promise(function(resolve) {
+    getAllEpisodes(series).then(function (allEpisodeResult) {
+      getWatchedEpisodes(series, personId).then(function (ratingResult) {
+        markEpisodesWatched(allEpisodeResult, ratingResult);
+
+        calculateUnwatchedDenorms(series, allEpisodeResult);
+        calculateWatchedDenorms(series, allEpisodeResult);
+
+        resolve();
+      });
+    });
+  });
+}
+
+function calculateUnwatchedDenorms(series, allEpisodes) {
+  let unwatchedEpisodes = _.where(allEpisodes, {watched: false});
+  let unairedEpisodes = _.filter(unwatchedEpisodes, isUnaired);
+  let airedEpisodes = _.filter(unwatchedEpisodes, isAired);
+
+  series.unwatched_all = airedEpisodes.length;
+
+  let nextEpisodeToWatch = airedEpisodes.length === 0 ? null : _.first(airedEpisodes);
+  let nextEpisodeToAir = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
+
+  if (nextEpisodeToWatch !== null) {
+    series.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
+  }
+
+  if (nextEpisodeToAir !== null) {
+    series.nextAirDate = nextEpisodeToAir.air_time === null ? nextEpisodeToAir.air_date : nextEpisodeToAir.air_time;
+  }
+
+  series.midSeason = stoppedMidseason(nextEpisodeToWatch);
+
+}
+
+function calculateWatchedDenorms(series, allEpisodes) {
+  series.aired_episodes = _.filter(allEpisodes, isAired).length;
+
+  let watchedEpisodes = _.where(allEpisodes, {watched: true});
+
+  let lastWatched = watchedEpisodes.length === 0 ? null : _.last(watchedEpisodes);
+  series.last_watched = lastWatched === null ? null : lastWatched.watched_date;
+
+
+}
+
+function markEpisodesWatched(allEpisodes, ratings) {
+  _.each(ratings, function(rating) {
+    let episodeMatch = _.find(allEpisodes, function (episode) {
+      return episode.id === rating.episode_id;
+    });
+
+    if (episodeMatch !== null && episodeMatch !== undefined) {
+      episodeMatch.watched = true;
+      episodeMatch.watched_date = rating.watched_date;
+    }
+  });
+}
+
+function getWatchedEpisodes(series, personId) {
+  var sql =
+    "SELECT er.episode_id, er.watched_date " +
+    "FROM episode e " +
+    "INNER JOIN episode_rating er " +
+    "  ON er.episode_id = e.id " +
+    "WHERE e.series_id = $1 " +
+    "AND e.retired = $2 " +
+    "AND er.person_id = $3 " +
+    "AND er.retired = $4 " +
+    "AND er.watched = $5 " +
+    "AND e.season <> $6 ";
+
+  let values = [
+    series.id,
+    0,
+    personId,
+    0,
+    true,
+    0
+  ];
+
+  console.log("Series: " + series.title);
+  return db.selectWithJSON(sql, values);
+}
+
+function getAllEpisodes(series) {
+  var sql =
+    "SELECT e.id, e.air_time, e.air_date, e.season, e.episode_number, false as watched " +
+    "FROM episode e " +
+    "WHERE e.series_id = $1 " +
+    "AND e.retired = $2 " +
+    "AND e.season <> $3 " +
+    "ORDER BY e.air_time, e.air_date, e.season, e.episode_number ";
+
+  let values = [
+    series.id,
+    0,
+    0
+  ];
+
+  return db.selectWithJSON(sql, values);
+}
 
 // aired helpers
 
