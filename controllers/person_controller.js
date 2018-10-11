@@ -60,6 +60,7 @@ exports.getMyShows = function(request, response) {
     "ps.last_unwatched, " +
     "ps.first_unwatched, " +
     "ps.tier AS my_tier, " +
+    "ps.date_added, " +
     "(SELECT MAX(er.watched_date) " +
     "  from episode_rating er " +
     "  inner join episode e " +

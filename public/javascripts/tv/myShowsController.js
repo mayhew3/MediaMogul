@@ -14,7 +14,6 @@ angular.module('mediaMogulApp')
 
     self.quickFindResult = undefined;
 
-    self.currentPage = 1;
     self.currentPageContinue = 1;
     self.currentPageNewSeason = 1;
     self.currentPageToStart = 1;
@@ -50,9 +49,13 @@ angular.module('mediaMogulApp')
       return dateIsWithinLastDays(series.last_watched, 14);
     }
 
+    function addedRecently(series) {
+      return dateIsWithinLastDays(series.date_added, 8);
+    }
+
     self.showInQueue = function(series) {
       return self.firstTier(series) &&
-        (airedRecently(series) || watchedRecently(series));
+        (airedRecently(series) || watchedRecently(series) || addedRecently(series));
     };
 
     self.continuePinned = function(series) {
