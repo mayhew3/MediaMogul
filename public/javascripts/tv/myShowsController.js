@@ -15,6 +15,9 @@ angular.module('mediaMogulApp')
     self.quickFindResult = undefined;
 
     self.currentPage = 1;
+    self.currentPageContinue = 1;
+    self.currentPageNewSeason = 1;
+    self.currentPageToStart = 1;
     self.pageSize = 12;
 
     self.isActive = function(pillName) {
@@ -34,7 +37,9 @@ angular.module('mediaMogulApp')
     };
 
     self.upcomingSoon = function(series) {
-      return dateIsInNextDays(series.nextAirDate, 7);
+      return dateIsInNextDays(series.nextAirDate, 7) &&
+        (!hasUnwatchedEpisodes(series) ||
+        self.showInQueue(series));
     };
 
     function airedRecently(series) {
@@ -50,24 +55,41 @@ angular.module('mediaMogulApp')
         (airedRecently(series) || watchedRecently(series));
     };
 
-    self.otherActive = function(series) {
+    self.continuePinned = function(series) {
       return self.firstTier(series) &&
         !self.showInQueue(series) &&
         series.midSeason === true &&
-        series.last_watched !== null;
+        hasWatchedEpisodes(series);
     };
 
-    self.newSeason = function(series) {
+    self.continueBacklog = function(series) {
+      return self.secondTier(series) &&
+        series.midSeason === true &&
+        hasWatchedEpisodes(series);
+    };
+
+    self.newSeasonPinned = function(series) {
       return self.firstTier(series) &&
         !self.showInQueue(series) &&
-        !self.otherActive(series) &&
-        series.last_watched !== null;
+        series.midSeason !== true &&
+        hasWatchedEpisodes(series);
     };
 
-    self.toStart = function(series) {
+    self.newSeasonBacklog = function(series) {
+      return self.secondTier(series) &&
+        series.midSeason !== true &&
+        hasWatchedEpisodes(series);
+    };
+
+    self.toStartPinned = function(series) {
       return self.firstTier(series) &&
-      !self.showInQueue(series) &&
-      series.last_watched === null;
+        !self.showInQueue(series) &&
+        !hasWatchedEpisodes(series);
+    };
+
+    self.toStartBacklog = function(series) {
+      return self.secondTier(series) &&
+        !hasWatchedEpisodes(series);
     };
 
     self.newlyAdded = function(series) {
@@ -92,6 +114,10 @@ angular.module('mediaMogulApp')
 
     function hasUnwatchedEpisodes(series) {
       return series.unwatched_all > 0;
+    }
+
+    function hasWatchedEpisodes(series) {
+      return (series.total_episodes - series.unwatched_all) !== 0;
     }
 
     function hasInactiveUnmatchedEpisodes(series) {

@@ -26,90 +26,6 @@
   </div>
 </div>
 
-<!-- OTHER ACTIVE section -->
-<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.otherActive) > 0">
-  <div class="panel-heading">
-    <h3>Continue</h3>
-  </div>
-  <div class="panel-body">
-    <div class="row">
-      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
-                filter:ctrl.otherActive">
-        <a ng-click="ctrl.open(show)" href="">
-          <img class="img-rounded"
-               ng-style="ctrl.posterStyle(show)"
-               ng-src="{{show.posterResolved}}"
-               err-src="images/GenericSeries.gif"
-               width="100%"/>
-          <div class="posterBadge">
-            <span ng-bind="show.unwatched_all"></span>
-          </div>
-
-          <div class="posterTitle" ng-show="show.imageDoesNotExist">
-            <span ng-bind="show.title"></span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- NEW SEASON section -->
-<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.otherActive) > 0">
-  <div class="panel-heading">
-    <h3>New Season</h3>
-  </div>
-  <div class="panel-body">
-    <div class="row">
-      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
-                filter:ctrl.newSeason">
-        <a ng-click="ctrl.open(show)" href="">
-          <img class="img-rounded"
-               ng-style="ctrl.posterStyle(show)"
-               ng-src="{{show.posterResolved}}"
-               err-src="images/GenericSeries.gif"
-               width="100%"/>
-          <div class="posterBadge">
-            <span ng-bind="show.unwatched_all"></span>
-          </div>
-
-          <div class="posterTitle" ng-show="show.imageDoesNotExist">
-            <span ng-bind="show.title"></span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TO START section -->
-<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.toStart) > 0">
-  <div class="panel-heading">
-    <h3>To Start</h3>
-  </div>
-  <div class="panel-body">
-    <div class="row">
-      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
-                filter:ctrl.toStart">
-        <a ng-click="ctrl.open(show)" href="">
-          <img class="img-rounded"
-               ng-style="ctrl.posterStyle(show)"
-               ng-src="{{show.posterResolved}}"
-               err-src="images/GenericSeries.gif"
-               width="100%"/>
-          <div class="posterBadge">
-            <span ng-bind="show.unwatched_all"></span>
-          </div>
-
-          <div class="posterTitle" ng-show="show.imageDoesNotExist">
-            <span ng-bind="show.title"></span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- THIS WEEK section -->
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -134,6 +50,93 @@
         <div align="right">
           <h5 ng-bind="show.nextAirDateFormatted"></h5>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTINUE section -->
+<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.continuePinned) > 0">
+  <div class="panel-heading">
+    <h3>Continue</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.continuePinned |
+                limitTo:4">
+        <a ng-click="ctrl.open(show)" href="">
+          <img class="img-rounded"
+               ng-style="ctrl.posterStyle(show)"
+               ng-src="{{show.posterResolved}}"
+               err-src="images/GenericSeries.gif"
+               width="100%"/>
+          <div class="posterBadge">
+            <span ng-bind="show.unwatched_all"></span>
+          </div>
+
+          <div class="posterTitle" ng-show="show.imageDoesNotExist">
+            <span ng-bind="show.title"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW SEASON section -->
+<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.newSeasonPinned) > 0">
+  <div class="panel-heading">
+    <h3>New Season</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.newSeasonPinned |
+                limitTo:4">
+        <a ng-click="ctrl.open(show)" href="">
+          <img class="img-rounded"
+               ng-style="ctrl.posterStyle(show)"
+               ng-src="{{show.posterResolved}}"
+               err-src="images/GenericSeries.gif"
+               width="100%"/>
+          <div class="posterBadge">
+            <span ng-bind="show.unwatched_all"></span>
+          </div>
+
+          <div class="posterTitle" ng-show="show.imageDoesNotExist">
+            <span ng-bind="show.title"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TO START section -->
+<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.toStartPinned) > 0">
+  <div class="panel-heading">
+    <h3>To Start</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.toStartPinned |
+                limitTo:4">
+        <a ng-click="ctrl.open(show)" href="">
+          <img class="img-rounded"
+               ng-style="ctrl.posterStyle(show)"
+               ng-src="{{show.posterResolved}}"
+               err-src="images/GenericSeries.gif"
+               width="100%"/>
+          <div class="posterBadge">
+            <span ng-bind="show.unwatched_all"></span>
+          </div>
+
+          <div class="posterTitle" ng-show="show.imageDoesNotExist">
+            <span ng-bind="show.title"></span>
+          </div>
+        </a>
       </div>
     </div>
   </div>

@@ -9,6 +9,21 @@
         Main<span class="badge" ng-show="ctrl.countWhere(ctrl.showInQueue) > 0" ng-bind="ctrl.countWhere(ctrl.showInQueue)"></span>
       </a>
     </li>
+    <li role="tv" ng-class="ctrl.isActive('Continue')">
+      <a ui-sref="tv.shows.continue" ng-click="ctrl.selectedPill='Continue'">
+        Continue
+      </a>
+    </li>
+    <li role="tv" ng-class="ctrl.isActive('NewSeason')">
+      <a ui-sref="tv.shows.newSeason" ng-click="ctrl.selectedPill='NewSeason'">
+        New Season
+      </a>
+    </li>
+    <li role="tv" ng-class="ctrl.isActive('ToStart')">
+      <a ui-sref="tv.shows.toStart" ng-click="ctrl.selectedPill='ToStart'">
+        To Start
+      </a>
+    </li>
     <li role="tv" ng-class="ctrl.isActive('Backlog')">
       <a ui-sref="tv.shows.backlog" ng-click="ctrl.selectedPill='Backlog'">
         Backlog

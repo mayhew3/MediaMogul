@@ -39,6 +39,18 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/blogtest',
           templateUrl: 'views/tv/shows/blogtest.html'
         })
+        .state('tv.shows.continue', {
+          url: '/continue',
+          templateUrl: 'views/tv/shows/continue.html'
+        })
+        .state('tv.shows.newSeason', {
+          url: '/newSeason',
+          templateUrl: 'views/tv/shows/newSeason.html'
+        })
+        .state('tv.shows.toStart', {
+          url: '/toStart',
+          templateUrl: 'views/tv/shows/toStart.html'
+        })
         .state('tv.shows.backlog', {
           url: '/backlog',
           templateUrl: 'views/tv/shows/backlog.html'

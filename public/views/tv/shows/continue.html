@@ -1,0 +1,64 @@
+
+<!-- CONTINUE PINNED section -->
+<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.continuePinned) > 0">
+  <div class="panel-heading">
+    <h3>Continue</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.continuePinned">
+        <a ng-click="ctrl.open(show)" href="">
+          <img class="img-rounded"
+               ng-style="ctrl.posterStyle(show)"
+               ng-src="{{show.posterResolved}}"
+               err-src="images/GenericSeries.gif"
+               width="100%"/>
+          <div class="posterBadge">
+            <span ng-bind="show.unwatched_all"></span>
+          </div>
+
+          <div class="posterTitle" ng-show="show.imageDoesNotExist">
+            <span ng-bind="show.title"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTINUE BACKLOG section -->
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3>Backlog</h3>
+  </div>
+  <div class="panel-body">
+
+    <div class="row">
+      <ul uib-pagination
+          total-items="ctrl.countWhere(ctrl.continueBacklog)"
+          ng-model="ctrl.currentPageContinue"
+          items-per-page="ctrl.pageSize"></ul>
+    </div>
+
+    <div class="row">
+      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.continueBacklog |
+                limitTo : ctrl.pageSize : (ctrl.currentPageContinue - 1) * ctrl.pageSize">
+        <a ng-click="ctrl.open(show)" href="">
+          <img class="img-rounded"
+               ng-style="ctrl.posterStyle(show)"
+               ng-src="{{show.posterResolved}}"
+               err-src="images/GenericSeries.gif"
+               width="100%"/>
+          <div class="posterBadge">
+            <span ng-bind="show.unwatched_all"></span>
+          </div>
+          <div class="posterTitle" ng-show="show.imageDoesNotExist">
+            <span ng-bind="show.title"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

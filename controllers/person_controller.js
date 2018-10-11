@@ -41,6 +41,12 @@ exports.getMyShows = function(request, response) {
     "s.streaming_episodes, " +
     "s.matched_episodes, " +
     "s.unmatched_episodes, " +
+    "(SELECT COUNT(1) " +
+    "    from episode e " +
+    "    where e.series_id = s.id " +
+    "    and e.retired = $7" +
+    "    and e.season <> $8 " +
+    "    and e.air_date IS NOT NULL) as total_episodes, " +
     "s.tvdb_series_id, " +
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +
@@ -69,7 +75,7 @@ exports.getMyShows = function(request, response) {
     "AND s.tvdb_match_status = $3 " +
     "AND s.retired = $4 ";
   var values = [
-    personId, false, 'Match Completed', 0, 0, 0
+    personId, false, 'Match Completed', 0, 0, 0, 0, 0
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
@@ -84,7 +90,6 @@ exports.getMyShows = function(request, response) {
       "                   WHERE er.person_id = $3 " +
       "                   AND er.watched = $4) " +
       "AND ps.person_id = $5 " +
-      "AND ps.tier = $6 " +
       "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
     var values = [
@@ -92,8 +97,7 @@ exports.getMyShows = function(request, response) {
       0,
       personId,
       true,
-      personId,
-      1
+      personId
     ];
 
     db.selectWithJSON(sql, values).then(function(episodeResults) {
