@@ -7,7 +7,8 @@
   <div class="panel-body">
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
-                filter:ctrl.toStartPinned">
+                filter:ctrl.toStartPinned |
+                orderBy:['-FullRating']">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
                ng-style="ctrl.posterStyle(show)"
@@ -44,6 +45,7 @@
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.toStartBacklog |
+                orderBy:['-FullRating'] |
                 limitTo : ctrl.pageSize : (ctrl.currentPageToStart - 1) * ctrl.pageSize">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"

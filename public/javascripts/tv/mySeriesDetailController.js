@@ -129,6 +129,7 @@ angular.module('mediaMogulApp')
       return EpisodeService.rateMyShow(self.series, self.interfaceFields.my_rating).then(function () {
         self.originalFields.my_rating = self.interfaceFields.my_rating;
         self.series.my_rating = self.interfaceFields.my_rating;
+        self.series.FullRating = self.interfaceFields.my_rating;
       });
     };
 

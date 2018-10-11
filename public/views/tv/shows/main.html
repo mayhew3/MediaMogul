@@ -7,7 +7,8 @@
   <div class="panel-body">
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
-                filter:ctrl.showInQueue">
+                filter:ctrl.showInQueue |
+                orderBy:['-FullRating']">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
                ng-style="ctrl.posterStyle(show)"
@@ -64,6 +65,7 @@
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.continuePinned |
+                orderBy:['-FullRating'] |
                 limitTo:4">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
@@ -93,6 +95,7 @@
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.newSeasonPinned |
+                orderBy:['-FullRating'] |
                 limitTo:4">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
@@ -122,6 +125,7 @@
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.toStartPinned |
+                orderBy:['-FullRating'] |
                 limitTo:4">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
