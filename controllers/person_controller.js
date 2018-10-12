@@ -359,7 +359,19 @@ exports.rateMyShow = function(request, response) {
     rating, personId, seriesId
   ];
 
-  return db.executeQueryNoResults(response, sql, values);
+  db.updateNoJSON(sql, values).then(function() {
+    updateSeriesRating(seriesId, personId).then(function(result) {
+      if (_.isUndefined(result.my_rating)) {
+        return response.json({
+          dynamic_rating: rating
+        });
+      } else {
+        return response.json({
+          dynamic_rating: result.dynamic_rating
+        });
+      }
+    });
+  });
 };
 
 exports.getMyEpisodes = function(request, response) {
@@ -509,6 +521,10 @@ function updateSeriesRating(series_id, person_id) {
         calculateRating(series, results);
 
         resolve(series);
+      } else {
+        resolve({
+          id: series_id
+        });
       }
     });
   });
