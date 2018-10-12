@@ -43,15 +43,20 @@ angular.module('mediaMogulApp')
       };
 
       self.updateOrAddRating = function() {
-        var changedFields = self.getChangedFields();
-        if (Object.keys(changedFields).length > 0) {
-          $log.debug("Episode fields changed: " + _.keys(changedFields));
-          return self.rating_id === null ?
-            EpisodeService.addMyEpisodeRating(self.interfaceRating) :
-            EpisodeService.updateMyEpisodeRating(changedFields, self.rating_id);
-        }
         return new Promise(function(resolve) {
-          resolve();
+          var changedFields = self.getChangedFields();
+          if (Object.keys(changedFields).length > 0) {
+            $log.debug("Episode fields changed: " + _.keys(changedFields));
+            if (self.rating_id === null) {
+              EpisodeService.addMyEpisodeRating(self.interfaceRating, series.id).then(function (result) {
+                resolve(result);
+              });
+            } else {
+              EpisodeService.updateMyEpisodeRating(changedFields, self.rating_id, series.id).then(function (result) {
+                resolve(result);
+              });
+            }
+          }
         });
       };
 
@@ -191,8 +196,9 @@ angular.module('mediaMogulApp')
       self.updateAndClose = function() {
         self.updateOrAddRating()
           .then(function (response) {
-            if (response && _.isArray(response.data)) {
-              episode.rating_id = response.data[0].id;
+            if (response && !_.isUndefined(response.data)) {
+              episode.rating_id = response.data.rating_id;
+              series.dynamic_rating = response.data.dynamic_rating;
             }
             return updateWatchedStatus();
           }).then(function () {

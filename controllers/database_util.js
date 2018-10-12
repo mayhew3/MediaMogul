@@ -204,5 +204,16 @@ module.exports = {
     console.log("Values: " + queryConfig.values);
 
     return this.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  },
+
+  updateObjectWithChangedFieldsNoJSON: function(changedFields, tableName, rowID) {
+    console.log("Update " + tableName + " with " + JSON.stringify(changedFields));
+
+    var queryConfig = this.buildUpdateQueryConfig(changedFields, tableName, rowID);
+
+    console.log("SQL: " + queryConfig.text);
+    console.log("Values: " + queryConfig.values);
+
+    return this.updateNoJSON(queryConfig.text, queryConfig.values);
   }
 };

@@ -571,14 +571,14 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     });
   };
 
-  this.addMyEpisodeRating = function(episodeRating) {
+  this.addMyEpisodeRating = function(episodeRating, seriesId) {
     $log.debug("Adding new episode rating.");
-    return $http.post('/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating});
+    return $http.post('/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});
   };
 
-  this.updateMyEpisodeRating = function(changedFields, rating_id) {
+  this.updateMyEpisodeRating = function(changedFields, rating_id, seriesId) {
     $log.debug("Updating existing episode rating with id: " + rating_id + ", Changed: " + JSON.stringify(changedFields));
-    return $http.post('/rateMyEpisode', {IsNew: false, ChangedFields: changedFields, RatingId: rating_id});
+    return $http.post('/rateMyEpisode', {IsNew: false, ChangedFields: changedFields, RatingId: rating_id, SeriesId: seriesId, PersonId: LockService.person_id});
   };
 
   this.updateEpisodeGroupRating = function(episodeGroupRatingId, changedFields) {
@@ -989,10 +989,10 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
 
         if (insertingNewRating) {
 
-          episodeGroupRating.avg_rating = parseFloat(avg_rating.toFixed(1));
+          episodeGroupRating.avg_rating = avg_rating === null ? null : parseFloat(avg_rating.toFixed(1));
           episodeGroupRating.last_rating = last_rating;
           episodeGroupRating.max_rating = max_rating;
-          episodeGroupRating.suggested_rating = parseFloat(suggested_rating.toFixed(1));
+          episodeGroupRating.suggested_rating = suggested_rating === null ? null : parseFloat(suggested_rating.toFixed(1));
           episodeGroupRating.watched = watchedEpisodes.length;
           episodeGroupRating.rated = ratedEpisodes.length;
           episodeGroupRating.next_air_date = nextUnwatched == null ? null : new Date(nextUnwatched.air_date);
@@ -1129,6 +1129,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
 
   function stoppedMidseason(nextEpisode) {
     return nextEpisode !== null &&
+      !_.isUndefined(nextEpisode) &&
       _.isNumber(nextEpisode.episode_number) &&
       nextEpisode.episode_number > 1;
   }

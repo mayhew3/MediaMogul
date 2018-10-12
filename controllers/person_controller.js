@@ -240,18 +240,6 @@ function combineRatingElements(ratingElements) {
   return runningValue / runningWeight;
 }
 
-function markEpisodesWatched(allEpisodes, ratings) {
-  _.each(ratings, function(rating) {
-    let episodeMatch = _.find(allEpisodes, function (episode) {
-      return episode.id === rating.episode_id;
-    });
-
-    if (episodeMatch !== null && episodeMatch !== undefined) {
-      episodeMatch.rating_value = parseInt(rating.rating_value);
-    }
-  });
-}
-
 // aired helpers
 
 function isUnaired(episode) {
@@ -450,12 +438,81 @@ exports.getMyEpisodes = function(request, response) {
 };
 
 exports.rateMyEpisode = function(request, response) {
-  if (request.body.IsNew) {
-    return addRating(request.body.EpisodeRating, response);
-  } else {
-    return editRating(request.body.ChangedFields, request.body.RatingId, response);
-  }
+  addOrEditRating(request).then(function(result) {
+    let rating_id = result.rating_id;
+    updateSeriesRating(result.series_id, result.person_id).then(function(result) {
+      var data = {
+        rating_id: rating_id,
+        dynamic_rating: result.dynamic_rating
+      };
+      return response.json(data);
+    });
+  })
 };
+
+function addOrEditRating(request) {
+  return new Promise(function(resolve) {
+    if (request.body.IsNew) {
+      addRating(request.body.EpisodeRating).then(function(results) {
+        resolve({
+          rating_id: results[0].id,
+          series_id: request.body.SeriesId,
+          person_id: request.body.EpisodeRating.person_id
+        });
+      });
+    } else {
+      editRating(request.body.ChangedFields, request.body.RatingId).then(function() {
+        resolve({
+          rating_id: request.body.RatingId,
+          series_id: request.body.SeriesId,
+          person_id: request.body.PersonId
+        });
+      });
+    }
+  });
+}
+
+function updateSeriesRating(series_id, person_id) {
+  return new Promise(function(resolve) {
+
+    var sql =
+      "SELECT er.episode_id, er.rating_value, s.metacritic, ps.rating as my_rating " +
+      "FROM episode_rating er " +
+      "INNER JOIN episode e " +
+      "  ON er.episode_id = e.id " +
+      "INNER JOIN series s " +
+      "  ON e.series_id = s.id " +
+      "INNER JOIN person_series ps " +
+      "  ON ps.series_id = s.id " +
+      "WHERE er.watched = $1 " +
+      "AND er.retired = $2 " +
+      "AND er.person_id = $3 " +
+      "AND er.rating_value IS NOT NULL " +
+      "AND e.series_id = $4 " +
+      "ORDER BY er.watched_date DESC, e.season DESC, e.episode_number DESC ";
+
+    var values = [
+      true,
+      0,
+      person_id,
+      series_id
+    ];
+
+    db.selectWithJSON(sql, values).then(function (results) {
+      if (!_.isEmpty(results)) {
+        var series = {
+          id: series_id,
+          my_rating: results[0].my_rating,
+          metacritic: results[0].metacritic
+        };
+
+        calculateRating(series, results);
+
+        resolve(series);
+      }
+    });
+  });
+}
 
 exports.updateMyShow = function(request, response) {
   console.log("Update Person-Series with " + JSON.stringify(request.body.ChangedFields));
@@ -474,7 +531,7 @@ exports.updateMyShow = function(request, response) {
   return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
 };
 
-function addRating(episodeRating, response) {
+function addRating(episodeRating) {
   console.log("Adding rating: " + JSON.stringify(episodeRating));
 
   var sql = "INSERT INTO episode_rating (episode_id, person_id, watched, watched_date, " +
@@ -498,11 +555,11 @@ function addRating(episodeRating, response) {
   ];
 
   // return data because it contains the new row id. (RETURNING id is in the sql)
-  return db.executeQueryWithResults(response, sql, values);
+  return db.selectWithJSON(sql, values);
 }
 
-function editRating(changedFields, rating_id, response) {
-  return db.updateObjectWithChangedFields(response, changedFields, "episode_rating", rating_id);
+function editRating(changedFields, rating_id) {
+  return db.updateObjectWithChangedFieldsNoJSON(changedFields, "episode_rating", rating_id);
 }
 
 
