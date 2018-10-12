@@ -112,7 +112,7 @@ angular.module('mediaMogulApp')
     };
 
     self.orderByRating = function(series) {
-      return (angular.isDefined(series.FullRating) ? -1: 0);
+      return (angular.isDefined(series.dynamicRating) ? -1: 0);
     };
 
     function hasUnwatchedEpisodes(series) {
@@ -178,7 +178,7 @@ angular.module('mediaMogulApp')
           updateFullRating(seri);
         });
         self.series = _.sortBy(self.series, function(show) {
-          return 0 - show.FullRating;
+          return 0 - show.dynamicRating;
         });
       });
     };
