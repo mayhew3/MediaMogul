@@ -113,6 +113,7 @@ exports.getMyShows = function(request, response) {
 
             calculateUnwatchedDenorms(series, allEpisodes);
             calculateWatchedDenorms(series, allEpisodes);
+            calculateRating(series, allEpisodes);
           }
         }
 
@@ -161,6 +162,57 @@ function calculateWatchedDenorms(series, allEpisodes) {
 
 }
 
+function calculateRating(series, allEpisodes) {
+  var ratingElements = [];
+
+  var previousEpisodeWeights = [10, 10, 10, 9, 8, 6, 4, 2, 1, 1];
+
+  addElement(ratingElements, 10, series.my_rating);
+
+  let watchedEpisodes = _.where(allEpisodes, {watched: true});
+  let lastEpisodes = _.last(watchedEpisodes, previousEpisodeWeights.length);
+  lastEpisodes.reverse();
+
+  for (var i = 0; i < previousEpisodeWeights.length; i++) {
+    var episodeWeight = previousEpisodeWeights[i];
+
+    if (!_.isUndefined(lastEpisodes[i])) {
+      var previousEpisode = lastEpisodes[i];
+      addElement(ratingElements, episodeWeight, previousEpisode.rating_value);
+    }
+  }
+
+  if (_.isEmpty(ratingElements)) {
+    addElement(ratingElements, 10, series.metacritic);
+  }
+
+  series.dynamicRating = combineRatingElements(ratingElements);
+}
+
+function addElement(ratingElements, weight, value) {
+  if (!_.isNaN(value) && _.isNumber(value)) {
+    ratingElements.push({
+      weight: weight,
+      value: value
+    });
+  }
+}
+
+function combineRatingElements(ratingElements) {
+  if (ratingElements.length === 0) {
+    return 0;
+  }
+
+  var runningWeight = 0;
+  var runningValue = 0;
+  _.each(ratingElements, function(element) {
+    runningWeight += element.weight;
+    runningValue += (element.value * element.weight);
+  });
+
+  return runningValue / runningWeight;
+}
+
 function markEpisodesWatched(allEpisodes, ratings) {
   _.each(ratings, function(rating) {
     let episodeMatch = _.find(allEpisodes, function (episode) {
@@ -170,6 +222,7 @@ function markEpisodesWatched(allEpisodes, ratings) {
     if (episodeMatch !== null && episodeMatch !== undefined) {
       episodeMatch.watched = true;
       episodeMatch.watched_date = rating.watched_date;
+      episodeMatch.rating_value = parseInt(rating.rating_value);
     }
   });
 }
