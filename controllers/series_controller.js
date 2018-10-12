@@ -192,7 +192,7 @@ exports.getPrimeTV = function(req, response) {
 
   var sql = 'SELECT s.id, ' +
     's.title, ' +
-    'ps.rating as my_rating, ' +
+    'CASE WHEN ps.rating IS NULL THEN s.metacritic ELSE ps.rating END as my_rating, ' +
     's.metacritic, ' +
     's.poster, ' +
     'ps.unwatched_episodes as unwatched, ' +
