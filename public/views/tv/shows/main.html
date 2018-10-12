@@ -8,7 +8,7 @@
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.showInQueue |
-                orderBy:['-dynamicRating']">
+                orderBy:['-dynamic_rating']">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
                ng-style="ctrl.posterStyle(show)"
@@ -65,7 +65,7 @@
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.continuePinned |
-                orderBy:['-dynamicRating'] |
+                orderBy:['-dynamic_rating'] |
                 limitTo:4">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
@@ -95,7 +95,7 @@
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.newSeasonPinned |
-                orderBy:['-dynamicRating'] |
+                orderBy:['-dynamic_rating'] |
                 limitTo:4">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
@@ -125,7 +125,7 @@
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
                 filter:ctrl.toStartPinned |
-                orderBy:['-dynamicRating'] |
+                orderBy:['-dynamic_rating'] |
                 limitTo:4">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"

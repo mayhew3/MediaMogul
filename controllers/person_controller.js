@@ -44,6 +44,13 @@ exports.getMyShows = function(request, response) {
     "s.streaming_episodes, " +
     "s.matched_episodes, " +
     "s.unmatched_episodes, " +
+    "(SELECT COUNT(1) " +
+    "    from episode e " +
+    "    where e.series_id = s.id " +
+    "    and e.retired = $7" +
+    "    and e.season <> $8 " +
+    "    and e.air_date IS NOT NULL" +
+    "    and e.air_date < NOW()) as aired_episodes, " +
     "s.tvdb_series_id, " +
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +
@@ -57,7 +64,15 @@ exports.getMyShows = function(request, response) {
     "ps.last_unwatched, " +
     "ps.first_unwatched, " +
     "ps.tier AS my_tier, " +
-    "ps.date_added " +
+    "ps.date_added, " +
+    "COALESCE(ps.rating, metacritic) AS dynamic_rating, " +
+    "(SELECT MAX(er.watched_date) " +
+    "  from episode_rating er " +
+    "  inner join episode e " +
+    "   on er.episode_id = e.id " +
+    "  where e.series_id = s.id " +
+    "  and er.retired = $5 " +
+    "  and e.retired = $6) as last_watched " +
     "FROM series s " +
     "INNER JOIN person_series ps " +
     "  ON ps.series_id = s.id " +
@@ -66,54 +81,79 @@ exports.getMyShows = function(request, response) {
     "AND s.tvdb_match_status = $3 " +
     "AND s.retired = $4 ";
   var values = [
-    personId, false, 'Match Completed', 0
+    personId, false, 'Match Completed', 0, 0, 0, 0, 0
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
-    var sql = "SELECT e.id, e.series_id, e.air_time, e.air_date, e.season, e.episode_number, false as watched " +
+    var sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = e.series_id " +
       "WHERE e.retired = $1 " +
       "AND e.season <> $2 " +
-      "AND ps.person_id = $3 " +
+      "AND e.id NOT IN (SELECT er.episode_id " +
+      "                   FROM episode_rating er " +
+      "                   WHERE er.person_id = $3 " +
+      "                   AND er.watched = $4) " +
+      "AND ps.person_id = $5 " +
       "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
     var values = [
       0,
       0,
+      personId,
+      true,
       personId
     ];
 
     db.selectWithJSON(sql, values).then(function(episodeResults) {
 
+      var groupedBySeries = _.groupBy(episodeResults, "series_id");
+      for (var seriesId in groupedBySeries) {
+        if (groupedBySeries.hasOwnProperty(seriesId)) {
+          let unwatchedEpisodes = groupedBySeries[seriesId];
+
+          let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+          debug("Series: " + series.title);
+
+          calculateUnwatchedDenorms(series, unwatchedEpisodes);
+        }
+      }
+
       var sql =
-        "SELECT er.episode_id, er.rating_value, er.watched_date, er.id " +
+        "SELECT e.series_id, er.episode_id, er.rating_value " +
         "FROM episode_rating er " +
+        "INNER JOIN episode e " +
+        "  ON er.episode_id = e.id " +
+        "INNER JOIN series s " +
+        "  ON e.series_id = s.id " +
+        "INNER JOIN person_series ps " +
+        "  ON ps.series_id = s.id " +
         "WHERE er.watched = $1 " +
         "AND er.retired = $2 " +
-        "AND er.person_id = $3";
+        "AND er.person_id = $3 " +
+        "AND er.rating_value IS NOT NULL " +
+        "AND ps.person_id = $4 " +
+        "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
 
       var values = [
         true,
         0,
+        personId,
         personId
       ];
 
       db.selectWithJSON(sql, values).then(function(ratingResults) {
-        markEpisodesWatched(episodeResults, ratingResults);
 
-        var groupedBySeries = _.groupBy(episodeResults, "series_id");
+        var groupedBySeries = _.groupBy(ratingResults, "series_id");
         for (var seriesId in groupedBySeries) {
           if (groupedBySeries.hasOwnProperty(seriesId)) {
-            let allEpisodes = groupedBySeries[seriesId];
+            let seriesRatings = groupedBySeries[seriesId];
 
             let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
             debug("Series: " + series.title);
 
-            calculateUnwatchedDenorms(series, allEpisodes);
-            calculateWatchedDenorms(series, allEpisodes);
-            calculateRating(series, allEpisodes);
+            calculateRating(series, seriesRatings);
           }
         }
 
@@ -129,8 +169,7 @@ exports.getMyShows = function(request, response) {
 
 // denorm helper
 
-function calculateUnwatchedDenorms(series, allEpisodes) {
-  let unwatchedEpisodes = _.where(allEpisodes, {watched: false});
+function calculateUnwatchedDenorms(series, unwatchedEpisodes) {
   let unairedEpisodes = _.filter(unwatchedEpisodes, isUnaired);
   let airedEpisodes = _.filter(unwatchedEpisodes, isAired);
 
@@ -151,34 +190,22 @@ function calculateUnwatchedDenorms(series, allEpisodes) {
 
 }
 
-function calculateWatchedDenorms(series, allEpisodes) {
-  series.aired_episodes = _.filter(allEpisodes, isAired).length;
-
-  let watchedEpisodes = _.where(allEpisodes, {watched: true});
-
-  let lastWatched = watchedEpisodes.length === 0 ? null : _.last(watchedEpisodes);
-  series.last_watched = lastWatched === null ? null : lastWatched.watched_date;
-
-
-}
-
-function calculateRating(series, allEpisodes) {
+function calculateRating(series, ratings) {
   var ratingElements = [];
 
   var previousEpisodeWeights = [10, 10, 10, 9, 8, 6, 4, 2, 1, 1];
 
   addElement(ratingElements, 10, series.my_rating);
 
-  let watchedEpisodes = _.where(allEpisodes, {watched: true});
-  let lastEpisodes = _.last(watchedEpisodes, previousEpisodeWeights.length);
-  lastEpisodes.reverse();
+  let lastEpisodes = _.first(ratings, previousEpisodeWeights.length);
 
   for (var i = 0; i < previousEpisodeWeights.length; i++) {
     var episodeWeight = previousEpisodeWeights[i];
 
     if (!_.isUndefined(lastEpisodes[i])) {
       var previousEpisode = lastEpisodes[i];
-      addElement(ratingElements, episodeWeight, previousEpisode.rating_value);
+      var ratingValue = parseInt(previousEpisode.rating_value);
+      addElement(ratingElements, episodeWeight, ratingValue);
     }
   }
 
@@ -186,7 +213,7 @@ function calculateRating(series, allEpisodes) {
     addElement(ratingElements, 10, series.metacritic);
   }
 
-  series.dynamicRating = combineRatingElements(ratingElements);
+  series.dynamic_rating = combineRatingElements(ratingElements);
 }
 
 function addElement(ratingElements, weight, value) {
@@ -220,8 +247,6 @@ function markEpisodesWatched(allEpisodes, ratings) {
     });
 
     if (episodeMatch !== null && episodeMatch !== undefined) {
-      episodeMatch.watched = true;
-      episodeMatch.watched_date = rating.watched_date;
       episodeMatch.rating_value = parseInt(rating.rating_value);
     }
   });
