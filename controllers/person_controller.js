@@ -1,5 +1,6 @@
 var _ = require('underscore');
 const db = require('./database_util');
+const debug = require('debug');
 
 exports.getPersonInfo = function(request, response) {
   var email = request.query.email;
@@ -34,6 +35,8 @@ exports.getMyShows = function(request, response) {
   var personId = request.query.PersonId;
   console.log("Server call: Person " + personId);
 
+  let startTime = new Date;
+
   var sql = "SELECT s.id, " +
     "s.title, " +
     "ps.tier, " +
@@ -67,34 +70,59 @@ exports.getMyShows = function(request, response) {
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
-    var sql = "SELECT DISTINCT e.series_id " +
+    var sql = "SELECT e.id, e.series_id, e.air_time, e.air_date, e.season, e.episode_number, false as watched " +
       "FROM episode e " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = e.series_id " +
       "WHERE e.retired = $1 " +
       "AND e.season <> $2 " +
-      "AND e.id NOT IN (SELECT er.episode_id " +
-      "                   FROM episode_rating er " +
-      "                   WHERE er.person_id = $3 " +
-      "                   AND er.watched = $4) " +
-      "AND ps.person_id = $5 " +
-      "ORDER BY e.series_id ";
+      "AND ps.person_id = $3 " +
+      "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
     var values = [
       0,
       0,
-      personId,
-      true,
       personId
     ];
 
-    db.selectWithJSON(sql, values).then(function(unwatchedSeriesResults) {
+    db.selectWithJSON(sql, values).then(function(episodeResults) {
 
-      var unwatchedSeriesIds = _.pluck(unwatchedSeriesResults, 'series_id');
+      var sql =
+        "SELECT er.episode_id, er.rating_value, er.watched_date, er.id " +
+        "FROM episode_rating er " +
+        "WHERE er.watched = $1 " +
+        "AND er.retired = $2 " +
+        "AND er.person_id = $3";
 
-      updateAllSeriesWithEpisodeInfo(seriesResults, unwatchedSeriesIds, personId).then(function() {
+      var values = [
+        true,
+        0,
+        personId
+      ];
+
+      db.selectWithJSON(sql, values).then(function(ratingResults) {
+        markEpisodesWatched(episodeResults, ratingResults);
+
+        var groupedBySeries = _.groupBy(episodeResults, "series_id");
+        for (var seriesId in groupedBySeries) {
+          if (groupedBySeries.hasOwnProperty(seriesId)) {
+            let allEpisodes = groupedBySeries[seriesId];
+
+            let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+            debug("Series: " + series.title);
+
+            calculateUnwatchedDenorms(series, allEpisodes);
+            calculateWatchedDenorms(series, allEpisodes);
+
+            var i = 0;
+          }
+        }
+
+        let timeElapsed = new Date - startTime;
+        console.log("Time elapsed: " + timeElapsed);
         return response.json(seriesResults);
       });
+
     });
   });
 
