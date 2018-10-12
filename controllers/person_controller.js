@@ -113,8 +113,6 @@ exports.getMyShows = function(request, response) {
 
             calculateUnwatchedDenorms(series, allEpisodes);
             calculateWatchedDenorms(series, allEpisodes);
-
-            var i = 0;
           }
         }
 
@@ -129,32 +127,6 @@ exports.getMyShows = function(request, response) {
 };
 
 // denorm helper
-
-function updateAllSeriesWithEpisodeInfo(seriesResults, unwatchedSeriesIds, personId) {
-  var seriesPromises = [];
-
-  unwatchedSeriesIds.forEach(function (seriesId) {
-    let seriesObj = _.findWhere(seriesResults, {id: seriesId});
-    seriesPromises.push(updateWithEpisodeInfo(seriesObj, personId));
-  });
-
-  return Promise.all(seriesPromises);
-}
-
-function updateWithEpisodeInfo(series, personId) {
-  return new Promise(function(resolve) {
-    getAllEpisodes(series).then(function (allEpisodeResult) {
-      getWatchedEpisodes(series, personId).then(function (ratingResult) {
-        markEpisodesWatched(allEpisodeResult, ratingResult);
-
-        calculateUnwatchedDenorms(series, allEpisodeResult);
-        calculateWatchedDenorms(series, allEpisodeResult);
-
-        resolve();
-      });
-    });
-  });
-}
 
 function calculateUnwatchedDenorms(series, allEpisodes) {
   let unwatchedEpisodes = _.where(allEpisodes, {watched: false});
@@ -200,50 +172,6 @@ function markEpisodesWatched(allEpisodes, ratings) {
       episodeMatch.watched_date = rating.watched_date;
     }
   });
-}
-
-function getWatchedEpisodes(series, personId) {
-  var sql =
-    "SELECT er.episode_id, er.watched_date " +
-    "FROM episode e " +
-    "INNER JOIN episode_rating er " +
-    "  ON er.episode_id = e.id " +
-    "WHERE e.series_id = $1 " +
-    "AND e.retired = $2 " +
-    "AND er.person_id = $3 " +
-    "AND er.retired = $4 " +
-    "AND er.watched = $5 " +
-    "AND e.season <> $6 ";
-
-  let values = [
-    series.id,
-    0,
-    personId,
-    0,
-    true,
-    0
-  ];
-
-  console.log("Series: " + series.title);
-  return db.selectWithJSON(sql, values);
-}
-
-function getAllEpisodes(series) {
-  var sql =
-    "SELECT e.id, e.air_time, e.air_date, e.season, e.episode_number, false as watched " +
-    "FROM episode e " +
-    "WHERE e.series_id = $1 " +
-    "AND e.retired = $2 " +
-    "AND e.season <> $3 " +
-    "ORDER BY e.air_time, e.air_date, e.season, e.episode_number ";
-
-  let values = [
-    series.id,
-    0,
-    0
-  ];
-
-  return db.selectWithJSON(sql, values);
 }
 
 // aired helpers
