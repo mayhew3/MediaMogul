@@ -127,6 +127,13 @@ h1 {
   background-color: #1c1e22;
 }
 
+.gameTile {
+  margin: 10px;
+  padding: 16px 7px;
+  background-color: #32383e;
+  border-radius: 6px;
+}
+
 /*
   Don't love this approach, but I couldn't find a way to have btn-success override the background-image tag in nav-pills.
   There aren't any styling class options on nav-pills. So I have to replicate some of the existing btn-success CSS code

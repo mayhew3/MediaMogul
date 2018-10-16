@@ -44,6 +44,8 @@ angular.module('mediaMogulApp')
             game.igdb_id = self.selectedMatch.igdb_game_ext_id;
             game.igdb_poster = self.selectedMatch.poster;
             game.imageUrl = self.selectedMatch.imageUrl;
+            game.first_match_title = self.selectedMatch.igdb_game_title;
+            game.first_match_poster = self.selectedMatch.poster;
             game.imageDoesNotExist = false;
           });
         }

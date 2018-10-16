@@ -152,7 +152,11 @@ function GamesService($log, $http) {
       $log.debug("Possible matches returned " + response.data.length + " items.");
       possibleMatches = response.data;
       possibleMatches.forEach(function(possibleMatch) {
-        possibleMatch.imageUrl = "https://images.igdb.com/igdb/image/upload/t_720p/" + possibleMatch.poster + ".jpg";
+        if (possibleMatch.poster) {
+          possibleMatch.imageUrl = "https://images.igdb.com/igdb/image/upload/t_720p/" + possibleMatch.poster + ".jpg";
+        } else {
+          possibleMatch.imageUrl = 'images/GenericSeries.gif';
+        }
       });
     }, function(errResponse) {
       console.error('Error while fetching possible match list: ' + errResponse);
@@ -168,7 +172,11 @@ function GamesService($log, $http) {
       $log.debug("Shows returned " + showresponse.data.length + " items.");
       var tempGames = showresponse.data;
       tempGames.forEach(function (game) {
-        game.imageUrl = "https://images.igdb.com/igdb/image/upload/t_720p/" + game.first_match_poster + ".jpg";
+        if (game.first_match_poster) {
+          game.imageUrl = "https://images.igdb.com/igdb/image/upload/t_720p/" + game.first_match_poster + ".jpg";
+        } else {
+          game.imageUrl = 'images/GenericSeries.gif';
+        }
       });
       $log.debug("Finished updating.");
       games = tempGames;
