@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('editSeriesController', ['$log', 'GamesService', '$uibModalInstance', 'series', 'episodes', 'LockService', '$q',
-  function($log, GamesService, $uibModalInstance, series, episodes, LockService, $q) {
+  .controller('editSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'episodes', 'LockService', '$q',
+  function($log, EpisodeService, $uibModalInstance, series, episodes, LockService, $q) {
     var self = this;
 
     self.LockService = LockService;
@@ -9,7 +9,7 @@ angular.module('mediaMogulApp')
     self.episodes = episodes;
 
     self.tiers = [1, 2, 3, 4, 5];
-    self.viewingLocations = GamesService.getViewingLocations();
+    self.viewingLocations = EpisodeService.getViewingLocations();
     self.originalViewingLocations = [];
     self.inputViewingLocations = [];
     self.addedViewingLocations = [];
@@ -28,7 +28,7 @@ angular.module('mediaMogulApp')
       $log.debug("ViewingLocations array: " + JSON.stringify(self.inputViewingLocations));
 
       self.isStreaming = function() {
-        return GamesService.isStreaming(self.series);
+        return EpisodeService.isStreaming(self.series);
       };
     }
 
@@ -88,7 +88,7 @@ angular.module('mediaMogulApp')
 
 
     self.changeTier = function() {
-      GamesService.changeTier(self.series.id, self.series.tier);
+      EpisodeService.changeTier(self.series.id, self.series.tier);
     };
 
     self.executeDatabaseUpdates = function(changedFields) {
@@ -98,10 +98,10 @@ angular.module('mediaMogulApp')
       var methods = [];
       methods.push(self.maybeUpdateSeriesInDatabase(changedFields));
       self.addedViewingLocations.forEach(function(location) {
-        methods.push(GamesService.addViewingLocation(self.series, self.episodes, location.viewingLocation));
+        methods.push(EpisodeService.addViewingLocation(self.series, self.episodes, location.viewingLocation));
       });
       self.removedViewingLocations.forEach(function(location) {
-        methods.push(GamesService.removeViewingLocation(self.series, self.episodes, location.viewingLocation));
+        methods.push(EpisodeService.removeViewingLocation(self.series, self.episodes, location.viewingLocation));
       });
       return $q.all(methods);
     };
@@ -109,7 +109,7 @@ angular.module('mediaMogulApp')
     self.maybeUpdateSeriesInDatabase = function(changedFields) {
       if (Object.getOwnPropertyNames(changedFields).length > 0) {
         $log.debug("Changed fields has a length!");
-        return GamesService.updateSeries(self.series.id, changedFields);
+        return EpisodeService.updateSeries(self.series.id, changedFields);
       } else {
         return $q.when();
       }

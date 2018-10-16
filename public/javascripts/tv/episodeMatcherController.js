@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('episodeMatcherController', ['$log', 'GamesService', '$uibModalInstance', 'series', 'LockService',
-  function($log, GamesService, $uibModalInstance, series, LockService) {
+  .controller('episodeMatcherController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'LockService',
+  function($log, EpisodeService, $uibModalInstance, series, LockService) {
     var self = this;
 
     self.LockService = LockService;
@@ -12,14 +12,14 @@ angular.module('mediaMogulApp')
     self.seasonLabels = [];
     self.selectedSeason = null;
 
-    GamesService.updateEpisodeList(self.series).then(function() {
-      self.episodes = GamesService.getEpisodes();
+    EpisodeService.updateEpisodeList(self.series).then(function() {
+      self.episodes = EpisodeService.getEpisodes();
 
 
-      GamesService.updateUnmatchedList(self.series).then(function() {
+      EpisodeService.updateUnmatchedList(self.series).then(function() {
         $log.debug("Updated unmatched list with " + self.unmatchedEpisodes.length + " episodes!");
 
-        self.unmatchedEpisodes = GamesService.getUnmatchedEpisodes();
+        self.unmatchedEpisodes = EpisodeService.getUnmatchedEpisodes();
         self.episodes.forEach(function (episode) {
           var season = episode.season;
           if (season !== null && !(self.seasonLabels.indexOf(season) > -1)) {
@@ -133,7 +133,7 @@ angular.module('mediaMogulApp')
         unmatched_episodes: updatedLength
       };
       self.series.unmatched_episodes = updatedLength;
-      GamesService.updateSeries(self.series.id, changedFields);
+      EpisodeService.updateSeries(self.series.id, changedFields);
     }
 
     self.toggleRowBottom = function(episode) {
@@ -142,7 +142,7 @@ angular.module('mediaMogulApp')
 
     self.retireUnmatchedEpisode = function(episode) {
       episode.retired = true;
-      GamesService.retireUnmatchedEpisode(episode.id).then(function() {
+      EpisodeService.retireUnmatchedEpisode(episode.id).then(function() {
         removeUnmatched(episode);
         updateUnmatchedDenorm();
       });
@@ -150,7 +150,7 @@ angular.module('mediaMogulApp')
 
     self.ignoreUnmatchedEpisode = function(episode) {
       episode.ignore_matching = true;
-      GamesService.ignoreUnmatchedEpisode(episode.id).then(function() {
+      EpisodeService.ignoreUnmatchedEpisode(episode.id).then(function() {
         removeUnmatched(episode);
         updateUnmatchedDenorm();
       });
@@ -164,7 +164,7 @@ angular.module('mediaMogulApp')
         description: episode.tivo_description,
         showing_start_time: episode.showing_start_time
       };
-      GamesService.unlinkEpisode(episode.id).then(function() {
+      EpisodeService.unlinkEpisode(episode.id).then(function() {
         episode.on_tivo = false;
         episode.tivo_episode_id = null;
         episode.tivo_episode_number = null;
@@ -177,7 +177,7 @@ angular.module('mediaMogulApp')
         $log.debug(episode);
         self.unmatchedEpisodes.push(createdUnmatched);
         updateUnmatchedDenorm();
-        GamesService.updateDenorms(self.series, self.episodes);
+        EpisodeService.updateDenorms(self.series, self.episodes);
       });
     };
 
@@ -213,7 +213,7 @@ angular.module('mediaMogulApp')
         var tivoEpisode = tivoEps[0];
         var tivoID = tivoIDs[0];
 
-        GamesService.matchTiVoEpisodes(tivoID, tvdbIDs).then(function() {
+        EpisodeService.matchTiVoEpisodes(tivoID, tvdbIDs).then(function() {
           tivoEps.forEach(function (episode) {
             removeUnmatched(episode);
           });
@@ -228,7 +228,7 @@ angular.module('mediaMogulApp')
             tvdbEpisode.tivo_suggestion = tivoEpisode.suggestion;
             tvdbEpisode.ChosenBottom = false;
           });
-          GamesService.updateDenorms(self.series, self.episodes).then(function() {
+          EpisodeService.updateDenorms(self.series, self.episodes).then(function() {
             updateUnmatchedDenorm();
           });
         }, function (errResponse) {

@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('mySeriesDetailController', ['$log', 'GamesService', '$uibModalInstance', 'series', 'owned', '$uibModal', '$filter', 'LockService',
-  function($log, GamesService, $uibModalInstance, series, owned, $uibModal, $filter, LockService) {
+  .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned', '$uibModal', '$filter', 'LockService',
+  function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService) {
     var self = this;
 
     self.LockService = LockService;
@@ -17,7 +17,7 @@ angular.module('mediaMogulApp')
 
     self.removed = false;
 
-    self.viewingLocations = GamesService.getViewingLocations();
+    self.viewingLocations = EpisodeService.getViewingLocations();
 
     self.lastUpdate = self.series.last_tvdb_update === null ?
       self.series.last_tvdb_error :
@@ -35,8 +35,8 @@ angular.module('mediaMogulApp')
     };
 
 
-    GamesService.updateMyEpisodeList(self.series).then(function() {
-      self.episodes = GamesService.getEpisodes();
+    EpisodeService.updateMyEpisodeList(self.series).then(function() {
+      self.episodes = EpisodeService.getEpisodes();
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     }).then(function() {
       updateSeasonLabels();
@@ -72,7 +72,7 @@ angular.module('mediaMogulApp')
     };
 
     self.changeTier = function() {
-      GamesService.changeMyTier(self.series.id, self.series.my_tier);
+      EpisodeService.changeMyTier(self.series.id, self.series.my_tier);
     };
 
     function updateSeasonLabels() {
@@ -126,7 +126,7 @@ angular.module('mediaMogulApp')
     }
 
     self.rateMyShow = function() {
-      return GamesService.rateMyShow(self.series, self.interfaceFields.my_rating).then(function (response) {
+      return EpisodeService.rateMyShow(self.series, self.interfaceFields.my_rating).then(function (response) {
         self.originalFields.my_rating = self.interfaceFields.my_rating;
         self.series.my_rating = self.interfaceFields.my_rating;
         self.series.FullRating = self.interfaceFields.my_rating;
@@ -175,7 +175,7 @@ angular.module('mediaMogulApp')
     };
 
     self.queueForManualUpdate = function() {
-      GamesService.updateSeries(self.series.id, {tvdb_manual_queue: true}).then(function() {
+      EpisodeService.updateSeries(self.series.id, {tvdb_manual_queue: true}).then(function() {
         self.series.tvdb_manual_queue = true;
       });
     };
@@ -215,7 +215,7 @@ angular.module('mediaMogulApp')
     };
 
     self.removeFromMyShows = function() {
-      GamesService.removeFromMyShows(self.series).then(function() {
+      EpisodeService.removeFromMyShows(self.series).then(function() {
         $log.debug("Returned from removal.");
         self.removed = true;
       });
@@ -233,7 +233,7 @@ angular.module('mediaMogulApp')
 
       $log.debug("Last Watched: Episode " + lastWatched);
 
-      GamesService.markMyPastWatched(self.series.id, lastWatched).then(function() {
+      EpisodeService.markMyPastWatched(self.series.id, lastWatched).then(function() {
         $log.debug("Finished update, adjusting denorms.");
         self.episodes.forEach(function(episode) {
           $log.debug(lastWatched + ", " + episode.absolute_number);
@@ -241,7 +241,7 @@ angular.module('mediaMogulApp')
             episode.watched = true;
           }
         });
-        GamesService.updateMySeriesDenorms(self.series, self.episodes);
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes);
       });
 
       $log.debug("Series '" + self.series.title + "' " + self.series.id);
@@ -308,8 +308,8 @@ angular.module('mediaMogulApp')
         }
       }).result.finally(function() {
         if (LockService.isAdmin()) {
-          GamesService.updateMySeriesDenorms(self.series, self.episodes);
-          GamesService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
+          EpisodeService.updateMySeriesDenorms(self.series, self.episodes);
+          EpisodeService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
         }
         updateNextUp();
       });

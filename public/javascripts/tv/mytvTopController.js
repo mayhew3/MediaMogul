@@ -1,22 +1,22 @@
 angular.module('mediaMogulApp')
-  .controller('mytvTopController', ['LockService', 'GamesService',
-    function(LockService, GamesService) {
+  .controller('mytvTopController', ['LockService', 'EpisodeService',
+    function(LockService, EpisodeService) {
       var self = this;
 
       self.LockService = LockService;
       self.year = 2017;
 
       if (LockService.isAdmin()) {
-        GamesService.updateNumberOfShowsToRate(self.year);
-        GamesService.updateNumberOfPendingMatches();
+        EpisodeService.updateNumberOfShowsToRate(self.year);
+        EpisodeService.updateNumberOfPendingMatches();
       }
 
       this.getNumberOfShowsToRate = function() {
-        return GamesService.getNumberOfShowsToRate();
+        return EpisodeService.getNumberOfShowsToRate();
       };
 
       this.getNumberOfPendingMatches = function() {
-        return GamesService.getNumberOfPendingMatches();
+        return EpisodeService.getNumberOfPendingMatches();
       };
 
     }

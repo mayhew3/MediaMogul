@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('changePosterController', ['$log', 'GamesService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'LockService',
-    function($log, GamesService, $uibModalInstance, series, $uibModal, $filter, LockService) {
+  .controller('changePosterController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'LockService',
+    function($log, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService) {
       var self = this;
 
       self.LockService = LockService;
@@ -10,8 +10,8 @@ angular.module('mediaMogulApp')
 
       self.selectedPoster = null;
 
-      GamesService.updateAllPosters(self.series).then(function() {
-        self.allPosters = GamesService.getAllPosters();
+      EpisodeService.updateAllPosters(self.series).then(function() {
+        self.allPosters = EpisodeService.getAllPosters();
         $log.debug("Updated " + self.allPosters.length + " posters.");
 
         self.allPosters.forEach(function (poster) {
@@ -40,7 +40,7 @@ angular.module('mediaMogulApp')
           var changedFields = {
             poster: self.selectedPoster.poster_path
           };
-          GamesService.updateSeries(series.id, changedFields).then(function() {
+          EpisodeService.updateSeries(series.id, changedFields).then(function() {
             series.poster = self.selectedPoster.poster_path;
             series.imageDoesNotExist = !series.poster;
             series.posterResolved = self.selectedPoster.posterResolved;

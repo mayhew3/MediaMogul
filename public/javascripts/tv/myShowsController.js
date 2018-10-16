@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'GamesService', 'LockService',
-  function($log, $uibModal, $interval, GamesService, LockService) {
+  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService',
+  function($log, $uibModal, $interval, EpisodeService, LockService) {
     var self = this;
 
     self.LockService = LockService;
@@ -171,8 +171,8 @@ angular.module('mediaMogulApp')
     }
 
     self.refreshSeriesList = function() {
-      GamesService.updateMyShowsList().then(function () {
-        self.series = GamesService.getMyShows();
+      EpisodeService.updateMyShowsList().then(function () {
+        self.series = EpisodeService.getMyShows();
         $log.debug("Controller has " + self.series.length + " shows.");
         self.series.forEach(function (seri) {
           updateFullRating(seri);
@@ -191,7 +191,7 @@ angular.module('mediaMogulApp')
     };
 
     self.changeTier = function(series) {
-      GamesService.changeTier(series.id, series.tier);
+      EpisodeService.changeTier(series.id, series.tier);
     };
 
     self.posterStyle = function(series) {
