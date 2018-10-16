@@ -22,9 +22,10 @@ exports.getGamesWithPossibleMatchInfo = function(request, response) {
     '  ON (pgm.game_id = g.id AND pgm.igdb_game_ext_id = g.igdb_id) ' +
     'WHERE g.igdb_failed IS NOT NULL ' +
     'AND g.igdb_ignored IS NULL ' +
+    'AND g.owned IN ($1, $2) ' +
     'ORDER BY g.title';
 
-  return db.executeQueryWithResults(response, sql);
+  return db.executeQueryWithResults(response, sql, ['owned', 'borrowed']);
 };
 
 exports.updateGame = function(request, response) {
