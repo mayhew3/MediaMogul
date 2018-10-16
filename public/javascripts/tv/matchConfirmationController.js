@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('matchConfirmationController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'LockService',
-    function($log, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService) {
+  .controller('matchConfirmationController', ['$log', 'GamesService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'LockService',
+    function($log, GamesService, $uibModalInstance, series, $uibModal, $filter, LockService) {
       var self = this;
 
       self.LockService = LockService;
@@ -10,8 +10,8 @@ angular.module('mediaMogulApp')
 
       self.selectedMatch = null;
 
-      EpisodeService.updatePossibleMatches(self.series).then(function() {
-        self.possibleMatches = EpisodeService.getPossibleMatches();
+      GamesService.updatePossibleMatches(self.series).then(function() {
+        self.possibleMatches = GamesService.getPossibleMatches();
         $log.debug("Updated " + self.possibleMatches.length + " possible matches.");
 
         self.possibleMatches.forEach(function (match) {
@@ -40,7 +40,7 @@ angular.module('mediaMogulApp')
           var changedFields = {
             tvdb_match_id: self.selectedMatch.tvdb_series_ext_id
           };
-          EpisodeService.updateSeries(series.id, changedFields).then(function() {
+          GamesService.updateSeries(series.id, changedFields).then(function() {
             series.tvdb_match_id = self.selectedMatch.tvdb_series_ext_id;
             series.tvdb_series_title = self.selectedMatch.tvdb_series_title;
             series.poster = self.selectedMatch.poster;

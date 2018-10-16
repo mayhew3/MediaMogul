@@ -1,14 +1,14 @@
 angular.module('mediaMogulApp')
-  .controller('tvdbErrorsController', ['$log', '$uibModal', 'EpisodeService', 'LockService',
-    function($log, $uibModal, EpisodeService, LockService) {
+  .controller('tvdbErrorsController', ['$log', '$uibModal', 'GamesService', 'LockService',
+    function($log, $uibModal, GamesService, LockService) {
       var self = this;
 
       self.LockService = LockService;
 
       self.tvdbErrors = [];
 
-      EpisodeService.updateTVDBErrors().then(function() {
-        self.tvdbErrors = EpisodeService.getTVDBErrors();
+      GamesService.updateTVDBErrors().then(function() {
+        self.tvdbErrors = GamesService.getTVDBErrors();
       });
 
     }

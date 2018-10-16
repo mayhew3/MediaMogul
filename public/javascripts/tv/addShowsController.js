@@ -6,8 +6,8 @@ angular.module('mediaMogulApp')
       });
     }
   })
-  .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService',
-    function($log, $uibModal, $interval, EpisodeService, LockService) {
+  .controller('addShowsController', ['$log', '$uibModal', '$interval', 'GamesService', 'LockService',
+    function($log, $uibModal, $interval, GamesService, LockService) {
       var self = this;
 
       self.LockService = LockService;
@@ -154,12 +154,12 @@ angular.module('mediaMogulApp')
       }
 
       self.addToMyShows = function(show) {
-        EpisodeService.addToMyShows(show);
+        GamesService.addToMyShows(show);
       };
 
       self.refreshSeriesList = function() {
-        EpisodeService.updateNotMyShowsList().then(function () {
-          self.series = EpisodeService.getNotMyShows();
+        GamesService.updateNotMyShowsList().then(function () {
+          self.series = GamesService.getNotMyShows();
           $log.debug("Controller has " + self.series.length + " shows.");
           self.series.forEach(function (seri) {
             updateFullRating(seri);

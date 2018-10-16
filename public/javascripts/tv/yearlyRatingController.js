@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('yearlyRatingController', ['$log', '$uibModal', 'EpisodeService', 'LockService',
-  function($log, $uibModal, EpisodeService, LockService) {
+  .controller('yearlyRatingController', ['$log', '$uibModal', 'GamesService', 'LockService',
+  function($log, $uibModal, GamesService, LockService) {
     var self = this;
 
     self.LockService = LockService;
@@ -23,18 +23,18 @@ angular.module('mediaMogulApp')
     self.possibleYears = [];
 
     function updateGroupRatings(year) {
-      EpisodeService.updateEpisodeGroupRatings(year).then(function () {
-        self.episodeGroups = EpisodeService.getEpisodeGroupRatings();
+      GamesService.updateEpisodeGroupRatings(year).then(function () {
+        self.episodeGroups = GamesService.getEpisodeGroupRatings();
         $log.debug("Controller has " + self.episodeGroups.length + " shows.");
       });
     }
 
     self.initializeEpisodeGroupList = function() {
-      EpisodeService.updateSystemVars().then(function () {
-        EpisodeService.updateRatingYears().then(function () {
-          self.year = EpisodeService.getRatingYear();
+      GamesService.updateSystemVars().then(function () {
+        GamesService.updateRatingYears().then(function () {
+          self.year = GamesService.getRatingYear();
           self.viewedYear = self.year;
-          self.possibleYears = EpisodeService.getAllRatingYears();
+          self.possibleYears = GamesService.getAllRatingYears();
           if (!_.contains(self.possibleYears, self.year)) {
             self.possibleYears.unshift(self.year);
           }
@@ -46,16 +46,16 @@ angular.module('mediaMogulApp')
     self.initializeEpisodeGroupList();
 
     self.increaseYear = function() {
-      self.endDateToRevert = EpisodeService.getRatingEndDate();
+      self.endDateToRevert = GamesService.getRatingEndDate();
       self.initialYear = self.year;
-      EpisodeService.increaseYear().then(function () {
+      GamesService.increaseYear().then(function () {
         self.year++;
         self.initializeEpisodeGroupList();
       });
     };
 
     self.revertYear = function() {
-      EpisodeService.revertYear(self.endDateToRevert).then(function() {
+      GamesService.revertYear(self.endDateToRevert).then(function() {
         self.endDateToRevert = null;
         self.year--;
         self.initializeEpisodeGroupList();
@@ -67,15 +67,15 @@ angular.module('mediaMogulApp')
     };
 
     self.lockRatings = function() {
-      EpisodeService.lockRatings();
+      GamesService.lockRatings();
     };
 
     self.unlockRatings = function() {
-      EpisodeService.unlockRatings();
+      GamesService.unlockRatings();
     };
 
     self.isRatingLocked = function() {
-      return EpisodeService.getRatingEndDate() !== null;
+      return GamesService.getRatingEndDate() !== null;
     };
 
     self.readyToChangeYear = function() {

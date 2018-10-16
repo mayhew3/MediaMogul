@@ -16,18 +16,10 @@ exports.getGames = function (request, response) {
 };
 
 exports.getGamesWithPossibleMatchInfo = function(request, response) {
-  var sql = 'SELECT g.*, ' +
-                        '(SELECT pgm.igdb_game_title ' +
-                        ' FROM possible_game_match pgm ' +
-                        ' WHERE pgm.game_id = g.id' +
-                        ' ORDER BY pgm.id ' +
-                        ' LIMIT 1) as first_match_title, ' +
-                        '(SELECT pgm.poster ' +
-                        ' FROM possible_game_match pgm ' +
-                        ' WHERE pgm.game_id = g.id' +
-                        ' ORDER BY pgm.id ' +
-                        ' LIMIT 1) as first_match_poster ' +
+  var sql = 'SELECT g.*, pgm.igdb_game_title as first_match_title, pgm.poster as first_match_poster ' +
     'FROM game g ' +
+    'LEFT OUTER JOIN possible_game_match pgm ' +
+    '  ON (pgm.game_id = g.id AND pgm.igdb_game_ext_id = g.igdb_id) ' +
     'WHERE g.igdb_failed IS NOT NULL ' +
     'AND g.igdb_ignored IS NULL ' +
     'ORDER BY g.title';
@@ -82,8 +74,8 @@ exports.getPossibleGameMatches = function(req, response) {
 
   var sql = 'SELECT pgm.* ' +
     'FROM possible_game_match pgm ' +
-    'WHERE pgm.series_id = $1 ' +
-    'AND psm.retired = $2 ';
+    'WHERE pgm.game_id = $1 ' +
+    'AND pgm.retired = $2 ';
 
   return db.executeQueryWithResults(response, sql, [req.query.GameId, 0]);
 };

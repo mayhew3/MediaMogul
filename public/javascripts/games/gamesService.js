@@ -151,9 +151,16 @@ function GamesService($log, $http) {
     return $http.get('/api/possibleGameMatches', {params: {GameId: game.id}}).then(function(response) {
       $log.debug("Possible matches returned " + response.data.length + " items.");
       possibleMatches = response.data;
+      possibleMatches.forEach(function(possibleMatch) {
+        possibleMatch.imageUrl = "https://images.igdb.com/igdb/image/upload/t_720p/" + possibleMatch.poster + ".jpg";
+      });
     }, function(errResponse) {
       console.error('Error while fetching possible match list: ' + errResponse);
     });
+  };
+
+  this.getPossibleMatches = function() {
+    return possibleMatches;
   };
 
   this.updateGamesMatchList = function() {

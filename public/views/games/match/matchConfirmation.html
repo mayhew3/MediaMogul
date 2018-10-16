@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h1 ng-bind="ctrl.series.title"></h1>
+  <h1 ng-bind="ctrl.game.title"></h1>
 </div>
 
 <div class="modal-body clearfix">
@@ -7,10 +7,10 @@
   <div class="fade-repeat col-lg-3 posterRow" ng-repeat="match in ctrl.possibleMatches">
     <img class="img-rounded"
          ng-style="ctrl.posterStyle(match)"
-         ng-src="{{match.posterResolved}}"
+         ng-src="{{match.imageUrl}}"
          ng-click="ctrl.selectMatch(match)"
          width="100%"/>
-    <h4 ng-bind="match.tvdb_series_title"></h4>
+    <h4 ng-bind="match.igdb_game_title"></h4>
   </div>
 
 </div>

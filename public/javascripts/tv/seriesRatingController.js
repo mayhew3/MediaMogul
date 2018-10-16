@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('seriesRatingController', ['$log', 'EpisodeService', '$uibModalInstance', 'episodeGroup', '$uibModal', '$filter', 'LockService',
-  function($log, EpisodeService, $uibModalInstance, episodeGroup, $uibModal, $filter, LockService) {
+  .controller('seriesRatingController', ['$log', 'GamesService', '$uibModalInstance', 'episodeGroup', '$uibModal', '$filter', 'LockService',
+  function($log, GamesService, $uibModalInstance, episodeGroup, $uibModal, $filter, LockService) {
     var self = this;
 
     self.LockService = LockService;
@@ -20,14 +20,14 @@ angular.module('mediaMogulApp')
     self.seasonLabels = [];
     self.selectedSeason = null;
 
-    self.viewingLocations = EpisodeService.getViewingLocations();
+    self.viewingLocations = GamesService.getViewingLocations();
 
     self.inputViewingLocations = [];
 
     self.showDetail = false;
 
-    EpisodeService.updateEpisodeListForRating(self.episodeGroup).then(function() {
-      self.episodes = EpisodeService.getEpisodes();
+    GamesService.updateEpisodeListForRating(self.episodeGroup).then(function() {
+      self.episodes = GamesService.getEpisodes();
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     });
 
@@ -168,9 +168,9 @@ angular.module('mediaMogulApp')
 
     self.updateRating = function() {
       if (episodeGroup.rating === null && self.interfaceFields.rating !== null) {
-        EpisodeService.decrementNumberOfShowsToRate();
+        GamesService.decrementNumberOfShowsToRate();
       } else if (episodeGroup.rating !== null && (self.interfaceFields.rating === null || self.interfaceFields.rating === '')) {
-        EpisodeService.incrementNumberOfShowsToRate();
+        GamesService.incrementNumberOfShowsToRate();
       }
 
       if (episodeGroup.review !== self.interfaceFields.review) {
@@ -183,7 +183,7 @@ angular.module('mediaMogulApp')
 
       var changedFields = self.getChangedFields();
       if (Object.keys(changedFields).length > 0) {
-        return EpisodeService.updateEpisodeGroupRating(self.episodeGroup.id, changedFields);
+        return GamesService.updateEpisodeGroupRating(self.episodeGroup.id, changedFields);
       }
       return new Promise(function(resolve) {
         resolve();

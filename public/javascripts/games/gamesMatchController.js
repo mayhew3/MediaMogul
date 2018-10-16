@@ -34,11 +34,13 @@ angular.module('mediaMogulApp')
       };
 
       self.matchFirstPassFilter = function(game) {
-        return game.igdb_success === null && game.igdb_failed === null && game.igdb_ignored === null;
+        return (game.igdb_success === null && game.igdb_failed === null && game.igdb_ignored === null) ||
+          game.previous_status === 'Match First Pass';
       };
 
       self.needsConfirmationFilter = function(game) {
-        return game.igdb_failed !== null && game.igdb_ignored === null;
+        return (game.igdb_failed !== null && game.igdb_ignored === null) ||
+          game.previous_status === 'Needs Confirmation';
       };
 
       self.getGameNameClass = function(game) {
@@ -59,13 +61,14 @@ angular.module('mediaMogulApp')
       };
       self.refreshGamesList();
 
-      self.ignoreGames = function(game) {
+      self.ignoreGames = function(game, previousStatus) {
         var changedFields = {
           igdb_ignored: new Date
         };
         GamesService.updateGame(game.id, changedFields).then(function () {
           game.temp_ignored = true;
           game.igdb_ignored = new Date;
+          game.previous_status = previousStatus;
         });
       };
 
@@ -76,6 +79,7 @@ angular.module('mediaMogulApp')
         GamesService.updateGame(game.id, changedFields).then(function () {
           game.temp_ignored = false;
           game.igdb_ignored = null;
+          game.previous_status = null;
         });
       };
 
@@ -88,6 +92,7 @@ angular.module('mediaMogulApp')
           game.temp_confirmed = true;
           game.igdb_success = new Date;
           game.igdb_failed = null;
+          game.previous_status = 'Needs Confirmation';
         });
       };
 
@@ -100,13 +105,14 @@ angular.module('mediaMogulApp')
           game.temp_confirmed = false;
           game.igdb_success = null;
           game.igdb_failed = new Date;
+          game.previous_status = null;
         });
       };
 
       self.open = function(game) {
         $uibModal.open({
-          templateUrl: 'views/tv/match/matchConfirmation.html',
-          controller: 'matchConfirmationController as ctrl',
+          templateUrl: 'views/games/match/matchConfirmation.html',
+          controller: 'gamesMatchConfirmationController as ctrl',
           size: 'lg',
           resolve: {
             game: function() {

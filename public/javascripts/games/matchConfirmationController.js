@@ -1,21 +1,21 @@
 angular.module('mediaMogulApp')
-  .controller('matchConfirmationController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'LockService',
-    function($log, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService) {
+  .controller('gamesMatchConfirmationController', ['$log', 'GamesService', '$uibModalInstance', 'game', '$uibModal', '$filter', 'LockService',
+    function($log, GamesService, $uibModalInstance, game, $uibModal, $filter, LockService) {
       var self = this;
 
       self.LockService = LockService;
 
-      self.series = series;
+      self.game = game;
       self.possibleMatches = [];
 
       self.selectedMatch = null;
 
-      EpisodeService.updatePossibleMatches(self.series).then(function() {
-        self.possibleMatches = EpisodeService.getPossibleMatches();
+      GamesService.updatePossibleMatches(self.game).then(function() {
+        self.possibleMatches = GamesService.getPossibleMatches();
         $log.debug("Updated " + self.possibleMatches.length + " possible matches.");
 
         self.possibleMatches.forEach(function (match) {
-          if (series.tvdb_match_id === match.tvdb_series_ext_id) {
+          if (game.igdb_id === match.igdb_game_ext_id) {
             self.selectedMatch = match;
           }
         });
@@ -36,16 +36,15 @@ angular.module('mediaMogulApp')
 
 
       self.ok = function() {
-        if (self.selectedMatch.tvdb_series_ext_id !== series.tvdb_match_id) {
+        if (self.selectedMatch.igdb_game_ext_id !== game.igdb_id) {
           var changedFields = {
-            tvdb_match_id: self.selectedMatch.tvdb_series_ext_id
+            igdb_id: self.selectedMatch.igdb_game_ext_id
           };
-          EpisodeService.updateSeries(series.id, changedFields).then(function() {
-            series.tvdb_match_id = self.selectedMatch.tvdb_series_ext_id;
-            series.tvdb_series_title = self.selectedMatch.tvdb_series_title;
-            series.poster = self.selectedMatch.poster;
-            series.posterResolved = self.selectedMatch.posterResolved;
-            series.imageDoesNotExist = false;
+          GamesService.updateGame(game.id, changedFields).then(function() {
+            game.igdb_id = self.selectedMatch.igdb_game_ext_id;
+            game.igdb_poster = self.selectedMatch.poster;
+            game.imageUrl = self.selectedMatch.imageUrl;
+            game.imageDoesNotExist = false;
           });
         }
         $uibModalInstance.close();

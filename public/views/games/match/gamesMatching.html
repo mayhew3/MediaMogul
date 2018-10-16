@@ -16,7 +16,7 @@
                  class="btn btn-sm btn-danger"
                  ng-show="!game.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-disabled="game.temp_confirmed"
-                 ng-click="ctrl.ignoreGames(game)"
+                 ng-click="ctrl.ignoreGames(game, 'Match First Pass')"
                  value="Ignore">
           <input type="button"
                  class="btn btn-sm btn-warning"
@@ -67,7 +67,7 @@
                  class="btn btn-sm btn-danger"
                  ng-show="!game.temp_ignored && ctrl.LockService.isAdmin()"
                  ng-disabled="game.temp_confirmed"
-                 ng-click="ctrl.ignoreGames(game)"
+                 ng-click="ctrl.ignoreGames(game, 'Needs Confirmation')"
                  value="Ignore">
           <input type="button"
                  class="btn btn-sm btn-warning"

@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('matchController', ['$log', '$uibModal', 'EpisodeService', 'LockService',
-    function($log, $uibModal, EpisodeService, LockService) {
+  .controller('matchController', ['$log', '$uibModal', 'GamesService', 'LockService',
+    function($log, $uibModal, GamesService, LockService) {
       var self = this;
 
       self.series = [];
@@ -60,8 +60,8 @@ angular.module('mediaMogulApp')
       };
 
       self.refreshSeriesList = function() {
-        EpisodeService.updateSeriesMatchList().then(function () {
-          self.series = EpisodeService.getSeriesList();
+        GamesService.updateSeriesMatchList().then(function () {
+          self.series = GamesService.getSeriesList();
           $log.debug("Controller has " + self.series.length + " shows.");
         });
       };
@@ -72,11 +72,11 @@ angular.module('mediaMogulApp')
           tvdb_ignore_date: new Date,
           tvdb_match_status: 'Ignored'
         };
-        EpisodeService.updateSeries(series.id, changedFields).then(function () {
+        GamesService.updateSeries(series.id, changedFields).then(function () {
           series.temp_ignored = true;
           series.previous_status = series.tvdb_match_status;
           series.tvdb_match_status = 'Ignored';
-          EpisodeService.decrementPendingMatches();
+          GamesService.decrementPendingMatches();
         });
       };
 
@@ -85,11 +85,11 @@ angular.module('mediaMogulApp')
           tvdb_ignore_date: null,
           tvdb_match_status: series.previous_status
         };
-        EpisodeService.updateSeries(series.id, changedFields).then(function () {
+        GamesService.updateSeries(series.id, changedFields).then(function () {
           series.temp_ignored = false;
           series.tvdb_match_status = series.previous_status;
           series.previous_status = null;
-          EpisodeService.incrementPendingMatches();
+          GamesService.incrementPendingMatches();
         });
       };
 
@@ -98,11 +98,11 @@ angular.module('mediaMogulApp')
           tvdb_confirm_date: new Date,
           tvdb_match_status: 'Match Confirmed'
         };
-        EpisodeService.updateSeries(series.id, changedFields).then(function () {
+        GamesService.updateSeries(series.id, changedFields).then(function () {
           series.temp_confirmed = true;
           series.previous_status = series.tvdb_match_status;
           series.tvdb_match_status = 'Match Confirmed';
-          EpisodeService.decrementPendingMatches();
+          GamesService.decrementPendingMatches();
         });
       };
 
@@ -111,11 +111,11 @@ angular.module('mediaMogulApp')
           tvdb_confirm_date: null,
           tvdb_match_status: series.previous_status
         };
-        EpisodeService.updateSeries(series.id, changedFields).then(function () {
+        GamesService.updateSeries(series.id, changedFields).then(function () {
           series.temp_confirmed = false;
           series.tvdb_match_status = series.previous_status;
           series.previous_status = null;
-          EpisodeService.incrementPendingMatches();
+          GamesService.incrementPendingMatches();
         });
       };
 

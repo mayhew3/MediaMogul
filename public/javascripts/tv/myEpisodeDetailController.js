@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('myEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode', 'previousEpisodes', 'series', 'LockService',
-    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService) {
+  .controller('myEpisodeDetailController', ['$log', 'GamesService', '$uibModalInstance', 'episode', 'previousEpisodes', 'series', 'LockService',
+    function($log, GamesService, $uibModalInstance, episode, previousEpisodes, series, LockService) {
       var self = this;
       self.rating_id = episode.rating_id;
       self.LockService = LockService;
@@ -48,11 +48,11 @@ angular.module('mediaMogulApp')
           if (Object.keys(changedFields).length > 0) {
             $log.debug("Episode fields changed: " + _.keys(changedFields));
             if (self.rating_id === null) {
-              EpisodeService.addMyEpisodeRating(self.interfaceRating, series.id).then(function (result) {
+              GamesService.addMyEpisodeRating(self.interfaceRating, series.id).then(function (result) {
                 resolve(result);
               });
             } else {
-              EpisodeService.updateMyEpisodeRating(changedFields, self.rating_id, series.id).then(function (result) {
+              GamesService.updateMyEpisodeRating(changedFields, self.rating_id, series.id).then(function (result) {
                 resolve(result);
               });
             }
@@ -135,11 +135,11 @@ angular.module('mediaMogulApp')
 
         if (dateHasChanged(originalAirDate, self.air_date)) {
           changedFields.air_date = self.air_date;
-          changedFields.air_time = EpisodeService.combineDateAndTime(self.air_date, series.air_time);
+          changedFields.air_time = GamesService.combineDateAndTime(self.air_date, series.air_time);
         }
 
         if (isNotEmpty(changedFields) && LockService.isAdmin()) {
-          return EpisodeService.updateEpisode(self.episode.id, changedFields);
+          return GamesService.updateEpisode(self.episode.id, changedFields);
         }
       }
 
@@ -187,7 +187,7 @@ angular.module('mediaMogulApp')
 
           if (dateHasChanged(originalAirDate, self.air_date)) {
             self.episode.air_date = self.air_date;
-            self.episode.air_time = EpisodeService.combineDateAndTime(self.air_date, series.air_time);
+            self.episode.air_time = GamesService.combineDateAndTime(self.air_date, series.air_time);
           }
         }
       }
