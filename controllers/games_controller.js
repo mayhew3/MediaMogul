@@ -6,12 +6,33 @@ exports.getGames = function (request, response) {
                   'timeplayed, timetotal, finished, finalscore, replay, guess, date_added, ' +
                   'steam_cloud, last_played, natural_end, metacritic_matched, ' +
                   'giantbomb_small_url, giantbomb_thumb_url, giantbomb_medium_url, howlong_extras, ' +
-                  'howlong_id, giantbomb_id, giantbomb_manual_guess ' +
+                  'howlong_id, giantbomb_id, giantbomb_manual_guess,' +
+                  'igdb_poster, igdb_success, igdb_failed ' +
     'FROM game ' +
     'WHERE owned IN ($1, $2) ' +
     'ORDER BY metacritic DESC, playtime DESC, date_added DESC';
 
   return db.executeQueryWithResults(response, sql, ['owned', 'borrowed']);
+};
+
+exports.getGamesWithPossibleMatchInfo = function(request, response) {
+  var sql = 'SELECT g.*, ' +
+                        '(SELECT pgm.igdb_game_title ' +
+                        ' FROM possible_game_match pgm ' +
+                        ' WHERE pgm.game_id = g.id' +
+                        ' ORDER BY pgm.id ' +
+                        ' LIMIT 1) as first_match_title, ' +
+                        '(SELECT pgm.poster ' +
+                        ' FROM possible_game_match pgm ' +
+                        ' WHERE pgm.game_id = g.id' +
+                        ' ORDER BY pgm.id ' +
+                        ' LIMIT 1) as first_match_poster ' +
+    'FROM game g ' +
+    'WHERE g.igdb_failed IS NOT NULL ' +
+    'AND g.igdb_ignored IS NULL ' +
+    'ORDER BY g.title';
+
+  return db.executeQueryWithResults(response, sql);
 };
 
 exports.updateGame = function(request, response) {
@@ -54,5 +75,16 @@ exports.addGameplaySession = function(request, response) {
   console.log("Values: " + values);
 
   db.executeQueryNoResults(response, sql, values);
+};
+
+exports.getPossibleGameMatches = function(req, response) {
+  console.log("Possible matches call received. Params: " + req.query.GameId);
+
+  var sql = 'SELECT pgm.* ' +
+    'FROM possible_game_match pgm ' +
+    'WHERE pgm.series_id = $1 ' +
+    'AND psm.retired = $2 ';
+
+  return db.executeQueryWithResults(response, sql, [req.query.GameId, 0]);
 };
 

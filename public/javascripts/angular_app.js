@@ -83,7 +83,9 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         })
         .state('games', {
           url: '/games',
-          templateUrl: 'views/games/games.html'
+          templateUrl: 'views/games/games.html',
+          controller: 'topGamesController',
+          controllerAs: 'ctrl'
         })
         .state('games.list', {
           url: '/list',
@@ -96,6 +98,16 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           templateUrl: 'views/games/dashboard.html',
           controller: 'gameDashboardController',
           controllerAs: 'ctrl'
+        })
+        .state('games.match', {
+          url: '/match',
+          controller: 'gamesMatchController',
+          controllerAs: 'ctrl',
+          templateUrl: 'views/games/match/match.html'
+        })
+        .state('games.match.gamesmatching', {
+          url: '/gamesMatching',
+          templateUrl: 'views/games/match/gamesMatching.html'
         })
         .state('admin', {
           url: '/admin',

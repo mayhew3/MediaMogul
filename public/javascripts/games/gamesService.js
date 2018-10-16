@@ -1,6 +1,7 @@
 function GamesService($log, $http) {
   var games = [];
   var platforms = [];
+  var possibleMatches = [];
   var self = this;
 
   this.updateGamesList = function() {
@@ -132,12 +133,42 @@ function GamesService($log, $http) {
 
   this.updateImages = function(game) {
     game.imageUrl = null;
+    game.imageDoesNotExist = false;
 
-    if (game.logo !== null && game.logo !== '') {
+    if (game.igdb_poster !== null && game.igdb_poster !== '') {
+      game.imageUrl = "https://images.igdb.com/igdb/image/upload/t_720p/" + game.igdb_poster +  ".jpg";
+    } else if (game.logo !== null && game.logo !== '') {
       game.imageUrl = "http://cdn.edgecast.steamstatic.com/steam/apps/" + game.steamid + "/header.jpg";
     } else if (game.giantbomb_medium_url !== null) {
       game.imageUrl = game.giantbomb_medium_url;
+    } else {
+      game.imageUrl = 'images/GenericSeries.gif';
+      game.imageDoesNotExist = true;
     }
+  };
+
+  this.updatePossibleMatches = function(game) {
+    return $http.get('/api/possibleGameMatches', {params: {GameId: game.id}}).then(function(response) {
+      $log.debug("Possible matches returned " + response.data.length + " items.");
+      possibleMatches = response.data;
+    }, function(errResponse) {
+      console.error('Error while fetching possible match list: ' + errResponse);
+    });
+  };
+
+  this.updateGamesMatchList = function() {
+    return $http.get('/api/gamesMatchList').then(function (showresponse) {
+      $log.debug("Shows returned " + showresponse.data.length + " items.");
+      var tempGames = showresponse.data;
+      tempGames.forEach(function (game) {
+        game.imageUrl = "https://images.igdb.com/igdb/image/upload/t_720p/" + game.first_match_poster + ".jpg";
+      });
+      $log.debug("Finished updating.");
+      games = tempGames;
+
+    }, function (errResponse) {
+      console.error('Error while fetching series list: ' + errResponse);
+    });
   };
 
   this.updatePlaytimes = function(game) {

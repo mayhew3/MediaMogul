@@ -1,0 +1,82 @@
+<div class="panel panel-default">
+
+
+  <!-- Match First Pass -->
+  <div class="panel-heading">
+    <h4>Match First Pass</h4>
+  </div>
+
+  <div class="panel-body">
+    <table class="table table-striped table-hover">
+      <tr data-ng-repeat="game in ctrl.games |
+                filter:ctrl.matchFirstPassFilter">
+        <td ng-bind="game.title" ng-class="ctrl.getGameNameClass(game)"></td>
+        <td width="70px" align="right">
+          <input type="button"
+                 class="btn btn-sm btn-danger"
+                 ng-show="!game.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-disabled="game.temp_confirmed"
+                 ng-click="ctrl.ignoreGames(game)"
+                 value="Ignore">
+          <input type="button"
+                 class="btn btn-sm btn-warning"
+                 ng-show="game.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-click="ctrl.unIgnoreSeries(game)"
+                 value="Un-ignore">
+        </td>
+      </tr>
+    </table>
+  </div>
+
+
+  <!-- Needs Confirmation -->
+  <div class="panel-heading">
+    <h4>Needs Confirmation</h4>
+  </div>
+
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-12 col-md-6 posterRow" ng-repeat="game in ctrl.games |
+                filter:ctrl.needsConfirmationFilter">
+        <div class="col-xs-12 col-md-6">
+          <a ng-click="ctrl.open(game)" href="">
+            <img class="img-rounded"
+                 ng-src="{{game.imageUrl}}"
+                 width="100%"/>
+          </a>
+        </div>
+        <div class="col-xs-12 col-md-6">
+          Input: <span ng-class="ctrl.getGameNameClass(game)" ng-bind="game.title"></span><br/>
+          IGDB: <span ng-class="ctrl.getGameNameClass(game)" ng-bind="game.first_match_title"></span><br/>
+        </div>
+        <div class="col-xs-12 col-md-6" align="center">
+          <br/>
+          <br/>
+          <input type="button"
+                 ng-show="!game.temp_confirmed && ctrl.LockService.isAdmin()"
+                 class="btn btn-sm btn-success"
+                 ng-disabled="game.temp_ignored"
+                 ng-click="ctrl.confirmMatch(game)"
+                 value="Confirm">
+          <input type="button"
+                 ng-show="game.temp_confirmed && ctrl.LockService.isAdmin()"
+                 class="btn btn-sm btn-warning"
+                 ng-click="ctrl.unConfirmMatch(game)"
+                 value="Un-Confirm">
+          <input type="button"
+                 class="btn btn-sm btn-danger"
+                 ng-show="!game.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-disabled="game.temp_confirmed"
+                 ng-click="ctrl.ignoreGames(game)"
+                 value="Ignore">
+          <input type="button"
+                 class="btn btn-sm btn-warning"
+                 ng-show="game.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-click="ctrl.unIgnoreSeries(game)"
+                 value="Un-ignore">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
