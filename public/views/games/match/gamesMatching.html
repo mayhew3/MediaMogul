@@ -47,7 +47,10 @@
             </a>
           </div>
           <div class="col-xs-12 col-md-6">
-            Input: <span ng-class="ctrl.getGameNameClass(game)" ng-bind="game.title"></span><br/>
+            <span ng-class="ctrl.getGameNameClass(game)" ng-bind="game.title"></span>
+            (<span ng-class="ctrl.getGameNameClass(game)" ng-bind="game.platform"></span>)
+            <br/>
+            <br/>
             IGDB: <span ng-class="ctrl.getGameNameClass(game)" ng-bind="game.igdb_title"></span><br/>
           </div>
           <div class="col-xs-12 col-md-6" align="center">

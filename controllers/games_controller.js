@@ -6,7 +6,7 @@ exports.getGames = function (request, response) {
                   'timeplayed, timetotal, finished, finalscore, replay, guess, date_added, ' +
                   'steam_cloud, last_played, natural_end, metacritic_matched, ' +
                   'giantbomb_small_url, giantbomb_thumb_url, giantbomb_medium_url, howlong_extras, ' +
-                  'howlong_id, giantbomb_id, giantbomb_manual_guess,' +
+                  'howlong_id, giantbomb_id, giantbomb_manual_guess, ' +
                   'igdb_poster, igdb_success, igdb_failed ' +
     'FROM game ' +
     'WHERE owned IN ($1, $2) ' +
@@ -16,7 +16,10 @@ exports.getGames = function (request, response) {
 };
 
 exports.getGamesWithPossibleMatchInfo = function(request, response) {
-  var sql = 'SELECT g.*, pgm.igdb_game_title as first_match_title, pgm.poster as first_match_poster ' +
+  var sql = 'SELECT g.id, g.title, g.platform, ' +
+    'g.howlong_title, g.giantbomb_name, ' +
+    'g.igdb_title, g.igdb_success, g.igdb_failed, g.igdb_ignored, ' +
+    'pgm.poster as first_match_poster ' +
     'FROM game g ' +
     'LEFT OUTER JOIN possible_game_match pgm ' +
     '  ON (pgm.game_id = g.id AND pgm.igdb_game_ext_id = g.igdb_id) ' +

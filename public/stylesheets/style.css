@@ -1,20 +1,4 @@
-/*
 
-a {
-  color: #00B7FF;
-}
-
-th {
-  background-color: midnightblue;
-  color: lavender;
-  text-align: left;
-}
-
-td {
-  padding: 2pt;
-  background-color: skyblue;
-}
-*/
 *, h5 {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
@@ -132,6 +116,12 @@ h1 {
   padding: 16px 7px;
   background-color: #32383e;
   border-radius: 6px;
+}
+
+.smallFieldHeader {
+  font-size: 11pt;
+  color: #8a9196;
+  font-variant-caps: small-caps;
 }
 
 /*

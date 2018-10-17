@@ -4,6 +4,15 @@
 
 <div class="modal-body clearfix">
 
+  <div class="col-lg-12">
+    <span class="smallFieldHeader">HowLong</span>
+    <h3 ng-bind="ctrl.game.howlong_title"></h3><br/>
+
+    <span class="smallFieldHeader">GiantBomb</span>
+    <h3 ng-bind="ctrl.game.giantbomb_name"></h3><br/>
+    <br/>
+  </div>
+
   <div class="fade-repeat col-lg-3 posterRow" ng-repeat="match in ctrl.possibleMatches">
     <img class="img-rounded"
          ng-style="ctrl.posterStyle(match)"

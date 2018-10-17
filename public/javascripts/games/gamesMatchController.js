@@ -29,10 +29,6 @@ angular.module('mediaMogulApp')
         self.changeSelectedPill('Games');
       };
 
-      self.statusFilter = function(game, status) {
-        return game.igdb_match_status === status || game.previous_status === status;
-      };
-
       self.matchFirstPassFilter = function(game) {
         return (game.igdb_success === null && game.igdb_failed === null && game.igdb_ignored === null) ||
           game.previous_status === 'Match First Pass';
