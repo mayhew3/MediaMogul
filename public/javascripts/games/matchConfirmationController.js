@@ -38,13 +38,14 @@ angular.module('mediaMogulApp')
       self.ok = function() {
         if (self.selectedMatch.igdb_game_ext_id !== game.igdb_id) {
           var changedFields = {
-            igdb_id: self.selectedMatch.igdb_game_ext_id
+            igdb_id: self.selectedMatch.igdb_game_ext_id,
+            igdb_title: self.selectedMatch.igdb_game_title
           };
           GamesService.updateGame(game.id, changedFields).then(function() {
             game.igdb_id = self.selectedMatch.igdb_game_ext_id;
             game.igdb_poster = self.selectedMatch.poster;
             game.imageUrl = self.selectedMatch.imageUrl;
-            game.first_match_title = self.selectedMatch.igdb_game_title;
+            game.igdb_title = self.selectedMatch.igdb_game_title;
             game.first_match_poster = self.selectedMatch.poster;
             game.imageDoesNotExist = false;
           });
