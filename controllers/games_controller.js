@@ -20,7 +20,7 @@ exports.getGamesWithPossibleMatchInfo = function(request, response) {
     'FROM game g ' +
     'LEFT OUTER JOIN possible_game_match pgm ' +
     '  ON (pgm.game_id = g.id AND pgm.igdb_game_ext_id = g.igdb_id) ' +
-    'WHERE g.igdb_failed IS NOT NULL ' +
+    'WHERE g.igdb_success IS NULL ' +
     'AND g.igdb_ignored IS NULL ' +
     'AND g.owned IN ($1, $2) ' +
     'ORDER BY g.title';
