@@ -151,21 +151,15 @@ angular.module('mediaMogulApp')
     };
 
 
-
-    var gamesList = GamesService.getGamesList();
-    var platformList = GamesService.getPlatformList();
-    if (gamesList.length === 0) {
+    self.refreshGamesList = function() {
       GamesService.updateGamesList().then(function () {
         self.games = GamesService.getGamesList();
         self.platforms = GamesService.getPlatformList();
         self.initPlatformFilters();
         $log.debug("Controller has " + self.games.length + " games.");
       })
-    } else {
-      self.games = gamesList;
-      self.platforms = platformList;
-      self.initPlatformFilters();
-    }
+    };
+    self.refreshGamesList();
 
     function contains(myArray, myValue) {
       return myArray.some(function (g1) {

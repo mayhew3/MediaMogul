@@ -202,17 +202,14 @@ angular.module('mediaMogulApp')
         self.createPlayAgainShowcase();
       };
 
-      var gamesList = GamesService.getGamesList();
-      if (gamesList.length === 0) {
+      self.refreshGamesList = function() {
         GamesService.updateGamesList().then(function () {
-          self.games = GamesService.getGamesList().slice();
-          $log.debug("Controller has " + self.games.length + " games.");
+          self.games = GamesService.getGamesList();
           self.createShowcases();
+          $log.debug("Controller has " + self.games.length + " games.");
         })
-      } else {
-        self.games = gamesList.slice();
-        self.createShowcases();
-      }
+      };
+      self.refreshGamesList();
 
 
       // UI POPUPS
