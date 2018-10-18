@@ -4,12 +4,14 @@
 
 <div class="modal-body clearfix">
 
-  <div class="col-lg-12">
-    <span class="smallFieldHeader">HowLong</span>
-    <h3 ng-bind="ctrl.game.howlong_title"></h3><br/>
-
-    <span class="smallFieldHeader">GiantBomb</span>
-    <h3 ng-bind="ctrl.game.giantbomb_name"></h3><br/>
+  <div class="form-group col-lg-12">
+    <div class="col-lg-6">
+      <label class="control-label" for="igdbHintInput">IGDB Hint</label>
+      <input class="form-control"
+             id="igdbHintInput"
+             name="igdbHintInput"
+             ng-model="ctrl.interfaceFields.igdb_hint"/>
+    </div>
     <br/>
   </div>
 
@@ -20,6 +22,15 @@
          ng-click="ctrl.selectMatch(match)"
          width="100%"/>
     <h4 ng-bind="match.igdb_game_title"></h4>
+  </div>
+
+  <div class="col-lg-12">
+    <span class="smallFieldHeader">HowLong</span>
+    <h3 ng-bind="ctrl.game.howlong_title"></h3><br/>
+
+    <span class="smallFieldHeader">GiantBomb</span>
+    <h3 ng-bind="ctrl.game.giantbomb_name"></h3><br/>
+    <br/>
   </div>
 
 </div>

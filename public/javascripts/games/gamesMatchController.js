@@ -30,13 +30,18 @@ angular.module('mediaMogulApp')
       };
 
       self.matchFirstPassFilter = function(game) {
-        return (game.igdb_success === null && game.igdb_failed === null && game.igdb_ignored === null) ||
+        return (game.igdb_success === null && game.igdb_failed === null && game.igdb_ignored === null && game.igdb_hint === null) ||
           game.previous_status === 'Match First Pass';
       };
 
       self.needsConfirmationFilter = function(game) {
         return (game.igdb_failed !== null && game.igdb_ignored === null) ||
           game.previous_status === 'Needs Confirmation';
+      };
+
+      self.hintPendingFilter = function(game) {
+        return (game.igdb_success === null && game.igdb_failed === null && game.igdb_ignored === null && game.igdb_hint !== null) ||
+          game.previous_status === 'Hint Pending';
       };
 
       self.getGameNameClass = function(game) {

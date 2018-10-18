@@ -17,8 +17,8 @@ exports.getGames = function (request, response) {
 
 exports.getGamesWithPossibleMatchInfo = function(request, response) {
   var sql = 'SELECT g.id, g.title, g.platform, ' +
-    'g.howlong_title, g.giantbomb_name, ' +
-    'g.igdb_title, g.igdb_success, g.igdb_failed, g.igdb_ignored, ' +
+    'g.howlong_title, g.giantbomb_name, g.steam_title, ' +
+    'g.igdb_title, g.igdb_success, g.igdb_failed, g.igdb_ignored, g.igdb_hint, g.igdb_id, ' +
     'pgm.poster as first_match_poster ' +
     'FROM game g ' +
     'LEFT OUTER JOIN possible_game_match pgm ' +

@@ -21,6 +21,14 @@ angular.module('mediaMogulApp')
         });
       });
 
+      self.interfaceFields = {
+        igdb_hint: self.game.igdb_hint
+      };
+
+      self.originalFields = {
+        igdb_hint: self.game.igdb_hint
+      };
+
 
       self.posterStyle = function(match) {
         if (match === self.selectedMatch) {
@@ -36,18 +44,37 @@ angular.module('mediaMogulApp')
 
 
       self.ok = function() {
+        var changedFields = {};
+
+        if (self.originalFields.igdb_hint !== self.interfaceFields.igdb_hint) {
+          changedFields = Object.assign({
+            igdb_hint: self.interfaceFields.igdb_hint,
+            igdb_failed: null
+          }, changedFields);
+        }
+
         if (self.selectedMatch.igdb_game_ext_id !== game.igdb_id) {
-          var changedFields = {
+          changedFields = Object.assign({
             igdb_id: self.selectedMatch.igdb_game_ext_id,
             igdb_title: self.selectedMatch.igdb_game_title
-          };
+          }, changedFields);
+        }
+
+        if (Object.getOwnPropertyNames(changedFields).length > 0) {
           GamesService.updateGame(game.id, changedFields).then(function() {
             game.igdb_id = self.selectedMatch.igdb_game_ext_id;
             game.igdb_poster = self.selectedMatch.poster;
             game.imageUrl = self.selectedMatch.imageUrl;
             game.igdb_title = self.selectedMatch.igdb_game_title;
+            game.igdb_hint = self.interfaceFields.igdb_hint;
             game.first_match_poster = self.selectedMatch.poster;
             game.imageDoesNotExist = false;
+
+            if (self.originalFields.igdb_hint !== self.interfaceFields.igdb_hint) {
+              game.igdb_failed = null;
+            }
+
+            self.originalFields.igdb_hint = self.interfaceFields.igdb_hint;
           });
         }
         $uibModalInstance.close();
