@@ -75,7 +75,7 @@ angular.module('mediaMogulApp')
 
       self.unIgnoreSeries = function(game) {
         var changedFields = {
-          tvdb_ignore_date: null
+          igdb_ignored: null
         };
         GamesService.updateGame(game.id, changedFields).then(function () {
           game.temp_ignored = false;

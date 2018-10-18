@@ -39,6 +39,7 @@
       <tr data-ng-repeat="game in ctrl.games |
                 filter:ctrl.hintPendingFilter">
         <td ng-bind="game.title" ng-class="ctrl.getGameNameClass(game)"></td>
+        <td ng-bind="game.igdb_hint" ng-class="ctrl.getGameNameClass(game)"></td>
         <td width="70px" align="right">
           <input type="button"
                  class="btn btn-sm btn-danger"
