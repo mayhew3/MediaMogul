@@ -42,6 +42,24 @@ angular.module('mediaMogulApp')
         self.selectedMatch = match;
       };
 
+      self.editTitle = function() {
+        $uibModal.open({
+          templateUrl: 'views/games/editTitle.html',
+          controller: 'editGameTitleController as ctrl',
+          size: 'lg',
+          resolve: {
+            game: function() {
+              return self.game;
+            },
+            igdb_redo: function() {
+              return true;
+            }
+          }
+        }).result.finally(function() {
+          $uibModalInstance.close();
+        });
+      };
+
 
       self.ok = function() {
         var changedFields = {};

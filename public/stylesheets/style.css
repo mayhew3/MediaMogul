@@ -124,6 +124,15 @@ h1 {
   font-variant-caps: small-caps;
 }
 
+.titleEditButton {
+  height: 45px;
+  margin-left: 25px;
+  font-size: 12pt;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+
 /*
   Don't love this approach, but I couldn't find a way to have btn-success override the background-image tag in nav-pills.
   There aren't any styling class options on nav-pills. So I have to replicate some of the existing btn-success CSS code

@@ -5,7 +5,13 @@
       novalidate>
 
   <div class="modal-header">
-    <h1 ng-bind="ctrl.game.title"></h1>
+    <div style="display: flex">
+      <h1 ng-bind="ctrl.game.title"></h1>
+      <input type="button"
+             class="btn btn-default titleEditButton"
+             value="Edit"
+             ng-click="ctrl.editTitle()">
+    </div>
   </div>
 
   <div class="modal-body clearfix">

@@ -144,6 +144,22 @@ angular.module('mediaMogulApp')
       $uibModalInstance.close();
     };
 
+    self.editTitle = function() {
+      $uibModal.open({
+        templateUrl: 'views/games/editTitle.html',
+        controller: 'editGameTitleController as ctrl',
+        size: 'lg',
+        resolve: {
+          game: function() {
+            return self.game;
+          },
+          igdb_redo: function() {
+            return false;
+          }
+        }
+      });
+    };
+
 
     self.openAddPlaytime = function(game) {
       $uibModal.open({

@@ -1,0 +1,34 @@
+<div class="modal-header">
+  <div style="display: flex">
+    <h1 ng-bind="'Rename ' + ctrl.game.title"></h1>
+  </div>
+</div>
+
+<div class="modal-body clearfix">
+
+  <div class="form-group col-lg-12">
+    <div class="col-lg-6">
+      <label class="control-label" for="newTitleInput">New Title</label>
+      <input class="form-control"
+             id="newTitleInput"
+             name="newTitleInput"
+             ng-model="ctrl.interfaceTitle"/>
+    </div>
+    <br/>
+  </div>
+
+</div>
+
+
+<div class="modal-footer">
+  <input class="btn btn-primary"
+         type="button"
+         value="OK"
+         ng-show="ctrl.LockService.isAdmin()"
+         ng-disabled="!ctrl.LockService.isAuthenticated"
+         ng-click="ctrl.ok()">
+  <input class="btn btn-default"
+         type="button"
+         value="Cancel"
+         ng-click="ctrl.cancel()">
+</div>
