@@ -127,21 +127,22 @@ angular.module('mediaMogulApp')
         }
       }
 
+      let lastPlayed = new Date(self.session_date);
+      if (self.finished && self.game.finished_date === null) {
+        changedFields.finished_date = lastPlayed;
+      }
+
       $log.debug("Changed fields: " + JSON.stringify(changedFields));
 
       if (Object.getOwnPropertyNames(changedFields).length > 0) {
         $log.debug("Changed fields has a length!");
 
-        let lastPlayed = new Date(self.session_date);
         changedFields.last_played = lastPlayed;
-        if (self.finished) {
-          changedFields.finished_date = lastPlayed;
-        }
 
         GamesService.addGameplaySession({
           game_id: self.game.id,
           start_time: lastPlayed,
-          minutes: self.added_duration.asMinutes(),
+          minutes: self.added_duration === null ? 0 : self.added_duration.asMinutes(),
           rating: self.session_rating,
           person_id: LockService.person_id
         }).then(function() {
@@ -164,11 +165,11 @@ angular.module('mediaMogulApp')
             // GamesService.updateRating(game);
 
             $log.debug("Finished resetting. Original values: " + self.originalFields);
+            $uibModalInstance.close();
           })
         });
       }
 
-      $uibModalInstance.close();
     };
 
 

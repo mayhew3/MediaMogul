@@ -117,19 +117,18 @@
       </div>
 
       <div class="form-group col-lg-3">
-        <label class="control-label" for="finished_date">Finished</label>
+        <label class="control-label" for="finishedInput">Finished</label>
         <div>
           <input type="checkbox"
-                 id="finished_date"
-                 name="finished_date"
+                 id="finishedInput"
+                 name="finishedInput"
                  checked
                  class="form-control"
-                 ng-model="ctrl.finished_date"
-                 ng-change="ctrl.onFinishChange()">
+                 ng-model="ctrl.finished">
         </div>
       </div>
 
-      <div class="form-group col-lg-3" ng-show="ctrl.finished_date === true">
+      <div class="form-group col-lg-3" ng-show="ctrl.finished === true">
         <label class="control-label" for="finalScoreInput">Final Score</label>
         <input type="number"
                class="form-control"
@@ -138,7 +137,7 @@
                ng-model="ctrl.interfaceFields.final_score"/>
       </div>
 
-      <div class="form-group col-lg-3" ng-show="ctrl.finished_date === true">
+      <div class="form-group col-lg-3" ng-show="ctrl.finished === true">
         <label class="control-label" for="replayInput">Replay?</label>
         <input type="number"
                class="form-control"

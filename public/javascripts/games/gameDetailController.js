@@ -219,8 +219,15 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function() {
-        self.interfacePersonFields.minutes_played = self.game.minutes_played;
-        self.originalPersonFields.minutes_played = self.interfacePersonFields.minutes_played;
+        self.finished_date = self.game.finished_date === null ?
+          null :
+          new Date(self.game.finished_date).toLocaleDateString("en-US", options);
+
+        self.interfacePersonFields.final_score = self.game.final_score;
+        self.originalPersonFields.final_score = self.interfacePersonFields.final_score;
+
+        self.interfacePersonFields.replay_score = self.game.replay_score;
+        self.originalPersonFields.replay_score = self.interfacePersonFields.replay_score;
       });
     };
 
