@@ -142,7 +142,8 @@ angular.module('mediaMogulApp')
           game_id: self.game.id,
           start_time: lastPlayed,
           minutes: self.added_duration.asMinutes(),
-          rating: self.session_rating
+          rating: self.session_rating,
+          person_id: LockService.person_id
         }).then(function() {
           GamesService.updatePersonGame(game.person_game_id, changedFields).then(function () {
             // todo: loop?
@@ -150,7 +151,10 @@ angular.module('mediaMogulApp')
             self.game.final_score = self.interfaceFields.final_score;
             self.game.replay_score = self.interfaceFields.replay_score;
             self.game.last_played = lastPlayed;
-            self.game.finished_date = lastPlayed;
+
+            if (self.finished) {
+              self.game.finished_date = lastPlayed;
+            }
 
             self.originalFields.minutes_played = self.interfaceFields.minutes_played;
             self.originalFields.final_score = self.interfaceFields.final_score;

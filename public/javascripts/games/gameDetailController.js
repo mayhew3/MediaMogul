@@ -42,6 +42,12 @@ angular.module('mediaMogulApp')
       }
     }
 
+    self.getAggPlaytime = function() {
+      var minutes_played = self.game.minutes_played;
+
+      return minutes_played === null ? null : minutes_played / 60;
+    };
+
     // FIELDS
 
     self.originalFields = {
@@ -52,7 +58,7 @@ angular.module('mediaMogulApp')
       natural_end: self.game.natural_end,
       howlong_id: self.game.howlong_id,
       giantbomb_manual_guess: self.game.giantbomb_manual_guess,
-      giantbomb_id: self.game.giantbomb_id,
+      giantbomb_id: self.game.giantbomb_id
     };
 
     self.interfaceFields = {
@@ -63,21 +69,19 @@ angular.module('mediaMogulApp')
       natural_end: self.game.natural_end,
       howlong_id: self.game.howlong_id,
       giantbomb_manual_guess: self.game.giantbomb_manual_guess,
-      giantbomb_id: self.game.giantbomb_id,
+      giantbomb_id: self.game.giantbomb_id
     };
 
     self.originalPersonFields = {
       rating: self.game.rating,
-      minutes_played: self.game.aggPlaytime,
       final_score: self.game.final_score,
-      replay_score: self.game.replay_score,
+      replay_score: self.game.replay_score
     };
 
     self.interfacePersonFields = {
       rating: self.game.rating,
-      minutes_played: self.game.aggPlaytime,
       final_score: self.game.final_score,
-      replay_score: self.game.replay_score,
+      replay_score: self.game.replay_score
     };
 
     $log.debug("Game opened: " + game.title + ", Finished: " + self.game.finished_date);
@@ -214,6 +218,9 @@ angular.module('mediaMogulApp')
             return game;
           }
         }
+      }).result.finally(function() {
+        self.interfacePersonFields.minutes_played = self.game.minutes_played;
+        self.originalPersonFields.minutes_played = self.interfacePersonFields.minutes_played;
       });
     };
 
