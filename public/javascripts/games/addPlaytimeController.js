@@ -41,7 +41,7 @@ angular.module('mediaMogulApp')
 
 
     // original
-    self.original_duration = moment.duration(self.game.playtime, 'minutes');
+    self.original_duration = moment.duration(self.game.minutes_played, 'minutes');
 
     self.original_hours = Math.floor(self.original_duration.asHours());
     self.original_minutes = self.original_duration.minutes();
@@ -74,7 +74,7 @@ angular.module('mediaMogulApp')
       self.new_hours = Math.floor(self.new_duration.asHours());
       self.new_minutes = self.new_duration.minutes();
 
-      self.interfaceFields.playtime = self.new_duration.asMinutes();
+      self.interfaceFields.minutes_played = self.new_duration.asMinutes();
     };
 
     self.newChanged = function() {
@@ -98,20 +98,18 @@ angular.module('mediaMogulApp')
     };
 
     self.originalFields = {
-      playtime: self.game.playtime,
-      // timetotal: self.game.timetotal,
-      finalscore: self.game.finalscore,
-      replay: self.game.replay
+      minutes_played: self.game.minutes_played,
+      final_score: self.game.final_score,
+      replay_score: self.game.replay_score
     };
 
     self.interfaceFields = {
-      playtime: self.game.playtime,
-      // timetotal: self.game.timetotal,
-      finalscore: self.game.finalscore,
-      replay: self.game.replay
+      minutes_played: self.game.minutes_played,
+      final_score: self.game.final_score,
+      replay_score: self.game.replay_score
     };
 
-    $log.debug("Game opened: " + game.title + ", Finished: " + self.game.finished);
+    $log.debug("Game opened: " + game.title + ", Finished: " + self.game.finished_date);
 
     self.changeValues = function() {
 
@@ -137,7 +135,7 @@ angular.module('mediaMogulApp')
         let lastPlayed = new Date(self.session_date);
         changedFields.last_played = lastPlayed;
         if (self.finished) {
-          changedFields.finished = lastPlayed;
+          changedFields.finished_date = lastPlayed;
         }
 
         GamesService.addGameplaySession({
@@ -146,18 +144,17 @@ angular.module('mediaMogulApp')
           minutes: self.added_duration.asMinutes(),
           rating: self.session_rating
         }).then(function() {
-          GamesService.updateGame(game.id, changedFields).then(function () {
+          GamesService.updatePersonGame(game.person_game_id, changedFields).then(function () {
             // todo: loop?
-            self.game.playtime = self.interfaceFields.playtime;
-            // self.game.timetotal = self.interfaceFields.timetotal;
-            self.game.finalscore = self.interfaceFields.finalscore;
-            self.game.replay = self.interfaceFields.replay;
+            self.game.minutes_played = self.interfaceFields.minutes_played;
+            self.game.final_score = self.interfaceFields.final_score;
+            self.game.replay_score = self.interfaceFields.replay_score;
             self.game.last_played = lastPlayed;
+            self.game.finished_date = lastPlayed;
 
-            self.originalFields.playtime = self.interfaceFields.playtime;
-            // self.originalFields.timetotal = self.interfaceFields.timetotal;
-            self.originalFields.finalscore = self.interfaceFields.finalscore;
-            self.originalFields.replay = self.interfaceFields.replay;
+            self.originalFields.minutes_played = self.interfaceFields.minutes_played;
+            self.originalFields.final_score = self.interfaceFields.final_score;
+            self.originalFields.replay_score = self.interfaceFields.replay_score;
 
             GamesService.updatePlaytimes(game);
             // GamesService.updateRating(game);

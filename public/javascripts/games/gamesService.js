@@ -1,11 +1,11 @@
-function GamesService($log, $http) {
+function GamesService($log, $http, LockService) {
   var games = [];
   var platforms = [];
   var possibleMatches = [];
   var self = this;
 
   this.updateGamesList = function() {
-    return $http.get('/api/games').then(function (gamesResponse) {
+    return $http.get('/api/games', {params: {PersonId: LockService.person_id}}).then(function (gamesResponse) {
       $log.debug("Games returned " + gamesResponse.data.length + " items.");
       var tempGames = gamesResponse.data;
       tempGames.forEach(function (game) {
@@ -28,26 +28,20 @@ function GamesService($log, $http) {
     if (game.metacritic !== null) {
       game.metacritic = parseFloat(game.metacritic);
     }
-    if (game.mayhew !== null) {
-      game.mayhew = parseFloat(game.mayhew);
+    if (game.rating !== null) {
+      game.rating = parseFloat(game.rating);
     }
-    if (game.guess !== null) {
-      game.guess = parseFloat(game.guess);
-    }
-    if (game.timeplayed !== null) {
-      game.timeplayed = parseFloat(game.timeplayed);
-    }
-    if (game.playtime !== null) {
-      game.playtime = parseInt(game.playtime);
+    if (game.minutes_played !== null) {
+      game.minutes_played = parseInt(game.minutes_played);
     }
     if (game.timetotal !== null) {
       game.timetotal = parseFloat(game.timetotal);
     }
-    if (game.replay !== null) {
-      game.replay = parseFloat(game.replay);
+    if (game.replay_score !== null) {
+      game.replay_score = parseFloat(game.replay_score);
     }
-    if (game.finalscore !== null) {
-      game.finalscore = parseFloat(game.finalscore);
+    if (game.final_score !== null) {
+      game.final_score = parseFloat(game.final_score);
     }
     if (game.howlong_id !== null) {
       game.howlong_id = parseInt(game.howlong_id);
@@ -97,38 +91,16 @@ function GamesService($log, $http) {
     return $http.post('/api/updategame', {GameId: GameId, ChangedFields: ChangedFields});
   };
 
+  this.updatePersonGame = function(PersonGameId, ChangedFields) {
+    $log.debug('Received update for Game ' + PersonGameId + " with data " + JSON.stringify(ChangedFields));
+    return $http.post('/api/updategame', {PersonGameId: PersonGameId, ChangedFields: ChangedFields});
+  };
+
   this.updateRating = function(game) {
     var metacritic = game.metacritic;
-    var myRating = game.mayhew;
-    var myGuess = game.guess;
-
-    if (myRating === null) {
-      myRating = myGuess;
-    }
+    var myRating = game.rating;
 
     game.FullRating = myRating === null ? metacritic : myRating;
-
-    /*
-    if (metacritic === null) {
-      game.FullRating = myRating;
-    } else if (myRating === null) {
-      game.FullRating = metacritic;
-    } else {
-      var relevantPlaytime = game.aggPlaytime;
-      if (relevantPlaytime === null) {
-        relevantPlaytime = 0;
-      } else if (relevantPlaytime > 3) {
-        relevantPlaytime = 3;
-      }
-
-      game.myAggregate = myRating;
-
-      var myWeight = 0.40 + (relevantPlaytime * 0.20);
-      var metaWeight = 1 - myWeight;
-
-      game.FullRating = (myRating * myWeight) + (metacritic * metaWeight);
-    }
-    */
   };
 
   this.updateImages = function(game) {
@@ -187,10 +159,9 @@ function GamesService($log, $http) {
   };
 
   this.updatePlaytimes = function(game) {
-    // var timeplayed = game.timeplayed;
-    var playtime = game.playtime;
+    var minutes_played = game.minutes_played;
 
-    game.aggPlaytime = playtime === null ? null : playtime / 60;
+    game.aggPlaytime = minutes_played === null ? null : minutes_played / 60;
 
     var timetotal = game.timetotal;
     var howlong_time = game.howlong_extras;
@@ -210,4 +181,4 @@ function GamesService($log, $http) {
 }
 
 angular.module('mediaMogulApp')
-  .service('GamesService', ['$log', '$http', GamesService]);
+  .service('GamesService', ['$log', '$http', 'LockService', GamesService]);

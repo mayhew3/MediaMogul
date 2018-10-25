@@ -138,7 +138,6 @@
             <th>Platform</th>
             <th>Rating</th>
             <th>MC</th>
-            <th>Guess</th>
             <th>Mayhew</th>
             <th>Agg</th>
             <th>Time Played</th>
@@ -154,8 +153,7 @@
               <td ng-bind="game.platform"></td>
               <td ng-bind="game.FullRating|number:1"></td>
               <td ng-bind="game.metacritic"></td>
-              <td ng-bind="game.guess"></td>
-              <td ng-bind="game.mayhew"></td>
+              <td ng-bind="game.rating"></td>
               <td ng-bind="game.myAggregate"></td>
               <td ng-bind="game.aggPlaytime|number:1"></td>
               <td ng-bind="game.aggTimetotal|number:1"></td>

@@ -105,7 +105,7 @@ angular.module('mediaMogulApp')
     };
 
     self.isFinished = function(game) {
-      return game.finished || game.finalscore;
+      return game.finished_date || game.final_score;
     };
 
     self.hasValidPlatform = function(game) {

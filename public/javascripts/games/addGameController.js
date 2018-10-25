@@ -6,7 +6,6 @@ angular.module('mediaMogulApp')
       self.LockService = LockService;
 
       self.game = {
-        owned: 'owned'
       };
 
       self.gameExists = false;

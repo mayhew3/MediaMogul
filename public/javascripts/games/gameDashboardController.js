@@ -36,7 +36,7 @@ angular.module('mediaMogulApp')
       // FILTER HELPERS
 
       self.isFinished = function(game) {
-        return game.finished || game.finalscore;
+        return game.finished_date || game.final_score;
       };
 
       self.baseFilter = function(game) {
@@ -135,7 +135,7 @@ angular.module('mediaMogulApp')
         if (timeLeft > 0) {
           return (timeLeft > 95) ? 0 : (95 - timeLeft);
         } else {
-          // Use a function with a horizontal asymptote so we can order games with negative playtime with no limit.
+          // Use a function with a horizontal asymptote so we can order games with negative minutes_played with no limit.
           // The bigger the negative number, the closer the result of this function will get to 5. 0 will return 0.
           // (4x^2 - 10) / (x^2 + 10) + 1
           var SLOPE_SCALE = 10;
@@ -179,17 +179,17 @@ angular.module('mediaMogulApp')
       };
 
       self.playAgainFilter = function(game) {
-        return game.finished !== null;
+        return game.finished_date !== null;
       };
 
       self.playAgainScore = function(game) {
         var today = new Date;
-        var timeSinceFinished = daysBetween(new Date(game.finished), today);
+        var timeSinceFinished = daysBetween(new Date(game.finished_date), today);
 
         var SLOPE_SCALE = 10000;
         var MAX_SCALE = 100;
         var timeSinceScore = shrinkFromInfinity(timeSinceFinished, MAX_SCALE, SLOPE_SCALE);
-        return (game.replay * 0.8) + (timeSinceScore * 0.2);
+        return (game.replay_score * 0.8) + (timeSinceScore * 0.2);
       };
 
       // SETUP ALL GAME LISTS
