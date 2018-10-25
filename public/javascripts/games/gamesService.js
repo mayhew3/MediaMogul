@@ -93,7 +93,7 @@ function GamesService($log, $http, LockService) {
 
   this.updatePersonGame = function(PersonGameId, ChangedFields) {
     $log.debug('Received update for Game ' + PersonGameId + " with data " + JSON.stringify(ChangedFields));
-    return $http.post('/api/updategame', {PersonGameId: PersonGameId, ChangedFields: ChangedFields});
+    return $http.post('/api/updatePersonGame', {PersonGameId: PersonGameId, ChangedFields: ChangedFields});
   };
 
   this.updateRating = function(game) {

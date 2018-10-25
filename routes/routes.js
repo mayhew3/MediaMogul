@@ -19,6 +19,7 @@ module.exports = function(app) {
   app.get('/api/possibleGameMatches', authCheck, games.getPossibleGameMatches);
 
   app.post('/api/updategame', authCheck, games.updateGame);
+  app.post('/api/updatePersonGame', authCheck, games.updatePersonGame);
   app.post('/api/addgame', authCheck, games.addGame);
   app.post('/api/addgameplay', authCheck, games.addGameplaySession);
 

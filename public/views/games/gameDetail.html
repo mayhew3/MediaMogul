@@ -98,7 +98,7 @@
              class="form-control"
              id="ratingInput"
              name="mayhewInput"
-             ng-model="ctrl.interfaceFields.rating"/>
+             ng-model="ctrl.interfacePersonFields.rating"/>
     </div>
 
     <div class="form-group col-lg-3" ng-show="ctrl.originalFields.howlong_id === null && ctrl.LockService.isAdmin()">
@@ -135,26 +135,26 @@
         <input id="finishedDate"
                name="finishedDate"
                class="form-control"
-               ng-model="ctrl.interfaceFields.finished_date">
+               ng-model="ctrl.interfacePersonFields.finished_date">
       </div>
     </div>
 
-    <div class="form-group col-lg-3" ng-show="ctrl.interfaceFields.finished_date !== null">
+    <div class="form-group col-lg-3" ng-show="ctrl.interfacePersonFields.finished_date !== null">
       <label class="control-label" for="finalScoreInput">Final Score</label>
       <input type="number"
              class="form-control"
              id="finalScoreInput"
              name="finalScoreInput"
-             ng-model="ctrl.interfaceFields.final_score"/>
+             ng-model="ctrl.interfacePersonFields.final_score"/>
     </div>
 
-    <div class="form-group col-lg-3" ng-show="ctrl.interfaceFields.finished_date !== null">
+    <div class="form-group col-lg-3" ng-show="ctrl.interfacePersonFields.finished_date !== null">
       <label class="control-label" for="replayInput">Replay?</label>
       <input type="number"
              class="form-control"
              id="replayInput"
              name="replayInput"
-             ng-model="ctrl.interfaceFields.replay_score"/>
+             ng-model="ctrl.interfacePersonFields.replay_score"/>
     </div>
 
   </div>
