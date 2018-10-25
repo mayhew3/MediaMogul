@@ -7,11 +7,16 @@ angular.module('mediaMogulApp')
 
     self.game = game;
 
+
     // DATE HANDLING
     var options = {
       year: "numeric", month: "2-digit",
       day: "2-digit", timeZone: "America/Los_Angeles"
     };
+
+    self.finished_date = self.game.finished_date === null ?
+      null :
+      new Date(self.game.finished_date).toLocaleDateString("en-US", options);
 
     function formatDate(unformattedDate) {
       var originalDate = (unformattedDate === '' || unformattedDate === null) ? null :
@@ -66,7 +71,6 @@ angular.module('mediaMogulApp')
       minutes_played: self.game.aggPlaytime,
       final_score: self.game.final_score,
       replay_score: self.game.replay_score,
-      finished_date: self.game.finished_date === null ? null : new Date(self.game.finished_date).toLocaleDateString("en-US", options)
     };
 
     self.interfacePersonFields = {
@@ -74,17 +78,11 @@ angular.module('mediaMogulApp')
       minutes_played: self.game.aggPlaytime,
       final_score: self.game.final_score,
       replay_score: self.game.replay_score,
-      finished_date: self.game.finished_date === null ? null : new Date(self.game.finished_date).toLocaleDateString("en-US", options)
     };
 
     $log.debug("Game opened: " + game.title + ", Finished: " + self.game.finished_date);
 
-    self.changeValues = function() {
-
-      if (!dateHasChanged(self.originalFields.finished_date, self.interfaceFields.finished_date)) {
-        self.interfaceFields.finished_date = self.originalFields.finished_date;
-      }
-
+    self.getChangedFields = function() {
       var changedFields = {};
       for (var key in self.interfaceFields) {
         if (self.interfaceFields.hasOwnProperty(key)) {
@@ -98,7 +96,10 @@ angular.module('mediaMogulApp')
           }
         }
       }
+      return changedFields;
+    };
 
+    self.getChangedPersonFields = function() {
       var changedPersonFields = {};
       for (var key in self.interfacePersonFields) {
         if (self.interfacePersonFields.hasOwnProperty(key)) {
@@ -113,6 +114,21 @@ angular.module('mediaMogulApp')
         }
       }
 
+      self.finished_date = formatDate(self.finished_date);
+      var originalFinishedDate = formatDate(self.game.finished_date);
+
+      if (dateHasChanged(originalFinishedDate, self.finished_date)) {
+        changedPersonFields.finished_date = self.finished_date;
+      }
+
+      return changedPersonFields;
+    };
+
+    self.changeValues = function() {
+
+      var changedFields = self.getChangedFields();
+      var changedPersonFields = self.getChangedPersonFields();
+
       $log.debug("Changed game fields: " + JSON.stringify(changedFields));
       $log.debug("Changed person_game fields: " + JSON.stringify(changedPersonFields));
 
@@ -124,6 +140,7 @@ angular.module('mediaMogulApp')
           self.game.minutes_played = self.interfacePersonFields.minutes_played;
           self.game.final_score = self.interfacePersonFields.final_score;
           self.game.replay_score = self.interfacePersonFields.replay_score;
+          self.game.finished_date = self.finished_date;
 
           self.originalPersonFields.rating = self.interfacePersonFields.rating;
           self.originalPersonFields.minutes_played = self.interfacePersonFields.minutes_played;
