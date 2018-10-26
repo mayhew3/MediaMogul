@@ -194,6 +194,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             LockService.renew().then(function () {
               // detach change event so we can change location to original destination without triggering this event again.
               onRouteChangeOff();
+              console.log("Redirecting to 'next' with value: " + next);
               $location.path(next);
 
             }, function (err) {

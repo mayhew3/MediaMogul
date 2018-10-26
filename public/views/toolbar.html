@@ -12,7 +12,7 @@
           <a ui-sref="admin.tv.tvdb">Admin</a>
         </li>
         <li ng-show="!toolbar.LockService.isAuthenticated">
-          <a href="#" ng-click="toolbar.login()">Sign In</a>
+          <a href="#" ui-sref="home" ng-click="toolbar.login()">Sign In</a>
         </li>
         <li ng-show="toolbar.LockService.isAuthenticated">
           <a href="#" ng-click="toolbar.logout()">Sign Out</a>
