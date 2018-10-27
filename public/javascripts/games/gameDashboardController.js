@@ -57,17 +57,25 @@ angular.module('mediaMogulApp')
         return (((max - 1) * timeOverSquared) - slope) / (timeOverSquared + slope) + 1;
       }
 
+      function createShowcaseAndUpdateArrays(showcaseArray, filter, scoreFunction) {
+        var filtered = _.filter(self.games, filter);
+        var sorted = _.sortBy(filtered, function(game) {
+          return scoreFunction(game) * -1;
+        });
+
+        addToArray(showcaseArray, _.first(sorted, MAX_GAMES));
+        self.games = _.difference(self.games, showcaseArray);
+      }
+
+      function addToArray(originalArray, newArray) {
+        originalArray.push.apply(originalArray, newArray);
+      }
+
 
       // RECENTLY PLAYED SHOWCASE
 
       self.createRecentlyPlayedShowcase = function() {
-        var filtered = _.filter(self.games, self.recentlyPlayedFilter);
-        var sorted = _.sortBy(filtered, function(game)  {
-          return self.recentlyPlayedScore(game) * -1;
-        });
-
-        self.recentGames = _.first(sorted, MAX_GAMES);
-        self.games = _.difference(self.games, self.recentGames);
+        createShowcaseAndUpdateArrays(self.recentGames, self.recentlyPlayedFilter, self.recentlyPlayedScore);
       };
 
       self.recentlyPlayedScore = function(game) {
@@ -87,13 +95,7 @@ angular.module('mediaMogulApp')
       // NEWLY ADDED SHOWCASE
 
       self.createNewlyAddedShowcase = function() {
-        var filtered = _.filter(self.games, self.newlyAddedFilter);
-        var sorted = _.sortBy(filtered, function(game) {
-          return self.newlyAddedScore(game) * -1;
-        });
-
-        self.newlyAddedGames = _.first(sorted, MAX_GAMES);
-        self.games = _.difference(self.games, self.newlyAddedGames);
+        createShowcaseAndUpdateArrays(self.newlyAddedGames, self.newlyAddedFilter, self.newlyAddedScore);
       };
 
       self.newlyAddedScore = function(game) {
@@ -115,13 +117,7 @@ angular.module('mediaMogulApp')
       // ALMOST DONE SHOWCASE
 
       self.createAlmostDoneShowcase = function() {
-        var filtered = _.filter(self.games, self.almostDoneFilter);
-        var sorted = _.sortBy(filtered, function(game) {
-          return self.almostDoneScore(game) * -1;
-        });
-
-        self.almostDoneGames = _.first(sorted, MAX_GAMES);
-        self.games = _.difference(self.games, self.almostDoneGames);
+        createShowcaseAndUpdateArrays(self.almostDoneGames, self.almostDoneFilter, self.almostDoneScore);
       };
 
       self.almostDoneFilter = function(game) {
@@ -148,13 +144,7 @@ angular.module('mediaMogulApp')
       // ENDLESS SHOWCASE
 
       self.createEndlessShowcase = function() {
-        var filtered = _.filter(self.games, self.endlessFilter);
-        var sorted = _.sortBy(filtered, function(game) {
-          return self.endlessScore(game) * -1;
-        });
-
-        self.endlessGames = _.first(sorted, MAX_GAMES);
-        self.games = _.difference(self.games, self.endlessGames);
+        createShowcaseAndUpdateArrays(self.endlessGames, self.endlessFilter, self.endlessScore);
       };
 
       self.endlessFilter = function (game) {
@@ -169,13 +159,7 @@ angular.module('mediaMogulApp')
       // PLAY AGAIN SHOWCASE
 
       self.createPlayAgainShowcase = function() {
-        var filtered = _.filter(self.games, self.playAgainFilter);
-        var sorted = _.sortBy(filtered, function(game) {
-          return self.playAgainScore(game) * -1;
-        });
-
-        self.playAgainGames = _.first(sorted, MAX_GAMES);
-        self.games = _.difference(self.games, self.playAgainGames);
+        createShowcaseAndUpdateArrays(self.playAgainGames, self.playAgainFilter, self.playAgainScore);
       };
 
       self.playAgainFilter = function(game) {

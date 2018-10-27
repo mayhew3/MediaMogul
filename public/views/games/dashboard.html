@@ -2,73 +2,18 @@
 <div class="container" style="margin-top: 10px">
 
   <!-- RECENTLY PLAYED section -->
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3>Recently Played</h3>
-    </div>
-    <div class="panel-body">
-      <div class="row gameRow">
-        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.recentGames">
-            <game-card game="game"></game-card>
-        </div>
-      </div>
-    </div>
-  </div>
+  <game-group header="'Recently Played'" gamefilter="ctrl.recentGames"></game-group>
 
   <!-- NEWLY ADDED section -->
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3>Newly Added</h3>
-    </div>
-    <div class="panel-body">
-      <div class="row gameRow">
-        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.newlyAddedGames">
-          <game-card game="game"></game-card>
-        </div>
-      </div>
-    </div>
-  </div>
+  <game-group header="'Newly Added'" gamefilter="ctrl.newlyAddedGames"></game-group>
 
   <!-- ALMOST DONE section -->
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3>Almost Done</h3>
-    </div>
-    <div class="panel-body">
-      <div class="row gameRow">
-        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.almostDoneGames">
-          <game-card game="game"></game-card>
-        </div>
-      </div>
-    </div>
-  </div>
+  <game-group header="'Almost Done'" gamefilter="ctrl.almostDoneGames"></game-group>
 
   <!-- ENDLESS section -->
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3>Endless</h3>
-    </div>
-    <div class="panel-body">
-      <div class="row gameRow">
-        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.endlessGames">
-          <game-card game="game"></game-card>
-        </div>
-      </div>
-    </div>
-  </div>
+  <game-group header="'Endless'" gamefilter="ctrl.endlessGames"></game-group>
 
   <!-- PLAY AGAIN section -->
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3>Play Again</h3>
-    </div>
-    <div class="panel-body">
-      <div class="row gameRow">
-        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.playAgainGames">
-          <game-card game="game"></game-card>
-        </div>
-      </div>
-    </div>
-  </div>
+  <game-group header="'Play Again'" gamefilter="ctrl.playAgainGames"></game-group>
 
 </div>

@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3>{{ctrl.header}}</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row gameRow">
+      <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.gamefilter">
+        <game-card game="game"></game-card>
+      </div>
+    </div>
+  </div>
+</div>
