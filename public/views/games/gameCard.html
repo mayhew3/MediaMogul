@@ -1,0 +1,13 @@
+<div class="gameCardInside">
+<a ng-click="ctrl.open(game)" href="">
+  <img class="img-rounded gameImage"
+       ng-src="{{game.imageUrl}}"
+       ng-hide="game.imageUrl == null"
+       alt="{{game.title}}"/>
+</a>
+<br>
+<span ng-bind="game.last_played|date:ctrl.getDateFormat(game.last_played):'America/Los_Angeles'"></span>
+<div class="col-xs-4 col-md-3" ng-hide="game.imageUrl != null" ng-click="ctrl.open(game)" href="">
+  <span ng-bind="game.title"></span>
+</div>
+</div>

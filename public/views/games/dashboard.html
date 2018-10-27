@@ -7,21 +7,9 @@
       <h3>Recently Played</h3>
     </div>
     <div class="panel-body">
-      <div class="row">
-        <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="game in ctrl.recentGames">
-
-          <a ng-click="ctrl.open(game)" href="">
-            <img class="img-rounded"
-                 ng-src="{{game.imageUrl}}"
-                 width="100%"
-                 ng-hide="game.imageUrl == null"
-                 alt="{{game.title}}"/>
-          </a>
-          <br>
-          <span ng-bind="game.last_played|date:ctrl.getDateFormat(game.last_played):'America/Los_Angeles'"></span>
-          <div class="col-xs-4 col-md-3" ng-hide="game.imageUrl != null" ng-click="ctrl.open(game)" href="">
-            <span ng-bind="game.title"></span>
-          </div>
+      <div class="row gameRow">
+        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.recentGames">
+            <game-card game="game"></game-card>
         </div>
       </div>
     </div>
@@ -33,20 +21,9 @@
       <h3>Newly Added</h3>
     </div>
     <div class="panel-body">
-      <div class="row">
-        <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="game in ctrl.newlyAddedGames">
-
-          <a ng-click="ctrl.open(game)" href="">
-            <img class="img-rounded"
-                 ng-src="{{game.imageUrl}}"
-                 width="100%"
-                ng-hide="game.imageUrl == null"
-                alt="{{game.title}}"/>
-          </a>
-
-          <div class="col-xs-4 col-md-3" ng-hide="game.imageUrl != null" ng-click="ctrl.open(game)" href="">
-            <span ng-bind="game.title"></span>
-          </div>
+      <div class="row gameRow">
+        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.newlyAddedGames">
+          <game-card game="game"></game-card>
         </div>
       </div>
     </div>
@@ -58,20 +35,9 @@
       <h3>Almost Done</h3>
     </div>
     <div class="panel-body">
-      <div class="row">
-        <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="game in ctrl.almostDoneGames">
-
-          <a ng-click="ctrl.open(game)" href="">
-            <img class="img-rounded"
-                 ng-src="{{game.imageUrl}}"
-                 width="100%"
-                ng-hide="game.imageUrl == null"
-                alt="{{game.title}}"/>
-          </a>
-
-          <div class="col-xs-4 col-md-3" ng-hide="game.imageUrl != null" ng-click="ctrl.open(game)" href="">
-            <span ng-bind="game.title"></span>
-          </div>
+      <div class="row gameRow">
+        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.almostDoneGames">
+          <game-card game="game"></game-card>
         </div>
       </div>
     </div>
@@ -83,20 +49,9 @@
       <h3>Endless</h3>
     </div>
     <div class="panel-body">
-      <div class="row">
-        <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="game in ctrl.endlessGames">
-
-          <a ng-click="ctrl.open(game)" href="">
-            <img class="img-rounded"
-                 ng-src="{{game.imageUrl}}"
-                 width="100%"
-                ng-hide="game.imageUrl == null"
-                alt="{{game.title}}"/>
-          </a>
-
-          <div class="col-xs-4 col-md-3" ng-hide="game.imageUrl != null" ng-click="ctrl.open(game)" href="">
-            <span ng-bind="game.title"></span>
-          </div>
+      <div class="row gameRow">
+        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.endlessGames">
+          <game-card game="game"></game-card>
         </div>
       </div>
     </div>
@@ -108,20 +63,9 @@
       <h3>Play Again</h3>
     </div>
     <div class="panel-body">
-      <div class="row">
-        <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="game in ctrl.playAgainGames">
-
-          <a ng-click="ctrl.open(game)" href="">
-            <img class="img-rounded"
-                 ng-src="{{game.imageUrl}}"
-                 width="100%"
-                ng-hide="game.imageUrl == null"
-                alt="{{game.title}}"/>
-          </a>
-
-          <div class="col-xs-4 col-md-3" ng-hide="game.imageUrl != null" ng-click="ctrl.open(game)" href="">
-            <span ng-bind="game.title"></span>
-          </div>
+      <div class="row gameRow">
+        <div class="fade-repeat col-xs-4 col-md-3 gameCard" ng-repeat="game in ctrl.playAgainGames">
+          <game-card game="game"></game-card>
         </div>
       </div>
     </div>
