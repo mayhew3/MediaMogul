@@ -5,6 +5,8 @@ angular.module('mediaMogulApp')
 
       self.LockService = LockService;
 
+      self.games = [];
+
       self.steamCloud = false;
       self.manyHours = false;
       self.nearlyDoneFilter = false;
@@ -153,7 +155,7 @@ angular.module('mediaMogulApp')
 
       self.refreshGamesList = function() {
         GamesService.updateNotMyGamesList().then(function () {
-          self.games = GamesService.getNotMyGamesList();
+          self.games.push.apply(self.games, GamesService.getNotMyGamesList());
           self.platforms = GamesService.getPlatformList();
           self.initPlatformFilters();
           $log.debug("Controller has " + self.games.length + " games.");

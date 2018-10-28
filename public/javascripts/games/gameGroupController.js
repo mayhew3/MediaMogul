@@ -11,7 +11,7 @@
       controllerAs: 'ctrl',
       scope: {
         header: '=',
-        gamefilter: '='
+        games: '='
       }
     }
   }
@@ -20,7 +20,7 @@
     var self = this;
 
     self.header = $scope.header;
-    self.gamefilter = $scope.gamefilter;
+    self.games = $scope.games;
   }
 
 })();

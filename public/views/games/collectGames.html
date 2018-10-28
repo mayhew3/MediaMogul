@@ -130,36 +130,7 @@
         </div>
 
         <!-- Games Table -->
-        <div id="gamesContainer">
-          <table class="table table-striped table-hover">
-            <thead>
-            <th></th>
-            <th>Game</th>
-            <th>Platform</th>
-            <th>Rating</th>
-            <th>MC</th>
-            <th>Mayhew</th>
-            <th>Agg</th>
-            <th>Time Played</th>
-            <th>Total</th>
-            </thead>
-            <tr data-ng-repeat="game in ctrl.games |
-                filter:ctrl.gamesFilter |
-                orderBy:[ctrl.orderByRating].concat('-FullRating')">
-              <td width="250px" ng-click="ctrl.open(game)">
-                <img ng-src="{{game.giantbomb_thumb_url}}" ng-hide="game.giantbomb_thumb_url === null">
-              </td>
-              <td ng-bind="game.title"></td>
-              <td ng-bind="game.platform"></td>
-              <td ng-bind="game.FullRating|number:1"></td>
-              <td ng-bind="game.metacritic"></td>
-              <td ng-bind="game.rating"></td>
-              <td ng-bind="game.myAggregate"></td>
-              <td ng-bind="game.aggPlaytime|number:1"></td>
-              <td ng-bind="game.aggTimetotal|number:1"></td>
-            </tr>
-          </table>
-        </div>
+        <game-group header="'Uncollected'" games="ctrl.games"></game-group>
 
       </div>
     </div>
