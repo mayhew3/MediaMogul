@@ -11,7 +11,8 @@
       controllerAs: 'ctrl',
       scope: {
         header: '=',
-        games: '='
+        games: '=',
+        gamesFilter: '='
       }
     }
   }
@@ -21,6 +22,7 @@
 
     self.header = $scope.header;
     self.games = $scope.games;
+    self.gamesFilter = $scope.gamesFilter;
   }
 
 })();

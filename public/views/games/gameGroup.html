@@ -4,7 +4,8 @@
   </div>
   <div class="panel-body">
     <div class="row gameRow">
-      <div class="fade-repeat col-xs-4 col-md-4 gameCard" ng-repeat="game in ctrl.games">
+      <div class="fade-repeat col-xs-4 col-md-4 gameCard" ng-repeat="game in ctrl.games |
+          filter:ctrl.gamesFilter">
         <game-card game="game"></game-card>
       </div>
     </div>
