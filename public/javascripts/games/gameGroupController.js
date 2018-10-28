@@ -12,7 +12,8 @@
       scope: {
         header: '=',
         games: '=',
-        gamesFilter: '='
+        gamesFilter: '=',
+        owned: '='
       }
     }
   }
@@ -23,6 +24,7 @@
     self.header = $scope.header;
     self.games = $scope.games;
     self.gamesFilter = $scope.gamesFilter;
+    self.owned = $scope.owned;
   }
 
 })();

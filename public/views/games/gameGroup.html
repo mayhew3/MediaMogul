@@ -6,7 +6,7 @@
     <div class="row gameRow">
       <div class="fade-repeat col-xs-4 col-md-4 gameCard" ng-repeat="game in ctrl.games |
           filter:ctrl.gamesFilter">
-        <game-card game="game"></game-card>
+        <game-card game="game" owned="ctrl.owned"></game-card>
       </div>
     </div>
   </div>

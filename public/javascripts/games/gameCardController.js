@@ -8,7 +8,11 @@
     return {
       templateUrl: 'views/games/gameCard.html',
       controller: gameCardController,
-      controllerAs: 'ctrl'
+      controllerAs: 'ctrl',
+      scope: {
+        game: '=',
+        owned: '='
+      }
     }
   }
 
@@ -16,22 +20,25 @@
     var self = this;
 
     self.game = $scope.game;
+    self.owned = $scope.owned;
 
     self.hasLastPlayed = function() {
       return !_.isUndefined(self.game.last_played);
     };
 
     self.open = function(game) {
-      $uibModal.open({
-        templateUrl: 'views/games/gameDetail.html',
-        controller: 'gameDetailController as ctrl',
-        size: 'lg',
-        resolve: {
-          game: function() {
-            return game;
+      if (self.owned) {
+        $uibModal.open({
+          templateUrl: 'views/games/gameDetail.html',
+          controller: 'gameDetailController as ctrl',
+          size: 'lg',
+          resolve: {
+            game: function () {
+              return game;
+            }
           }
-        }
-      });
+        });
+      }
     };
 
   }
