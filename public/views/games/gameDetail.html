@@ -10,6 +10,7 @@
       <input type="button"
              class="btn btn-default titleEditButton"
              value="Edit"
+             ng-show="ctrl.LockService.isAdmin()"
              ng-click="ctrl.editTitle()">
     </div>
   </div>
