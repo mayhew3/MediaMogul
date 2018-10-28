@@ -1,0 +1,169 @@
+<div class="container" style="margin-top: 10px">
+  <div>
+
+    <div class="bs-docs-section clearfix">
+      <div class="col-lg-12">
+
+        <!-- All filters -->
+        <div id="gameFilters">
+
+          <!-- Platform filters -->
+          <div class="btn-group" role="group">
+            <button type="button"
+                    ng-repeat="platform in ctrl.platforms"
+                    ng-class="ctrl.getButtonClass(ctrl.platformFilters[platform])"
+                    uib-btn-checkbox
+                    uib-btn-checkbox-true="true"
+                    uib-btn-checkbox-false="false"
+                    ng-model="ctrl.platformFilters[platform]"
+                    ng-change="ctrl.updatePlatformFilter(platform)">
+              <span ng-bind="platform"></span>
+            </button>
+          </div>
+
+          <div class="btn-group" role="group">
+            <button type="button"
+                    ng-class="ctrl.getButtonClass(ctrl.consoleFilter)"
+                    uib-btn-checkbox
+                    uib-btn-checkbox-true="true"
+                    uib-btn-checkbox-false="false"
+                    ng-model="ctrl.consoleFilter"
+                    ng-change="ctrl.updateConsoleFilter()">
+              Console
+            </button>
+            <button type="button"
+                    ng-class="ctrl.getButtonClass(ctrl.computerFilter)"
+                    uib-btn-checkbox
+                    uib-btn-checkbox-true="true"
+                    uib-btn-checkbox-false="false"
+                    ng-model="ctrl.computerFilter"
+                    ng-change="ctrl.updateComputerFilter()">
+              Computer
+            </button>
+            <button type="button"
+                    ng-class="ctrl.getButtonClass(ctrl.noneFilter)"
+                    uib-btn-checkbox
+                    uib-btn-checkbox-true="true"
+                    uib-btn-checkbox-false="false"
+                    ng-model="ctrl.noneFilter"
+                    ng-change="ctrl.updateNoneFilter()">
+              None
+            </button>
+          </div>
+
+          <!-- Steam Cloud filter -->
+          <button type="button"
+                  ng-class="ctrl.getButtonClass(ctrl.steamCloud)"
+                  uib-btn-checkbox
+                  uib-btn-checkbox-true="true"
+                  uib-btn-checkbox-false="false"
+                  ng-model="ctrl.steamCloud">Cloud</button>
+
+          <!-- Many Hours Played filter -->
+          <button type="button"
+                  ng-class="ctrl.getButtonClass(ctrl.manyHours)"
+                  uib-btn-checkbox
+                  uib-btn-checkbox-true="true"
+                  uib-btn-checkbox-false="false"
+                  ng-model="ctrl.manyHours">Playtime</button>
+
+          <!-- Nearly Done filter -->
+          <button type="button"
+                  ng-class="ctrl.getButtonClass(ctrl.nearlyDoneFilter)"
+                  uib-btn-checkbox
+                  uib-btn-checkbox-true="true"
+                  uib-btn-checkbox-false="false"
+                  ng-model="ctrl.nearlyDoneFilter">Nearly Done</button>
+
+
+          <!-- Unplayed filter -->
+          <button type="button"
+                  ng-class="ctrl.getButtonClass(ctrl.unplayedFilter)"
+                  uib-btn-checkbox
+                  uib-btn-checkbox-true="true"
+                  uib-btn-checkbox-false="false"
+                  ng-model="ctrl.unplayedFilter">Unplayed</button>
+
+
+          <!-- Newly Added filter -->
+          <button type="button"
+                  ng-class="ctrl.getButtonClass(ctrl.newlyAddedFilter)"
+                  uib-btn-checkbox
+                  uib-btn-checkbox-true="true"
+                  uib-btn-checkbox-false="false"
+                  ng-model="ctrl.newlyAddedFilter">Newly Added</button>
+
+
+          <!-- HowLongToBeat Unmatched filter -->
+          <button type="button"
+                  ng-class="ctrl.getButtonClass(ctrl.howlongUnmatchedFilter)"
+                  uib-btn-checkbox
+                  uib-btn-checkbox-true="true"
+                  uib-btn-checkbox-false="false"
+                  ng-model="ctrl.howlongUnmatchedFilter">How Long</button>
+
+
+          <!-- GiantBomb Unmatched filter -->
+          <button type="button"
+                  ng-class="ctrl.getButtonClass(ctrl.giantBombUnmatchedFilter)"
+                  uib-btn-checkbox
+                  uib-btn-checkbox-true="true"
+                  uib-btn-checkbox-false="false"
+                  ng-model="ctrl.giantBombUnmatchedFilter">Giant Bomb</button>
+
+
+          <!-- HowLongToBeat Unmatched filter -->
+          <button type="button"
+                  ng-class="ctrl.getButtonClass(ctrl.metacriticUnmatchedFilter)"
+                  uib-btn-checkbox
+                  uib-btn-checkbox-true="true"
+                  uib-btn-checkbox-false="false"
+                  ng-model="ctrl.metacriticUnmatchedFilter">Metacritic</button>
+
+
+
+          <!-- Add Game button -->
+          <button type="button"
+                  class="btn btn-success"
+                  ng-show="ctrl.LockService.isAdmin()"
+                  ng-click="ctrl.addGame()">+</button>
+        </div>
+
+        <!-- Games Table -->
+        <div id="gamesContainer">
+          <table class="table table-striped table-hover">
+            <thead>
+            <th></th>
+            <th>Game</th>
+            <th>Platform</th>
+            <th>Rating</th>
+            <th>MC</th>
+            <th>Mayhew</th>
+            <th>Agg</th>
+            <th>Time Played</th>
+            <th>Total</th>
+            </thead>
+            <tr data-ng-repeat="game in ctrl.games |
+                filter:ctrl.gamesFilter |
+                orderBy:[ctrl.orderByRating].concat('-FullRating')">
+              <td width="250px" ng-click="ctrl.open(game)">
+                <img ng-src="{{game.giantbomb_thumb_url}}" ng-hide="game.giantbomb_thumb_url === null">
+              </td>
+              <td ng-bind="game.title"></td>
+              <td ng-bind="game.platform"></td>
+              <td ng-bind="game.FullRating|number:1"></td>
+              <td ng-bind="game.metacritic"></td>
+              <td ng-bind="game.rating"></td>
+              <td ng-bind="game.myAggregate"></td>
+              <td ng-bind="game.aggPlaytime|number:1"></td>
+              <td ng-bind="game.aggTimetotal|number:1"></td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

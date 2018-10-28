@@ -35,6 +35,24 @@ exports.getGamesWithPossibleMatchInfo = function(request, response) {
   return db.executeQueryWithResults(response, sql, []);
 };
 
+exports.getNotMyGames = function(request, response) {
+  var personId = request.query.PersonId;
+  console.log("Server call 'getNotMyGames': Person " + personId);
+
+  var sql = "SELECT g.id, g.logo, g.title, g.platform, g.metacritic, g.timetotal, g.date_added, " +
+                  "g.giantbomb_medium_url, g.howlong_extras, g.igdb_poster " +
+    "FROM game g " +
+    "WHERE id NOT IN (SELECT pg.game_id " +
+    "                 FROM person_game pg " +
+    "                 WHERE person_id = $1" +
+    "                 AND retired = $2) ";
+  var values = [
+    personId, 0
+  ];
+
+  return db.executeQueryWithResults(response, sql, values);
+};
+
 exports.updateGame = function(request, response) {
   db.updateObjectWithChangedFields(response, request.body.ChangedFields, "game", request.body.GameId);
 };

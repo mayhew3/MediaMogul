@@ -10,11 +10,14 @@
 
   <div class="container col-lg-12">
     <ul class="nav nav-tabs">
-      <li ui-sref="games.list" ui-sref-active="active">
-        <a>List</a>
-      </li>
       <li ui-sref="games.dashboard" ui-sref-active="active">
         <a>Dashboard</a>
+      </li>
+      <li ui-sref="games.collect" ui-sref-active="active">
+        <a>Add to Collection</a>
+      </li>
+      <li ui-sref="games.list" ui-sref-active="active">
+        <a>List</a>
       </li>
       <li ui-sref="games.match.gamesmatching" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
         <a>

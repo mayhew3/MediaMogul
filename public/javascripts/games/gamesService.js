@@ -1,5 +1,6 @@
 function GamesService($log, $http, LockService) {
   var games = [];
+  var notMyGames = [];
   var platforms = [];
   var possibleMatches = [];
   var self = this;
@@ -21,6 +22,24 @@ function GamesService($log, $http, LockService) {
       console.error('Error while fetching games list: ' + errResponse);
     });
   };
+
+  this.updateNotMyGamesList = function() {
+    return $http.get('/api/notMyGames', {params: {PersonId: LockService.person_id}}).then(function (gamesResponse) {
+      $log.debug("Games returned " + gamesResponse.data.length + " items.");
+      var tempGames = gamesResponse.data;
+      tempGames.forEach(function (game) {
+        self.updateNumericFields(game);
+        self.updateImages(game);
+        self.updateRating(game);
+        self.updatePlatforms(game);
+      });
+      $log.debug("Finished updating.");
+      notMyGames = tempGames;
+    }, function (errResponse) {
+      console.error('Error while fetching games list: ' + errResponse);
+    });
+  };
+
 
 
 
@@ -56,6 +75,10 @@ function GamesService($log, $http, LockService) {
 
   this.getGamesList = function() {
     return games;
+  };
+
+  this.getNotMyGamesList = function() {
+    return notMyGames;
   };
 
   this.getPlatformList = function() {

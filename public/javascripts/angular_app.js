@@ -93,6 +93,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           controller: 'gamesController',
           controllerAs: 'ctrl'
         })
+        .state('games.collect', {
+          url: '/collect',
+          templateUrl: 'views/games/collectGames.html',
+          controller: 'collectGamesController',
+          controllerAs: 'ctrl'
+        })
         .state('games.dashboard', {
           url: '/dashboard',
           templateUrl: 'views/games/dashboard.html',

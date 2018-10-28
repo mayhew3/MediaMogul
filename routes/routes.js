@@ -15,6 +15,7 @@ module.exports = function(app) {
 
   // GAMES
   app.get('/api/games', authCheck, games.getGames);
+  app.get('/api/notMyGames', authCheck, games.getNotMyGames);
   app.get('/api/gamesMatchList', authCheck, games.getGamesWithPossibleMatchInfo);
   app.get('/api/possibleGameMatches', authCheck, games.getPossibleGameMatches);
 
