@@ -17,6 +17,10 @@
 
     self.game = $scope.game;
 
+    self.hasLastPlayed = function() {
+      return !_.isUndefined(self.game.last_played);
+    };
+
     self.open = function(game) {
       $uibModal.open({
         templateUrl: 'views/games/gameDetail.html',

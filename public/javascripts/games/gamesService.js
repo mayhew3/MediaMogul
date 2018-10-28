@@ -44,34 +44,38 @@ function GamesService($log, $http, LockService) {
 
 
   this.updateNumericFields = function(game) {
-    if (game.metacritic !== null) {
+    if (exists(game.metacritic)) {
       game.metacritic = parseFloat(game.metacritic);
     }
-    if (game.rating !== null) {
+    if (exists(game.rating)) {
       game.rating = parseFloat(game.rating);
     }
-    if (game.minutes_played !== null) {
+    if (exists(game.minutes_played)) {
       game.minutes_played = parseInt(game.minutes_played);
     }
-    if (game.timetotal !== null) {
+    if (exists(game.timetotal)) {
       game.timetotal = parseFloat(game.timetotal);
     }
-    if (game.replay_score !== null) {
+    if (exists(game.replay_score)) {
       game.replay_score = parseFloat(game.replay_score);
     }
-    if (game.final_score !== null) {
+    if (exists(game.final_score)) {
       game.final_score = parseFloat(game.final_score);
     }
-    if (game.howlong_id !== null) {
+    if (exists(game.howlong_id)) {
       game.howlong_id = parseInt(game.howlong_id);
     }
-    if (game.giantbomb_id !== null) {
+    if (exists(game.giantbomb_id)) {
       game.giantbomb_id = parseInt(game.giantbomb_id);
     }
-    if (game.last_played !== null) {
+    if (exists(game.last_played)) {
       game.last_played = new Date(game.last_played);
     }
   };
+
+  function exists(dbValue) {
+    return dbValue !== null && !_.isUndefined(dbValue);
+  }
 
   this.getGamesList = function() {
     return games;
