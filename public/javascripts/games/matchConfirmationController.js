@@ -74,7 +74,10 @@ angular.module('mediaMogulApp')
         if (self.selectedMatch.igdb_game_ext_id !== game.igdb_id) {
           changedFields = Object.assign({
             igdb_id: self.selectedMatch.igdb_game_ext_id,
-            igdb_title: self.selectedMatch.igdb_game_title
+            igdb_title: self.selectedMatch.igdb_game_title,
+            igdb_poster: self.selectedMatch.poster,
+            igdb_poster_w: self.selectedMatch.poster_w,
+            igdb_poster_h: self.selectedMatch.poster_h
           }, changedFields);
         }
 
@@ -82,6 +85,8 @@ angular.module('mediaMogulApp')
           GamesService.updateGame(game.id, changedFields).then(function() {
             game.igdb_id = self.selectedMatch.igdb_game_ext_id;
             game.igdb_poster = self.selectedMatch.poster;
+            game.igdb_poster_w = self.selectedMatch.poster_w;
+            game.igdb_poster_h = self.selectedMatch.poster_h;
             game.imageUrl = self.selectedMatch.imageUrl;
             game.igdb_title = self.selectedMatch.igdb_game_title;
             game.igdb_hint = self.interfaceFields.igdb_hint;
