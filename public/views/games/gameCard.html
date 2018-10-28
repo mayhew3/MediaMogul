@@ -1,7 +1,8 @@
 <div class="gameCardInside">
-  <div class="col-lg-7 gameImageContainer">
+  <div class="col-lg-6 gameImageContainer">
     <a ng-click="ctrl.open(game)" href="">
       <img class="img-rounded gameImage"
+           ng-style="ctrl.posterStyle()"
            ng-src="{{game.imageUrl}}"
            ng-hide="game.imageUrl == null"
            alt="{{game.title}}"/>
@@ -12,10 +13,20 @@
       <span ng-bind="game.title"></span>
     </div>
   </div>
-  <div class="col-lg-5">
+  <div class="col-lg-6">
     <span ng-bind="game.title"></span><br>
     <br>
     <span ng-show="ctrl.hasLastPlayed()"
-        ng-bind="game.last_played|date:ctrl.getDateFormat(game.last_played):'America/Los_Angeles'"></span>
+        ng-bind="game.last_played|date:ctrl.getDateFormat(game.last_played):'America/Los_Angeles'"></span><br>
+    <br>
+    <div class="addShowButton">
+      <input type="button"
+             class="btn btn-success"
+             style="width: 100pt"
+             ng-hide="ctrl.owned"
+             ng-click="ctrl.addToMyGames()"
+             ng-disabled="game.addedSuccessfully"
+             value="Add Game">
+    </div>
   </div>
 </div>

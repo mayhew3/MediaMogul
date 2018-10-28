@@ -16,7 +16,7 @@
     }
   }
 
-  function gameCardController($uibModal, $scope) {
+  function gameCardController($uibModal, $scope, GamesService) {
     var self = this;
 
     self.game = $scope.game;
@@ -24,6 +24,18 @@
 
     self.hasLastPlayed = function() {
       return !_.isUndefined(self.game.last_played);
+    };
+
+    self.posterStyle = function() {
+      if (self.game.addedSuccessfully) {
+        return {"opacity": "0.5"}
+      } else {
+        return {};
+      }
+    };
+
+    self.addToMyGames = function() {
+      GamesService.addToMyGames(self.game);
     };
 
     self.open = function(game) {

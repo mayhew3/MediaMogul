@@ -108,6 +108,17 @@ function GamesService($log, $http, LockService) {
     });
   };
 
+  this.addToMyGames = function(game) {
+    $log.debug("Adding to my games: " + JSON.stringify(game));
+    return $http.post('/api/addToMyGames', {PersonId: LockService.person_id, GameId: game.id}).then(function() {
+      game.tier = 1;
+      game.minutes_played = 0;
+      game.addedSuccessfully = true;
+    }, function(errResponse) {
+      $log.debug("Error adding to my games: " + errResponse);
+    });
+  };
+
   this.addGameplaySession = function(gameplaySession) {
     $log.debug("Adding gameplay " + JSON.stringify(gameplaySession));
     return $http.post('/api/addgameplay', {gameplaySession: gameplaySession});

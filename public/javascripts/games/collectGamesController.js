@@ -139,7 +139,6 @@ angular.module('mediaMogulApp')
         return notNull && withinDiff;
       }
 
-
       self.getButtonClass = function(uiField) {
         return uiField ? "btn btn-warning" : "btn btn-default";
       };

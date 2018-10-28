@@ -6,7 +6,7 @@ exports.getGames = function (request, response) {
 
   var sql = 'SELECT g.id, g.logo, g.title, g.steamid, pg.minutes_played, g.metacritic, g.platform, g.metacritic_hint, ' +
                   'pg.rating, pg.id as person_game_id, ' +
-                  'timetotal, pg.finished_date, pg.final_score, pg.replay_score, g.date_added, ' +
+                  'timetotal, pg.finished_date, pg.final_score, pg.replay_score, pg.date_added, ' +
                   'g.steam_cloud, pg.last_played, g.natural_end, g.metacritic_matched, ' +
                   'g.giantbomb_small_url, g.giantbomb_thumb_url, g.giantbomb_medium_url, g.howlong_extras, ' +
                   'g.howlong_id, g.giantbomb_id, g.giantbomb_manual_guess, ' +
@@ -90,6 +90,20 @@ exports.addGame = function(request, response) {
   });
 
 
+};
+
+exports.addToMyGames = function(request, response) {
+  var personId = request.body.PersonId;
+  var gameId = request.body.GameId;
+
+  var sql = "INSERT INTO person_game " +
+    "(person_id, game_id, tier, minutes_played) " +
+    "VALUES ($1, $2, $3, $4) ";
+  var values = [
+    personId, gameId, 1, 0
+  ];
+
+  return db.executeQueryNoResults(response, sql, values);
 };
 
 exports.addGameplaySession = function(request, response) {
