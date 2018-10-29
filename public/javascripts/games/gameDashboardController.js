@@ -7,12 +7,15 @@ angular.module('mediaMogulApp')
 
       self.platforms = ["Switch", "Wii U", "Xbox One", "PS4", "Steam", "PC"];
       self.games = [];
+      self.uncategorizedGames = [];
 
       self.recentGames = [];
       self.newlyAddedGames = [];
       self.almostDoneGames = [];
       self.endlessGames = [];
       self.playAgainGames = [];
+
+      self.quickFindResult = undefined;
 
       self.dashboardInfos = [
         {
@@ -82,13 +85,13 @@ angular.module('mediaMogulApp')
       function createShowcaseAndUpdateArrays(showcaseArray, filter, scoreFunction) {
         showcaseArray.length = 0;
 
-        var filtered = _.filter(self.games, filter);
+        var filtered = _.filter(self.uncategorizedGames, filter);
         var sorted = _.sortBy(filtered, function(game) {
           return scoreFunction(game) * -1;
         });
 
         addToArray(showcaseArray, _.first(sorted, MAX_GAMES));
-        self.games = _.difference(self.games, showcaseArray);
+        self.uncategorizedGames = _.difference(self.uncategorizedGames, showcaseArray);
       }
 
       function addToArray(originalArray, newArray) {
@@ -212,6 +215,7 @@ angular.module('mediaMogulApp')
 
       self.updateShowcases = function() {
         self.games = GamesService.getGamesList();
+        self.uncategorizedGames = self.games;
         self.createShowcases();
       };
 
@@ -223,6 +227,23 @@ angular.module('mediaMogulApp')
       };
       self.refreshGamesList();
 
+
+      // UI POPUPS
+
+      self.open = function(game) {
+        $uibModal.open({
+          templateUrl: 'views/games/gameDetail.html',
+          controller: 'gameDetailController as ctrl',
+          size: 'lg',
+          resolve: {
+            game: function() {
+              return game;
+            }
+          }
+        }).result.finally(function() {
+          self.updateShowcases();
+        });
+      };
 
     }
 
