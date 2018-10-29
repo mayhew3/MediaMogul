@@ -14,6 +14,28 @@ angular.module('mediaMogulApp')
       self.endlessGames = [];
       self.playAgainGames = [];
 
+      self.dashboardInfos = [
+        {
+          headerText: "Recently Played",
+          gamesArray: self.recentGames
+        },
+        {
+          headerText: "Newly Added",
+          gamesArray: self.newlyAddedGames
+        },
+        {
+          headerText: "Almost Done",
+          gamesArray: self.almostDoneGames
+        },
+        {
+          headerText: "Endless",
+          gamesArray: self.endlessGames
+        },
+        {
+          headerText: "Play Again",
+          gamesArray: self.playAgainGames
+        }
+      ];
 
       // UI HELPERS
 
@@ -195,8 +217,7 @@ angular.module('mediaMogulApp')
 
       self.refreshGamesList = function() {
         GamesService.updateGamesList().then(function () {
-          self.games = GamesService.getGamesList();
-          self.createShowcases();
+          self.updateShowcases();
           $log.debug("Controller has " + self.games.length + " games.");
         })
       };

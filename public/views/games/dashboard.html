@@ -1,34 +1,12 @@
 
 <div class="container" style="margin-top: 10px">
 
-  <!-- RECENTLY PLAYED section -->
-  <game-group header="'Recently Played'"
-              games="ctrl.recentGames"
-              owned="true"
-              refresh-callback="ctrl.updateShowcases"></game-group>
-
-  <!-- NEWLY ADDED section -->
-  <game-group header="'Newly Added'"
-              games="ctrl.newlyAddedGames"
-              owned="true"
-              refresh-callback="ctrl.updateShowcases"></game-group>
-
-  <!-- ALMOST DONE section -->
-  <game-group header="'Almost Done'"
-              games="ctrl.almostDoneGames"
-              owned="true"
-              refresh-callback="ctrl.updateShowcases"></game-group>
-
-  <!-- ENDLESS section -->
-  <game-group header="'Endless'"
-              games="ctrl.endlessGames"
-              owned="true"
-              refresh-callback="ctrl.updateShowcases"></game-group>
-
-  <!-- PLAY AGAIN section -->
-  <game-group header="'Play Again'"
-              games="ctrl.playAgainGames"
-              owned="true"
-              refresh-callback="ctrl.updateShowcases"></game-group>
+  <!--suppress JSUnusedLocalSymbols -->
+  <div ng-repeat="group in ctrl.dashboardInfos">
+    <game-group header="group.headerText"
+                games="group.gamesArray"
+                owned="true"
+                refresh-callback="ctrl.updateShowcases"></game-group>
+  </div>
 
 </div>
