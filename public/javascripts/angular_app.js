@@ -194,28 +194,35 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         if (token) {
           if (jwtHelper.isTokenExpired(token)) {
             console.log("Token is expired. Trying to renew.");
-            // Prevent navigation by default since we'll handle it once the token is renewed.
-            event.preventDefault();
 
             LockService.renew().then(function () {
-              // detach change event so we can change location to original destination without triggering this event again.
-              onRouteChangeOff();
+
+              if (!store.get('token')) {
+                console.log("ERROR: No token found even after renew()!!! Sending back to home.")
+                sendHome();
+              }
+
+              // SUCCESS!
               console.log("Redirecting to 'next' with value: " + next);
-              $location.path(next);
+              $location.url(next);
 
             }, function (err) {
               console.log("Received error from renewal: " + err);
-              onRouteChangeOff();
-              $location.path('/');
+              sendHome();
             });
           }
         } else {
           console.log("No auth token found. Redirecting to home page for login.");
-          // Otherwise, redirect to the home route
+          sendHome();
+        }
+
+
+        function sendHome() {
           event.preventDefault();
           onRouteChangeOff();
           $location.path('/');
         }
+
       }
 
     }])
