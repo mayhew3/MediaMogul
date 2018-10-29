@@ -13,7 +13,8 @@
         header: '=',
         games: '=',
         gamesFilter: '=',
-        owned: '='
+        owned: '=',
+        refreshCallback: '='
       }
     }
   }
@@ -25,6 +26,7 @@
     self.games = $scope.games;
     self.gamesFilter = $scope.gamesFilter;
     self.owned = $scope.owned;
+    self.refreshCallback = $scope.refreshCallback;
   }
 
 })();

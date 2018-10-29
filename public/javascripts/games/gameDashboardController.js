@@ -58,6 +58,8 @@ angular.module('mediaMogulApp')
       }
 
       function createShowcaseAndUpdateArrays(showcaseArray, filter, scoreFunction) {
+        showcaseArray.length = 0;
+
         var filtered = _.filter(self.games, filter);
         var sorted = _.sortBy(filtered, function(game) {
           return scoreFunction(game) * -1;
@@ -186,6 +188,11 @@ angular.module('mediaMogulApp')
         self.createPlayAgainShowcase();
       };
 
+      self.updateShowcases = function() {
+        self.games = GamesService.getGamesList();
+        self.createShowcases();
+      };
+
       self.refreshGamesList = function() {
         GamesService.updateGamesList().then(function () {
           self.games = GamesService.getGamesList();
@@ -195,21 +202,6 @@ angular.module('mediaMogulApp')
       };
       self.refreshGamesList();
 
-
-      // UI POPUPS
-
-      self.open = function(game) {
-        $uibModal.open({
-          templateUrl: 'views/games/gameDetail.html',
-          controller: 'gameDetailController as ctrl',
-          size: 'lg',
-          resolve: {
-            game: function() {
-              return game;
-            }
-          }
-        });
-      };
 
     }
 

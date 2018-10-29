@@ -11,7 +11,8 @@
       controllerAs: 'ctrl',
       scope: {
         game: '=',
-        owned: '='
+        owned: '=',
+        refreshCallback: '='
       }
     }
   }
@@ -21,6 +22,7 @@
 
     self.game = $scope.game;
     self.owned = $scope.owned;
+    self.refreshCallback = $scope.refreshCallback;
 
     self.hasLastPlayed = function() {
       return !_.isUndefined(self.game.last_played);
@@ -49,6 +51,8 @@
               return game;
             }
           }
+        }).result.finally(function() {
+          self.refreshCallback();
         });
       }
     };

@@ -1,12 +1,12 @@
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3>{{ctrl.header}}</h3>
+    <h3 ng-bind="ctrl.header"></h3>
   </div>
   <div class="panel-body">
     <div class="row gameRow">
       <div class="fade-repeat col-xs-4 col-md-4 gameCard" ng-repeat="game in ctrl.games |
           filter:ctrl.gamesFilter">
-        <game-card game="game" owned="ctrl.owned"></game-card>
+        <game-card game="game" owned="ctrl.owned" refresh-callback="ctrl.refreshCallback"></game-card>
       </div>
     </div>
   </div>

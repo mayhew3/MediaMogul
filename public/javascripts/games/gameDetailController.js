@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-.controller('gameDetailController', ['$log', 'GamesService', '$uibModalInstance', 'game', 'LockService', '$uibModal',
-  function($log, GamesService, $uibModalInstance, game, LockService, $uibModal) {
+.controller('gameDetailController', ['$log', 'GamesService', '$uibModalInstance', 'game', 'LockService', '$uibModal', '$q',
+  function($log, GamesService, $uibModalInstance, game, LockService, $uibModal, $q) {
     var self = this;
 
     self.LockService = LockService;
@@ -130,6 +130,9 @@ angular.module('mediaMogulApp')
 
     self.changeValues = function() {
 
+      var deferred = $q.defer();
+      var allUpdates = [];
+
       var changedFields = self.getChangedFields();
       var changedPersonFields = self.getChangedPersonFields();
 
@@ -137,9 +140,9 @@ angular.module('mediaMogulApp')
       $log.debug("Changed person_game fields: " + JSON.stringify(changedPersonFields));
 
       if (Object.getOwnPropertyNames(changedPersonFields).length > 0) {
-        $log.debug("Changed fields has a length!");
+        $log.debug("Changed person_game fields has a length!");
 
-        GamesService.updatePersonGame(game.person_game_id, changedPersonFields).then(function() {
+        allUpdates.push(GamesService.updatePersonGame(game.person_game_id, changedPersonFields).then(function() {
           self.game.rating = self.interfacePersonFields.rating;
           self.game.minutes_played = self.interfacePersonFields.minutes_played;
           self.game.final_score = self.interfacePersonFields.final_score;
@@ -151,17 +154,14 @@ angular.module('mediaMogulApp')
           self.originalPersonFields.final_score = self.interfacePersonFields.final_score;
           self.originalPersonFields.replay_score = self.interfacePersonFields.replay_score;
 
-          GamesService.updatePlaytimes(game);
-          GamesService.updateRating(game);
-
-          $log.debug("Finished resetting. Original values: " + self.originalPersonFields);
-        });
+          $log.debug("Finished resetting person_game fields. Original values: " + JSON.stringify(self.originalPersonFields));
+        }));
       }
 
       if (Object.getOwnPropertyNames(changedFields).length > 0) {
-        $log.debug("Changed fields has a length!");
+        $log.debug("Changed game fields has a length!");
 
-        GamesService.updateGame(game.id, changedFields).then(function() {
+        allUpdates.push(GamesService.updateGame(game.id, changedFields).then(function() {
           // todo: loop?
           self.game.platform = self.interfaceFields.platform;
           self.game.metacritic = self.interfaceFields.metacritic;
@@ -181,14 +181,18 @@ angular.module('mediaMogulApp')
           self.originalFields.giantbomb_id = self.interfaceFields.giantbomb_id;
           self.originalFields.giantbomb_manual_guess = self.interfaceFields.giantbomb_manual_guess;
 
-          GamesService.updatePlaytimes(game);
-          GamesService.updateRating(game);
+          $log.debug("Finished resetting game fields. Original values: " + JSON.stringify(self.originalFields));
 
-          $log.debug("Finished resetting. Original values: " + self.originalFields);
-        });
+        }));
       }
 
-      $uibModalInstance.close();
+      $q.all(allUpdates).then(function() {
+        GamesService.updatePlaytimes(game);
+        GamesService.updateRating(game);
+
+        $log.debug("All updates finished. Closing window.");
+        $uibModalInstance.close()
+      });
     };
 
     self.editTitle = function() {
