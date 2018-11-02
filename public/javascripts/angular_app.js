@@ -179,8 +179,22 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
   .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location',
     function($rootScope, LockService, store, jwtHelper, $location) {
 
+      var self = this;
+
       // return value is a "deregistration" function that can be called to detach from the event.
       const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);
+
+      self.sendHome = function() {
+        event.preventDefault();
+        onRouteChangeOff();
+        $location.path('/');
+      };
+
+      self.callbackBase = function() {
+        var protocol_host = $location.protocol() + "://" + $location.host();
+        var optional_port = $location.port() === 80 ? '' : ':' + $location.port();
+        return protocol_host + optional_port;
+      };
 
       function routeChange(event, next) {
         // Get the JWT that is saved in local storage
@@ -190,7 +204,6 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         var person_id = store.get('person_id');
 
         console.log("On Refresh: Store PersonID: " + person_id + ", Auth PersonID: " + LockService.person_id);
-
         if (token) {
           if (jwtHelper.isTokenExpired(token)) {
             console.log("Token is expired. Trying to renew.");
@@ -199,28 +212,27 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
 
               if (!store.get('token')) {
                 console.log("ERROR: No token found even after renew()!!! Sending back to home.")
-                sendHome();
+                self.sendHome();
               }
 
               // SUCCESS!
               console.log("Redirecting to 'next' with value: " + next);
-              $location.url(next);
+
+              var callbackBase = self.callbackBase();
+              var nextPath = next.replace(callbackBase, "");
+
+              console.log("Using parsed path of " + nextPath);
+
+              $location.path(nextPath);
 
             }, function (err) {
               console.log("Received error from renewal: " + err);
-              sendHome();
+              self.sendHome();
             });
           }
         } else {
           console.log("No auth token found. Redirecting to home page for login.");
-          sendHome();
-        }
-
-
-        function sendHome() {
-          event.preventDefault();
-          onRouteChangeOff();
-          $location.path('/');
+          self.sendHome();
         }
 
       }
