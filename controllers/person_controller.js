@@ -698,4 +698,29 @@ exports.setRatingEndDate = function(request, response) {
   return db.executeQueryNoResults(response, sql, [ratingEndDate]);
 };
 
+exports.getMyGroups = function(request, response) {
+  var person_id = request.query.person_id;
 
+  var sql = "SELECT id, name " +
+    "FROM tv_group " +
+    "WHERE id IN (SELECT tv_group_id " +
+    "             FROM tv_group_person " +
+    "             WHERE person_id = $1 " +
+    "             AND retired = $2) " +
+    "AND retired = $3 ";
+  return db.executeQueryWithResults(response, sql, [person_id, 0, 0]);
+};
+
+exports.getGroupShows = function(request, response) {
+  var tv_group_id = request.query.tv_group_id;
+
+  var sql = "SELECT s.id, s.title, s.metacritic, s.poster " +
+    "FROM series s " +
+    "INNER JOIN tv_group_series tgs " +
+    "  ON tgs.series_id = s.id " +
+    "WHERE tgs.tv_group_id = $1 " +
+    "AND tgs.retired = $2 " +
+    "AND s.retired = $3 ";
+
+  return db.executeQueryWithResults(response, sql, [tv_group_id, 0, 0]);
+};

@@ -13,6 +13,9 @@
       <li ui-sref="tv.shows.main" ui-sref-active="active">
         <a>My Shows</a>
       </li>
+      <li ui-sref="tv.groups" ui-sref-active="active" ng-show="ctrl.LockService.isUser()">
+        <a>My Groups</a>
+      </li>
       <li ui-sref="tv.rate" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
         <a>
           Rate

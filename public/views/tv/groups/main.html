@@ -1,0 +1,42 @@
+
+<div class="container" style="margin-top: 10px">
+
+  <div class="container col-lg-2">
+
+    <ul class="nav nav-pills nav-stacked btn-sm" ng-repeat="group in ctrl.groups">
+      <li role="group" ng-class="ctrl.isActive(group.id)">
+        <a ng-click="ctrl.changeSelectedGroup(group)">
+          <span ng-bind="group.name"></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="container col-lg-10">
+
+    <!-- SHOWS section -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3>Up Next</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.shows">
+            <a href="">
+              <img class="img-rounded"
+                   ng-style="ctrl.posterStyle(show)"
+                   ng-src="{{show.posterResolved}}"
+                   err-src="images/GenericSeries.gif"
+                   width="100%"/>
+              <div class="posterTitle" ng-show="show.imageDoesNotExist">
+                <span ng-bind="show.title"></span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>

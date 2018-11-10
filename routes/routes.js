@@ -80,6 +80,10 @@ module.exports = function(app) {
   app.post('/revertYear', authCheck, persons.revertYear);
   app.post('/setRatingEndDate', authCheck, persons.setRatingEndDate);
 
+  // GROUPS
+  app.get('/api/myGroups', authCheck, persons.getMyGroups);
+  app.get('/api/groupShows', authCheck, persons.getGroupShows);
+
   // error handlers
 
   // development error handler
