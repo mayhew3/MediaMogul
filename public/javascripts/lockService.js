@@ -14,6 +14,7 @@ angular.module('mediaMogulApp')
           self.person_id = store.get('person_id');
         }
         self.roles = profile.app_metadata.roles;
+        self.firstName = store.get('first_name');
       }
 
       self.callbackBase = function() {
@@ -85,6 +86,7 @@ angular.module('mediaMogulApp')
         store.remove('profile');
         store.remove('token');
         store.remove('person_id');
+        store.remove('first_name');
         self.roles = [];
         self.person_id = undefined;
       };
@@ -149,6 +151,7 @@ angular.module('mediaMogulApp')
 
           console.log("Setting store with person id: " + self.person_id);
           store.set('person_id', self.person_id);
+          store.set('first_name', user_metadata.firstName);
         }, function (err) {
           console.log("Error adding person to DB: " + err);
         });
@@ -165,6 +168,7 @@ angular.module('mediaMogulApp')
 
         console.log("Setting store with person id: " + self.person_id);
         store.set('person_id', self.person_id);
+        store.set('first_name', self.firstName);
       }
 
 
