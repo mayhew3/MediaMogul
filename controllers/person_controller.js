@@ -724,3 +724,59 @@ exports.getGroupShows = function(request, response) {
 
   return db.executeQueryWithResults(response, sql, [tv_group_id, 0, 0]);
 };
+
+exports.getGroupEpisodes = function(request, response) {
+  var tv_group_id = request.query.tv_group_id;
+  var series_id = request.query.series_id;
+
+  var sql = 'SELECT e.id, ' +
+    'e.air_date, ' +
+    'e.air_time, ' +
+    'e.title, ' +
+    'e.season, ' +
+    'e.episode_number, ' +
+    'e.absolute_number, ' +
+    'te.filename as tvdb_filename, ' +
+    'te.overview as tvdb_overview, ' +
+    'te.production_code as tvdb_production_code, ' +
+    'te.rating as tvdb_rating, ' +
+    'te.director as tvdb_director, ' +
+    'te.writer as tvdb_writer,' +
+    'false as watched ' +
+    'FROM episode e ' +
+    'LEFT OUTER JOIN tvdb_episode te ' +
+    ' ON e.tvdb_episode_id = te.id ' +
+    'WHERE e.series_id = $1 ' +
+    'AND e.retired = $2 ' +
+    'AND te.retired = $3 ' +
+    'ORDER BY e.season, e.episode_number';
+
+  db.selectWithJSON(sql, [series_id, 0, 0]).then(function (episodeResult) {
+    var sql = "SELECT tge.watched, tge.watched_date, tge.episode_id " +
+      "FROM tv_group_episode tge " +
+      "INNER JOIN episode e " +
+      "  ON tge.episode_id = e.id " +
+      "WHERE e.series_id = $1 " +
+      "AND e.retired = $2 " +
+      "AND tge.retired = $3 " +
+      "AND tge.tv_group_id = $4 ";
+
+    db.selectWithJSON(sql, [series_id, 0, 0, tv_group_id]).then(function(groupResult) {
+
+      groupResult.forEach(function(groupEpisode) {
+        var episodeMatch = _.find(episodeResult, function (episode) {
+          return episode.id === groupEpisode.episode_id;
+        });
+
+        if (episodeMatch !== null && episodeMatch !== undefined) {
+          episodeMatch.watched_date = groupEpisode.watched_date;
+          episodeMatch.watched = groupEpisode.watched;
+        }
+
+      });
+
+      response.send(episodeResult);
+
+    });
+  });
+};

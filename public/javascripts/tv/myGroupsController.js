@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-.controller('myGroupsController', ['$log', 'LockService', '$http',
-  function($log, LockService, $http) {
+.controller('myGroupsController', ['$log', 'LockService', '$http', '$uibModal',
+  function($log, LockService, $http, $uibModal) {
     var self = this;
 
     self.LockService = LockService;
@@ -55,6 +55,29 @@ angular.module('mediaMogulApp')
     function amendPosterLocation(posterPath) {
       return posterPath ? 'http://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
     }
+
+    function getSelectedGroup() {
+      return _.find(self.groups, function(group) {
+        return self.selectedPill === group.id;
+      });
+    }
+
+
+    self.open = function(series) {
+      $uibModal.open({
+        templateUrl: 'views/tv/groups/seriesDetail.html',
+        controller: 'myGroupSeriesDetailController as ctrl',
+        size: 'lg',
+        resolve: {
+          series: function() {
+            return series;
+          },
+          group: function() {
+            return getSelectedGroup();
+          }
+        }
+      });
+    };
 
   }
 ]);

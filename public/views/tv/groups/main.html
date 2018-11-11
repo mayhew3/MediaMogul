@@ -29,7 +29,8 @@
                    ng-style="ctrl.posterStyle(show)"
                    ng-src="{{show.posterResolved}}"
                    err-src="images/GenericSeries.gif"
-                   width="100%"/>
+                   width="100%"
+                   ng-click="ctrl.open(show)"/>
               <div class="posterTitle" ng-show="show.imageDoesNotExist">
                 <span ng-bind="show.title"></span>
               </div>
