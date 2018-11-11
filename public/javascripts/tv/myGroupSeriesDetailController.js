@@ -65,6 +65,10 @@ angular.module('mediaMogulApp')
         if (isUnaired(episode)) {
           episode.unaired = true;
         }
+
+        episode.imageResolved = episode.tvdb_filename ?
+          'http://thetvdb.com/banners/' + episode.tvdb_filename :
+          'images/GenericEpisode.gif';
       });
 
       self.rowClass = function(episode) {
@@ -216,12 +220,15 @@ angular.module('mediaMogulApp')
 
     self.openEpisodeDetail = function(episode) {
       $uibModal.open({
-        templateUrl: 'views/tv/episodeDetail.html',
-        controller: 'myEpisodeDetailController as ctrl',
+        templateUrl: 'views/tv/groups/episodeDetail.html',
+        controller: 'myGroupEpisodeDetailController as ctrl',
         size: 'lg',
         resolve: {
           episode: function() {
             return episode;
+          },
+          group: function() {
+            return group;
           },
           previousEpisodes: function() {
             return getPreviousEpisodes(episode);
@@ -231,11 +238,7 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function() {
-        if (LockService.isAdmin()) {
-          EpisodeService.updateMySeriesDenorms(self.series, self.episodes);
-          EpisodeService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
-        }
-        updateNextUp();
+        // updateNextUp();
       });
     };
 

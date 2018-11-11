@@ -1,0 +1,122 @@
+<form class="bs-component"
+      id="episodeDetail"
+      name="episodeDetail"
+      ng-submit="ctrl.updateAndClose()"
+      novalidate>
+
+  <div class="modal-header">
+    <h1 ng-bind="ctrl.series.title"></h1>
+  </div>
+
+  <div class="modal-body clearfix">
+
+    <!-- Top Group -->
+    <div class="form-group col-lg-12">
+
+      <!-- Episode Image -->
+      <div class="form-group col-lg-6">
+        <img class="img-rounded"
+             ng-src="{{ctrl.episode.imageResolved}}"
+             width="100%"/>
+      </div>
+
+      <!-- Title -->
+      <div class="form-group col-lg-6">
+        <h2 ng-bind="ctrl.episode.title"></h2>
+      </div>
+
+      <!-- Episode Number -->
+      <div class="form-group col-lg-6">
+        <h4>
+          <span>Season</span>
+          <strong><span ng-bind="ctrl.episode.season"></span></strong>
+          <span> - Episode</span>
+          <strong><span ng-bind="ctrl.episode.episode_number"></span></strong>
+        </h4>
+      </div>
+
+      <!-- Episode Summary -->
+      <div class="form-group col-lg-6">
+        <span ng-bind="ctrl.episode.tvdb_overview"></span>
+      </div>
+
+    </div>
+
+
+
+
+    <!-- Air Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
+    <div class="form-group col-lg-3">
+      <label class="control-label" for="airDate">Aired</label>
+      <div class="date">
+        <input type="text"
+               id="airDate"
+               name="airDate"
+               class="form-control"
+               ng-model="ctrl.air_date">
+      </div>
+    </div>
+
+    <!-- Watched  -->
+    <div class="form-group col-lg-3">
+      <label class="control-label" for="watched">Watched</label>
+      <div>
+        <input type="checkbox"
+               id="watched"
+               name="watched"
+               checked
+               class="form-control"
+               ng-model="ctrl.interfaceRating.watched"
+               ng-change="ctrl.changeWatched()">
+      </div>
+    </div>
+
+    <!-- Watch Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
+    <div class="form-group col-lg-3">
+      <label class="control-label" for="watchedDate">Watched</label>
+      <div class="date">
+        <input type="text"
+               id="watchedDate"
+               name="watchedDate"
+               class="form-control"
+               ng-model="ctrl.watched_date"
+               ng-change="ctrl.changeWatchedDate()">
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="modal-footer">
+    <input class="btn btn-primary"
+           type="submit"
+           value="Submit"
+           ng-show="ctrl.LockService.isUser()"
+           ng-disabled="episodeDetail.$invalid || !ctrl.LockService.isAuthenticated">
+    <input class="btn btn-default"
+           type="button"
+           value="Cancel"
+           ng-click="ctrl.cancel()">
+  </div>
+
+</form>
+
+<script>
+  $(document).ready(function()  {
+    $('#watchedDate').datepicker({
+      todayBtn: "linked",
+      clearBtn: true,
+      daysOfWeekHighlighted: "0,6",
+      autoclose: true,
+      todayHighlight: true
+    });
+    $('#airDate').datepicker({
+      todayBtn: "linked",
+      clearBtn: true,
+      daysOfWeekHighlighted: "0,6",
+      autoclose: true,
+      todayHighlight: true
+    });
+  });
+</script>
+

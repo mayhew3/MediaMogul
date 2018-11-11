@@ -431,7 +431,7 @@ exports.getMyEpisodes = function(request, response) {
           return episode.id === episodeRating.episode_id;
         });
 
-        if (episodeMatch !== null && episodeMatch !== undefined) {
+        if (exists(episodeMatch)) {
           episodeMatch.watched_date = episodeRating.watched_date;
           episodeMatch.watched = episodeRating.watched;
           episodeMatch.rating_funny = episodeRating.rating_funny;
@@ -752,7 +752,7 @@ exports.getGroupEpisodes = function(request, response) {
     'ORDER BY e.season, e.episode_number';
 
   db.selectWithJSON(sql, [series_id, 0, 0]).then(function (episodeResult) {
-    var sql = "SELECT tge.watched, tge.watched_date, tge.episode_id " +
+    var sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id " +
       "FROM tv_group_episode tge " +
       "INNER JOIN episode e " +
       "  ON tge.episode_id = e.id " +
@@ -768,9 +768,10 @@ exports.getGroupEpisodes = function(request, response) {
           return episode.id === groupEpisode.episode_id;
         });
 
-        if (episodeMatch !== null && episodeMatch !== undefined) {
+        if (exists(episodeMatch)) {
           episodeMatch.watched_date = groupEpisode.watched_date;
           episodeMatch.watched = groupEpisode.watched;
+          episodeMatch.tv_group_episode_id = groupEpisode.id;
         }
 
       });
@@ -780,3 +781,56 @@ exports.getGroupEpisodes = function(request, response) {
     });
   });
 };
+
+exports.markEpisodeWatchedByGroup = function(request, response) {
+  addOrEditTVGroupEpisode(request).then(function (result) {
+    response.json(result);
+  });
+};
+
+function addOrEditTVGroupEpisode(request) {
+  var payload = request.body.payload;
+  var tv_group_episode = payload.changedFields;
+  var tv_group_episode_id = payload.tv_group_episode_id;
+
+  return new Promise(function(resolve) {
+    if (exists(tv_group_episode_id)) {
+      editTVGroupEpisode(tv_group_episode, tv_group_episode_id).then(function () {
+        resolve({
+          tv_group_episode_id: tv_group_episode_id
+        });
+      });
+    } else {
+      addTVGroupEpisode(tv_group_episode).then(function (results) {
+        resolve({
+          tv_group_episode_id: results[0].id
+        });
+      });
+    }
+  });
+
+}
+
+function addTVGroupEpisode(tv_group_episode) {
+  var sql = "INSERT INTO tv_group_episode (tv_group_id, episode_id, watched, watched_date, date_added) " +
+    "VALUES ($1, $2, $3, $4, $5) " +
+    "RETURNING id ";
+
+  var values = [
+    tv_group_episode.tv_group_id,
+    tv_group_episode.episode_id,
+    tv_group_episode.watched,
+    tv_group_episode.watched_date,
+    new Date
+  ];
+
+  return db.selectWithJSON(sql, values);
+}
+
+function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
+  return db.updateObjectWithChangedFieldsNoJSON(tv_group_episode, "tv_group_episode", tv_group_episode_id);
+}
+
+function exists(object) {
+  return object !== null && object !== undefined;
+}
