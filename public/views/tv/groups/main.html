@@ -23,6 +23,7 @@
 
         <div class="row">
           <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.shows |
+                    filter: ctrl.showInQueue |
                     limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
             <a href="">
               <img class="img-rounded"
@@ -31,6 +32,9 @@
                    err-src="images/GenericSeries.gif"
                    width="100%"
                    ng-click="ctrl.open(show)"/>
+              <div class="posterBadge">
+                <span ng-bind="show.unwatched_all"></span>
+              </div>
               <div class="posterTitle" ng-show="show.imageDoesNotExist">
                 <span ng-bind="show.title"></span>
               </div>

@@ -238,7 +238,8 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function() {
-        // updateNextUp();
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes);
+        updateNextUp();
       });
     };
 

@@ -34,6 +34,14 @@ angular.module('mediaMogulApp')
     };
     self.fetchGroups();
 
+    self.showInQueue = function(series) {
+      return hasUnwatchedEpisodes(series);
+    };
+
+    function hasUnwatchedEpisodes(series) {
+      return series.unwatched_all > 0;
+    }
+
     self.isActive = function(pillNumber) {
       return (pillNumber === self.selectedPill) ? "active" : null;
     };

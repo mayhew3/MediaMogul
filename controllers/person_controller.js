@@ -714,15 +714,70 @@ exports.getMyGroups = function(request, response) {
 exports.getGroupShows = function(request, response) {
   var tv_group_id = request.query.tv_group_id;
 
-  var sql = "SELECT s.id, s.title, s.metacritic, s.poster " +
+  var sql = "SELECT s.id, s.title, s.metacritic, s.poster, " +
+    "(SELECT COUNT(1) " +
+    "    from episode e " +
+    "    where e.series_id = s.id " +
+    "    and e.retired = $1" +
+    "    and e.season <> $2 " +
+    "    and e.air_date IS NOT NULL" +
+    "    and e.air_date < NOW()) as aired_episodes, " +
+    "(SELECT MAX(tge.watched_date) " +
+    "  from tv_group_episode tge " +
+    "  inner join episode e " +
+    "   on tge.episode_id = e.id " +
+    "  where e.series_id = s.id " +
+    "  and tge.retired = $3 " +
+    "  and e.retired = $4) as last_watched " +
     "FROM series s " +
     "INNER JOIN tv_group_series tgs " +
     "  ON tgs.series_id = s.id " +
-    "WHERE tgs.tv_group_id = $1 " +
-    "AND tgs.retired = $2 " +
-    "AND s.retired = $3 ";
+    "WHERE tgs.tv_group_id = $5 " +
+    "AND tgs.retired = $6 " +
+    "AND s.retired = $7 " +
+    "AND s.tvdb_match_status = $8 ";
 
-  return db.executeQueryWithResults(response, sql, [tv_group_id, 0, 0]);
+  db.selectWithJSON(sql, [0, 0, 0, 0, tv_group_id, 0, 0, 'Match Completed']).then(function (seriesResults) {
+    var sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
+      "FROM episode e " +
+      "INNER JOIN tv_group_series tgs " +
+      "  ON tgs.series_id = e.series_id " +
+      "WHERE e.retired = $1 " +
+      "AND e.season <> $2 " +
+      "AND e.id NOT IN (SELECT tge.episode_id " +
+      "                   FROM tv_group_episode tge " +
+      "                   WHERE tge.tv_group_id = $3 " +
+      "                   AND tge.watched = $4) " +
+      "AND tgs.tv_group_id = $5 " +
+      "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
+
+    var values = [
+      0,
+      0,
+      tv_group_id,
+      true,
+      tv_group_id
+    ];
+
+    db.selectWithJSON(sql, values).then(function(episodeResults) {
+
+      var groupedBySeries = _.groupBy(episodeResults, "series_id");
+      for (var seriesId in groupedBySeries) {
+        if (groupedBySeries.hasOwnProperty(seriesId)) {
+          var unwatchedEpisodes = groupedBySeries[seriesId];
+
+          var series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+          debug("Series: " + series.title);
+
+          calculateUnwatchedDenorms(series, unwatchedEpisodes);
+        }
+      }
+
+      response.json(seriesResults);
+
+    });
+
+  });
 };
 
 exports.getGroupEpisodes = function(request, response) {
