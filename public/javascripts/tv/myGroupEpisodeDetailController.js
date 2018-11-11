@@ -1,6 +1,8 @@
 angular.module('mediaMogulApp')
-  .controller('myGroupEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode', 'previousEpisodes', 'series', 'LockService', 'group', '$http',
-    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService, group, $http) {
+  .controller('myGroupEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode',
+            'previousEpisodes', 'series', 'LockService', 'group', '$http', 'allPastWatchedCallback',
+    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService,
+             group, $http, allPastWatchedCallback) {
       var self = this;
       self.tv_group_episode_id = episode.tv_group_episode_id;
       self.LockService = LockService;
@@ -11,9 +13,13 @@ angular.module('mediaMogulApp')
       };
 
       self.episode = episode;
+      self.series = series;
+      self.group = group;
 
       self.watched_date = formatDateString(episode.watched_date);
       self.air_date = formatDateString(episode.air_date);
+
+      self.allPastEpisodes = false;
 
       // leave watched_date out of the interface fields because I want to use a date comparison before adding to changedFields.
       self.originalRating = {
@@ -194,9 +200,26 @@ angular.module('mediaMogulApp')
           })
           .then(function () {
             updateEpisodeFields();
-            $uibModalInstance.close();
+            maybeUpdateAllPastEpisodes().then(function () {
+              $uibModalInstance.close();
+            });
           });
       };
+
+      function maybeUpdateAllPastEpisodes() {
+        if (self.allPastEpisodes) {
+          allPastWatchedCallback(self.episode.absolute_number);
+          return $http.post('/api/watchPastGroupEpisodes', {
+            series_id: self.series.id,
+            last_watched: self.episode.absolute_number,
+            tv_group_id: self.group.id
+          });
+        } else {
+          return new Promise(function (resolve) {
+            resolve();
+          });
+        }
+      }
 
       self.cancel = function() {
         $uibModalInstance.dismiss();

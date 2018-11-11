@@ -906,6 +906,67 @@ function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
   return db.updateObjectWithChangedFieldsNoJSON(tv_group_episode, "tv_group_episode", tv_group_episode_id);
 }
 
+
+exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
+  var series_id = request.body.series_id;
+  var lastWatched = request.body.last_watched;
+  var tv_group_id = request.body.tv_group_id;
+
+  console.log("Updating episodes as Watched, before episode " + lastWatched);
+
+  var sql = 'UPDATE tv_group_episode ' +
+    'SET watched = $1 ' +
+    'WHERE watched <> $2 ' +
+    'AND tv_group_id = $3 ' +
+    'AND episode_id IN (SELECT e.id ' +
+    'FROM episode e ' +
+    'WHERE e.series_id = $4 ' +
+    'AND e.absolute_number IS NOT NULL ' +
+    'AND e.absolute_number < $5 ' +
+    'AND e.season <> $6 ' +
+    'AND retired = $7) ';
+
+  var values = [true, // watched
+    true,             // !watched
+    tv_group_id,         // person_id
+    series_id,         // series_id
+    lastWatched,      // absolute_number <
+    0,                // season
+    0                 // retired
+  ];
+
+  return db.updateNoJSON(sql, values).then(function() {
+    var sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, date_added) " +
+      "SELECT e.id, $1, $2, now() " +
+      "FROM episode e " +
+      "WHERE e.series_id = $3 " +
+      "AND e.retired = $4 " +
+      'AND e.absolute_number IS NOT NULL ' +
+      'AND e.absolute_number < $5 ' +
+      'AND e.season <> $6 ' +
+      "AND e.id NOT IN (SELECT tge.episode_id " +
+                      "FROM tv_group_episode tge " +
+                      "WHERE tge.tv_group_id = $7" +
+                      "AND tge.retired = $8)";
+    var values = [
+      tv_group_id,    // person
+      true,        // watched
+      series_id,    // series
+      0,           // retired
+      lastWatched, // absolute number
+      0,           // !season
+      tv_group_id,    // person
+      0            // retired
+    ];
+
+    return db.executeQueryNoResults(response, sql, values);
+  });
+};
+
+
+
+// UTILITY METHODS
+
 function exists(object) {
   return object !== null && object !== undefined;
 }

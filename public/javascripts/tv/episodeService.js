@@ -1042,7 +1042,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     });
   };
 
-  this.updateMySeriesDenorms = function(series, episodes) {
+  this.updateMySeriesDenorms = function(series, episodes, updateDatabase) {
     var unwatchedEpisodes = 0;
     var lastUnwatched = null;
     var firstUnwatched = null;
@@ -1100,24 +1100,32 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
 
     var changedFields = self.getChangedFields(originalFields, updatedFields);
 
+    return maybeDoDatabaseUpdate(updateDatabase, series, changedFields).then(function() {
+      $log.debug("Updating my series denorms: " + _.keys(changedFields));
+      series.unwatched_episodes = unwatchedEpisodes;
+      series.last_watched = _.last(watchedEpisodesList).watched_date;
+      series.last_unwatched = lastUnwatched;
+      series.first_unwatched = firstUnwatched;
+      series.unwatched_streaming = 0;
+      series.unwatched_all = unwatchedEpisodes;
 
-    if (Object.keys(changedFields).length > 0) {
-      return $http.post('/updateMyShow', {SeriesId: series.id, PersonId: LockService.person_id, ChangedFields: changedFields}).then(function() {
-        $log.debug("Updating my series denorms: " + _.keys(changedFields));
-        series.unwatched_episodes = unwatchedEpisodes;
-        series.last_watched = _.last(watchedEpisodesList).watched_date;
-        series.last_unwatched = lastUnwatched;
-        series.first_unwatched = firstUnwatched;
-        series.unwatched_streaming = 0;
-        series.unwatched_all = unwatchedEpisodes;
-
-        series.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
-      });
-
-    } else {
-      return $q.when();
-    }
+      series.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
+    });
   };
+
+  function maybeDoDatabaseUpdate(databaseUpdate, series, changedFields) {
+    if (databaseUpdate && Object.keys(changedFields).length > 0) {
+      return $http.post('/updateMyShow', {
+        SeriesId: series.id,
+        PersonId: LockService.person_id,
+        ChangedFields: changedFields
+      });
+    } else {
+      return new Promise(function(resolve) {
+        resolve();
+      });
+    }
+  }
 
   function isBefore(newDate, trackingDate) {
     return trackingDate === null || newDate < trackingDate;

@@ -44,6 +44,10 @@ angular.module('mediaMogulApp')
 
     function updateNextUp() {
 
+      self.episodes.forEach(function(episode) {
+        episode.nextUp = false;
+      });
+
       var unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
@@ -175,6 +179,15 @@ angular.module('mediaMogulApp')
       return 'yyyy.M.d';
     };
 
+    function markAllPreviousWatched(lastWatchedNumber) {
+      self.episodes.forEach(function(episode) {
+        if (episode.absolute_number < lastWatchedNumber) {
+          episode.watched = true;
+          episode.watched_date = null;
+        }
+      });
+    }
+
     function getPreviousEpisodes(episode) {
       var allEarlierEpisodes = self.episodes.filter(function (otherEpisode) {
         return  otherEpisode.air_date !== null &&
@@ -234,11 +247,14 @@ angular.module('mediaMogulApp')
             return getPreviousEpisodes(episode);
           },
           series: function() {
-            return series;
+            return self.series;
+          },
+          allPastWatchedCallback: function() {
+            return markAllPreviousWatched;
           }
         }
       }).result.finally(function() {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes);
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, false);
         updateNextUp();
       });
     };

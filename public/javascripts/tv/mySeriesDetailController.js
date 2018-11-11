@@ -241,7 +241,7 @@ angular.module('mediaMogulApp')
             episode.watched = true;
           }
         });
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes);
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, true);
       });
 
       $log.debug("Series '" + self.series.title + "' " + self.series.id);
@@ -307,11 +307,12 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function() {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes);
-        if (LockService.isAdmin()) {
-          EpisodeService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
-        }
-        updateNextUp();
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, true).then(function() {
+          if (LockService.isAdmin()) {
+            EpisodeService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
+          }
+          updateNextUp();
+        });
       });
     };
 

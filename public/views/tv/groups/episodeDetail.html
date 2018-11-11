@@ -43,46 +43,69 @@
     </div>
 
 
+    <div class="row">
 
-
-    <!-- Air Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
-    <div class="form-group col-lg-3">
-      <label class="control-label" for="airDate">Aired</label>
-      <div class="date">
-        <input type="text"
-               id="airDate"
-               name="airDate"
-               class="form-control"
-               ng-model="ctrl.air_date">
+      <!-- Air Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
+      <div class="form-group col-lg-3">
+        <label class="control-label" for="airDate">Aired</label>
+        <div class="date">
+          <input type="text"
+                 id="airDate"
+                 name="airDate"
+                 class="form-control"
+                 ng-model="ctrl.air_date">
+        </div>
       </div>
+
+      <!-- Watched  -->
+      <div class="form-group col-lg-3">
+        <label class="control-label" for="watched">Watched</label>
+        <div>
+          <input type="checkbox"
+                 id="watched"
+                 name="watched"
+                 checked
+                 class="form-control"
+                 ng-model="ctrl.interfaceRating.watched"
+                 ng-change="ctrl.changeWatched()">
+        </div>
+      </div>
+
+      <!-- Watch Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
+      <div class="form-group col-lg-3">
+        <label class="control-label" for="watchedDate">Watched</label>
+        <div class="date">
+          <input type="text"
+                 id="watchedDate"
+                 name="watchedDate"
+                 class="form-control"
+                 ng-model="ctrl.watched_date"
+                 ng-change="ctrl.changeWatchedDate()">
+        </div>
+      </div>
+
     </div>
 
-    <!-- Watched  -->
-    <div class="form-group col-lg-3">
-      <label class="control-label" for="watched">Watched</label>
-      <div>
-        <input type="checkbox"
-               id="watched"
-               name="watched"
-               checked
-               class="form-control"
-               ng-model="ctrl.interfaceRating.watched"
-               ng-change="ctrl.changeWatched()">
+    <div class="row" style="margin-top: 20px" ng-show="ctrl.interfaceRating.watched">
+
+
+      <!-- All Past  -->
+      <div class="form-group col-lg-1">
+        <div>
+          <input type="checkbox"
+                 checked
+                 class="form-control"
+                 ng-model="ctrl.allPastEpisodes">
+        </div>
       </div>
+
+      <div class="form-group col-lg-11 form-text" style="padding-top: 10px">
+        <span>Mark this and all previous episodes as watched.</span>
+      </div>
+
+
     </div>
 
-    <!-- Watch Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
-    <div class="form-group col-lg-3">
-      <label class="control-label" for="watchedDate">Watched</label>
-      <div class="date">
-        <input type="text"
-               id="watchedDate"
-               name="watchedDate"
-               class="form-control"
-               ng-model="ctrl.watched_date"
-               ng-change="ctrl.changeWatchedDate()">
-      </div>
-    </div>
 
   </div>
 
