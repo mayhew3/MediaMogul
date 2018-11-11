@@ -135,7 +135,7 @@ angular.module('mediaMogulApp')
     self.getWatchedDateOrWatched = function(episode) {
       // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
       if (episode.watched_date === null) {
-        return episode.watched ? "----.--.--" : "";
+        return episode.watched ? "Watched" : "";
       } else {
         return $filter('date')(episode.watched_date, self.getDateFormat(episode.watched_date), 'America/Los_Angeles');
       }
