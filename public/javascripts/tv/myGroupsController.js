@@ -10,6 +10,9 @@ angular.module('mediaMogulApp')
 
     self.selectedPill = 0;
 
+    self.currentPageUpNext = 1;
+    self.pageSize = 12;
+
     self.changeSelectedGroup = function(group) {
       self.selectedPill = group.id;
       $http.get('/api/groupShows', {params: {tv_group_id: group.id}}).then(function(results) {

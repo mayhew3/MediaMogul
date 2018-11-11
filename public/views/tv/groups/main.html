@@ -20,8 +20,10 @@
         <h3>Up Next</h3>
       </div>
       <div class="panel-body">
+
         <div class="row">
-          <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.shows">
+          <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.shows |
+                    limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
             <a href="">
               <img class="img-rounded"
                    ng-style="ctrl.posterStyle(show)"
@@ -34,6 +36,16 @@
             </a>
           </div>
         </div>
+
+        <div class="row">
+          <div class="col-lg-12" ng-show="ctrl.shows.length > ctrl.pageSize">
+            <ul uib-pagination
+                total-items="ctrl.shows.length"
+                ng-model="ctrl.currentPageUpNext"
+                items-per-page="ctrl.pageSize"></ul>
+          </div>
+        </div>
+
       </div>
     </div>
 
