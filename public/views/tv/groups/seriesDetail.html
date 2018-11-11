@@ -21,11 +21,12 @@
 
     <div class="col-lg-9">
       <div id="seasonFilter" class="col-lg-12" ng-show="ctrl.seasonLabels.length > 1">
-        <div class="btn-group btn-group-lg" role="seasons">
+        <div class="btn-group" role="group" id="seasons">
           <button type="button"
                   ng-repeat="season in ctrl.seasonLabels"
                   ng-class="ctrl.getSeasonButtonClass(season)"
                   ng-model="ctrl.selectedSeason"
+                  style="font-size: xx-large"
                   uib-btn-radio="season">
             {{season}}
           </button>
