@@ -711,6 +711,26 @@ exports.getMyGroups = function(request, response) {
   return db.executeQueryWithResults(response, sql, [person_id, 0, 0]);
 };
 
+exports.getGroupPersons = function(request, response) {
+  var tv_group_id = request.query.tv_group_id;
+
+  var sql = "SELECT first_name " +
+    "FROM person " +
+    "WHERE id IN (SELECT person_id " +
+    "             FROM tv_group_person " +
+    "             WHERE tv_group_id = $1" +
+    "             AND retired = $2) " +
+    "AND retired = $3 ";
+
+  var values = [
+    tv_group_id,
+    0,
+    0
+  ];
+
+  db.executeQueryWithResults(response, sql, values);
+};
+
 exports.getGroupShows = function(request, response) {
   var tv_group_id = request.query.tv_group_id;
 

@@ -7,6 +7,9 @@ angular.module('mediaMogulApp')
 
     self.groups = [];
     self.shows = [];
+    self.persons = [];
+
+    self.memberNames = null;
 
     self.selectedPill = 0;
 
@@ -20,6 +23,12 @@ angular.module('mediaMogulApp')
         self.shows.forEach(function(show) {
           updatePosterLocation(show);
         });
+      });
+      $http.get('/api/groupPersons', {params: {tv_group_id: group.id}}).then(function(results) {
+        refreshArray(self.persons, results.data.map(function (obj) {
+          return obj.first_name;
+        }));
+        self.memberNames = "Members: " + self.persons.join(', ');
       });
     };
 
