@@ -254,10 +254,16 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function() {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, false);
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing);
         updateNextUp();
       });
     };
+
+    function doNothing() {
+      return new Promise(function(resolve) {
+        resolve();
+      });
+    }
 
     self.openChangePoster = function () {
       if (LockService.isAdmin()) {

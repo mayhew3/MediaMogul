@@ -1,6 +1,7 @@
 angular.module('mediaMogulApp')
-  .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned', '$uibModal', '$filter', 'LockService',
-  function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService) {
+  .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
+    '$uibModal', '$filter', 'LockService', '$http',
+  function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http) {
     var self = this;
 
     self.LockService = LockService;
@@ -241,11 +242,25 @@ angular.module('mediaMogulApp')
             episode.watched = true;
           }
         });
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, true);
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase);
       });
 
       $log.debug("Series '" + self.series.title + "' " + self.series.id);
     };
+
+    function updatePersonSeriesInDatabase(changedFields) {
+      if (Object.keys(changedFields).length > 0) {
+        return $http.post('/updateMyShow', {
+          SeriesId: self.series.id,
+          PersonId: LockService.person_id,
+          ChangedFields: changedFields
+        });
+      } else {
+        return new Promise(function(resolve) {
+          resolve();
+        });
+      }
+    }
 
     function getPreviousEpisodes(episode) {
       var allEarlierEpisodes = self.episodes.filter(function (otherEpisode) {
@@ -307,7 +322,7 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function() {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, true).then(function() {
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function() {
           if (LockService.isAdmin()) {
             EpisodeService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
           }

@@ -1042,7 +1042,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     });
   };
 
-  this.updateMySeriesDenorms = function(series, episodes, updateDatabase) {
+  this.updateMySeriesDenorms = function(series, episodes, databaseCallback) {
     var unwatchedEpisodes = 0;
     var lastUnwatched = null;
     var firstUnwatched = null;
@@ -1100,7 +1100,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
 
     var changedFields = self.getChangedFields(originalFields, updatedFields);
 
-    return maybeDoDatabaseUpdate(updateDatabase, series, changedFields).then(function() {
+    return databaseCallback(changedFields).then(function() {
       $log.debug("Updating my series denorms: " + _.keys(changedFields));
       series.unwatched_episodes = unwatchedEpisodes;
       series.last_watched = _.last(watchedEpisodesList).watched_date;
