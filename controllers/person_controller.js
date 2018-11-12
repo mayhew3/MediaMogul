@@ -926,15 +926,16 @@ exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
 
   var sql = 'UPDATE tv_group_episode ' +
     "SET watched = $1, watched_date = $2, skipped = $3, skip_reason = $4 " +
-    'WHERE ' + watched_or_skipped + " = $5 " +
-    'AND tv_group_id = $6 ' +
+    'WHERE watched = $5 ' +
+    'AND skipped = $6 ' +
+    'AND tv_group_id = $7 ' +
     'AND episode_id IN (SELECT e.id ' +
                       'FROM episode e ' +
-                      'WHERE e.series_id = $7 ' +
+                      'WHERE e.series_id = $8 ' +
                       'AND e.absolute_number IS NOT NULL ' +
-                      'AND e.absolute_number < $8 ' +
-                      'AND e.season <> $9 ' +
-                      'AND retired = $10) ';
+                      'AND e.absolute_number < $9 ' +
+                      'AND e.season <> $10 ' +
+                      'AND retired = $11) ';
 
 
 
@@ -944,6 +945,7 @@ exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
     !watched,
     skip_reason,
     false,            // !watched
+    false,            // !skipped
     tv_group_id,         // person_id
     series_id,         // series_id
     lastWatched,      // absolute_number <

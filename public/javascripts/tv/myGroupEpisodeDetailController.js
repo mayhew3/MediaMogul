@@ -1,11 +1,12 @@
 angular.module('mediaMogulApp')
   .controller('myGroupEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode',
-            'previousEpisodes', 'series', 'LockService', 'group', '$http', 'allPastWatchedCallback',
+            'previousEpisodes', 'series', 'LockService', 'group', '$http', 'allPastWatchedCallback', 'firstUnwatched',
     function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService,
-             group, $http, allPastWatchedCallback) {
+             group, $http, allPastWatchedCallback, firstUnwatched) {
       var self = this;
       self.tv_group_episode_id = episode.tv_group_episode_id;
       self.LockService = LockService;
+      self.firstUnwatched = firstUnwatched;
 
       var options = {
         year: "numeric", month: "2-digit",
@@ -263,6 +264,7 @@ angular.module('mediaMogulApp')
         if (self.allPastEpisodes) {
           allPastWatchedCallback(self.episode.absolute_number, {
             watched: self.interfaceFields.watched,
+            skipped: self.interfaceFields.skipped,
             skip_reason: self.interfaceFields.skip_reason
           });
           return $http.post('/api/watchPastGroupEpisodes', {

@@ -13,6 +13,7 @@ angular.module('mediaMogulApp')
     self.seasonLabels = [];
     self.selectedSeason = null;
 
+    self.firstUnwatchedNumber = null;
 
     self.updateEpisodes = function() {
       $http.get('/api/groupEpisodes', {params: {series_id: series.id, tv_group_id: group.id}}).then(function(result) {
@@ -57,6 +58,7 @@ angular.module('mediaMogulApp')
 
       if (unwatchedEpisodes.length > 0) {
         var firstUnwatched = unwatchedEpisodes[0];
+        self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
         }
@@ -101,6 +103,7 @@ angular.module('mediaMogulApp')
       if (unwatchedEpisodes.length > 0) {
         var firstUnwatched = unwatchedEpisodes[0];
         self.selectedSeason = firstUnwatched.season;
+        self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
         }
@@ -193,10 +196,10 @@ angular.module('mediaMogulApp')
     function markAllPreviousWatched(lastWatchedNumber, episodeFields) {
       self.episodes.forEach(function(episode) {
         if (episode.absolute_number < lastWatchedNumber) {
-          if (episode.watched !== episodeFields.watched) {
+          if (!episode.watched && !episode.skipped) {
             episode.watched = episodeFields.watched;
             episode.watched_date = null;
-            episode.skipped = !episodeFields.watched;
+            episode.skipped = episodeFields.skipped;
             episode.skip_reason = episodeFields.skip_reason;
           }
         }
@@ -266,6 +269,9 @@ angular.module('mediaMogulApp')
           },
           allPastWatchedCallback: function() {
             return markAllPreviousWatched;
+          },
+          firstUnwatched: function() {
+            return episode.absolute_number === self.firstUnwatchedNumber;
           }
         }
       }).result.finally(function() {

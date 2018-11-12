@@ -98,7 +98,7 @@
             </div>
           </div>
 
-          <div class="row" style="margin-top: 20px" ng-show="ctrl.interfaceFields.watched">
+          <div class="row" style="margin-top: 20px" ng-show="ctrl.interfaceFields.watched && !ctrl.firstUnwatched">
 
             <!-- All Past  -->
             <div class="form-group col-lg-2">
@@ -146,7 +146,7 @@
             </div>
           </div>
 
-          <div class="row" style="margin-top: 20px" ng-show="ctrl.interfaceFields.skipped">
+          <div class="row" style="margin-top: 20px" ng-show="ctrl.interfaceFields.skipped && !ctrl.firstUnwatched">
 
             <!-- All Past  -->
             <div class="form-group col-lg-2">
