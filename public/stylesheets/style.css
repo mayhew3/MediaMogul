@@ -173,6 +173,27 @@ div.gameCard {
   background-color: #1c1e22;
 }
 
+.form-subsection {
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.form-notselected {
+  background-color: #32383e;
+}
+
+.form-watched {
+  background-color: #32503e;
+}
+
+.form-skipped {
+  background-color: #5A4C3e ;
+}
+
+.skippedRow {
+  color: #9A7853;
+}
+
 .gameTile {
   margin: 10px;
   padding: 16px 7px;

@@ -1068,10 +1068,10 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     $log.debug("There are " + airedEpisodes.length + " aired episodes.");
 
     var unwatchedEpisodesList = _.filter(airedEpisodes, function(episode) {
-      return !episode.watched;
+      return !episode.watched && isFalse(episode.skipped);
     });
-    var watchedEpisodesList = _.filter(airedEpisodes, function(episode) {
-      return episode.watched;
+    var watchedEpisodesWithDates = _.filter(airedEpisodes, function(episode) {
+      return episode.watched && !_.isUndefined(episode.watched_date);
     });
 
     $log.debug("Found " + unwatchedEpisodesList.length + " unwatched episodes:");
@@ -1103,7 +1103,10 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     return databaseCallback(changedFields).then(function() {
       $log.debug("Updating my series denorms: " + _.keys(changedFields));
       series.unwatched_episodes = unwatchedEpisodes;
-      series.last_watched = _.last(watchedEpisodesList).watched_date;
+
+      var lastWatchedEpisode = _.last(watchedEpisodesWithDates);
+
+      series.last_watched = exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
       series.last_unwatched = lastUnwatched;
       series.first_unwatched = firstUnwatched;
       series.unwatched_streaming = 0;
@@ -1113,18 +1116,16 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     });
   };
 
-  function maybeDoDatabaseUpdate(databaseUpdate, series, changedFields) {
-    if (databaseUpdate && Object.keys(changedFields).length > 0) {
-      return $http.post('/updateMyShow', {
-        SeriesId: series.id,
-        PersonId: LockService.person_id,
-        ChangedFields: changedFields
-      });
-    } else {
-      return new Promise(function(resolve) {
-        resolve();
-      });
-    }
+  function isTrue(field) {
+    return _.isBoolean(field) && field === true;
+  }
+
+  function isFalse(field) {
+    return _.isBoolean(field) && field === false;
+  }
+
+  function exists(object) {
+    return !_.isUndefined(object) && object !== null;
   }
 
   function isBefore(newDate, trackingDate) {

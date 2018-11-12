@@ -22,18 +22,22 @@ angular.module('mediaMogulApp')
       self.allPastEpisodes = false;
 
       // leave watched_date out of the interface fields because I want to use a date comparison before adding to changedFields.
-      self.originalRating = {
-        watched: episode.watched
+      self.originalFields = {
+        watched: self.episode.watched,
+        skipped: self.episode.skipped,
+        skip_reason: self.episode.skip_reason
       };
 
-      self.interfaceRating = {
-        watched: episode.watched
+      self.interfaceFields = {
+        watched: self.episode.watched,
+        skipped: self.episode.skipped,
+        skip_reason: self.episode.skip_reason
       };
 
       self.updateOrAddRating = function() {
         return new Promise(function(resolve) {
           var changedFields = self.getChangedFields();
-          if (Object.keys(changedFields).length > 0) {
+          if (!isEmpty(changedFields)) {
             var payload = {
               changedFields: changedFields
             };
@@ -46,6 +50,30 @@ angular.module('mediaMogulApp')
         });
       };
 
+      function getWatchedOrSkipped() {
+        if (self.interfaceFields.watched) {
+          return "watched";
+        } else if (self.interfaceFields.skipped) {
+          return "skipped";
+        } else {
+          return null;
+        }
+      }
+
+      function isEmpty(object) {
+        return Object.keys(object).length === 0;
+      }
+
+      self.getSectionClass = function(side) {
+        if (side === "watched" && self.interfaceFields.watched) {
+          return "form-watched";
+        } else if (side === "skipped" && self.interfaceFields.skipped) {
+          return "form-skipped";
+        } else {
+          return "form-notselected";
+        }
+      };
+
       function addIdentifyingFields(payload) {
         if (_.isNumber(self.tv_group_episode_id)) {
           payload.tv_group_episode_id = self.tv_group_episode_id;
@@ -56,14 +84,25 @@ angular.module('mediaMogulApp')
       }
 
       self.changeWatched = function() {
-        $log.debug("On Change");
-        if (!self.interfaceRating.watched) {
+        $log.debug("On Change Watched");
+        self.interfaceFields.skipped = false;
+        self.interfaceFields.skip_reason = null;
+        self.allPastEpisodes = false;
+        if (!self.interfaceFields.watched) {
           self.watched_date = null;
         }
       };
 
+      self.changeSkipped = function() {
+        $log.debug("On Change");
+        self.interfaceFields.watched = false;
+        self.watched_date = null;
+        self.allPastEpisodes = false;
+        self.interfaceFields.skip_reason = null;
+      };
+
       self.changeWatchedDate = function() {
-        self.interfaceRating.watched = self.watched_date !== null;
+        self.interfaceFields.watched = self.watched_date !== null;
       };
 
       self.anyRatingChanged = function() {
@@ -71,19 +110,19 @@ angular.module('mediaMogulApp')
       };
 
       self.onRatingChange = function() {
-        if (!self.interfaceRating.watched) {
-          self.interfaceRating.watched = true;
+        if (!self.interfaceFields.watched) {
+          self.interfaceFields.watched = true;
           self.watched_date = new Date().toLocaleDateString("en-US", options);
         }
       };
 
       self.getChangedFields = function() {
         var changedFields = {};
-        for (var key in self.interfaceRating) {
-          if (self.interfaceRating.hasOwnProperty(key)) {
-            var value = self.interfaceRating[key];
+        for (var key in self.interfaceFields) {
+          if (self.interfaceFields.hasOwnProperty(key)) {
+            var value = self.interfaceFields[key];
 
-            if (value !== self.originalRating[key]) {
+            if (value !== self.originalFields[key]) {
               changedFields[key] = value;
             }
           }
@@ -95,11 +134,23 @@ angular.module('mediaMogulApp')
 
         if (dateHasChanged(originalWatchedDate, self.watched_date)) {
           changedFields.watched_date = self.watched_date;
-          self.interfaceRating.watched_date = self.watched_date;
+          self.interfaceFields.watched_date = self.watched_date;
+        }
+
+        if (isNewTVGroupEpisode() && !isEmpty(changedFields)) {
+          if (_.isUndefined(changedFields.watched)) {
+            changedFields.watched = self.interfaceFields.watched;
+          } else if (_.isUndefined(changedFields.skipped)) {
+            changedFields.skipped = self.interfaceFields.skipped;
+          }
         }
 
         return changedFields;
       };
+
+      function isNewTVGroupEpisode() {
+        return _.isUndefined(self.tv_group_episode_id);
+      }
 
       self.getDateFormat = function(date) {
         // $log.debug("Air Date: " + date);
@@ -174,10 +225,12 @@ angular.module('mediaMogulApp')
       }
 
       function updateEpisodeFields() {
-        self.episode.watched = self.interfaceRating.watched;
+        self.episode.watched = self.interfaceFields.watched;
         self.episode.watched_date = self.watched_date;
+        self.episode.skipped = self.interfaceFields.skipped;
+        self.episode.skip_reason = self.interfaceFields.skip_reason;
 
-        if (self.episode.watched === true) {
+        if (self.episode.watched === true || self.episode.skipped === true) {
           self.episode.nextUp = false;
         }
 
@@ -208,11 +261,16 @@ angular.module('mediaMogulApp')
 
       function maybeUpdateAllPastEpisodes() {
         if (self.allPastEpisodes) {
-          allPastWatchedCallback(self.episode.absolute_number);
+          allPastWatchedCallback(self.episode.absolute_number, {
+            watched: self.interfaceFields.watched,
+            skip_reason: self.interfaceFields.skip_reason
+          });
           return $http.post('/api/watchPastGroupEpisodes', {
             series_id: self.series.id,
             last_watched: self.episode.absolute_number,
-            tv_group_id: self.group.id
+            tv_group_id: self.group.id,
+            watched: self.interfaceFields.watched,
+            skip_reason: self.interfaceFields.skip_reason
           });
         } else {
           return new Promise(function (resolve) {

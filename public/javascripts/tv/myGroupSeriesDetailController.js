@@ -39,8 +39,11 @@ angular.module('mediaMogulApp')
     function isUnwatchedEpisode(episode) {
       return episode.season !== null && episode.season > 0 &&
         episode.watched === false &&
+        episode.skipped === false &&
         !self.shouldHide(episode);
     }
+
+
 
     function updateNextUp() {
 
@@ -60,6 +63,20 @@ angular.module('mediaMogulApp')
       }
     }
 
+    self.rowClass = function(episode) {
+      if (episode.nextUp) {
+        return "nextUpRow";
+      } else if (episode.unaired) {
+        return "unairedRow";
+      } else if (episode.skipped) {
+        return "skippedRow"
+      } else if (isUnwatchedEpisode(episode)) {
+        return "unwatchedRow";
+      }
+
+      return "";
+    };
+
     function updateSeasonLabels() {
       self.episodes.forEach(function (episode) {
         var season = episode.season;
@@ -74,18 +91,6 @@ angular.module('mediaMogulApp')
           'http://thetvdb.com/banners/' + episode.tvdb_filename :
           'images/GenericEpisode.gif';
       });
-
-      self.rowClass = function(episode) {
-        if (episode.nextUp) {
-          return "nextUpRow";
-        } else if (episode.unaired) {
-          return "unairedRow";
-        } else if (isUnwatchedEpisode(episode)) {
-          return "unwatchedRow";
-        }
-
-        return "";
-      };
 
       var unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
@@ -139,7 +144,13 @@ angular.module('mediaMogulApp')
     self.getWatchedDateOrWatched = function(episode) {
       // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
       if (episode.watched_date === null) {
-        return episode.watched ? "Watched" : "";
+        if (episode.watched) {
+          return "Watched";
+        } else if (episode.skipped) {
+          return "Skipped";
+        } else {
+          return "";
+        }
       } else {
         return $filter('date')(episode.watched_date, self.getDateFormat(episode.watched_date), 'America/Los_Angeles');
       }
@@ -179,11 +190,15 @@ angular.module('mediaMogulApp')
       return 'yyyy.M.d';
     };
 
-    function markAllPreviousWatched(lastWatchedNumber) {
+    function markAllPreviousWatched(lastWatchedNumber, episodeFields) {
       self.episodes.forEach(function(episode) {
         if (episode.absolute_number < lastWatchedNumber) {
-          episode.watched = true;
-          episode.watched_date = null;
+          if (episode.watched !== episodeFields.watched) {
+            episode.watched = episodeFields.watched;
+            episode.watched_date = null;
+            episode.skipped = !episodeFields.watched;
+            episode.skip_reason = episodeFields.skip_reason;
+          }
         }
       });
     }

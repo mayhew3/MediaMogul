@@ -20,24 +20,47 @@
              width="100%"/>
       </div>
 
-      <!-- Title -->
-      <div class="form-group col-lg-6">
-        <h2 ng-bind="ctrl.episode.title"></h2>
-      </div>
 
-      <!-- Episode Number -->
       <div class="form-group col-lg-6">
-        <h4>
-          <span>Season</span>
-          <strong><span ng-bind="ctrl.episode.season"></span></strong>
-          <span> - Episode</span>
-          <strong><span ng-bind="ctrl.episode.episode_number"></span></strong>
-        </h4>
-      </div>
 
-      <!-- Episode Summary -->
-      <div class="form-group col-lg-6">
-        <span ng-bind="ctrl.episode.tvdb_overview"></span>
+        <!-- Title -->
+        <div class="row">
+          <h2 ng-bind="ctrl.episode.title"></h2>
+        </div>
+
+        <!-- Episode Number -->
+        <div class="row">
+          <h4>
+            <span>Season</span>
+            <strong><span ng-bind="ctrl.episode.season"></span></strong>
+            <span> - Episode</span>
+            <strong><span ng-bind="ctrl.episode.episode_number"></span></strong>
+          </h4>
+        </div>
+
+        <!-- Episode Summary -->
+        <div class="row">
+          <span ng-bind="ctrl.episode.tvdb_overview"></span>
+        </div>
+
+        <!-- Air Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
+        <div class="row" ng-show="ctrl.LockService.isAdmin()" style="margin-top: 15px">
+          <div class="col-lg-6" style="margin-left: -15px">
+            <label class="control-label" for="airDate">Aired</label>
+            <div class="date">
+              <input type="text"
+                     id="airDate"
+                     name="airDate"
+                     class="form-control"
+                     ng-model="ctrl.air_date">
+            </div>
+          </div>
+        </div>
+
+        <div class="row" ng-show="!ctrl.LockService.isAdmin()" style="margin-top: 15px">
+          Air Date: <span ng-bind="ctrl.air_date"></span>
+        </div>
+
       </div>
 
     </div>
@@ -45,66 +68,108 @@
 
     <div class="row">
 
-      <!-- Air Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
-      <div class="form-group col-lg-3">
-        <label class="control-label" for="airDate">Aired</label>
-        <div class="date">
-          <input type="text"
-                 id="airDate"
-                 name="airDate"
-                 class="form-control"
-                 ng-model="ctrl.air_date">
+      <div class="form-group col-lg-6">
+        <div class="col-lg-12 form-subsection" ng-class="ctrl.getSectionClass('watched')">
+
+          <div class="row">
+            <div class="col-lg-12" style="text-align: center">
+              <button type="button"
+                      uib-btn-checkbox
+                      class="btn btn-success btn-lg"
+                      ng-model="ctrl.interfaceFields.watched"
+                      ng-click="ctrl.changeWatched()">
+                Watched
+              </button>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 15px" ng-show="ctrl.interfaceFields.watched">
+            <div class="col-lg-6">
+              <label class="control-label" for="watchedDate">Watched On</label>
+              <!-- Watch Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
+              <div class="date">
+                <input type="text"
+                       id="watchedDate"
+                       name="watchedDate"
+                       class="form-control"
+                       ng-model="ctrl.watched_date"
+                       ng-change="ctrl.changeWatchedDate()">
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 20px" ng-show="ctrl.interfaceFields.watched">
+
+            <!-- All Past  -->
+            <div class="form-group col-lg-2">
+              <div>
+                <input type="checkbox"
+                       checked
+                       class="form-control"
+                       ng-model="ctrl.allPastEpisodes">
+              </div>
+            </div>
+
+            <div class="form-group col-lg-10 form-text">
+              <span>Mark this episode watched today, and all previous episodes as watched with no date.</span>
+            </div>
+
+          </div>
+
+
         </div>
       </div>
 
-      <!-- Watched  -->
-      <div class="form-group col-lg-3">
-        <label class="control-label" for="watched">Watched</label>
-        <div>
-          <input type="checkbox"
-                 id="watched"
-                 name="watched"
-                 checked
-                 class="form-control"
-                 ng-model="ctrl.interfaceRating.watched"
-                 ng-change="ctrl.changeWatched()">
+      <div class="form-group col-lg-6">
+        <div class="col-lg-12 form-subsection" ng-class="ctrl.getSectionClass('skipped')">
+
+          <div class="row">
+            <div class="col-lg-12" style="text-align: center">
+              <button type="button"
+                      uib-btn-checkbox
+                      class="btn btn-warning btn-lg"
+                      ng-model="ctrl.interfaceFields.skipped"
+                      ng-click="ctrl.changeSkipped()">
+                Skipped
+              </button>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 15px" ng-show="ctrl.interfaceFields.skipped">
+            <div class="col-lg-6">
+              <label class="control-label" for="SkipReason">Reason</label>
+              <input type="text"
+                     id="SkipReason"
+                     class="form-control"
+                      ng-model="ctrl.interfaceFields.skip_reason">
+
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 20px" ng-show="ctrl.interfaceFields.skipped">
+
+            <!-- All Past  -->
+            <div class="form-group col-lg-2">
+              <div>
+                <input type="checkbox"
+                       checked
+                       class="form-control"
+                       ng-model="ctrl.allPastEpisodes">
+              </div>
+            </div>
+
+            <div class="form-group col-lg-10 form-text">
+              <span>Mark this and all previous episodes as skipped with given reason.</span>
+            </div>
+
+          </div>
+
+
         </div>
       </div>
-
-      <!-- Watch Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
-      <div class="form-group col-lg-3">
-        <label class="control-label" for="watchedDate">Watched</label>
-        <div class="date">
-          <input type="text"
-                 id="watchedDate"
-                 name="watchedDate"
-                 class="form-control"
-                 ng-model="ctrl.watched_date"
-                 ng-change="ctrl.changeWatchedDate()">
-        </div>
-      </div>
-
     </div>
 
-    <div class="row" style="margin-top: 20px" ng-show="ctrl.interfaceRating.watched">
 
-
-      <!-- All Past  -->
-      <div class="form-group col-lg-1">
-        <div>
-          <input type="checkbox"
-                 checked
-                 class="form-control"
-                 ng-model="ctrl.allPastEpisodes">
-        </div>
-      </div>
-
-      <div class="form-group col-lg-11 form-text" style="padding-top: 10px">
-        <span>Mark this and all previous episodes as watched.</span>
-      </div>
-
-
-    </div>
 
 
   </div>
