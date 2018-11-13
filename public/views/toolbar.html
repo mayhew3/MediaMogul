@@ -2,11 +2,11 @@
   <div class="container">
     <div class="navbar-collapse collapse" id="navbar-main">
       <ul class="nav navbar-nav navbar-left">
-        <li ng-show="toolbar.LockService.isUser()">
-          <a ui-sref="tv.shows.main">TV</a>
+        <li ng-class="toolbar.getLinkClass('TV')" ng-show="toolbar.LockService.isUser()">
+          <a ui-sref="tv.shows.main" ng-click="toolbar.selectedLink = 'TV'">TV</a>
         </li>
-        <li ng-show="toolbar.LockService.isUser()">
-          <a ui-sref="games.dashboard">Games</a>
+        <li ng-class="toolbar.getLinkClass('Games')" ng-show="toolbar.LockService.isUser()">
+          <a ui-sref="games.dashboard" ng-click="toolbar.selectedLink = 'Games'">Games</a>
         </li>
         <li ng-show="!toolbar.LockService.isAuthenticated">
           <a href="#" ui-sref="home" ng-click="toolbar.login()">Sign In</a>
