@@ -78,6 +78,7 @@ angular.module('mediaMogulApp')
         store.remove('token');
         store.remove('person_id');
         store.remove('first_name');
+        store.remove('user_role');
         self.user_role = 'none';
         self.person_id = undefined;
       };
@@ -89,6 +90,7 @@ angular.module('mediaMogulApp')
         }
 
         self.firstName = store.get('first_name');
+        self.user_role = store.get('user_role');
       }
 
       self.setSession = function(authResult, callback) {
@@ -149,6 +151,7 @@ angular.module('mediaMogulApp')
         console.log("Setting store with person id: " + self.person_id);
         store.set('person_id', self.person_id);
         store.set('first_name', self.firstName);
+        store.set('user_role', self.user_role);
 /*
         $http.post('/api/updateUser', {
           user_id: idTokenPayload.sub,
