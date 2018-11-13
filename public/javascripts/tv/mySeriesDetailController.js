@@ -56,6 +56,10 @@ angular.module('mediaMogulApp')
 
     function updateNextUp() {
 
+      self.episodes.forEach(function(episode) {
+        episode.nextUp = false;
+      });
+
       var unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
@@ -242,7 +246,9 @@ angular.module('mediaMogulApp')
             episode.watched = true;
           }
         });
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase);
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function() {
+          updateNextUp();
+        });
       });
 
       $log.debug("Series '" + self.series.title + "' " + self.series.id);

@@ -1068,10 +1068,10 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     $log.debug("There are " + airedEpisodes.length + " aired episodes.");
 
     var unwatchedEpisodesList = _.filter(airedEpisodes, function(episode) {
-      return !episode.watched && isFalse(episode.skipped);
+      return !episode.watched && !isTrue(episode.skipped);
     });
     var watchedEpisodesWithDates = _.filter(airedEpisodes, function(episode) {
-      return episode.watched && !_.isUndefined(episode.watched_date);
+      return episode.watched && exists(episode.watched_date);
     });
 
     $log.debug("Found " + unwatchedEpisodesList.length + " unwatched episodes:");
