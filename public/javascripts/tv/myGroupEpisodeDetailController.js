@@ -85,7 +85,10 @@ angular.module('mediaMogulApp')
         self.interfaceFields.skipped = false;
         self.interfaceFields.skip_reason = null;
         self.allPastEpisodes = false;
-        if (!self.interfaceFields.watched) {
+
+        if (self.interfaceFields.watched) {
+          self.watched_date = new Date().toLocaleDateString("en-US", options);
+        } else {
           self.watched_date = null;
         }
       };
