@@ -3,19 +3,10 @@ angular.module('mediaMogulApp')
     function ($log, $http, store, $location, jwtHelper, __env, $q) {
 
       var self = this;
+      self.user_role = 'none';
 
       const token = store.get('token');
       self.isAuthenticated = token && !jwtHelper.isTokenExpired(token);
-
-      if (self.isAuthenticated) {
-        const profile = store.get('profile');
-        if (isNaN(self.person_id)) {
-          console.log("Setting LockService person id to: " + store.get('person_id'));
-          self.person_id = store.get('person_id');
-        }
-        self.roles = profile.app_metadata.roles;
-        self.firstName = store.get('first_name');
-      }
 
       self.callbackBase = function() {
         var protocol_host = $location.protocol() + "://" + $location.host();
@@ -87,10 +78,19 @@ angular.module('mediaMogulApp')
         store.remove('token');
         store.remove('person_id');
         store.remove('first_name');
-        self.roles = [];
+        self.user_role = 'none';
         self.person_id = undefined;
       };
-      
+
+      if (self.isAuthenticated) {
+        if (isNaN(self.person_id)) {
+          console.log("Setting LockService person id to: " + store.get('person_id'));
+          self.person_id = store.get('person_id');
+        }
+
+        self.firstName = store.get('first_name');
+      }
+
       self.setSession = function(authResult, callback) {
         // Set the time that the Access Token will expire
         var expiresAt = JSON.stringify(
@@ -107,68 +107,56 @@ angular.module('mediaMogulApp')
       };
 
       self.isAdmin = function () {
-        return this.isAuthenticated && _.contains(this.roles, 'admin');
+        return this.isAuthenticated && (self.user_role === 'admin');
       };
 
       self.isUser = function () {
-        return this.isAuthenticated && _.contains(this.roles, 'user');
+        return this.isAuthenticated && _.contains(['user', 'admin'], self.user_role);
       };
 
       // user management functions
 
-      function syncPersonWithDB(profile, callback) {
-        var email = profile.email;
+      function syncPersonWithDB(idTokenPayload, callback) {
+        var email = idTokenPayload.email;
 
         $http.get('/person', {params: {email: email}}).then(function (response) {
           var personData = response.data;
-          console.log("User info found: " + personData.length + " rows.");
 
           if (personData.length === 0) {
-            addPersonToDB(profile);
+            console.log("Redirecting back to home page, because no user found with e-mail '" + email + "'");
+            self.logout();
           } else {
-            copyPersonInfoToAuth(personData);
+            copyPersonInfoToAuth(personData, idTokenPayload);
           }
 
-          self.roles = profile.app_metadata.roles;
-          console.log("roles found: " + self.roles.length);
+          console.log("role found: " + self.user_role);
 
           callback();
         });
       }
 
-      function addPersonToDB(profile) {
-        console.log("No person found. Adding: " + profile.user_metadata.first_name);
-        var user_metadata = profile.user_metadata;
-        $http.post('/addPerson', {
-          Person: {
-            email: profile.email,
-            first_name: user_metadata.first_name,
-            last_name: user_metadata.last_name
-          }
-        }).then(function (response) {
-          console.log("Added successfully. Person ID: " + response.data.PersonId);
-          self.person_id = response.data[0].id;
-
-          console.log("Setting store with person id: " + self.person_id);
-          store.set('person_id', self.person_id);
-          store.set('first_name', user_metadata.firstName);
-        }, function (err) {
-          console.log("Error adding person to DB: " + err);
-        });
-      }
-
       function copyPersonInfoToAuth(personData) {
         var personInfo = personData[0];
+        console.log("Successful login!");
         console.log("Name: " + personInfo.first_name + " " + personInfo.last_name);
-        console.log("ID: " + personInfo.id);
+        console.log("PersonID: " + personInfo.id);
 
         self.firstName = personInfo.first_name;
         self.lastName = personInfo.last_name;
         self.person_id = personInfo.id;
+        self.user_role = personInfo.user_role;
 
         console.log("Setting store with person id: " + self.person_id);
         store.set('person_id', self.person_id);
         store.set('first_name', self.firstName);
+/*
+        $http.post('/api/updateUser', {
+          user_id: idTokenPayload.sub,
+          access_token: store.get('access_token'),
+          first_name: self.firstName,
+          last_name: self.lastName,
+          user_role: personInfo.user_role
+        });*/
       }
 
 
