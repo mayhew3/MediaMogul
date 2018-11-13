@@ -271,11 +271,13 @@ angular.module('mediaMogulApp')
             last_watched: self.episode.absolute_number,
             tv_group_id: self.group.id,
             watched: self.interfaceFields.watched,
-            skip_reason: self.interfaceFields.skip_reason
+            skipped: self.interfaceFields.skipped,
+            skip_reason: self.interfaceFields.skip_reason,
+            person_ids: extractMemberIds()
           });
         } else {
           return new Promise(function (resolve) {
-            resolve();
+            return resolve();
           });
         }
       }

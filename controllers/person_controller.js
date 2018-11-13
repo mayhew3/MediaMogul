@@ -583,58 +583,14 @@ function editRating(changedFields, rating_id) {
 
 
 exports.markAllPastEpisodesAsWatched = function(request, response) {
-  var seriesId = request.body.SeriesId;
-  var lastWatched = request.body.LastWatched;
-  var personId = request.body.PersonId;
+  var payload = {
+    series_id: request.body.SeriesId,
+    last_watched: request.body.LastWatched,
+    person_ids: [request.body.PersonId]
+  };
 
-  console.log("Updating episodes as Watched, before episode " + lastWatched);
-
-  var sql = 'UPDATE episode_rating ' +
-    'SET watched = $1 ' +
-    'WHERE watched <> $2 ' +
-    'AND person_id = $3 ' +
-    'AND episode_id IN (SELECT e.id ' +
-                        'FROM episode e ' +
-                        'WHERE e.series_id = $4 ' +
-                        'AND e.absolute_number IS NOT NULL ' +
-                        'AND e.absolute_number < $5 ' +
-                        'AND e.season <> $6 ' +
-                        'AND retired = $7) ';
-
-  var values = [true, // watched
-    true,             // !watched
-    personId,         // person_id
-    seriesId,         // series_id
-    lastWatched,      // absolute_number <
-    0,                // season
-    0                 // retired
-  ];
-
-  return db.updateNoJSON(sql, values).then(function() {
-    var sql = "INSERT INTO episode_rating (episode_id, person_id, watched, date_added) " +
-      "SELECT e.id, $1, $2, now() " +
-      "FROM episode e " +
-      "WHERE e.series_id = $3 " +
-      "AND e.retired = $4 " +
-      'AND e.absolute_number IS NOT NULL ' +
-      'AND e.absolute_number < $5 ' +
-      'AND e.season <> $6 ' +
-      "AND e.id NOT IN (SELECT er.episode_id " +
-                         "FROM episode_rating er " +
-                          "WHERE er.person_id = $7" +
-                          "AND er.retired = $8)";
-    var values = [
-      personId,    // person
-      true,        // watched
-      seriesId,    // series
-      0,           // retired
-      lastWatched, // absolute number
-      0,           // !season
-      personId,    // person
-      0            // retired
-    ];
-
-    return db.executeQueryNoResults(response, sql, values);
+  updateEpisodeRatingsAllPastWatched(payload).then(function() {
+    response.json({msg: "Success!"});
   });
 };
 
@@ -1059,74 +1015,153 @@ function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
 
 
 exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
-  var series_id = request.body.series_id;
-  var lastWatched = request.body.last_watched;
-  var tv_group_id = request.body.tv_group_id;
-  var watched = request.body.watched;
-  var skip_reason = request.body.skip_reason;
-
-  var watched_or_skipped = watched ? "watched" : "skipped";
-
-  console.log("Updating tv_group_episodes as " + watched_or_skipped + ", before episode " + lastWatched);
-
-  var sql = 'UPDATE tv_group_episode ' +
-    "SET watched = $1, watched_date = $2, skipped = $3, skip_reason = $4 " +
-    'WHERE watched = $5 ' +
-    'AND skipped = $6 ' +
-    'AND tv_group_id = $7 ' +
-    'AND episode_id IN (SELECT e.id ' +
-                      'FROM episode e ' +
-                      'WHERE e.series_id = $8 ' +
-                      'AND e.absolute_number IS NOT NULL ' +
-                      'AND e.absolute_number < $9 ' +
-                      'AND e.season <> $10 ' +
-                      'AND retired = $11) ';
-
-
-
-  var values = [
-    watched,             // watched or skipped
-    null,             // !watched or skipped
-    !watched,
-    skip_reason,
-    false,            // !watched
-    false,            // !skipped
-    tv_group_id,         // person_id
-    series_id,         // series_id
-    lastWatched,      // absolute_number <
-    0,                // season
-    0                 // retired
-  ];
-
-  return db.updateNoJSON(sql, values).then(function() {
-    var sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, skip_reason, date_added) " +
-      "SELECT e.id, $1, $2, $3, $4, now() " +
-      "FROM episode e " +
-      "WHERE e.series_id = $5 " +
-      "AND e.retired = $6 " +
-      'AND e.absolute_number IS NOT NULL ' +
-      'AND e.absolute_number < $7 ' +
-      'AND e.season <> $8 ' +
-      "AND e.id NOT IN (SELECT tge.episode_id " +
-                      "FROM tv_group_episode tge " +
-                      "WHERE tge.tv_group_id = $9" +
-                      "AND tge.retired = $10)";
-    var values = [
-      tv_group_id,                         // person
-      watched,  // watched
-      !watched,  // skipped
-      skip_reason,                        // skip_reason
-      series_id,                          // series
-      0,                                  // retired
-      lastWatched,                        // absolute number
-      0,                                  // !season
-      tv_group_id,                        // person
-      0                                   // retired
-    ];
-
-    return db.executeQueryNoResults(response, sql, values);
+  Promise.all([
+    updateTVGroupEpisodesAllPastWatched(request.body),
+    updateEpisodeRatingsAllPastWatched(request.body)
+  ]).then(function() {
+    response.json({msg: "Success!"});
   });
 };
+
+function updateTVGroupEpisodesAllPastWatched(payload) {
+  return new Promise(function(resolve) {
+    var series_id = payload.series_id;
+    var lastWatched = payload.last_watched;
+    var tv_group_id = payload.tv_group_id;
+    var watched = payload.watched;
+    var skip_reason = payload.skip_reason;
+
+    var watched_or_skipped = watched ? "watched" : "skipped";
+
+    console.log("Updating tv_group_episodes as " + watched_or_skipped + ", before episode " + lastWatched);
+
+    var sql = 'UPDATE tv_group_episode ' +
+      "SET watched = $1, watched_date = $2, skipped = $3, skip_reason = $4 " +
+      'WHERE watched = $5 ' +
+      'AND skipped = $6 ' +
+      'AND tv_group_id = $7 ' +
+      'AND episode_id IN (SELECT e.id ' +
+      'FROM episode e ' +
+      'WHERE e.series_id = $8 ' +
+      'AND e.absolute_number IS NOT NULL ' +
+      'AND e.absolute_number < $9 ' +
+      'AND e.season <> $10 ' +
+      'AND retired = $11) ';
+
+
+
+    var values = [
+      watched,             // watched or skipped
+      null,             // !watched or skipped
+      !watched,
+      skip_reason,
+      false,            // !watched
+      false,            // !skipped
+      tv_group_id,         // person_id
+      series_id,         // series_id
+      lastWatched,      // absolute_number <
+      0,                // season
+      0                 // retired
+    ];
+
+    return db.updateNoJSON(sql, values).then(function() {
+      var sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, skip_reason, date_added) " +
+        "SELECT e.id, $1, $2, $3, $4, now() " +
+        "FROM episode e " +
+        "WHERE e.series_id = $5 " +
+        "AND e.retired = $6 " +
+        'AND e.absolute_number IS NOT NULL ' +
+        'AND e.absolute_number < $7 ' +
+        'AND e.season <> $8 ' +
+        "AND e.id NOT IN (SELECT tge.episode_id " +
+        "FROM tv_group_episode tge " +
+        "WHERE tge.tv_group_id = $9" +
+        "AND tge.retired = $10)";
+      var values = [
+        tv_group_id,                         // person
+        watched,  // watched
+        !watched,  // skipped
+        skip_reason,                        // skip_reason
+        series_id,                          // series
+        0,                                  // retired
+        lastWatched,                        // absolute number
+        0,                                  // !season
+        tv_group_id,                        // person
+        0                                   // retired
+      ];
+
+      db.updateNoJSON(sql, values).then(function() {
+        return resolve();
+      });
+    });
+  });
+}
+
+function updateEpisodeRatingsAllPastWatched(payload) {
+  return new Promise(function(resolve) {
+    var series_id = payload.series_id;
+    var last_watched = payload.last_watched;
+    var person_ids = payload.person_ids;
+
+    if (person_ids.length < 1 || payload.skipped) {
+      return resolve();
+    }
+
+    console.log("Updating episodes as Watched, before episode " + last_watched);
+
+    var sql = 'UPDATE episode_rating ' +
+      'SET watched = $1 ' +
+      'WHERE watched <> $2 ' +
+      'AND episode_id IN (SELECT e.id ' +
+                        'FROM episode e ' +
+                        'WHERE e.series_id = $3 ' +
+                        'AND e.absolute_number IS NOT NULL ' +
+                        'AND e.absolute_number < $4 ' +
+                        'AND e.season <> $5 ' +
+                        'AND retired = $6) ' +
+      'AND person_id IN (' + createInlineVariableList(person_ids.length, 7) + ") ";
+
+    var values = [true, // watched
+      true,             // !watched
+      series_id,         // series_id
+      last_watched,      // absolute_number <
+      0,                // season
+      0                 // retired
+    ];
+
+    addToArray(values, person_ids);
+
+    db.updateNoJSON(sql, values).then(function() {
+      var sql = "INSERT INTO episode_rating (episode_id, person_id, watched, date_added) " +
+        "SELECT e.id, p.id, $1, now() " +
+        "FROM episode e, person p " +
+        "WHERE e.series_id = $2 " +
+        "AND e.retired = $3 " +
+        'AND e.absolute_number IS NOT NULL ' +
+        'AND e.absolute_number < $4 ' +
+        'AND e.season <> $5 ' +
+        "AND e.id NOT IN (SELECT er.episode_id " +
+                          "FROM episode_rating er " +
+                          "WHERE er.retired = $6 " +
+                          "AND er.person_id = p.id) " +
+        "AND p.id IN (" + createInlineVariableList(person_ids.length, 7) + ") ";
+      var values = [
+        true,        // watched
+        series_id,    // series
+        0,           // retired
+        last_watched, // < absolute number
+        0,           // !season
+        0            // retired
+      ];
+
+      addToArray(values, person_ids);
+
+      db.updateNoJSON(sql, values).then(function() {
+        return resolve();
+      });
+    });
+  });
+}
 
 
 

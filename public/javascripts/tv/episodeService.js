@@ -354,7 +354,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
           };
           self.updateRatingFields(episode);
         });
-        deferred.resolve();
+        return deferred.resolve();
       },
       function(errors) {
         deferred.reject(errors);
@@ -404,7 +404,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
           };
           self.updateRatingFields(episode);
         });
-        deferred.resolve();
+        return deferred.resolve();
       },
       function(errors) {
         deferred.reject(errors);

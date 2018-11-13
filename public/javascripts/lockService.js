@@ -63,7 +63,7 @@ angular.module('mediaMogulApp')
               console.log('Authentication renewed!', authResult);
               self.isAuthenticated = true;
               self.setSession(authResult, function () {});
-              deferred.resolve();
+              return deferred.resolve();
             }
           }
         });

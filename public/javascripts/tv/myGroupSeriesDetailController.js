@@ -283,7 +283,7 @@ angular.module('mediaMogulApp')
 
     function doNothing() {
       return new Promise(function(resolve) {
-        resolve();
+        return resolve();
       });
     }
 

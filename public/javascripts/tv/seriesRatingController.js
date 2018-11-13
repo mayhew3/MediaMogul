@@ -186,7 +186,7 @@ angular.module('mediaMogulApp')
         return EpisodeService.updateEpisodeGroupRating(self.episodeGroup.id, changedFields);
       }
       return new Promise(function(resolve) {
-        resolve();
+        return resolve();
       });
     };
 

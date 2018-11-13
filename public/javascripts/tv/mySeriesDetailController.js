@@ -257,7 +257,7 @@ angular.module('mediaMogulApp')
         });
       } else {
         return new Promise(function(resolve) {
-          resolve();
+          return resolve();
         });
       }
     }
