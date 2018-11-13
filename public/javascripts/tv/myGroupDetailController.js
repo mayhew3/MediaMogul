@@ -9,8 +9,9 @@ angular.module('mediaMogulApp')
 
     self.memberNames = null;
 
-    self.group_id = $stateParams.group_id;
-    self.group = $stateParams.group;
+    self.group = {
+      id: $stateParams.group_id
+    };
 
     self.currentPageUpNext = 1;
     self.pageSize = 12;
@@ -20,11 +21,15 @@ angular.module('mediaMogulApp')
     };
 
     self.updateShows = function() {
-      $http.get('/api/groupShows', {params: {tv_group_id: self.group_id}}).then(function(results) {
+      $http.get('/api/groupShows', {params: {tv_group_id: self.group.id}}).then(function(results) {
         refreshArray(self.shows, results.data);
         self.shows.forEach(function(show) {
           updatePosterLocation(show);
         });
+      });
+      $http.get('/api/groupPersons', {params: {tv_group_id: self.group.id}}).then(function(results) {
+        self.group.members = results.data;
+        self.memberNames = "Members: " + _.pluck(self.group.members, 'first_name').join(', ');
       });
     };
     self.updateShows();
