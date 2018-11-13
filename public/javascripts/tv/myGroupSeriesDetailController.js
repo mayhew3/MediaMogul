@@ -1,5 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('myGroupSeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'group', '$uibModal', '$filter', 'LockService', '$http',
+  .controller('myGroupSeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'group',
+    '$uibModal', '$filter', 'LockService', '$http',
   function($log, EpisodeService, $uibModalInstance, series, group, $uibModal, $filter, LockService, $http) {
     var self = this;
 

@@ -708,7 +708,46 @@ exports.getMyGroups = function(request, response) {
     "             WHERE person_id = $1 " +
     "             AND retired = $2) " +
     "AND retired = $3 ";
-  return db.executeQueryWithResults(response, sql, [person_id, 0, 0]);
+  db.selectWithJSON(sql, [person_id, 0, 0]).then(function(results) {
+    var groups = results;
+    var group_ids = _.pluck(groups, 'id');
+
+    if (group_ids.length < 1) {
+      return response.json([]);
+    }
+
+    var sql = "SELECT tgp.tv_group_id, tgp.person_id, p.first_name " +
+      "FROM person p " +
+      "INNER JOIN tv_group_person tgp " +
+      "  ON tgp.person_id = p.id " +
+      "WHERE tgp.retired = $1 " +
+      "AND p.retired = $2 " +
+      "AND tgp.tv_group_id IN (" + createInlineVariableList(group_ids.length, 3) + ") ";
+
+    var values = [
+      0,
+      0
+    ];
+
+    addToArray(values, group_ids);
+
+    db.selectWithJSON(sql, values).then(function(personResults) {
+      var groupData = _.groupBy(personResults, "tv_group_id");
+
+
+      groups.forEach(function(group) {
+        var groupPersons = groupData[group.id];
+        group.members = [];
+        groupPersons.forEach(function(groupPerson) {
+          group.members.push(_.omit(groupPerson, 'tv_group_id'));
+        });
+      });
+
+      console.log(JSON.stringify(groups));
+      response.json(groups);
+    });
+
+  });
 };
 
 exports.getGroupPersons = function(request, response) {
@@ -863,9 +902,115 @@ exports.getGroupEpisodes = function(request, response) {
 
 exports.markEpisodeWatchedByGroup = function(request, response) {
   addOrEditTVGroupEpisode(request).then(function (result) {
-    response.json(result);
+    markEpisodeWatchedForPersons(request).then(function() {
+      response.json(result);
+    });
   });
 };
+
+function markEpisodeWatchedForPersons(request) {
+  var payload = request.body.payload;
+
+  if (payload.changedFields.skipped) {
+    console.log("Request to skip episode. Not propagating to persons.");
+    return Promise.resolve();
+  }
+
+  var member_ids = payload.member_ids;
+  var episode_id = payload.episode_id;
+
+  var sql = "SELECT er.person_id " +
+    "FROM episode_rating er " +
+    "WHERE episode_id = $1 " +
+    "AND retired = $2 " +
+    "AND person_id IN (" + createInlineVariableList(member_ids.length, 3) + ") ";
+
+  var values = [
+    episode_id,
+    0
+  ];
+
+  addToArray(values, member_ids);
+
+  return db.selectWithJSON(sql, values).then(function(personResults) {
+    var existingRatings = _.pluck(personResults, 'person_id');
+    var newRatingPersons = _.difference(member_ids, existingRatings);
+
+    var episodeRatingInfo = {
+      episode_id: episode_id,
+      watched: payload.changedFields.watched,
+      watched_date: payload.changedFields.watched_date
+    };
+
+    return Promise.all(
+      [addRatingsForPersons(newRatingPersons, episodeRatingInfo),
+      editRatingsForPersons(existingRatings, episodeRatingInfo)]
+    );
+  });
+}
+
+function addRatingsForPersons(member_ids, episodeRatingInfo) {
+  if (member_ids.length < 1) {
+    return Promise.resolve();
+  }
+
+  var sql = "INSERT INTO episode_rating (person_id, episode_id, retired, watched, watched_date) " +
+    "SELECT p.id, $1, $2, $3, $4 " +
+    "FROM person p " +
+    "WHERE retired = $5 " +
+    "AND p.id IN (" + createInlineVariableList(member_ids.length, 6) + ") ";
+
+  var values = [
+    episodeRatingInfo.episode_id,
+    0,
+    episodeRatingInfo.watched,
+    episodeRatingInfo.watched_date,
+    0
+  ];
+
+  addToArray(values, member_ids);
+
+  return db.updateNoJSON(sql, values);
+}
+
+function editRatingsForPersons(member_ids, episodeRatingInfo) {
+  if (member_ids.length < 1) {
+    return Promise.resolve();
+  }
+
+  var sql = "UPDATE episode_rating " +
+    "SET watched = $1, watched_date = $2 " +
+    "WHERE retired = $3 " +
+    "AND episode_id = $4 " +
+    "AND watched = $5 " +
+    "AND person_id IN (" + createInlineVariableList(member_ids.length, 6) + ") ";
+
+  var values = [
+    episodeRatingInfo.watched,
+    episodeRatingInfo.watched_date,
+    0,
+    episodeRatingInfo.episode_id,
+    false
+  ];
+
+  addToArray(values, member_ids);
+
+  return db.updateNoJSON(sql, values);
+}
+
+
+function addToArray(originalArray, newArray) {
+  originalArray.push.apply(originalArray, newArray);
+}
+
+
+function createInlineVariableList(arrSize, starting) {
+  var varNumbers = [];
+  for (var i = starting; i < (starting + arrSize); i++) {
+    varNumbers.push('$' + i);
+  }
+  return varNumbers.join(', ');
+}
 
 function addOrEditTVGroupEpisode(request) {
   var payload = request.body.payload;

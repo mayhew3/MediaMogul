@@ -40,7 +40,8 @@ angular.module('mediaMogulApp')
           var changedFields = self.getChangedFields();
           if (!isEmpty(changedFields)) {
             var payload = {
-              changedFields: changedFields
+              changedFields: changedFields,
+              member_ids: extractMemberIds()
             };
             addIdentifyingFields(payload);
             $log.debug("Episode fields changed: " + _.keys(changedFields));
@@ -51,14 +52,8 @@ angular.module('mediaMogulApp')
         });
       };
 
-      function getWatchedOrSkipped() {
-        if (self.interfaceFields.watched) {
-          return "watched";
-        } else if (self.interfaceFields.skipped) {
-          return "skipped";
-        } else {
-          return null;
-        }
+      function extractMemberIds() {
+        return _.pluck(self.group.members, 'person_id');
       }
 
       function isEmpty(object) {
@@ -76,6 +71,7 @@ angular.module('mediaMogulApp')
       };
 
       function addIdentifyingFields(payload) {
+        payload.episode_id = episode.id;
         if (_.isNumber(self.tv_group_episode_id)) {
           payload.tv_group_episode_id = self.tv_group_episode_id;
         } else {
