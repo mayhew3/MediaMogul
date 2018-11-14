@@ -18,42 +18,57 @@ angular.module('mediaMogulApp')
     self.currentPageUpNext = 1;
     self.pageSize = 12;
 
+    self.metacriticSortArray = [orderByMetacritic, '-metacritic', 'title'];
+
     self.dashboardInfos = [
       {
         headerText: "Top Queue",
         tvFilter: inProgressFilter,
         showEmpty: true,
-        upcoming: false
+        upcoming: false,
+        sortArray: self.metacriticSortArray
       },
       {
         headerText: "Upcoming",
         tvFilter: upcomingFilter,
         showEmpty: false,
-        upcoming: true
+        upcoming: true,
+        sortArray: ['nextAirDate']
       },
       {
         headerText: "Newly Added",
         tvFilter: newlyAddedFilter,
         showEmpty: false,
-        upcoming: false
+        upcoming: false,
+        sortArray: self.metacriticSortArray
       },
       {
         headerText: "Mid-Season",
         tvFilter: droppedOffFilter,
         showEmpty: false,
-        upcoming: false
+        upcoming: false,
+        sortArray: self.metacriticSortArray
       },
       {
         headerText: "Between Seasons",
         tvFilter: newSeasonFilter,
         showEmpty: false,
-        upcoming: false
+        upcoming: false,
+        sortArray: self.metacriticSortArray
       },
       {
         headerText: "To Start",
         tvFilter: toStartFilter,
         showEmpty: false,
-        upcoming: false
+        upcoming: false,
+        sortArray: self.metacriticSortArray
+      },
+      {
+        headerText: "Up to Date",
+        tvFilter: upToDateFilter,
+        showEmpty: false,
+        upcoming: false,
+        sortArray: ['-last_watched']
       }
     ];
 
@@ -62,7 +77,10 @@ angular.module('mediaMogulApp')
         refreshArray(self.shows, results.data);
         self.shows.forEach(function(show) {
           updatePosterLocation(show);
-          formatNextAirDate(show);
+          formatDateFields(show);
+          if (!exists(show.unwatched_all)) {
+            show.unwatched_all = 0;
+          }
         });
       });
       $http.get('/api/groupPersons', {params: {tv_group_id: self.group.id}}).then(function(results) {
@@ -113,6 +131,16 @@ angular.module('mediaMogulApp')
         !newlyAddedFilter(series);
     }
 
+    function upToDateFilter(series) {
+      return !hasUnwatchedEpisodes(series) &&
+        !upcomingFilter(series);
+    }
+
+    // COMPARATORS
+
+    function orderByMetacritic(series) {
+      return (series.metacritic === null) ? 1: 0;
+    }
 
     // FILTER HELPERS
 
@@ -136,9 +164,23 @@ angular.module('mediaMogulApp')
       return (series.aired_episodes - series.unwatched_all) !== 0;
     }
 
+
+    // DATE FORMAT
+
+    function formatDateFields(show) {
+      formatNextAirDate(show);
+      formatLastWatchedDate(show);
+    }
+
     function formatNextAirDate(show) {
-      if (!_.isUndefined(show.nextAirDate) && !_.isNull(show.nextAirDate)) {
+      if (exists(show.nextAirDate)) {
         show.nextAirDateFormatted = formatAirTime(new Date(show.nextAirDate));
+      }
+    }
+
+    function formatLastWatchedDate(show) {
+      if (exists(show.last_watched)) {
+        show.lastWatchedFormatted = $filter('date')(show.last_watched, getDateFormat(show.last_watched), 'America/Los_Angeles');
       }
     }
 
@@ -146,6 +188,21 @@ angular.module('mediaMogulApp')
       var minutesPart = $filter('date')(combinedDate, 'mm');
       var timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
       return $filter('date')(combinedDate, timeFormat);
+    }
+
+    function getDateFormat(date) {
+      var thisYear = (new Date).getFullYear();
+
+      if (date !== null) {
+        var year = new Date(date).getFullYear();
+
+        if (year === thisYear) {
+          return 'MMM d';
+        } else {
+          return 'yyyy';
+        }
+      }
+      return 'yyyy.M.d';
     }
 
 
@@ -183,7 +240,11 @@ angular.module('mediaMogulApp')
     // BOOLEAN METHODS
 
     function isTrue(object) {
-      return !_.isUndefined(object) && !_.isNull(object) && object === true;
+      return exists(object) && object === true;
+    }
+
+    function exists(object) {
+      return !_.isUndefined(object) && !_.isNull(object);
     }
 
     function updatePosterLocation(show) {

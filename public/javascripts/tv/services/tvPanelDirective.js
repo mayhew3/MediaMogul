@@ -15,7 +15,8 @@
         tvFilter: '=',
         seriesDetailOpen: '=',
         showEmpty: '=',
-        upcoming: '='
+        upcoming: '=',
+        sortArray: '='
       }
     }
   }
@@ -29,12 +30,13 @@
     self.open = $scope.seriesDetailOpen;
     self.showEmpty = $scope.showEmpty;
     self.upcoming = $scope.upcoming;
+    self.sortArray = $scope.sortArray;
 
     self.currentPageUpNext = 1;
     self.pageSize = 8;
 
     self.imageColumnClass = function() {
-      return self.upcoming ? 'col-md-2' : 'col-md-3';
+      return (self.upcoming || self.header === "Up to Date") ? 'col-md-2' : 'col-md-3';
     };
 
     self.totalItems = function() {

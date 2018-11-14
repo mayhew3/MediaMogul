@@ -9,8 +9,7 @@
 
     <div class="row">
       <div class="fade-repeat posterRow" ng-class="ctrl.imageColumnClass()" ng-repeat="show in ctrl.shows |
-                    orderBy: upcoming ? 'nextAirDate' :
-                             [ctrl.orderByMetacritic].concat('-metacritic').concat('title') |
+                    orderBy: ctrl.sortArray |
                     filter: ctrl.tvFilter |
                     limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
 
@@ -23,7 +22,7 @@
                err-src="images/GenericSeries.gif"
                width="100%"
                ng-click="ctrl.open(show)"/>
-          <div class="posterBadge" ng-hide="ctrl.upcoming">
+          <div class="posterBadge" ng-hide="ctrl.upcoming || show.unwatched_all === 0">
             <span ng-bind="show.unwatched_all"></span>
           </div>
 
@@ -38,6 +37,12 @@
 
         <div align="right" ng-show="ctrl.upcoming">
           <h5 ng-bind="show.nextAirDateFormatted"></h5>
+        </div>
+
+        <!-- LAST WATCHED DATE (optional) -->
+
+        <div align="right" ng-show="!ctrl.upcoming && show.unwatched_all === 0">
+          <h5 ng-bind="show.lastWatchedFormatted"></h5>
         </div>
 
       </div>
