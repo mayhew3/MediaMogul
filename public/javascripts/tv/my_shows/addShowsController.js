@@ -1,11 +1,4 @@
 angular.module('mediaMogulApp')
-  .filter("filterByTitle", function() {
-    return function (shows, titleFragment) {
-      return _.filter(shows, function(show) {
-        return titleFragment === undefined || show.title.toLowerCase().indexOf(titleFragment.toLowerCase()) > -1;
-      });
-    }
-  })
   .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
     function($log, $uibModal, $interval, EpisodeService, LockService, $filter) {
       var self = this;
