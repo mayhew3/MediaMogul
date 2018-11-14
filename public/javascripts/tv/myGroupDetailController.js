@@ -73,5 +73,18 @@ angular.module('mediaMogulApp')
       });
     };
 
+    self.addShows = function() {
+      $uibModal.open({
+        templateUrl: 'views/tv/groups/addShows.html',
+        controller: 'addGroupShowsController as ctrl',
+        size: 'lg',
+        resolve: {
+          group: function() {
+            return self.group;
+          }
+        }
+      });
+    };
+
   }
 ]);

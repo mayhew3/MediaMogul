@@ -1,10 +1,12 @@
 
-<!-- QUEUE section -->
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3>Shows</h3>
+
+<div class="modal-content">
+
+  <div class="modal-header">
+    <h1>Add Shows to Group</h1>
   </div>
-  <div class="panel-body">
+
+  <div class="modal-body clearfix">
 
     <div class="row">
       <div class="col-lg-8">
@@ -25,8 +27,9 @@
     </div>
 
     <div class="row">
-      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+      <div class="fade-repeat col-xs-4 col-lg-3 posterRow" ng-repeat="show in ctrl.series |
                 filterByTitle: ctrl.titleSearch |
+                orderBy: 'title' |
                 limitTo : ctrl.pageSize : (ctrl.currentPage - 1) * ctrl.pageSize">
         <a ng-click="ctrl.open(show)" href="">
           <img class="img-rounded"
@@ -58,4 +61,9 @@
     </div>
 
   </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ctrl.ok()">Close</button>
+  </div>
+
 </div>

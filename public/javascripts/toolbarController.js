@@ -17,7 +17,7 @@
     self.login = login;
     self.logout = logout;
 
-    self.selectedLink = 'TV';
+    self.selectedLink = null;
 
     self.LockService = LockService;
     self.lock = LockService.lock;

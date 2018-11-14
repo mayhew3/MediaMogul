@@ -6,8 +6,8 @@ angular.module('mediaMogulApp')
       });
     }
   })
-  .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService',
-    function($log, $uibModal, $interval, EpisodeService, LockService) {
+  .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
+    function($log, $uibModal, $interval, EpisodeService, LockService, $filter) {
       var self = this;
 
       self.LockService = LockService;
@@ -23,6 +23,16 @@ angular.module('mediaMogulApp')
       self.pageSize = 12;
 
       self.titleSearch = undefined;
+      self.totalItems = 0;
+
+      self.updateNumItems = function() {
+        var filteredShows = $filter('filterByTitle')(self.series, self.titleSearch);
+        self.totalItems = filteredShows.length;
+      };
+
+      self.updateTitleSearch = function() {
+        self.updateNumItems();
+      };
 
       self.isActive = function(pillName) {
         return (pillName === self.selectedPill) ? "active" : null;
@@ -167,6 +177,7 @@ angular.module('mediaMogulApp')
           self.series = _.sortBy(self.series, function(show) {
             return 0 - show.dynamic_rating;
           });
+          self.totalItems = self.series.length;
         });
       };
       self.refreshSeriesList();

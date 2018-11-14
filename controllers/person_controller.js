@@ -310,6 +310,20 @@ exports.addToMyShows = function(request, response) {
   return db.executeQueryNoResults(response, sql, values);
 };
 
+exports.addToGroupShows = function(request, response) {
+  var tv_group_id = request.body.tv_group_id;
+  var series_id = request.body.series_id;
+
+  var sql = "INSERT INTO tv_group_series " +
+    "(tv_group_id, series_id) " +
+    "VALUES ($1, $2) ";
+  var values = [
+    tv_group_id, series_id
+  ];
+
+  return db.executeQueryNoResults(response, sql, values);
+};
+
 exports.removeFromMyShows = function(request, response) {
   var personId = request.body.PersonId;
   var seriesId = request.body.SeriesId;
@@ -340,6 +354,24 @@ exports.getNotMyShows = function(request, response) {
     "AND s.tvdb_match_status = $4 ";
   var values = [
     personId, 0, false, 'Match Completed'
+  ];
+
+  return db.executeQueryWithResults(response, sql, values);
+};
+
+exports.getNotGroupShows = function(request, response) {
+  var tv_group_id = request.query.tv_group_id;
+  console.log("Server call 'getNotGroupShows': Group " + tv_group_id);
+
+  var sql = "SELECT s.id, s.metacritic, s.title, s.poster " +
+    "FROM series s " +
+    "WHERE id NOT IN (SELECT tgs.series_id " +
+    "                 FROM tv_group_series tgs " +
+    "                 WHERE tv_group_id = $1) " +
+    "AND s.retired = $2 " +
+    "AND s.tvdb_match_status = $3 ";
+  var values = [
+    tv_group_id, 0, 'Match Completed'
   ];
 
   return db.executeQueryWithResults(response, sql, values);

@@ -85,8 +85,10 @@ module.exports = function(app) {
   app.get('/api/groupPersons', authCheck, persons.getGroupPersons);
   app.get('/api/groupShows', authCheck, persons.getGroupShows);
   app.get('/api/groupEpisodes', authCheck, persons.getGroupEpisodes);
+  app.get('/api/notGroupShows', authCheck, persons.getNotGroupShows);
   app.post('/api/groupWatchEpisode', authCheck, persons.markEpisodeWatchedByGroup);
   app.post('/api/watchPastGroupEpisodes', authCheck, persons.markAllPastEpisodesAsGroupWatched);
+  app.post('/api/addGroupShow', authCheck, persons.addToGroupShows);
 
   // error handlers
 
