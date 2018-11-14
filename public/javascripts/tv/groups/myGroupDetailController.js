@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-.controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams',
-  function($log, LockService, $http, $uibModal, $stateParams) {
+.controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
+  function($log, LockService, $http, $uibModal, $stateParams, $filter) {
     var self = this;
 
     self.LockService = LockService;
@@ -20,29 +20,40 @@ angular.module('mediaMogulApp')
 
     self.dashboardInfos = [
       {
-        headerText: "In Progress",
+        headerText: "Top Queue",
         tvFilter: inProgressFilter,
-        showEmpty: true
+        showEmpty: true,
+        upcoming: false
+      },
+      {
+        headerText: "Upcoming",
+        tvFilter: upcomingFilter,
+        showEmpty: false,
+        upcoming: true
       },
       {
         headerText: "Newly Added",
         tvFilter: newlyAddedFilter,
-        showEmpty: false
+        showEmpty: false,
+        upcoming: false
       },
       {
         headerText: "Mid-Season",
         tvFilter: droppedOffFilter,
-        showEmpty: false
+        showEmpty: false,
+        upcoming: false
       },
       {
         headerText: "Between Seasons",
         tvFilter: newSeasonFilter,
-        showEmpty: false
+        showEmpty: false,
+        upcoming: false
       },
       {
         headerText: "To Start",
         tvFilter: toStartFilter,
-        showEmpty: false
+        showEmpty: false,
+        upcoming: false
       }
     ];
 
@@ -51,6 +62,7 @@ angular.module('mediaMogulApp')
         refreshArray(self.shows, results.data);
         self.shows.forEach(function(show) {
           updatePosterLocation(show);
+          formatNextAirDate(show);
         });
       });
       $http.get('/api/groupPersons', {params: {tv_group_id: self.group.id}}).then(function(results) {
@@ -67,6 +79,12 @@ angular.module('mediaMogulApp')
       return hasUnwatchedEpisodes(series) &&
         hasWatchedEpisodes(series) &&
         (airedRecently(series) || watchedRecently(series));
+    }
+
+    function upcomingFilter(series) {
+      return dateIsInNextDays(series.nextAirDate, 8) &&
+        (!hasUnwatchedEpisodes(series) ||
+          inProgressFilter(series));
     }
 
     function newlyAddedFilter(series) {
@@ -98,12 +116,6 @@ angular.module('mediaMogulApp')
 
     // FILTER HELPERS
 
-    function upcomingSoon(series) {
-      return dateIsInNextDays(series.nextAirDate, 7) &&
-        (!hasUnwatchedEpisodes(series) ||
-          inProgressFilter(series));
-    }
-
     function airedRecently(series) {
       return dateIsWithinLastDays(series.first_unwatched, 15);
     }
@@ -122,6 +134,18 @@ angular.module('mediaMogulApp')
 
     function hasWatchedEpisodes(series) {
       return (series.aired_episodes - series.unwatched_all) !== 0;
+    }
+
+    function formatNextAirDate(show) {
+      if (!_.isUndefined(show.nextAirDate) && !_.isNull(show.nextAirDate)) {
+        show.nextAirDateFormatted = formatAirTime(new Date(show.nextAirDate));
+      }
+    }
+
+    function formatAirTime(combinedDate) {
+      var minutesPart = $filter('date')(combinedDate, 'mm');
+      var timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
+      return $filter('date')(combinedDate, timeFormat);
     }
 
 

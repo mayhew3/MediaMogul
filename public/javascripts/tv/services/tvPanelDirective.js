@@ -14,7 +14,8 @@
         shows: '=',
         tvFilter: '=',
         seriesDetailOpen: '=',
-        showEmpty: '='
+        showEmpty: '=',
+        upcoming: '='
       }
     }
   }
@@ -27,9 +28,14 @@
     self.tvFilter = $scope.tvFilter;
     self.open = $scope.seriesDetailOpen;
     self.showEmpty = $scope.showEmpty;
+    self.upcoming = $scope.upcoming;
 
     self.currentPageUpNext = 1;
     self.pageSize = 8;
+
+    self.imageColumnClass = function() {
+      return self.upcoming ? 'col-md-2' : 'col-md-3';
+    };
 
     self.totalItems = function() {
       return self.shows.filter(self.tvFilter).length;
