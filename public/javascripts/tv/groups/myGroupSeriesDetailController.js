@@ -9,6 +9,9 @@ angular.module('mediaMogulApp')
     self.series = series;
     self.group = group;
 
+    // TEMP: Use to view a bunch of fields to help debug filters.
+    self.debugOn = false;
+
     self.episodes = [];
 
     self.seasonLabels = [];

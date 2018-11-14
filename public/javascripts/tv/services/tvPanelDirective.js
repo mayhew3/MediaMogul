@@ -13,7 +13,8 @@
         header: '=',
         shows: '=',
         tvFilter: '=',
-        seriesDetailOpen: '='
+        seriesDetailOpen: '=',
+        showEmpty: '='
       }
     }
   }
@@ -25,12 +26,17 @@
     self.shows = $scope.shows;
     self.tvFilter = $scope.tvFilter;
     self.open = $scope.seriesDetailOpen;
+    self.showEmpty = $scope.showEmpty;
 
     self.currentPageUpNext = 1;
-    self.pageSize = 12;
+    self.pageSize = 8;
 
-    self.countWhere = function(filter) {
-      return self.shows.filter(filter).length;
+    self.totalItems = function() {
+      return self.shows.filter(self.tvFilter).length;
+    };
+
+    self.orderByMetacritic = function(series) {
+      return (series.metacritic === null) ? 1: 0;
     };
 
     self.posterStyle = function(series) {

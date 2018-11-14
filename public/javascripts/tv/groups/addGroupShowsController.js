@@ -43,6 +43,7 @@ angular.module('mediaMogulApp')
         $http.post('/api/addGroupShow', {series_id: show.id, tv_group_id: self.group.id}).then(function() {
           show.addedSuccessfully = true;
           show.unwatched_all = show.aired_episodes;
+          show.date_added = new Date;
           addShowCallback(show);
         }, function(errResponse) {
           $log.debug("Error adding to group shows: " + errResponse);

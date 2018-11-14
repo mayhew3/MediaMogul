@@ -768,7 +768,7 @@ exports.getGroupPersons = function(request, response) {
 exports.getGroupShows = function(request, response) {
   var tv_group_id = request.query.tv_group_id;
 
-  var sql = "SELECT s.id, s.title, s.metacritic, s.poster, " +
+  var sql = "SELECT s.id, s.title, s.metacritic, s.poster, tgs.date_added, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
     "    where e.series_id = s.id " +

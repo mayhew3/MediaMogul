@@ -1,4 +1,4 @@
-<div class="panel panel-default">
+<div class="panel panel-default" ng-hide="!ctrl.showEmpty && ctrl.totalItems() === 0">
   <div class="panel-heading">
     <h3 ng-bind="ctrl.header"></h3>
   </div>
@@ -6,6 +6,7 @@
 
     <div class="row">
       <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.shows |
+                    orderBy: [ctrl.orderByMetacritic].concat('-metacritic').concat('title') |
                     filter: ctrl.tvFilter |
                     limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
         <a href="">
@@ -26,9 +27,9 @@
     </div>
 
     <div class="row">
-      <div class="col-lg-12" ng-show="ctrl.shows.length > ctrl.pageSize">
+      <div class="col-lg-12" ng-show="ctrl.totalItems() > ctrl.pageSize">
         <ul uib-pagination
-            total-items="ctrl.shows.length"
+            total-items="ctrl.totalItems()"
             ng-model="ctrl.currentPageUpNext"
             items-per-page="ctrl.pageSize"></ul>
       </div>
