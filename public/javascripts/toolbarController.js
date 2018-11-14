@@ -7,23 +7,23 @@
   function toolbar() {
     return {
       templateUrl: 'views/toolbar.html',
-      controller: toolbarController,
+      controller: ['LockService', 'store', '$location', 'NavHelperService', toolbarController],
       controllerAs: 'toolbar'
     }
   }
 
-  function toolbarController(LockService, store, $location) {
+  function toolbarController(LockService, store, $location, NavHelperService) {
     var self = this;
     self.login = login;
     self.logout = logout;
 
-    self.selectedLink = null;
+    self.NavHelperService = NavHelperService;
 
     self.LockService = LockService;
     self.lock = LockService.lock;
 
     self.getLinkClass = function(label) {
-      return (label === self.selectedLink) ? 'active' : '';
+      return (self.NavHelperService.isSelected(label)) ? 'active' : '';
     };
 
     function login() {
