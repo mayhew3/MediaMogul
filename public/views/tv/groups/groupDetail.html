@@ -24,12 +24,8 @@
 <!-- SHOWS section -->
 <!--suppress JSUnusedLocalSymbols -->
 <div ng-repeat="panel in ctrl.dashboardInfos">
-  <tv-panel header="panel.headerText"
-            shows="ctrl.shows"
-            tv-filter="panel.tvFilter"
-            series-detail-open="ctrl.open"
-            show-empty="panel.showEmpty"
-            upcoming="panel.upcoming"
-            sort-array="panel.sortArray"></tv-panel>
+  <tv-panel shows="ctrl.shows"
+            panel-info="panel"
+            series-detail-open="ctrl.open"></tv-panel>
 </div>
 

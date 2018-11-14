@@ -1,48 +1,42 @@
-<div class="panel panel-default" ng-hide="!ctrl.showEmpty && ctrl.totalItems() === 0">
+<div class="panel panel-default" ng-hide="!ctrl.panelInfo.showEmpty && ctrl.totalItems() === 0">
 
   <!-- GROUP HEADER -->
   <div class="panel-heading">
-    <h3 ng-bind="ctrl.header"></h3>
+    <h3 ng-bind="ctrl.panelInfo.headerText"></h3>
   </div>
 
   <div class="panel-body">
 
     <div class="row">
       <div class="fade-repeat posterRow" ng-class="ctrl.imageColumnClass()" ng-repeat="show in ctrl.shows |
-                    orderBy: ctrl.sortArray |
-                    filter: ctrl.tvFilter |
+                    orderBy: ctrl.panelInfo.sortArray |
+                    filter: ctrl.panelInfo.tvFilter |
                     limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
 
         <!-- POSTER -->
 
         <a href="">
           <img class="img-rounded"
-               ng-style="ctrl.posterStyle(show)"
                ng-src="{{show.posterResolved}}"
                err-src="images/GenericSeries.gif"
                width="100%"
                ng-click="ctrl.open(show)"/>
-          <div class="posterBadge" ng-hide="ctrl.upcoming || show.unwatched_all === 0">
+
+          <!-- UNWATCHED BADGE -->
+          <div class="posterBadge" ng-hide="ctrl.panelInfo.hideBadge || show.unwatched_all === 0">
             <span ng-bind="show.unwatched_all"></span>
           </div>
 
-          <!-- UNWATCHED BADGE -->
           <div class="posterTitle" ng-show="show.imageDoesNotExist">
             <span ng-bind="show.title"></span>
           </div>
 
         </a>
 
-        <!-- AIR DATE (optional) -->
+        <!-- SUBTITLE (optional) -->
 
-        <div align="right" ng-show="ctrl.upcoming">
-          <h5 ng-bind="show.nextAirDateFormatted"></h5>
-        </div>
-
-        <!-- LAST WATCHED DATE (optional) -->
-
-        <div align="right" ng-show="!ctrl.upcoming && show.unwatched_all === 0">
-          <h5 ng-bind="show.lastWatchedFormatted"></h5>
+        <div align="right" ng-show="ctrl.exists(ctrl.panelInfo.subtitle(show))">
+          <h5 ng-bind="ctrl.panelInfo.subtitle(show)"></h5>
         </div>
 
       </div>
