@@ -1,6 +1,7 @@
 angular.module('mediaMogulApp')
 .controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
-  function($log, LockService, $http, $uibModal, $stateParams, $filter) {
+            'NavHelperService',
+  function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService) {
     var self = this;
 
     self.LockService = LockService;
@@ -12,6 +13,8 @@ angular.module('mediaMogulApp')
     self.group = {
       id: $stateParams.group_id
     };
+
+    NavHelperService.changeSelectedTVGroup(self.group.id);
 
     self.quickFindResult = undefined;
 

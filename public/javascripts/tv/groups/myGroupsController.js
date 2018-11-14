@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-.controller('myGroupsController', ['$log', 'LockService', '$http', '$state',
-  function($log, LockService, $http, $state) {
+.controller('myGroupsController', ['$log', 'LockService', '$http', '$state', 'NavHelperService',
+  function($log, LockService, $http, $state, NavHelperService) {
     var self = this;
 
     self.LockService = LockService;
@@ -9,34 +9,28 @@ angular.module('mediaMogulApp')
 
     self.selectedPill = 0;
 
-    self.changeSelectedGroup = function(group) {
-      self.selectedPill = group.id;
-      $state.go('tv.groups.detail', {group_id: group.id});
+    self.NavHelperService = NavHelperService;
+
+    self.changeSelectedGroup = function(tv_group_id) {
+      self.selectedPill = tv_group_id;
+      $state.go('tv.groups.detail', {group_id: tv_group_id});
     };
 
     self.fetchGroups = function() {
       $http.get('/api/myGroups', {params: {person_id: LockService.person_id}}).then(function(results) {
         refreshArray(self.groups, results.data);
-        var urlDetail = getDetailFromState();
-        if (urlDetail !== null) {
-          self.selectedPill = parseInt(urlDetail);
+        var navGroup = self.NavHelperService.getSelectedTVGroup();
+
+        if (navGroup !== null) {
+          self.changeSelectedGroup(navGroup);
         } else if (self.groups.length > 0) {
           let initialGroup = self.groups[0];
-          self.changeSelectedGroup(initialGroup);
+          self.changeSelectedGroup(initialGroup.id);
         }
+
       });
     };
     self.fetchGroups();
-
-    function getDetailFromState() {
-      var group_id = null;
-      $state.getCurrentPath().forEach(function(path) {
-        if (path.state.name === 'tv.groups.detail') {
-          group_id = path.paramValues.group_id;
-        }
-      });
-      return group_id;
-    }
 
     self.isActive = function(pillNumber) {
       return (pillNumber === self.selectedPill) ? "active" : null;
