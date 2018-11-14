@@ -363,7 +363,7 @@ exports.getNotGroupShows = function(request, response) {
   var tv_group_id = request.query.tv_group_id;
   console.log("Server call 'getNotGroupShows': Group " + tv_group_id);
 
-  var sql = "SELECT s.id, s.metacritic, s.title, s.poster, " +
+  var sql = "SELECT s.id, s.metacritic, s.title, s.poster, s.tvdb_series_id, " +
                   "(SELECT COUNT(1) " +
                   "    from episode e " +
                   "    where e.series_id = s.id " +
