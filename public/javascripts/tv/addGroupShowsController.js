@@ -7,8 +7,9 @@ angular.module('mediaMogulApp')
     }
   })
   .controller('addGroupShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', 'group',
-              '$http', '$filter',
-    function($log, $uibModal, $interval, EpisodeService, LockService, group, $http, $filter) {
+              '$http', '$filter', 'addShowCallback', '$uibModalInstance',
+    function($log, $uibModal, $interval, EpisodeService, LockService, group,
+             $http, $filter, addShowCallback, $uibModalInstance) {
       var self = this;
 
       self.LockService = LockService;
@@ -46,11 +47,13 @@ angular.module('mediaMogulApp')
       };
 
       self.addToMyShows = function(show) {
-        $http.post('/api/addGroupShow', {series_id: show.id, tv_group_id: group.id}.then(function() {
+        $http.post('/api/addGroupShow', {series_id: show.id, tv_group_id: self.group.id}).then(function() {
           show.addedSuccessfully = true;
+          show.unwatched_all = show.aired_episodes;
+          addShowCallback(show);
         }, function(errResponse) {
           $log.debug("Error adding to group shows: " + errResponse);
-        }));
+        });
       };
 
       self.refreshSeriesList = function() {
@@ -115,5 +118,8 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.ok = function() {
+        $uibModalInstance.close();
+      };
     }
   ]);

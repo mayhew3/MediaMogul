@@ -11,6 +11,7 @@
     <div class="row">
       <div class="col-lg-8">
         <ul uib-pagination
+            ng-show="ctrl.totalItems > ctrl.pageSize"
             total-items="ctrl.totalItems"
             ng-model="ctrl.currentPage"
             items-per-page="ctrl.pageSize"
@@ -54,6 +55,7 @@
 
     <div class="row">
       <ul uib-pagination
+          ng-show="ctrl.totalItems > ctrl.pageSize"
           total-items="ctrl.totalItems"
           ng-model="ctrl.currentPage"
           items-per-page="ctrl.pageSize"

@@ -56,6 +56,9 @@ angular.module('mediaMogulApp')
       return posterPath ? 'http://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
     }
 
+    function addShowToGroupCollection(show) {
+      self.shows.push(show);
+    }
 
     self.open = function(series) {
       $uibModal.open({
@@ -81,6 +84,9 @@ angular.module('mediaMogulApp')
         resolve: {
           group: function() {
             return self.group;
+          },
+          addShowCallback: function() {
+            return addShowToGroupCollection;
           }
         }
       });
