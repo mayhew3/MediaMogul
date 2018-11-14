@@ -13,6 +13,8 @@ angular.module('mediaMogulApp')
       id: $stateParams.group_id
     };
 
+    self.quickFindResult = undefined;
+
     self.currentPageUpNext = 1;
     self.pageSize = 12;
 
