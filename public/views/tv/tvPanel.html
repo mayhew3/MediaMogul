@@ -1,0 +1,38 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 ng-bind="ctrl.header"></h3>
+  </div>
+  <div class="panel-body">
+
+    <div class="row">
+      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.shows |
+                    filter: ctrl.tvFilter |
+                    limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
+        <a href="">
+          <img class="img-rounded"
+               ng-style="ctrl.posterStyle(show)"
+               ng-src="{{show.posterResolved}}"
+               err-src="images/GenericSeries.gif"
+               width="100%"
+               ng-click="ctrl.open(show)"/>
+          <div class="posterBadge">
+            <span ng-bind="show.unwatched_all"></span>
+          </div>
+          <div class="posterTitle" ng-show="show.imageDoesNotExist">
+            <span ng-bind="show.title"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12" ng-show="ctrl.shows.length > ctrl.pageSize">
+        <ul uib-pagination
+            total-items="ctrl.shows.length"
+            ng-model="ctrl.currentPageUpNext"
+            items-per-page="ctrl.pageSize"></ul>
+      </div>
+    </div>
+
+  </div>
+</div>

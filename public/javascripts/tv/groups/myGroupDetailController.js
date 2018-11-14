@@ -22,6 +22,13 @@ angular.module('mediaMogulApp')
       return hasUnwatchedEpisodes(series);
     };
 
+    self.dashboardInfos = [
+      {
+        headerText: "Up Next",
+        tvFilter: self.showInQueue
+      }
+    ];
+
     self.updateShows = function() {
       $http.get('/api/groupShows', {params: {tv_group_id: self.group.id}}).then(function(results) {
         refreshArray(self.shows, results.data);
@@ -91,6 +98,8 @@ angular.module('mediaMogulApp')
             return addShowToGroupCollection;
           }
         }
+      }).result.finally(function() {
+        self.quickFindResult = undefined;
       });
     };
 
