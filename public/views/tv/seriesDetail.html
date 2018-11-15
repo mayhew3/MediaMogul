@@ -64,7 +64,7 @@
         </div>
         <div class="scoreBox" style="grid-column-start: 2; grid-column-end: 3; grid-row: 3"
              ng-style="ctrl.colorStyle(ctrl.series.dynamic_rating)">
-          <span ng-bind="ctrl.series.dynamic_rating === null ? '--' : ctrl.series.dynamic_rating|number:1"></span>
+          <span ng-bind="ctrl.getFormattedNumber(ctrl.series.dynamic_rating)"></span>
         </div>
 
       </div>
