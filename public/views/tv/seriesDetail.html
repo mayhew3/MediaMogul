@@ -18,59 +18,57 @@
 
       <!-- Series scores -->
 
-      <div class="col-lg-4">
+      <form class="bs-component"
+            id="seriesFields"
+            name="seriesFields"
+            ng-submit="ctrl.rateMyShow()"
+            novalidate
+            ng-show="ctrl.owned">
 
-        <div class="scoreOuterBox row">
-          <div class="scoreTitle col-lg-6">
-            <span>Metacritic:</span>
+
+
+        <div class="detailSection">
+
+
+          <div class="scoreTitle" style="grid-column: 1; grid-row: 1">
+            <span>Rating:</span>
           </div>
-          <div class="scoreBox col-lg-6"
-               ng-style="ctrl.colorStyle(ctrl.series.metacritic)">
-            <span ng-bind="ctrl.series.metacritic === null ? '--' : ctrl.series.metacritic"></span>
+          <div class="ratingInputBox" style="grid-column: 2; grid-row: 1">
+            <input type="number"
+                   class="ratingInput form-control"
+                   id="myRatingInput"
+                   name="myRatingInput"
+                   min="1"
+                   max="100"
+                   ng-model="ctrl.interfaceFields.my_rating"/>
           </div>
+          <div style="grid-column: 3; grid-row: 1">
+            <button class="btn btn-default ratingSaveButton"
+                    type="submit"
+                    ng-disabled="seriesFields.$invalid || ctrl.ratingIsChanged()">Save</button>
+          </div>
+
+
+
+        <div class="scoreTitle" style="grid-column: 1; grid-row: 2">
+          <span>Metacritic:</span>
+        </div>
+        <div class="scoreBox"
+             style="grid-column-start: 2; grid-column-end: 3; grid-row: 2"
+             ng-style="ctrl.colorStyle(ctrl.series.metacritic)">
+          <span ng-bind="ctrl.series.metacritic === null ? '--' : ctrl.series.metacritic"></span>
         </div>
 
-        <form class="bs-component"
-              id="seriesFields"
-              name="seriesFields"
-              ng-submit="ctrl.rateMyShow()"
-              novalidate
-              ng-show="ctrl.owned">
-          <div class="scoreOuterBox row">
-            <div class="scoreTitle col-lg-6">
-              <span>Rating:</span>
-            </div>
-            <div class="ratingInputBox input-group"
-                 ng-class="ctrl.ratingInputClass()">
-              <input type="number"
-                     class="form-control ratingInput"
-                     id="myRatingInput"
-                     name="myRatingInput"
-                     min="1"
-                     max="100"
-                     ng-model="ctrl.interfaceFields.my_rating"/>
-              <span class="input-group-btn">
-              <button class="btn btn-default ratingSaveButton"
-                      type="submit"
-                      ng-disabled="seriesFields.$invalid"
-                      ng-show="ctrl.ratingIsChanged()">Save</button>
-            </span>
-            </div>
-          </div>
-        </form>
-
-        <div class="scoreOuterBox row" ng-show="ctrl.owned">
-          <div class="scoreTitle col-lg-6">
-            <span>Dynamic:</span>
-          </div>
-          <div class="scoreBox col-lg-6"
-               ng-style="ctrl.colorStyle(ctrl.series.dynamic_rating)">
-            <span ng-bind="ctrl.series.dynamic_rating === null ? '--' : ctrl.series.dynamic_rating|number:1"></span>
-          </div>
+        <div class="scoreTitle" style="grid-column: 1; grid-row: 3">
+          <span>Dynamic:</span>
+        </div>
+        <div class="scoreBox" style="grid-column-start: 2; grid-column-end: 3; grid-row: 3"
+             ng-style="ctrl.colorStyle(ctrl.series.dynamic_rating)">
+          <span ng-bind="ctrl.series.dynamic_rating === null ? '--' : ctrl.series.dynamic_rating|number:1"></span>
         </div>
 
       </div>
-
+      </form>
       <!-- Ownership status -->
 
       <div class="col-lg-4" ng-show="ctrl.owned">

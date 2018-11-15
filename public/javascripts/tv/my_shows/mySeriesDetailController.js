@@ -134,7 +134,7 @@ angular.module('mediaMogulApp')
     }
 
     self.ratingInputClass = function() {
-      return self.ratingIsChanged() ? 'col-lg-6' : 'col-lg-4';
+      return self.ratingIsChanged() ? 'col-lg-7' : 'col-lg-4';
     };
 
     self.ratingIsChanged = function() {
