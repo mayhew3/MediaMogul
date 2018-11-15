@@ -74,7 +74,7 @@ h1 {
   border-radius: 5px;
   display: inline-grid;
   grid-template-columns: 80px 72px 50px;
-  grid-template-rows: 50px 50px 50px;
+  grid-template-rows: 45px 45px 45px;
   gap: 5px;
   align-items: stretch;
   width: 235px;
@@ -140,9 +140,12 @@ h1 {
 
 /* SERIES DETAIL - OWNERSHIP BUTTONS */
 
-.ownershipButton {
-  height: 43px;
-  width: 90px;
+.ownershipButtonGroup {
+  background-color: var(--gray-scale-2);
+  border-radius: 5px;
+  padding: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 /*

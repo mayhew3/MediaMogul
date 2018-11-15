@@ -196,6 +196,9 @@ angular.module('mediaMogulApp')
             },
             owned: function() {
               return false;
+            },
+            removeSeriesCallback: function() {
+              return null;
             }
           }
         });

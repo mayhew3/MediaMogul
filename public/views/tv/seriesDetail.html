@@ -45,7 +45,7 @@
           <div style="grid-column: 3; grid-row: 1">
             <button class="btn btn-default ratingSaveButton"
                     type="submit"
-                    ng-disabled="seriesFields.$invalid || ctrl.ratingIsChanged()">Save</button>
+                    ng-disabled="seriesFields.$invalid || !ctrl.ratingIsChanged()">Save</button>
           </div>
 
 
@@ -69,27 +69,22 @@
 
       </div>
       </form>
+
       <!-- Ownership status -->
 
-      <div class="col-lg-4" ng-show="ctrl.owned">
-        <div style="margin-bottom: 5px">
+      <div class="btn-group ownershipButtonGroup" role="group" id="ownerships" ng-show="ctrl.owned">
           <button type="button"
-                  class="btn ownershipButton"
+                  class="btn"
                   ng-class="ctrl.getPinnedClass()"
                   ng-click="ctrl.changeTier(1)">Pinned</button>
-        </div>
-        <div style="margin-bottom: 5px">
           <button type="button"
-                  class="btn ownershipButton"
+                  class="btn"
                   ng-class="ctrl.getBacklogClass()"
                   ng-click="ctrl.changeTier(2)">Backlog</button>
-        </div>
-        <div style="margin-bottom: 5px">
           <button type="button"
-                  class="btn ownershipButton"
+                  class="btn"
                   ng-class="ctrl.getRemovedClass()"
                   ng-click="ctrl.removeFromMyShows()">Removed</button>
-        </div>
       </div>
 
     </div>
