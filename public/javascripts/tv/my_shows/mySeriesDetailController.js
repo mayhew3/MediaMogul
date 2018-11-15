@@ -130,6 +130,14 @@ angular.module('mediaMogulApp')
       }
     }
 
+    self.ratingInputClass = function() {
+      return self.ratingIsChanged() ? 'col-lg-5' : 'col-lg-3';
+    };
+
+    self.ratingIsChanged = function() {
+      return self.interfaceFields.my_rating !== self.originalFields.my_rating;
+    };
+
     self.rateMyShow = function() {
       return EpisodeService.rateMyShow(self.series, self.interfaceFields.my_rating).then(function (response) {
         self.originalFields.my_rating = self.interfaceFields.my_rating;
@@ -303,11 +311,7 @@ angular.module('mediaMogulApp')
       var hue = (scaledValue <= 50) ? scaledValue * 0.5 : (50 * 0.5 + (scaledValue - 50) * 4.5);
       var saturation = scaledValue === null ? '0%' : '50%';
       return {
-        'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)',
-        'font-size': '1.6em',
-        'text-align': 'center',
-        'font-weight': '800',
-        'color': 'white'
+        'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)'
       }
     };
 
