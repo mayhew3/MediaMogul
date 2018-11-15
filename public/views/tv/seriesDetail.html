@@ -15,7 +15,10 @@
   <div class="col-lg-9">
 
     <div class="row">
-      <div class="col-lg-5">
+
+      <!-- Series scores -->
+
+      <div class="col-lg-4">
 
         <div class="scoreOuterBox row">
           <div class="scoreTitle col-lg-6">
@@ -68,10 +71,33 @@
 
       </div>
 
+      <!-- Ownership status -->
+
+      <div class="col-lg-4" ng-show="ctrl.owned">
+        <div style="margin-bottom: 5px">
+          <button type="button"
+                  class="btn ownershipButton"
+                  ng-class="ctrl.getPinnedClass()"
+                  ng-click="ctrl.changeTier(1)">Pinned</button>
+        </div>
+        <div style="margin-bottom: 5px">
+          <button type="button"
+                  class="btn ownershipButton"
+                  ng-class="ctrl.getBacklogClass()"
+                  ng-click="ctrl.changeTier(2)">Backlog</button>
+        </div>
+        <div style="margin-bottom: 5px">
+          <button type="button"
+                  class="btn ownershipButton"
+                  ng-class="ctrl.getRemovedClass()"
+                  ng-click="ctrl.removeFromMyShows()">Removed</button>
+        </div>
+      </div>
+
     </div>
 
     <div class="row" style="margin-top: 50px; text-align: right" ng-show="ctrl.owned">
-      Seasons:
+      Season:
       <label ng-repeat="season in ctrl.seasonLabels"
              ng-class="ctrl.getSeasonButtonClass(season)"
              ng-model="ctrl.selectedSeason"

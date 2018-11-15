@@ -547,7 +547,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
     var changedFields = {
       tier: Tier
     };
-    $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
+    return $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
   };
   this.updateSeries = function(SeriesId, ChangedFields) {
     $log.debug('Received update for Series ' + SeriesId + " with data " + JSON.stringify(ChangedFields));

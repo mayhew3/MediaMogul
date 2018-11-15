@@ -1,7 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http',
-  function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http) {
+    '$uibModal', '$filter', 'LockService', '$http', 'removeSeriesCallback',
+  function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
+           removeSeriesCallback) {
     var self = this;
 
     self.LockService = LockService;
@@ -76,8 +77,10 @@ angular.module('mediaMogulApp')
       return self.series.my_tier === tier ? "btn btn-success" : "btn btn-primary";
     };
 
-    self.changeTier = function() {
-      EpisodeService.changeMyTier(self.series.id, self.series.my_tier);
+    self.changeTier = function(tier) {
+      EpisodeService.changeMyTier(self.series.id, tier).then(function() {
+        self.series.my_tier = tier;
+      });
     };
 
     function updateSeasonLabels() {
@@ -131,7 +134,7 @@ angular.module('mediaMogulApp')
     }
 
     self.ratingInputClass = function() {
-      return self.ratingIsChanged() ? 'col-lg-5' : 'col-lg-3';
+      return self.ratingIsChanged() ? 'col-lg-6' : 'col-lg-4';
     };
 
     self.ratingIsChanged = function() {
@@ -145,6 +148,18 @@ angular.module('mediaMogulApp')
         self.series.FullRating = self.interfaceFields.my_rating;
         self.series.dynamic_rating = response.data.dynamic_rating;
       });
+    };
+
+    self.getPinnedClass = function() {
+      return self.series.my_tier === 1 ? "btn-success" : "btn-default";
+    };
+
+    self.getBacklogClass = function() {
+      return self.series.my_tier === 2 ? "btn-warning" : "btn-default";
+    };
+
+    self.getRemovedClass = function() {
+      return (self.removed || !self.owned) ? "btn-danger" : "btn-default";
     };
 
     self.getLabelInfo = function(episode) {
@@ -228,10 +243,14 @@ angular.module('mediaMogulApp')
     };
 
     self.removeFromMyShows = function() {
-      EpisodeService.removeFromMyShows(self.series).then(function() {
-        $log.debug("Returned from removal.");
-        self.removed = true;
-      });
+      if (!self.removed) {
+        EpisodeService.removeFromMyShows(self.series).then(function () {
+          $log.debug("Returned from removal.");
+          removeSeriesCallback(self.series);
+          self.removed = true;
+          self.series.my_tier = null;
+        });
+      }
     };
 
     self.markAllPastWatched = function() {

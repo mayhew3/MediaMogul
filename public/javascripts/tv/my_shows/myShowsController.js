@@ -184,6 +184,19 @@ angular.module('mediaMogulApp')
     };
     self.refreshSeriesList();
 
+    function removeFromMyShows(show) {
+      removeFromArray(self.series, show);
+    }
+
+    function removeFromArray(arr, element) {
+      var indexOf = arr.indexOf(element);
+      if (indexOf < 0) {
+        $log.debug("No element found!");
+        return;
+      }
+      arr.splice(indexOf, 1);
+    }
+
     // $interval(self.refreshSeriesList, 60*1000*5);
 
     self.getButtonClass = function(tier, series) {
@@ -213,6 +226,9 @@ angular.module('mediaMogulApp')
           },
           owned: function() {
             return true;
+          },
+          removeSeriesCallback: function() {
+            return removeFromMyShows
           }
         }
       }).result.finally(function() {
