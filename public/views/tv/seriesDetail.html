@@ -25,10 +25,7 @@
             novalidate
             ng-show="ctrl.owned">
 
-
-
-        <div class="detailSection">
-
+        <div class="scoresSection detailSection">
 
           <div class="scoreTitle" style="grid-column: 1; grid-row: 1">
             <span>Rating:</span>
@@ -72,7 +69,9 @@
 
       <!-- Ownership status -->
 
-      <div class="btn-group ownershipButtonGroup" role="group" id="ownerships" ng-show="ctrl.owned">
+      <div class="detailRightSide">
+
+        <div class="btn-group ownershipButtonGroup detailSection" role="group" id="ownerships" ng-show="ctrl.owned">
           <button type="button"
                   class="btn"
                   ng-class="ctrl.getPinnedClass()"
@@ -85,6 +84,25 @@
                   class="btn"
                   ng-class="ctrl.getRemovedClass()"
                   ng-click="ctrl.removeFromMyShows()">Removed</button>
+        </div>
+
+        <!-- Admin functions -->
+
+        <div class="detailSection" ng-show="ctrl.LockService.isAdmin()">
+          <button type="button"
+                  class="btn btn-default"
+                  ng-click="ctrl.openEditSeries()"
+                  ng-show="ctrl.LockService.isAdmin()"
+                  ng-disabled="!ctrl.LockService.isAuthenticated">Edit</button>
+
+          <button type="button"
+                  class="btn btn-warning"
+                  ng-show="ctrl.LockService.isAdmin()"
+                  ng-disabled="ctrl.series.tvdb_manual_queue"
+                  ng-click="ctrl.queueForManualUpdate()">TVDB Update</button>
+          <span ng-bind="'Last Update: ' + ctrl.daysSinceLastUpdate + ' days.'"></span>
+        </div>
+
       </div>
 
     </div>

@@ -72,18 +72,21 @@ h1 {
 .detailSection {
   background-color: var(--gray-scale-2);
   border-radius: 5px;
+  padding: 10px;
+}
+
+
+/* SERIES DETAIL - SCORES */
+
+.scoresSection {
   display: inline-grid;
   grid-template-columns: 80px 72px 50px;
   grid-template-rows: 45px 45px 45px;
   gap: 5px;
   align-items: stretch;
   width: 235px;
-  padding: 10px;
   float: left;
 }
-
-
-/* SERIES DETAIL - SCORES */
 
 .scoreOuterBox {
   margin-bottom: 5px;
@@ -140,12 +143,17 @@ h1 {
 
 /* SERIES DETAIL - OWNERSHIP BUTTONS */
 
-.ownershipButtonGroup {
-  background-color: var(--gray-scale-2);
-  border-radius: 5px;
-  padding: 10px;
+.detailRightSide {
   margin-left: 10px;
   margin-right: 10px;
+  padding: 10px;
+}
+
+.ownershipButtonGroup {
+}
+
+.adminButtonGroup {
+  margin-top: 10px;
 }
 
 /*
