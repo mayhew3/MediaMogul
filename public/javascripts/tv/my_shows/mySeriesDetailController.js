@@ -21,6 +21,7 @@ angular.module('mediaMogulApp')
     self.removed = false;
 
     self.selectedAddingEpisodes = 'None';
+    self.selectedLastWatchedEpisode = null;
 
     self.viewingLocations = EpisodeService.getViewingLocations();
 
@@ -53,9 +54,22 @@ angular.module('mediaMogulApp')
     };
 
     function isUnwatchedEpisode(episode) {
-      return episode.season !== null && episode.season > 0 &&
-        episode.watched === false &&
-        !self.shouldHide(episode);
+      if (self.selectedLastWatchedEpisode === null) {
+        return episode.season !== null && episode.season > 0 &&
+          episode.watched === false &&
+          !self.shouldHide(episode);
+      } else {
+        return episode.absolute_number > self.selectedLastWatchedEpisode.absolute_number;
+      }
+    }
+
+    function isUnwatchedProjected(episode) {
+      if (episode.season === 0 || episode.air_time === null) {
+        return false;
+      }
+      return self.selectedLastWatchedEpisode !== null ?
+        episode.absolute_number > self.selectedLastWatchedEpisode.absolute_number :
+        episode.watched !== true;
     }
 
     self.isSelectedAddingEpisodes = function(label) {
@@ -72,6 +86,8 @@ angular.module('mediaMogulApp')
 
     self.allWatched = function() {
       self.selectedAddingEpisodes = 'All';
+      self.selectedLastWatchedEpisode = getLastAired();
+      updateNextUpProjected();
     };
 
     self.someWatched = function() {
@@ -80,6 +96,13 @@ angular.module('mediaMogulApp')
 
     self.noneWatched = function() {
       self.selectedAddingEpisodes = 'None';
+      self.selectedLastWatchedEpisode = null;
+      updateNextUpProjected();
+    };
+
+    self.selectLastWatchedEpisode = function(episode) {
+      self.selectedLastWatchedEpisode = episode;
+      updateNextUpProjected();
     };
 
     function updateNextUp() {
@@ -99,6 +122,30 @@ angular.module('mediaMogulApp')
         }
       }
     }
+
+    function updateNextUpProjected() {
+
+      self.episodes.forEach(function(episode) {
+        episode.nextUp = false;
+      });
+
+      let unwatchedEpisodes = self.episodes.filter(function (episode) {
+        return isUnwatchedProjected(episode);
+      });
+
+      if (unwatchedEpisodes.length > 0) {
+        let firstUnwatched = unwatchedEpisodes[0];
+        if (!firstUnwatched.unaired) {
+          firstUnwatched.nextUp = true;
+        }
+      }
+    }
+
+    self.isWatchProjected = function(episode) {
+      return episode.watched ||
+        (self.selectedLastWatchedEpisode !== null &&
+          episode.absolute_number <= self.selectedLastWatchedEpisode.absolute_number);
+    };
 
     self.getTierButtonClass = function(tier) {
       return self.series.my_tier === tier ? "btn btn-success" : "btn btn-primary";
@@ -214,7 +261,9 @@ angular.module('mediaMogulApp')
 
     self.getWatchedDateOrWatched = function(episode) {
       // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
-      if (episode.watched_date === null) {
+      if (self.selectedLastWatchedEpisode !== null && !isUnwatchedEpisode(episode)) {
+        return "Watched";
+      } else if (episode.watched_date === null) {
         return episode.watched ? "----.--.--" : "";
       } else {
         return $filter('date')(episode.watched_date, self.getDateFormat(episode.watched_date), 'America/Los_Angeles');
@@ -281,32 +330,63 @@ angular.module('mediaMogulApp')
     };
 
     self.markAllPastWatched = function() {
-      var lastWatched = null;
-      self.episodes.forEach(function(episode) {
-        if ((lastWatched === null || lastWatched < episode.absolute_number)
-          && episode.watched && episode.season !== 0) {
+      if (self.isSelectedAddingEpisodes('All')) {
 
-          lastWatched = episode.absolute_number;
-        }
-      });
+      }
+
+      if (self.selectedLastWatchedEpisode === null) {
+        $log.debug('Mark Past Watched called with no selected episode.');
+        $uibModalInstance.close();
+      }
+
+      let lastWatched = self.selectedLastWatchedEpisode.absolute_number;
 
       $log.debug("Last Watched: Episode " + lastWatched);
 
-      EpisodeService.markMyPastWatched(self.series.id, lastWatched).then(function() {
+      EpisodeService.markMyPastWatched(self.series.id, lastWatched+1).then(function() {
         $log.debug("Finished update, adjusting denorms.");
         self.episodes.forEach(function(episode) {
           $log.debug(lastWatched + ", " + episode.absolute_number);
-          if (episode.absolute_number !== null && episode.absolute_number < lastWatched && episode.season !== 0) {
+          if (episode.absolute_number !== null && episode.absolute_number <= lastWatched && episode.season !== 0) {
             episode.watched = true;
           }
         });
         EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function() {
           updateNextUp();
+          $uibModalInstance.close();
         });
       });
 
       $log.debug("Series '" + self.series.title + "' " + self.series.id);
     };
+
+    function getLastAired() {
+
+
+      let airedEpisodes = _.sortBy(_.filter(self.episodes, hasAired), function(episode) {
+        return -episode.absolute_number;
+      });
+
+      if (airedEpisodes.length === 0) {
+        return null;
+      }
+
+      return airedEpisodes[0];
+    }
+
+    function isBefore(newDate, trackingDate) {
+      return trackingDate === null || newDate < trackingDate;
+    }
+
+    function hasAired(episode) {
+      let now = new Date;
+      if (episode.air_time === null || episode.season === 0) {
+        return false;
+      }
+      let airTime = new Date(episode.air_time);
+      episode.air_time = airTime;
+      return isBefore(airTime, now);
+    }
 
     function updatePersonSeriesInDatabase(changedFields) {
       if (Object.keys(changedFields).length > 0) {
@@ -381,24 +461,36 @@ angular.module('mediaMogulApp')
         controller: 'myEpisodeDetailController as ctrl',
         size: 'lg',
         resolve: {
-          episode: function() {
+          episode: function () {
             return episode;
           },
-          previousEpisodes: function() {
+          previousEpisodes: function () {
             return getPreviousEpisodes(episode);
           },
-          series: function() {
+          series: function () {
             return series;
           }
         }
-      }).result.finally(function() {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function() {
+      }).result.finally(function () {
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
           if (LockService.isAdmin()) {
             EpisodeService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
           }
           updateNextUp();
         });
       });
+    };
+
+    self.openEpisodeDetailFromRow = function(episode) {
+      if (!self.adding) {
+        self.openEpisodeDetail(episode);
+      }
+    };
+
+    self.openEpisodeDetailFromButton = function(episode) {
+      if (self.adding) {
+        self.openEpisodeDetail(episode);
+      }
     };
 
     self.openChangePoster = function () {
@@ -431,6 +523,12 @@ angular.module('mediaMogulApp')
           }
         }
       })
+    };
+
+    self.submitSeriesAdded = function() {
+      EpisodeService.addToMyShows(self.series).then(function() {
+        self.markAllPastWatched();
+      });
     };
 
     self.ok = function() {
