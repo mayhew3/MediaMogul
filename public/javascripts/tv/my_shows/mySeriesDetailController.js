@@ -1,14 +1,15 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'removeSeriesCallback',
+    '$uibModal', '$filter', 'LockService', '$http', 'removeSeriesCallback', 'adding',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           removeSeriesCallback) {
+           removeSeriesCallback, adding) {
     var self = this;
 
     self.LockService = LockService;
 
     self.series = series;
     self.owned = owned;
+    self.adding = adding;
 
     self.episodes = [];
 
@@ -18,6 +19,8 @@ angular.module('mediaMogulApp')
     self.selectedSeason = null;
 
     self.removed = false;
+
+    self.selectedAddingEpisodes = 'None';
 
     self.viewingLocations = EpisodeService.getViewingLocations();
 
@@ -54,6 +57,30 @@ angular.module('mediaMogulApp')
         episode.watched === false &&
         !self.shouldHide(episode);
     }
+
+    self.isSelectedAddingEpisodes = function(label) {
+      return label === self.selectedAddingEpisodes;
+    };
+
+    self.shouldDisplayEpisodeList = function() {
+      return self.owned || self.isSelectedAddingEpisodes('Some');
+    };
+
+    self.getHighlightedEpisodesButton = function(label) {
+      return self.isSelectedAddingEpisodes(label) ? 'btn-success' : 'btn-default';
+    };
+
+    self.allWatched = function() {
+      self.selectedAddingEpisodes = 'All';
+    };
+
+    self.someWatched = function() {
+      self.selectedAddingEpisodes = 'Some';
+    };
+
+    self.noneWatched = function() {
+      self.selectedAddingEpisodes = 'None';
+    };
 
     function updateNextUp() {
 

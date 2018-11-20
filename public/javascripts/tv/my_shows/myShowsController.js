@@ -228,7 +228,10 @@ angular.module('mediaMogulApp')
             return true;
           },
           removeSeriesCallback: function() {
-            return removeFromMyShows
+            return removeFromMyShows;
+          },
+          adding: function() {
+            return false;
           }
         }
       }).result.finally(function() {

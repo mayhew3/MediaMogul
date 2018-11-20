@@ -157,7 +157,25 @@ angular.module('mediaMogulApp')
       }
 
       self.addToMyShows = function(show) {
-        EpisodeService.addToMyShows(show);
+        $uibModal.open({
+          templateUrl: 'views/tv/seriesDetail.html',
+          controller: 'mySeriesDetailController as ctrl',
+          size: 'lg',
+          resolve: {
+            series: function() {
+              return show;
+            },
+            owned: function() {
+              return false;
+            },
+            removeSeriesCallback: function() {
+              return null;
+            },
+            adding: function() {
+              return true;
+            }
+          }
+        });
       };
 
       self.refreshSeriesList = function() {
@@ -199,6 +217,9 @@ angular.module('mediaMogulApp')
             },
             removeSeriesCallback: function() {
               return null;
+            },
+            adding: function() {
+              return false;
             }
           }
         });

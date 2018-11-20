@@ -87,6 +87,11 @@ h1 {
   grid-row: 1;
 }
 
+.spanningColumn {
+  grid-column: 2 / 4;
+  grid-row: 1;
+}
+
 .rightColumn {
   grid-column: 3;
   grid-row: 1;
