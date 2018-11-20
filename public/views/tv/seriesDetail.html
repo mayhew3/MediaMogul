@@ -4,17 +4,17 @@
 
 <div class="modal-body clearfix">
 
-  <div class="col-lg-3">
-    <img class="img-rounded"
-         ng-src="{{ctrl.series.posterResolved}}"
-         err-src="images/GenericSeries.gif"
-         width="100%"
-         ng-click="ctrl.openChangePoster()"/>
-  </div>
+  <div class="topGrid">
 
-  <div class="col-lg-9">
+    <div class="leftColumn">
+      <img class="img-rounded"
+           ng-src="{{ctrl.series.posterResolved}}"
+           err-src="images/GenericSeries.gif"
+           width="210px"
+           ng-click="ctrl.openChangePoster()"/>
+    </div>
 
-    <div class="row">
+    <div class="middleColumn">
 
       <!-- Series scores -->
 
@@ -47,67 +47,72 @@
 
 
 
-        <div class="scoreTitle" style="grid-column: 1; grid-row: 2">
-          <span>Metacritic:</span>
-        </div>
-        <div class="scoreBox"
-             style="grid-column-start: 2; grid-column-end: 3; grid-row: 2"
-             ng-style="ctrl.colorStyle(ctrl.series.metacritic)">
-          <span ng-bind="ctrl.series.metacritic === null ? '--' : ctrl.series.metacritic"></span>
-        </div>
+          <div class="scoreTitle" style="grid-column: 1; grid-row: 2">
+            <span>Metacritic:</span>
+          </div>
+          <div class="scoreBox"
+               style="grid-column-start: 2; grid-column-end: 3; grid-row: 2"
+               ng-style="ctrl.colorStyle(ctrl.series.metacritic)">
+            <span ng-bind="ctrl.series.metacritic === null ? '--' : ctrl.series.metacritic"></span>
+          </div>
 
-        <div class="scoreTitle" style="grid-column: 1; grid-row: 3">
-          <span>Dynamic:</span>
-        </div>
-        <div class="scoreBox" style="grid-column-start: 2; grid-column-end: 3; grid-row: 3"
-             ng-style="ctrl.colorStyle(ctrl.series.dynamic_rating)">
-          <span ng-bind="ctrl.getFormattedNumber(ctrl.series.dynamic_rating)"></span>
-        </div>
+          <div class="scoreTitle" style="grid-column: 1; grid-row: 3">
+            <span>Dynamic:</span>
+          </div>
+          <div class="scoreBox" style="grid-column-start: 2; grid-column-end: 3; grid-row: 3"
+               ng-style="ctrl.colorStyle(ctrl.series.dynamic_rating)">
+            <span ng-bind="ctrl.getFormattedNumber(ctrl.series.dynamic_rating)"></span>
+          </div>
 
-      </div>
+        </div>
       </form>
 
+    </div>
+
+    <div class="rightColumn">
       <!-- Ownership status -->
 
       <div class="detailRightSide">
 
-        <div class="btn-group ownershipButtonGroup detailSection" role="group" id="ownerships" ng-show="ctrl.owned">
-          <button type="button"
-                  class="btn"
-                  ng-class="ctrl.getPinnedClass()"
-                  ng-click="ctrl.changeTier(1)">Pinned</button>
-          <button type="button"
-                  class="btn"
-                  ng-class="ctrl.getBacklogClass()"
-                  ng-click="ctrl.changeTier(2)">Backlog</button>
-          <button type="button"
-                  class="btn"
-                  ng-class="ctrl.getRemovedClass()"
-                  ng-click="ctrl.removeFromMyShows()">Removed</button>
-        </div>
 
-        <!-- Admin functions -->
+          <div class="btn-group ownershipButtonGroup detailSection" role="group" id="ownerships" ng-show="ctrl.owned">
+            <button type="button"
+                    class="btn"
+                    ng-class="ctrl.getPinnedClass()"
+                    ng-click="ctrl.changeTier(1)">Pinned</button>
+            <button type="button"
+                    class="btn"
+                    ng-class="ctrl.getBacklogClass()"
+                    ng-click="ctrl.changeTier(2)">Backlog</button>
+            <button type="button"
+                    class="btn"
+                    ng-class="ctrl.getRemovedClass()"
+                    ng-click="ctrl.removeFromMyShows()">Removed</button>
+          </div>
 
-        <div class="detailSection" ng-show="ctrl.LockService.isAdmin()">
-          <button type="button"
-                  class="btn btn-default"
-                  ng-click="ctrl.openEditSeries()"
-                  ng-show="ctrl.LockService.isAdmin()"
-                  ng-disabled="!ctrl.LockService.isAuthenticated">Edit</button>
 
-          <button type="button"
-                  class="btn btn-warning"
-                  ng-show="ctrl.LockService.isAdmin()"
-                  ng-disabled="ctrl.series.tvdb_manual_queue"
-                  ng-click="ctrl.queueForManualUpdate()">TVDB Update</button>
-          <span ng-bind="'Last Update: ' + ctrl.daysSinceLastUpdate + ' days.'"></span>
-        </div>
+
+          <!-- Admin functions -->
+
+          <div class="detailSection btn-group" ng-show="ctrl.LockService.isAdmin()">
+            <button type="button"
+                    class="btn btn-default"
+                    ng-click="ctrl.openEditSeries()"
+                    ng-show="ctrl.LockService.isAdmin()"
+                    ng-disabled="!ctrl.LockService.isAuthenticated">Edit</button>
+
+            <button type="button"
+                    class="btn btn-warning"
+                    ng-show="ctrl.LockService.isAdmin()"
+                    ng-disabled="ctrl.series.tvdb_manual_queue"
+                    ng-click="ctrl.queueForManualUpdate()">TVDB Update</button><br>
+            <span ng-bind="'Last Update: ' + ctrl.daysSinceLastUpdate + ' days.'"></span>
+          </div>
 
       </div>
-
     </div>
 
-    <div class="row" style="margin-top: 50px; text-align: right" ng-show="ctrl.owned">
+    <div class="bottomRow" ng-show="ctrl.owned">
       Season:
       <label ng-repeat="season in ctrl.seasonLabels"
              ng-class="ctrl.getSeasonButtonClass(season)"
@@ -117,10 +122,9 @@
         <span ng-bind="season"></span>
       </label>
     </div>
-
-
-
   </div>
+
+
 
   <table class="table table-striped table-hover" ng-show="ctrl.owned">
     <thead>
@@ -147,6 +151,7 @@
     </tr>
   </table>
 </div>
+
 <div class="modal-footer">
   <button class="btn btn-primary" ng-click="ctrl.ok()">Close</button>
 </div>

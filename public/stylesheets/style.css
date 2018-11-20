@@ -67,6 +67,39 @@ h1 {
   height: 100%;
 }
 
+/* SERIES DETAIL - BIG COLUMNS */
+
+.topGrid {
+  display: inline-grid;
+  grid-template-columns: 220px 250px 370px;
+  grid-template-rows: 250px 60px;
+  gap: 5px;
+}
+
+.leftColumn {
+  grid-column: 1;
+  grid-row-start: 1;
+  grid-row-end: 3;
+}
+
+.middleColumn {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.rightColumn {
+  grid-column: 3;
+  grid-row: 1;
+  padding-top: 0;
+}
+
+.bottomRow {
+  grid-column-start: 2;
+  grid-column-end: 4;
+  grid-row: 2;
+  justify-self: end;
+}
+
 /* SERIES DETAIL - DIVIDERS */
 
 .detailSection {
@@ -79,13 +112,12 @@ h1 {
 /* SERIES DETAIL - SCORES */
 
 .scoresSection {
-  display: inline-grid;
+  display: grid;
   grid-template-columns: 80px 72px 50px;
   grid-template-rows: 45px 45px 45px;
   gap: 5px;
   align-items: stretch;
   width: 235px;
-  float: left;
 }
 
 .scoreOuterBox {
@@ -144,9 +176,8 @@ h1 {
 /* SERIES DETAIL - OWNERSHIP BUTTONS */
 
 .detailRightSide {
-  margin-left: 10px;
   margin-right: 10px;
-  padding: 10px;
+  padding: 0 10px 10px 0;
 }
 
 .ownershipButtonGroup {
