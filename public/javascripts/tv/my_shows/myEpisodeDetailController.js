@@ -1,11 +1,12 @@
 angular.module('mediaMogulApp')
-  .controller('myEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode', 'previousEpisodes', 'series', 'LockService',
-    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService) {
-      var self = this;
+  .controller('myEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode', 'previousEpisodes', 'series', 'LockService', 'readOnly',
+    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService, readOnly) {
+      const self = this;
       self.rating_id = episode.rating_id;
       self.LockService = LockService;
+      self.readOnly = readOnly;
 
-      var options = {
+      const options = {
         year: "numeric", month: "2-digit",
         day: "2-digit", timeZone: "America/Los_Angeles"
       };
@@ -44,7 +45,7 @@ angular.module('mediaMogulApp')
 
       self.updateOrAddRating = function() {
         return new Promise(function(resolve) {
-          var changedFields = self.getChangedFields();
+          let changedFields = self.getChangedFields();
           if (Object.keys(changedFields).length > 0) {
             $log.debug("Episode fields changed: " + _.keys(changedFields));
             if (self.rating_id === null) {
@@ -78,15 +79,15 @@ angular.module('mediaMogulApp')
       self.onRatingChange = function() {
         if (!self.interfaceRating.watched) {
           self.interfaceRating.watched = true;
-          self.watched_date = new Date().toLocaleDateString("en-US", options);;
+          self.watched_date = new Date().toLocaleDateString("en-US", options);
         }
       };
 
       self.getChangedFields = function() {
-        var changedFields = {};
-        for (var key in self.interfaceRating) {
+        let changedFields = {};
+        for (let key in self.interfaceRating) {
           if (self.interfaceRating.hasOwnProperty(key)) {
-            var value = self.interfaceRating[key];
+            let value = self.interfaceRating[key];
 
             if (value !== self.originalRating[key]) {
               changedFields[key] = value;
@@ -96,7 +97,7 @@ angular.module('mediaMogulApp')
 
         self.watched_date = formatDate(self.watched_date);
 
-        var originalWatchedDate = formatDate(self.episode.watched_date);
+        let originalWatchedDate = formatDate(self.episode.watched_date);
 
         if (dateHasChanged(originalWatchedDate, self.watched_date)) {
           changedFields.watched_date = self.watched_date;
@@ -109,10 +110,10 @@ angular.module('mediaMogulApp')
       self.getDateFormat = function(date) {
         // $log.debug("Air Date: " + date);
 
-        var thisYear = (new Date).getFullYear();
+        let thisYear = (new Date).getFullYear();
 
         if (date !== null) {
-          var year = new Date(date).getFullYear();
+          let year = new Date(date).getFullYear();
 
           // $log.debug("Year: " + year + ", This Year: " + thisYear);
 
@@ -129,9 +130,9 @@ angular.module('mediaMogulApp')
       function updateWatchedStatus() {
         self.air_date = formatDate(self.air_date);
 
-        var originalAirDate = formatDate(self.episode.air_date);
+        let originalAirDate = formatDate(self.episode.air_date);
 
-        var changedFields = {};
+        let changedFields = {};
 
         if (dateHasChanged(originalAirDate, self.air_date)) {
           changedFields.air_date = self.air_date;
@@ -148,7 +149,7 @@ angular.module('mediaMogulApp')
       }
 
       function formatDate(unformattedDate) {
-        var originalDate = (unformattedDate === '' || unformattedDate === null) ? null :
+        let originalDate = (unformattedDate === '' || unformattedDate === null) ? null :
           new Date(unformattedDate);
         if (originalDate !== null) {
           originalDate.setHours(0, 0, 0, 0);
@@ -183,7 +184,7 @@ angular.module('mediaMogulApp')
         }
 
         if (LockService.isAdmin()) {
-          var originalAirDate = formatDate(self.episode.air_date);
+          let originalAirDate = formatDate(self.episode.air_date);
 
           if (dateHasChanged(originalAirDate, self.air_date)) {
             self.episode.air_date = self.air_date;

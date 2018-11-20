@@ -3,7 +3,7 @@ angular.module('mediaMogulApp')
     '$uibModal', '$filter', 'LockService', '$http', 'removeSeriesCallback', 'adding',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
            removeSeriesCallback, adding) {
-    var self = this;
+    const self = this;
 
     self.LockService = LockService;
 
@@ -63,15 +63,6 @@ angular.module('mediaMogulApp')
       }
     }
 
-    function isUnwatchedProjected(episode) {
-      if (episode.season === 0 || episode.air_time === null) {
-        return false;
-      }
-      return self.selectedLastWatchedEpisode !== null ?
-        episode.absolute_number > self.selectedLastWatchedEpisode.absolute_number :
-        episode.watched !== true;
-    }
-
     self.isSelectedAddingEpisodes = function(label) {
       return label === self.selectedAddingEpisodes;
     };
@@ -111,12 +102,12 @@ angular.module('mediaMogulApp')
         episode.nextUp = false;
       });
 
-      var unwatchedEpisodes = self.episodes.filter(function (episode) {
+      const unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
 
       if (unwatchedEpisodes.length > 0) {
-        var firstUnwatched = unwatchedEpisodes[0];
+        let firstUnwatched = unwatchedEpisodes[0];
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
         }
@@ -130,7 +121,7 @@ angular.module('mediaMogulApp')
       });
 
       let unwatchedEpisodes = self.episodes.filter(function (episode) {
-        return isUnwatchedProjected(episode);
+        return isUnwatchedEpisode(episode);
       });
 
       if (unwatchedEpisodes.length > 0) {
@@ -160,7 +151,7 @@ angular.module('mediaMogulApp')
     function updateSeasonLabels() {
       self.episodes.forEach(function (episode) {
         // $log.debug("AIR DATE: " + episode.air_date);
-        var season = episode.season;
+        let season = episode.season;
         if (season !== null && !(self.seasonLabels.indexOf(season) > -1) && !self.shouldHide(episode)) {
           self.seasonLabels.push(season);
         }
@@ -181,20 +172,20 @@ angular.module('mediaMogulApp')
         return "";
       };
 
-      var unwatchedEpisodes = self.episodes.filter(function (episode) {
+      let unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
 
       $log.debug("Unwatched: " + unwatchedEpisodes.length);
 
       if (unwatchedEpisodes.length > 0) {
-        var firstUnwatched = unwatchedEpisodes[0];
+        let firstUnwatched = unwatchedEpisodes[0];
         self.selectedSeason = firstUnwatched.season;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
         }
       } else {
-        var allEpisodes = self.episodes.filter(function (episode) {
+        let allEpisodes = self.episodes.filter(function (episode) {
           return episode.season !== null && episode.season > 0 &&
                   !self.shouldHide(episode);
         });
@@ -271,7 +262,7 @@ angular.module('mediaMogulApp')
     };
 
     self.getRating = function(episode) {
-      var rating = episode.rating_value;
+      let rating = episode.rating_value;
       if (rating !== null) {
         return rating;
       }
@@ -287,9 +278,9 @@ angular.module('mediaMogulApp')
     function isUnaired(episode) {
       // unaired if the air time is after now.
 
-      var isNull = episode.air_time === null;
-      var diff = (new Date(episode.air_time) - new Date);
-      var hasSufficientDiff = (diff > 0);
+      let isNull = episode.air_time === null;
+      let diff = (new Date(episode.air_time) - new Date);
+      let hasSufficientDiff = (diff > 0);
 
       return isNull || hasSufficientDiff;
     }
@@ -304,10 +295,10 @@ angular.module('mediaMogulApp')
     };
 
     self.getDateFormat = function(date) {
-      var thisYear = (new Date).getFullYear();
+      let thisYear = (new Date).getFullYear();
 
       if (date !== null) {
-        var year = new Date(date).getFullYear();
+        let year = new Date(date).getFullYear();
 
         if (year === thisYear) {
           return 'EEE M/d';
@@ -403,7 +394,7 @@ angular.module('mediaMogulApp')
     }
 
     function getPreviousEpisodes(episode) {
-      var allEarlierEpisodes = self.episodes.filter(function (otherEpisode) {
+      let allEarlierEpisodes = self.episodes.filter(function (otherEpisode) {
         return  otherEpisode.air_date !== null &&
                 otherEpisode.season !== 0 &&
                 ((otherEpisode.season < episode.season) ||
@@ -411,7 +402,7 @@ angular.module('mediaMogulApp')
                 otherEpisode.episode_number < episode.episode_number));
       });
 
-      var earlierSorted = allEarlierEpisodes.sort(function(e1, e2) {
+      let earlierSorted = allEarlierEpisodes.sort(function(e1, e2) {
         if (e1.season === e2.season) {
           return e2.episode_number - e1.episode_number;
         } else {
@@ -437,8 +428,8 @@ angular.module('mediaMogulApp')
       if (value === null) {
         return '--';
       } else {
-        var floored = Math.floor(value);
-        var remainder = value - floored;
+        let floored = Math.floor(value);
+        let remainder = value - floored;
         if (remainder < .05) {
           return floored;
         } else {
@@ -448,8 +439,8 @@ angular.module('mediaMogulApp')
     };
 
     self.colorStyle = function(scaledValue) {
-      var hue = (scaledValue <= 50) ? scaledValue * 0.5 : (50 * 0.5 + (scaledValue - 50) * 4.5);
-      var saturation = scaledValue === null ? '0%' : '50%';
+      let hue = (scaledValue <= 50) ? scaledValue * 0.5 : (50 * 0.5 + (scaledValue - 50) * 4.5);
+      let saturation = scaledValue === null ? '0%' : '50%';
       return {
         'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)'
       }
@@ -469,6 +460,9 @@ angular.module('mediaMogulApp')
           },
           series: function () {
             return series;
+          },
+          readOnly: function () {
+            return !self.owned;
           }
         }
       }).result.finally(function () {
@@ -531,7 +525,7 @@ angular.module('mediaMogulApp')
       });
     };
 
-    self.ok = function() {
+    self.close = function() {
       $uibModalInstance.close();
     };
   }]);

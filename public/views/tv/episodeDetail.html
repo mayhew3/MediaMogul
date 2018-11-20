@@ -58,7 +58,7 @@
     </div>
 
     <!-- Watched  -->
-    <div class="form-group col-lg-3">
+    <div class="form-group col-lg-3" ng-hide="ctrl.readOnly">
       <label class="control-label" for="watched">Watched</label>
       <div>
         <input type="checkbox"
@@ -72,7 +72,7 @@
     </div>
 
     <!-- Watch Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
-    <div class="form-group col-lg-3">
+    <div class="form-group col-lg-3" ng-hide="ctrl.readOnly">
       <label class="control-label" for="watchedDate">Watched</label>
       <div class="date">
         <input type="text"
@@ -84,7 +84,7 @@
       </div>
     </div>
 
-    <div class="form-group col-lg-12">
+    <div class="form-group col-lg-12" ng-hide="ctrl.readOnly">
 
       <!-- Funny -->
       <div class="form-group col-lg-3">
@@ -145,7 +145,7 @@
     </div>
 
     <!-- Review -->
-    <div class="form-group col-lg-12">
+    <div class="form-group col-lg-12" ng-hide="ctrl.readOnly">
 
       <label class="control-label" for="review">Review</label>
       <textarea
@@ -159,7 +159,7 @@
     </div>
 
     <!-- Previous Episodes -->
-    <div class="form-group col-lg-12">
+    <div class="form-group col-lg-12" ng-hide="ctrl.readOnly">
       <h3>Previous Episodes</h3>
       <table class="table table-striped table-hover ">
         <thead>
