@@ -16,7 +16,10 @@
         <ul uib-pagination
             total-items="ctrl.totalItems()"
             ng-model="ctrl.currentPage"
-            items-per-page="ctrl.pageSize"></ul>
+            items-per-page="ctrl.pageSize"
+            force-ellipses="true"
+            boundary-link-numbers="true"
+            max-size="6"></ul>
       </div>
     </div>
 
