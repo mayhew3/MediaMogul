@@ -5,9 +5,20 @@
   <div class="panel-body">
     <div class="row gameRow">
       <div class="fade-repeat col-xs-4 col-md-4 gameCard" ng-repeat="game in ctrl.games |
-          filter:ctrl.gamesFilter">
+          filter: ctrl.gamesFilter |
+          limitTo: ctrl.pageSize : (ctrl.currentPage - 1) * ctrl.pageSize">
         <game-card game="game" owned="ctrl.owned" refresh-callback="ctrl.refreshCallback"></game-card>
       </div>
     </div>
+
+    <div class="row" ng-show="ctrl.paging">
+      <div class="col-lg-12" ng-show="ctrl.totalItems() > ctrl.pageSize">
+        <ul uib-pagination
+            total-items="ctrl.totalItems()"
+            ng-model="ctrl.currentPage"
+            items-per-page="ctrl.pageSize"></ul>
+      </div>
+    </div>
+
   </div>
 </div>

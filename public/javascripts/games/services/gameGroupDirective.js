@@ -14,7 +14,8 @@
         games: '=',
         gamesFilter: '=',
         owned: '=',
-        refreshCallback: '='
+        refreshCallback: '=',
+        paging: '='
       }
     }
   }
@@ -27,6 +28,15 @@
     self.gamesFilter = $scope.gamesFilter;
     self.owned = $scope.owned;
     self.refreshCallback = $scope.refreshCallback;
+    self.paging = $scope.paging;
+
+    self.currentPage = 1;
+    self.pageSize = 6;
+
+    self.totalItems = function() {
+      return self.games.filter(self.gamesFilter).length;
+    };
+
   }
 
 })();

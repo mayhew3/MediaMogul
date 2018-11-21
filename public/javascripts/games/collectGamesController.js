@@ -27,6 +27,7 @@ angular.module('mediaMogulApp')
 
       self.platformFilters = [];
 
+
       self.orderByRating = function(game) {
         return ((angular.isDefined(game.FullRating) && game.FullRating !== null) ? -1: 0);
       };
