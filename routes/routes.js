@@ -62,6 +62,7 @@ module.exports = function(app) {
 
   // PERSONS
   app.get('/person', authCheck, persons.getPersonInfo);
+  app.get('/api/persons', authCheck, persons.getPersons);
   app.post('/addPerson', authCheck, persons.addPerson);
 
   // MY SHOWS
@@ -86,6 +87,8 @@ module.exports = function(app) {
   app.get('/api/groupShows', authCheck, persons.getGroupShows);
   app.get('/api/groupEpisodes', authCheck, persons.getGroupEpisodes);
   app.get('/api/notGroupShows', authCheck, persons.getNotGroupShows);
+
+  app.post('/api/createGroup', authCheck, persons.createGroup);
   app.post('/api/groupWatchEpisode', authCheck, persons.markEpisodeWatchedByGroup);
   app.post('/api/watchPastGroupEpisodes', authCheck, persons.markAllPastEpisodesAsGroupWatched);
   app.post('/api/addGroupShow', authCheck, persons.addToGroupShows);

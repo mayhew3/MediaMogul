@@ -302,7 +302,7 @@ angular.module('mediaMogulApp')
               return self.series;
             }
           }
-        })
+        });
       }
     };
 

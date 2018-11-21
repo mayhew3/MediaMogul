@@ -10,6 +10,14 @@
         </a>
       </li>
     </ul>
+
+    <ul class="nav nav-pills nav-stacked btn-sm nav-pills-success" ng-show="ctrl.LockService.isAdmin()">
+      <li>
+        <a ng-click="ctrl.createGroup()">
+          <span>Create Group</span>
+        </a>
+      </li>
+    </ul>
   </div>
 
   <div class="container col-lg-10">

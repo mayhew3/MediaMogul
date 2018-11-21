@@ -14,6 +14,16 @@ exports.getPersonInfo = function(request, response) {
   return db.executeQueryWithResults(response, sql, [email, 0]);
 };
 
+exports.getPersons = function(request, response) {
+  console.log("Persons call received:");
+
+  const sql = 'SELECT p.* ' +
+    'FROM person p ' +
+    'WHERE p.retired = $1 ';
+
+  return db.executeQueryWithResults(response, sql, [0]);
+};
+
 exports.addPerson = function(request, response) {
   var person = request.body.Person;
 
@@ -693,6 +703,8 @@ exports.setRatingEndDate = function(request, response) {
   return db.executeQueryNoResults(response, sql, [ratingEndDate]);
 };
 
+/* GROUPS */
+
 exports.getMyGroups = function(request, response) {
   var person_id = request.query.person_id;
 
@@ -742,6 +754,38 @@ exports.getMyGroups = function(request, response) {
       response.json(groups);
     });
 
+  });
+};
+
+exports.createGroup = function(request, response) {
+  const group = request.body.group;
+
+  const sql = 'INSERT INTO tv_group (name) ' +
+    'VALUES ($1) ' +
+    'RETURNING id ';
+
+  const values = [group.name];
+
+  db.selectWithJSON(sql, values).then(function(groupResult) {
+    const tv_group_id = groupResult[0].id;
+    const person_ids = group.person_ids;
+
+    const sql = 'INSERT INTO tv_group_person (tv_group_id, person_id) ' +
+      'SELECT $1, p.id ' +
+      'FROM person p ' +
+      'WHERE retired = $2 ' +
+      'AND id IN (' + createInlineVariableList(person_ids.length, 3) + ') ';
+
+    const values = [
+      tv_group_id,
+      0
+    ];
+
+    addToArray(values, person_ids);
+
+    db.updateNoJSON(sql, values).then(function() {
+      response.json({tv_group_id: tv_group_id});
+    });
   });
 };
 

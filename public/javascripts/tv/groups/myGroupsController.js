@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
-.controller('myGroupsController', ['$log', 'LockService', '$http', '$state', 'NavHelperService',
-  function($log, LockService, $http, $state, NavHelperService) {
-    var self = this;
+.controller('myGroupsController', ['$log', 'LockService', '$http', '$state', 'NavHelperService', '$uibModal',
+  function($log, LockService, $http, $state, NavHelperService, $uibModal) {
+    let self = this;
 
     self.LockService = LockService;
 
@@ -19,7 +19,7 @@ angular.module('mediaMogulApp')
     self.fetchGroups = function() {
       $http.get('/api/myGroups', {params: {person_id: LockService.person_id}}).then(function(results) {
         refreshArray(self.groups, results.data);
-        var navGroup = self.NavHelperService.getSelectedTVGroup();
+        let navGroup = self.NavHelperService.getSelectedTVGroup();
 
         if (navGroup !== null) {
           self.changeSelectedGroup(navGroup);
@@ -34,6 +34,29 @@ angular.module('mediaMogulApp')
 
     self.isActive = function(pillNumber) {
       return (pillNumber === self.selectedPill) ? "active" : null;
+    };
+
+    function addNewGroupToGroups(data, tv_group_id) {
+      let tv_group = data.group;
+
+      if (_.contains(tv_group.person_ids, self.LockService.person_id)) {
+        tv_group.id = tv_group_id;
+        self.groups.push(tv_group);
+      }
+    }
+
+    self.createGroup = function() {
+      $uibModal.open({
+        templateUrl: 'views/tv/groups/createGroup.html',
+        controller: 'createGroupController',
+        controllerAs: 'ctrl',
+        size: 'lg',
+        resolve: {
+          createGroupCallback: function () {
+            return addNewGroupToGroups;
+          }
+        }
+      });
     };
 
     function refreshArray(originalArray, newArray) {
