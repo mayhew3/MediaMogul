@@ -1,11 +1,22 @@
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 ng-bind="ctrl.header"></h3>
+    <div class="row">
+      <div class="col-lg-8">
+        <h3 ng-bind="ctrl.header"></h3>
+      </div>
+      <div class="col-lg-4" style="text-align: right;" ng-show="ctrl.searchBar">
+        <input type="text"
+               ng-model="ctrl.titleSearch"
+               class="form-control">
+      </div>
+    </div>
   </div>
   <div class="panel-body">
     <div class="row gameRow">
       <div class="fade-repeat col-xs-4 col-md-4 gameCard" ng-repeat="game in ctrl.games |
           filter: ctrl.gamesFilter |
+          filterByTitle: ctrl.titleSearch |
+          orderBy: 'title' |
           limitTo: ctrl.pageSize : (ctrl.currentPage - 1) * ctrl.pageSize">
         <game-card game="game" owned="ctrl.owned" refresh-callback="ctrl.refreshCallback"></game-card>
       </div>

@@ -7,7 +7,7 @@
   function gameGroup() {
     return {
       templateUrl: 'views/games/gameGroup.html',
-      controller: gameGroupController,
+      controller: ['$scope', '$filter', gameGroupController],
       controllerAs: 'ctrl',
       scope: {
         header: '=',
@@ -15,12 +15,13 @@
         gamesFilter: '=',
         owned: '=',
         refreshCallback: '=',
-        paging: '='
+        paging: '=',
+        searchBar: '='
       }
     }
   }
 
-  function gameGroupController($scope) {
+  function gameGroupController($scope, $filter) {
     var self = this;
 
     self.header = $scope.header;
@@ -29,13 +30,17 @@
     self.owned = $scope.owned;
     self.refreshCallback = $scope.refreshCallback;
     self.paging = $scope.paging;
+    self.searchBar = $scope.searchBar;
 
     self.currentPage = 1;
     self.pageSize = 6;
 
+    self.titleSearch = undefined;
+
     self.totalItems = function() {
-      return self.games.filter(self.gamesFilter).length;
+      return $filter('filterByTitle')(self.games.filter(self.gamesFilter), self.titleSearch).length;
     };
+
 
   }
 
