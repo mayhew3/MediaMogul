@@ -191,7 +191,9 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
   .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location',
     function($rootScope, LockService, store, jwtHelper, $location) {
 
-      var self = this;
+      const self = this;
+
+      LockService.scheduleRenewal();
 
       // return value is a "deregistration" function that can be called to detach from the event.
       const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);

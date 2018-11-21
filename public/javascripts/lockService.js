@@ -2,8 +2,9 @@ angular.module('mediaMogulApp')
   .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper', '__env', '$q',
     function ($log, $http, store, $location, jwtHelper, __env, $q) {
 
-      var self = this;
+      const self = this;
       self.user_role = 'none';
+      let tokenRenewalTimeout;
 
       const token = store.get('token');
       self.isAuthenticated = token && !jwtHelper.isTokenExpired(token);
@@ -23,7 +24,18 @@ angular.module('mediaMogulApp')
           redirectUrl: self.callbackBase() + "/callback"
         }
       };
-      
+
+      self.scheduleRenewal = function() {
+        let expiresAt = JSON.parse(store.get('expires_at'));
+        let delay = expiresAt - Date.now();
+        if (delay > 0) {
+          tokenRenewalTimeout = setTimeout(function() {
+            console.log('TIMEOUT REACHED!');
+            self.renew();
+          }, delay);
+        }
+      };
+
       self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
       
       console.log("Listeners being added.");
@@ -81,6 +93,7 @@ angular.module('mediaMogulApp')
         store.remove('user_role');
         self.user_role = 'none';
         self.person_id = undefined;
+        clearTimeout(tokenRenewalTimeout);
       };
 
       if (self.isAuthenticated) {
@@ -104,6 +117,8 @@ angular.module('mediaMogulApp')
         store.set('token', authResult.idToken);
         store.set('refresh_token', authResult.refreshToken);
         store.set('expires_at', expiresAt);
+
+        self.scheduleRenewal();
 
         syncPersonWithDB(authResult.idTokenPayload, callback);
       };
