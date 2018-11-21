@@ -880,10 +880,10 @@ exports.getGroupShows = function(request, response) {
 };
 
 exports.getGroupEpisodes = function(request, response) {
-  var tv_group_id = request.query.tv_group_id;
-  var series_id = request.query.series_id;
+  const tv_group_id = request.query.tv_group_id;
+  const series_id = request.query.series_id;
 
-  var sql = 'SELECT e.id, ' +
+  const sql = 'SELECT e.id, ' +
     'e.air_date, ' +
     'e.air_time, ' +
     'e.title, ' +
@@ -907,7 +907,7 @@ exports.getGroupEpisodes = function(request, response) {
     'ORDER BY e.season, e.episode_number';
 
   db.selectWithJSON(sql, [series_id, 0, 0]).then(function (episodeResult) {
-    var sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped, tge.skip_reason " +
+    const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped, tge.skip_reason " +
       "FROM tv_group_episode tge " +
       "INNER JOIN episode e " +
       "  ON tge.episode_id = e.id " +
@@ -918,23 +918,57 @@ exports.getGroupEpisodes = function(request, response) {
 
     db.selectWithJSON(sql, [series_id, 0, 0, tv_group_id]).then(function(groupResult) {
 
-      groupResult.forEach(function(groupEpisode) {
-        var episodeMatch = _.find(episodeResult, function (episode) {
-          return episode.id === groupEpisode.episode_id;
+      const sql = "SELECT er.episode_id, tgp.person_id " +
+        "FROM episode_rating er " +
+        "INNER JOIN episode e " +
+        "  ON er.episode_id = e.id " +
+        "INNER JOIN person p " +
+        "  ON er.person_id = p.id " +
+        "INNER JOIN tv_group_person tgp " +
+        "  ON tgp.person_id = p.id " +
+        "WHERE e.series_id = $1 " +
+        "AND e.retired = $2 " +
+        "AND er.retired = $3 " +
+        "AND tgp.retired = $4 " +
+        "AND tgp.tv_group_id = $5 " +
+        "AND er.watched = $6 ";
+
+      const values = [
+        series_id,
+        0,
+        0,
+        0,
+        tv_group_id,
+        true
+      ];
+
+      db.selectWithJSON(sql, values).then(function(personResult) {
+
+        groupResult.forEach(function(groupEpisode) {
+          const episodeMatch = _.find(episodeResult, function (episode) {
+            return episode.id === groupEpisode.episode_id;
+          });
+
+          if (exists(episodeMatch)) {
+            episodeMatch.watched_date = groupEpisode.watched_date;
+            episodeMatch.watched = groupEpisode.watched;
+            episodeMatch.skipped = groupEpisode.skipped;
+            episodeMatch.skip_reason = groupEpisode.skip_reason;
+            episodeMatch.tv_group_episode_id = groupEpisode.id;
+          }
         });
 
-        if (exists(episodeMatch)) {
-          episodeMatch.watched_date = groupEpisode.watched_date;
-          episodeMatch.watched = groupEpisode.watched;
-          episodeMatch.skipped = groupEpisode.skipped;
-          episodeMatch.skip_reason = groupEpisode.skip_reason;
-          episodeMatch.tv_group_episode_id = groupEpisode.id;
-        }
+        episodeResult.forEach(function(episode) {
+          const personMatches = _.filter(personResult, function(episode_rating) {
+            return episode_rating.episode_id === episode.id;
+          });
+
+          episode.person_ids = _.pluck(personMatches, 'person_id');
+        });
+
+        response.send(episodeResult);
 
       });
-
-      response.send(episodeResult);
-
     });
   });
 };

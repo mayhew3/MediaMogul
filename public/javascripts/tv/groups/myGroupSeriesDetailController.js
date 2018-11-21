@@ -125,6 +125,24 @@ angular.module('mediaMogulApp')
       }
     }
 
+    self.getPersonWatchedLabel = function(episode) {
+      const person_ids = episode.person_ids;
+
+      if (_.isUndefined(person_ids) || person_ids.length === 0) {
+        return null;
+      } else if (person_ids.length === self.group.members.length) {
+        return {labelClass: 'label-danger', labelText: 'All'};
+      }
+
+      const me_watched = _.contains(person_ids, self.LockService.person_id);
+
+      if (me_watched) {
+        return {labelClass: 'label-info', labelText: 'Me'};
+      } else {
+        return {labelClass: 'label-warning', labelText: 'Some'};
+      }
+    };
+
     self.getLabelInfo = function(episode) {
       if (episode.on_tivo) {
         if (episode.tivo_deleted_date) {
