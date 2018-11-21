@@ -16,7 +16,6 @@
       <div class="fade-repeat col-xs-4 col-md-4 gameCard" ng-repeat="game in ctrl.games |
           filter: ctrl.gamesFilter |
           filterByTitle: ctrl.titleSearch |
-          orderBy: 'title' |
           limitTo: ctrl.pageSize : (ctrl.currentPage - 1) * ctrl.pageSize">
         <game-card game="game" owned="ctrl.owned" refresh-callback="ctrl.refreshCallback"></game-card>
       </div>
