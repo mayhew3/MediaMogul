@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('myGroupSeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'group',
-    '$uibModal', '$filter', 'LockService', '$http',
-  function($log, EpisodeService, $uibModalInstance, series, group, $uibModal, $filter, LockService, $http) {
+    '$uibModal', '$filter', 'LockService', '$http', '$timeout',
+  function($log, EpisodeService, $uibModalInstance, series, group, $uibModal, $filter, LockService, $http, $timeout) {
     var self = this;
 
     self.LockService = LockService;
@@ -23,6 +23,11 @@ angular.module('mediaMogulApp')
       $http.get('/api/groupEpisodes', {params: {series_id: series.id, tv_group_id: group.id}}).then(function(result) {
         refreshArray(self.episodes, result.data);
         updateSeasonLabels();
+        $timeout(function() {
+          console.log('Delay finished! Populating tooltips!');
+          $('.personsTooltip').tooltip();
+        }, 100);
+
       });
     };
     self.updateEpisodes();

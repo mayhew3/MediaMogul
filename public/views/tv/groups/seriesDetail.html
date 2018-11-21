@@ -59,7 +59,8 @@
             <td ng-bind="episode.episode_number"></td>
             <td ng-bind="episode.title" class="episodeDescription"></td>
             <td ng-bind="episode.air_time|date:ctrl.getDateFormat(episode.air_time):'America/Los_Angeles'"></td>
-            <td>
+            <td class="personsTooltip"
+                title="BIG TOOLTIP">
               <span ng-bind="ctrl.getWatchedDateOrWatched(episode)"
                     ng-show="episode.watched || episode.skipped"></span>
               <span class="label"
