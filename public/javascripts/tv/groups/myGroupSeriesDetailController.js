@@ -25,11 +25,7 @@ angular.module('mediaMogulApp')
         updateSeasonLabels();
         $timeout(function() {
           console.log('Delay finished! Populating tooltips!');
-          $('.personsTooltip').tooltip({
-            placement: 'left',
-            html: true,
-            animation: false
-          });
+          self.refreshTooltips();
         }, 100);
 
       });
@@ -135,24 +131,17 @@ angular.module('mediaMogulApp')
     /* TOOLTIPS */
 
     self.getPersonWatchedLabel = function(episode) {
-      if (hasNoWatchers(episode)) {
-        return null;
-      } else if (hasAllWatchers(episode)) {
-        return {labelClass: 'label-danger', labelText: 'All'};
-      } else if (meWatcher(episode)) {
-        return {labelClass: 'label-info', labelText: 'Me'};
-      } else {
-        return {labelClass: 'label-warning', labelText: 'Some'};
-      }
+      const watchers = getWatchersWhoArentMe(episode);
+      return watchers.length;
     };
 
     self.getTooltipText = function(episode) {
-      if (!hasSomeWatchersNotMe(episode) || isClosed(episode)) {
+      if (!hasSomeWatchersWhoArentMe(episode) || isClosed(episode)) {
         return '';
       }
 
       let texts = [];
-      episode.person_ids.forEach(function(person_id) {
+      getWatchersWhoArentMe(episode).forEach(function(person_id) {
         texts.push(getPersonNameFromId(person_id));
       });
       return texts.join('<br>');
@@ -165,18 +154,42 @@ angular.module('mediaMogulApp')
       return _.isUndefined(foundPerson) ? null : foundPerson.first_name;
     }
 
-    function hasNoWatchers(episode) {
-      const person_ids = episode.person_ids;
-      return _.isUndefined(person_ids) || person_ids.length === 0;
+    function showAnyLabels(episode) {
+      return !isClosed(episode);
     }
+
+    self.showMeLabel = function(episode) {
+      return showAnyLabels(episode) && meWatcher(episode);
+    };
+
+    self.showSomeLabel = function(episode) {
+      return showAnyLabels(episode) && hasSomeWatchersWhoArentMe(episode);
+    };
+
+    self.showAllLabel = function(episode) {
+      return showAnyLabels(episode) && hasAllWatchers(episode);
+    };
+
+    self.refreshTooltips = function() {
+      $('.personsTooltip').tooltip({
+        placement: 'left',
+        html: true,
+        animation: false
+      });
+    };
 
     function hasAllWatchers(episode) {
       const person_ids = episode.person_ids;
       return !_.isUndefined(person_ids) && (person_ids.length === group.members.length);
     }
 
-    function hasSomeWatchersNotMe(episode) {
-      return !hasNoWatchers(episode) && !hasAllWatchers(episode);
+    function getWatchersWhoArentMe(episode) {
+      const person_ids = episode.person_ids;
+      return _.without(person_ids, self.LockService.person_id);
+    }
+
+    function hasSomeWatchersWhoArentMe(episode) {
+      return !hasAllWatchers(episode) && getWatchersWhoArentMe(episode).length > 0;
     }
 
     function meWatcher(episode) {
@@ -188,7 +201,7 @@ angular.module('mediaMogulApp')
     }
 
     self.getTooltipClass = function(episode) {
-      return !hasSomeWatchersNotMe(episode) || isClosed(episode) ?
+      return !hasSomeWatchersWhoArentMe(episode) || isClosed(episode) ?
         '' : 'personsTooltip';
     };
 

@@ -34,6 +34,7 @@
                   ng-repeat="season in ctrl.seasonLabels"
                   ng-class="ctrl.getSeasonButtonClass(season)"
                   ng-model="ctrl.selectedSeason"
+                  ng-click="ctrl.refreshTooltips()"
                   style="font-size: xx-large"
                   uib-btn-radio="season">
             {{season}}
@@ -63,10 +64,24 @@
                 title="{{ctrl.getTooltipText(episode)}}">
               <span ng-bind="ctrl.getWatchedDateOrWatched(episode)"
                     ng-show="episode.watched || episode.skipped"></span>
-              <span class="label"
-                    ng-show="!episode.watched && !episode.skipped && ctrl.getPersonWatchedLabel(episode) !== null"
-                    ng-class="ctrl.getPersonWatchedLabel(episode).labelClass"
-                    ng-bind="ctrl.getPersonWatchedLabel(episode).labelText"></span>
+
+              <!-- ME label -->
+              <span class="label label-info"
+                    ng-show="ctrl.showMeLabel(episode)">
+                Me
+              </span>
+
+              <!-- SOME label -->
+              <span class="label label-warning"
+                    ng-show="ctrl.showSomeLabel(episode)"
+                    ng-bind="ctrl.getPersonWatchedLabel(episode)"></span>
+
+              <!-- ALL label -->
+              <span class="label label-danger"
+                    ng-show="ctrl.showAllLabel(episode)">
+                All
+              </span>
+
             </td>
           </tr>
         </table>
