@@ -25,7 +25,11 @@ angular.module('mediaMogulApp')
         updateSeasonLabels();
         $timeout(function() {
           console.log('Delay finished! Populating tooltips!');
-          $('.personsTooltip').tooltip();
+          $('.personsTooltip').tooltip({
+            placement: 'left',
+            html: true,
+            animation: false
+          });
         }, 100);
 
       });
@@ -52,8 +56,6 @@ angular.module('mediaMogulApp')
         episode.skipped === false &&
         !self.shouldHide(episode);
     }
-
-
 
     function updateNextUp() {
 
@@ -133,7 +135,7 @@ angular.module('mediaMogulApp')
     self.getPersonWatchedLabel = function(episode) {
       const person_ids = episode.person_ids;
 
-      if (_.isUndefined(person_ids) || person_ids.length === 0) {
+      if (hasNoWatchers(episode)) {
         return null;
       } else if (person_ids.length === self.group.members.length) {
         return {labelClass: 'label-danger', labelText: 'All'};
@@ -146,6 +148,31 @@ angular.module('mediaMogulApp')
       } else {
         return {labelClass: 'label-warning', labelText: 'Some'};
       }
+    };
+
+    self.getTooltipText = function(episode) {
+      if (hasNoWatchers(episode) || isClosed(episode)) {
+        return '';
+      }
+      
+      let texts = [];
+      episode.person_ids.forEach(function(person_id) {
+        texts.push('Person ' + person_id);
+      });
+      return texts.join('<br>');
+    };
+
+    function hasNoWatchers(episode) {
+      const person_ids = episode.person_ids;
+      return _.isUndefined(person_ids) || person_ids.length === 0;
+    }
+
+    function isClosed(episode) {
+      return episode.watched || episode.skipped;
+    }
+
+    self.getTooltipClass = function(episode) {
+      return hasNoWatchers(episode) || isClosed(episode) ? '' : 'personsTooltip';
     };
 
     self.getLabelInfo = function(episode) {
