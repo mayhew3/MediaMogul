@@ -132,18 +132,14 @@ angular.module('mediaMogulApp')
       }
     }
 
-    self.getPersonWatchedLabel = function(episode) {
-      const person_ids = episode.person_ids;
+    /* TOOLTIPS */
 
+    self.getPersonWatchedLabel = function(episode) {
       if (hasNoWatchers(episode)) {
         return null;
-      } else if (person_ids.length === self.group.members.length) {
+      } else if (hasAllWatchers(episode)) {
         return {labelClass: 'label-danger', labelText: 'All'};
-      }
-
-      const me_watched = _.contains(person_ids, self.LockService.person_id);
-
-      if (me_watched) {
+      } else if (meWatcher(episode)) {
         return {labelClass: 'label-info', labelText: 'Me'};
       } else {
         return {labelClass: 'label-warning', labelText: 'Some'};
@@ -151,20 +147,40 @@ angular.module('mediaMogulApp')
     };
 
     self.getTooltipText = function(episode) {
-      if (hasNoWatchers(episode) || isClosed(episode)) {
+      if (!hasSomeWatchersNotMe(episode) || isClosed(episode)) {
         return '';
       }
-      
+
       let texts = [];
       episode.person_ids.forEach(function(person_id) {
-        texts.push('Person ' + person_id);
+        texts.push(getPersonNameFromId(person_id));
       });
       return texts.join('<br>');
     };
 
+    function getPersonNameFromId(person_id) {
+      let foundPerson = _.find(group.members, function(person) {
+        return person_id === person.person_id;
+      });
+      return _.isUndefined(foundPerson) ? null : foundPerson.first_name;
+    }
+
     function hasNoWatchers(episode) {
       const person_ids = episode.person_ids;
       return _.isUndefined(person_ids) || person_ids.length === 0;
+    }
+
+    function hasAllWatchers(episode) {
+      const person_ids = episode.person_ids;
+      return !_.isUndefined(person_ids) && (person_ids.length === group.members.length);
+    }
+
+    function hasSomeWatchersNotMe(episode) {
+      return !hasNoWatchers(episode) && !hasAllWatchers(episode);
+    }
+
+    function meWatcher(episode) {
+      return _.contains(episode.person_ids, self.LockService.person_id);
     }
 
     function isClosed(episode) {
@@ -172,8 +188,10 @@ angular.module('mediaMogulApp')
     }
 
     self.getTooltipClass = function(episode) {
-      return hasNoWatchers(episode) || isClosed(episode) ? '' : 'personsTooltip';
+      return !hasSomeWatchersNotMe(episode) || isClosed(episode) ?
+        '' : 'personsTooltip';
     };
+
 
     self.getLabelInfo = function(episode) {
       if (episode.on_tivo) {
