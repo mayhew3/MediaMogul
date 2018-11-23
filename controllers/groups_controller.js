@@ -565,14 +565,20 @@ exports.getBallots = function(request, response) {
   ];
 
   db.selectWithJSON(sql, values).then(function(ballotResults) {
-    const sql = 'SELECT * ' +
-      'FROM tv_group_vote ' +
-      'WHERE tv_group_ballot_id = $1 ' +
-      'AND retired = $2 ';
+    const sql = 'SELECT tgv.tv_group_ballot_id, tgv.person_id, tgv.vote_value ' +
+      'FROM tv_group_vote tgv ' +
+      'INNER JOIN tv_group_ballot tgb ' +
+      '  ON tgv.tv_group_ballot_id = tgb.id ' +
+      'INNER JOIN tv_group_series tgs ' +
+      '  ON tgb.tv_group_series_id = tgs.id ' +
+      'WHERE tgs.tv_group_id = $1 ' +
+      'AND tgv.retired = $2 ' +
+      'AND tgb.retired = $3 ' +
+      'AND tgs.retired = $4 ';
 
     const values = [
       tv_group_id,
-      0
+      0, 0, 0
     ];
 
     db.selectWithJSON(sql, values).then(function(voteResults) {

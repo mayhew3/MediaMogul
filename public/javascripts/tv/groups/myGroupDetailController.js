@@ -178,10 +178,16 @@ angular.module('mediaMogulApp')
     }
 
     function isUpForVote(series) {
-      const seriesUpForVote = _.pluck(self.ballots, 'series_id');
+      const seriesUpForVote = _.pluck(getUnvotedBallots(), 'series_id');
       return _.contains(seriesUpForVote, series.id);
     }
 
+    function getUnvotedBallots() {
+      return _.filter(self.ballots, function(ballot) {
+        const peopleWhoHaveVoted = _.pluck(ballot.votes, 'person_id');
+        return !_.contains(peopleWhoHaveVoted, self.LockService.person_id);
+      });
+    }
 
     // BALLOT HELPERS
 

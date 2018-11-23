@@ -20,6 +20,10 @@ angular.module('mediaMogulApp')
       };
 
       $http.post('/api/votes', {vote: payload}).then(function() {
+        tv_group_ballot.votes.push({
+          vote_value: payload.vote_value,
+          person_id: payload.person_id
+        });
         $uibModalInstance.close();
       });
     };
