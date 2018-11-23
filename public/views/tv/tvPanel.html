@@ -1,4 +1,4 @@
-<div class="panel panel-default" ng-hide="!ctrl.panelInfo.showEmpty && ctrl.totalItems() === 0">
+<div class="panel" ng-class="ctrl.panelFormat()" ng-hide="!ctrl.panelInfo.showEmpty && ctrl.totalItems() === 0">
 
   <!-- GROUP HEADER -->
   <div class="panel-heading">

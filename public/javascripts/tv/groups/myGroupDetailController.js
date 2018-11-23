@@ -27,6 +27,16 @@ angular.module('mediaMogulApp')
 
     self.dashboardInfos = [
       {
+        headerText: "Up for Vote",
+        tvFilter: upForVoteFilter,
+        showEmpty: false,
+        posterSize: 'large',
+        sortArray: self.metacriticSortArray,
+        hideBadge: true,
+        subtitle: noSubtitle,
+        panelFormat: 'panel-warning'
+      },
+      {
         headerText: "Top Queue",
         tvFilter: inProgressFilter,
         showEmpty: true,
@@ -115,46 +125,57 @@ angular.module('mediaMogulApp')
 
     // PANEL FILTERS
 
+    function upForVoteFilter(series) {
+      return isUpForVote(series);
+    }
+
     function inProgressFilter(series) {
-      return hasUnwatchedEpisodes(series) &&
+      return !upForVoteFilter(series) &&
+        hasUnwatchedEpisodes(series) &&
         hasWatchedEpisodes(series) &&
         (airedRecently(series) || watchedRecently(series));
     }
 
     function upcomingFilter(series) {
-      return dateIsInNextDays(series.nextAirDate, 8) &&
+      return !upForVoteFilter(series) &&
+        dateIsInNextDays(series.nextAirDate, 8) &&
         (!hasUnwatchedEpisodes(series) ||
           inProgressFilter(series));
     }
 
     function newlyAddedFilter(series) {
-      return hasUnwatchedEpisodes(series) &&
+      return !upForVoteFilter(series) &&
+        hasUnwatchedEpisodes(series) &&
         addedRecently(series) &&
         !hasWatchedEpisodes(series);
     }
 
     function droppedOffFilter(series) {
-      return hasUnwatchedEpisodes(series) &&
+      return !upForVoteFilter(series) &&
+        hasUnwatchedEpisodes(series) &&
         isTrue(series.midSeason) &&
         hasWatchedEpisodes(series) &&
         !inProgressFilter(series);
     }
 
     function newSeasonFilter(series) {
-      return hasUnwatchedEpisodes(series) &&
+      return !upForVoteFilter(series) &&
+        hasUnwatchedEpisodes(series) &&
         !isTrue(series.midSeason) &&
         hasWatchedEpisodes(series) &&
         !inProgressFilter(series);
     }
 
     function toStartFilter(series) {
-      return hasUnwatchedEpisodes(series) &&
+      return !upForVoteFilter(series) &&
+        hasUnwatchedEpisodes(series) &&
         !hasWatchedEpisodes(series) &&
         !newlyAddedFilter(series);
     }
 
     function upToDateFilter(series) {
-      return !hasUnwatchedEpisodes(series) &&
+      return !upForVoteFilter(series) &&
+        !hasUnwatchedEpisodes(series) &&
         !upcomingFilter(series);
     }
 
@@ -184,6 +205,11 @@ angular.module('mediaMogulApp')
 
     function hasWatchedEpisodes(series) {
       return (series.aired_episodes - series.unwatched_all) !== 0;
+    }
+
+    function isUpForVote(series) {
+      const seriesUpForVote = _.pluck(self.ballots, 'series_id');
+      return _.contains(seriesUpForVote, series.id);
     }
 
 

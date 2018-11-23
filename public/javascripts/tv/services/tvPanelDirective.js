@@ -36,6 +36,10 @@
       return self.shows.filter(self.panelInfo.tvFilter).length;
     };
 
+    self.panelFormat = function() {
+      return self.exists(self.panelInfo.panelFormat) ? self.panelInfo.panelFormat : 'panel-default';
+    };
+
     self.exists = function(object) {
       return !_.isUndefined(object) && !_.isNull(object);
     };
