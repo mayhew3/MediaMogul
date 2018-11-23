@@ -180,6 +180,20 @@ exports.getGroupShows = function(request, response) {
   });
 };
 
+exports.addToGroupShows = function(request, response) {
+  const tv_group_id = request.body.tv_group_id;
+  const series_id = request.body.series_id;
+
+  const sql = "INSERT INTO tv_group_series " +
+    "(tv_group_id, series_id) " +
+    "VALUES ($1, $2) ";
+  const values = [
+    tv_group_id, series_id
+  ];
+
+  return db.executeQueryNoResults(response, sql, values);
+};
+
 exports.getNotGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
   console.log("Server call 'getNotGroupShows': Group " + tv_group_id);
@@ -575,6 +589,21 @@ exports.getBallots = function(request, response) {
       response.json(ballotResults);
     });
   });
+};
+
+exports.submitVote = function(request, response) {
+  const vote = request.body.vote;
+
+  const sql = 'INSERT INTO tv_group_vote (tv_group_ballot_id, person_id, vote_value) ' +
+    'VALUES ($1, $2, $3)';
+
+  const values = [
+    vote.tv_group_ballot_id,
+    vote.person_id,
+    vote.vote_value
+  ];
+
+  db.executeQueryNoResults(response, sql, values);
 };
 
 // UTILITY METHODS

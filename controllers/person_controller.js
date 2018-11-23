@@ -320,20 +320,6 @@ exports.addToMyShows = function(request, response) {
   return db.executeQueryNoResults(response, sql, values);
 };
 
-exports.addToGroupShows = function(request, response) {
-  var tv_group_id = request.body.tv_group_id;
-  var series_id = request.body.series_id;
-
-  var sql = "INSERT INTO tv_group_series " +
-    "(tv_group_id, series_id) " +
-    "VALUES ($1, $2) ";
-  var values = [
-    tv_group_id, series_id
-  ];
-
-  return db.executeQueryNoResults(response, sql, values);
-};
-
 exports.removeFromMyShows = function(request, response) {
   var personId = request.body.PersonId;
   var seriesId = request.body.SeriesId;
