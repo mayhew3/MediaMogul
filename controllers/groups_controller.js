@@ -1,6 +1,7 @@
 const _ = require('underscore');
 const db = require('./database_util');
 const person_controller = require('./person_controller');
+const debug = require('debug');
 
 
 /* GROUPS */
