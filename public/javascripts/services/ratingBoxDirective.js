@@ -7,7 +7,7 @@
   function ratingBox() {
     return {
       templateUrl: 'views/ratingBox.html',
-      controller: ['$scope', ratingBoxController],
+      controller: ['$scope', '$filter', ratingBoxController],
       controllerAs: 'ctrl',
       scope: {
         value: '=',
@@ -16,7 +16,7 @@
     }
   }
 
-  function ratingBoxController($scope) {
+  function ratingBoxController($scope, $filter) {
     const self = this;
 
     self.value = $scope.value;
@@ -24,8 +24,23 @@
 
 
     self.getValue = function() {
-      return exists(self.value) ? self.value : '--';
+      return self.getFormattedNumber(self.value);
     };
+
+    self.getFormattedNumber = function(value) {
+      if (!exists(value)) {
+        return '--';
+      } else {
+        let floored = Math.floor(value);
+        let remainder = value - floored;
+        if (remainder < .05) {
+          return floored;
+        } else {
+          return $filter('number')(value, 1);
+        }
+      }
+    };
+
 
     self.colorStyle = function() {
       const scaledValue = self.value;

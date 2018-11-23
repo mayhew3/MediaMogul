@@ -424,20 +424,6 @@ angular.module('mediaMogulApp')
 
     }
 
-    self.getFormattedNumber = function(value) {
-      if (value === null) {
-        return '--';
-      } else {
-        let floored = Math.floor(value);
-        let remainder = value - floored;
-        if (remainder < .05) {
-          return floored;
-        } else {
-          return $filter('number')(value, 1);
-        }
-      }
-    };
-
     self.colorStyle = function(scaledValue) {
       let hue = (scaledValue <= 50) ? scaledValue * 0.5 : (50 * 0.5 + (scaledValue - 50) * 4.5);
       let saturation = scaledValue === null ? '0%' : '50%';

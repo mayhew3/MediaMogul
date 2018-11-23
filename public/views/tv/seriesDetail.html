@@ -50,18 +50,17 @@
           <div class="scoreTitle" style="grid-column: 1; grid-row: 2">
             <span>Metacritic:</span>
           </div>
-          <div class="scoreBox"
-               style="grid-column-start: 2; grid-column-end: 3; grid-row: 2"
-               ng-style="ctrl.colorStyle(ctrl.series.metacritic)">
-            <span ng-bind="ctrl.series.metacritic === null ? '--' : ctrl.series.metacritic"></span>
+          <div style="grid-column-start: 2; grid-column-end: 3; grid-row: 2">
+            <rating-box value="ctrl.series.metacritic"
+                        max-value="100"></rating-box>
           </div>
 
           <div class="scoreTitle" style="grid-column: 1; grid-row: 3">
             <span>Dynamic:</span>
           </div>
-          <div class="scoreBox" style="grid-column-start: 2; grid-column-end: 3; grid-row: 3"
-               ng-style="ctrl.colorStyle(ctrl.series.dynamic_rating)">
-            <span ng-bind="ctrl.getFormattedNumber(ctrl.series.dynamic_rating)"></span>
+          <div style="grid-column-start: 2; grid-column-end: 3; grid-row: 3">
+            <rating-box value="ctrl.series.dynamic_rating"
+                        max-value="100"></rating-box>
           </div>
 
         </div>

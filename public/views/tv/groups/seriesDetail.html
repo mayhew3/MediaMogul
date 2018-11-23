@@ -13,9 +13,8 @@
              ng-click="ctrl.openChangePoster()"/>
       </div>
       <div class="row" style="margin-top: 20px">
-        Metacritic: <span ng-bind="ctrl.series.metacritic === null ? '--' : ctrl.series.metacritic"
-                          ng-style="ctrl.colorStyle(ctrl.series.metacritic)"
-                          style="padding: 10px 15px;"></span>
+        Metacritic: <rating-box value="ctrl.series.metacritic"
+                                max-value="100"></rating-box>
       </div>
       <div class="row" ng-show="ctrl.debugOn">
         Aired: <span ng-bind="ctrl.series.aired_episodes"></span><br><br>
