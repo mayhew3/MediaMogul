@@ -30,7 +30,8 @@ angular.module('mediaMogulApp')
         tvFilter: upForVoteFilter,
         posterSize: 'large',
         hideBadge: true,
-        panelFormat: 'panel-warning'
+        panelFormat: 'panel-warning',
+        clickOverride: submitVotePopup
       },
       {
         headerText: "Top Queue",
@@ -182,6 +183,12 @@ angular.module('mediaMogulApp')
     }
 
 
+    // BALLOT HELPERS
+
+    function getBallotForShow(show) {
+      return _.findWhere(self.ballots, {series_id: show.id});
+    }
+
     // DATE FORMAT
 
     function nextAirDate(show) {
@@ -308,5 +315,20 @@ angular.module('mediaMogulApp')
       });
     };
 
+    function submitVotePopup(show) {
+      $uibModal.open({
+        templateUrl: 'views/tv/groups/submitVote.html',
+        controller: 'submitVoteController as ctrl',
+        size: 'lg',
+        resolve: {
+          tv_group_ballot: function() {
+            return getBallotForShow(show);
+          },
+          series: function() {
+            return show;
+          }
+        }
+      });
+    }
   }
 ]);

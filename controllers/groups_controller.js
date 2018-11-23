@@ -547,7 +547,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
 exports.getBallots = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
 
-  const sql = 'SELECT tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, ' +
+  const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, ' +
     '  tgs.series_id  ' +
     'FROM tv_group_ballot tgb ' +
     'INNER JOIN tv_group_series tgs ' +

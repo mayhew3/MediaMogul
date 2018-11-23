@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
   .controller('createGroupController', ['$http', 'createGroupCallback', 'LockService', '$uibModalInstance',
-    function createGroupController($http, createGroupController, LockService, $uibModalInstance) {
+    function createGroupController($http, createGroupCallback, LockService, $uibModalInstance) {
       const self = this;
 
       self.name = null;

@@ -28,6 +28,10 @@
     self.currentPageUpNext = 1;
     self.pageSize = 8;
 
+    self.exists = function(object) {
+      return !_.isUndefined(object) && !_.isNull(object);
+    };
+
 
     self.imageColumnClass = function() {
       return (self.panelInfo.posterSize === 'small') ? 'col-md-2' : 'col-md-3';
@@ -57,9 +61,9 @@
       return self.exists(self.panelInfo.subtitle) ? self.panelInfo.subtitle(show) : null;
     };
 
-    self.exists = function(object) {
-      return !_.isUndefined(object) && !_.isNull(object);
-    };
+    self.click = self.exists(self.panelInfo.clickOverride) ?
+      self.panelInfo.clickOverride :
+      self.open;
 
 
     // COMPARATORS

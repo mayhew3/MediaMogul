@@ -1,0 +1,27 @@
+<div class="modal-header">
+  <h1 ng-bind="ctrl.series.title"></h1>
+</div>
+
+<div class="modal-body clearfix">
+  Vote:
+  <label ng-repeat="voteNum in ctrl.possibleVotes"
+         ng-class="ctrl.getVoteButtonClass(voteNum)"
+         ng-model="ctrl.selectedVote"
+         style="font-size: x-large"
+         uib-btn-radio="voteNum">
+    <span ng-bind="voteNum"></span>
+  </label>
+</div>
+
+<div class="modal-footer">
+  <input type="button"
+         class="btn btn-success"
+         ng-click="ctrl.submitVote()"
+         value="Submit">
+  <input type="button"
+         class="btn btn-default"
+         ng-click="ctrl.cancel()"
+         value="Cancel">
+</div>
+
+
