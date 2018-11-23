@@ -29,21 +29,19 @@
         <rating-box value="ctrl.series.metacritic"
                     max-value="100"></rating-box>
       </div>
-    </div>
 
-    <div class="row" style="margin-left: 0; margin-top: 10px;">
-      <span class="visible-lg-block largeLabel">Vote</span>
-      <div class="btn-group">
-        <label class="btn btn-lg votingButton"
-               ng-repeat="voteNum in ctrl.possibleVotes"
-               ng-class="ctrl.getVoteButtonClass(voteNum)"
+      <div class="col-lg-4">
+        <span class="visible-lg-block"
+              style="margin-bottom: 5px">Vote</span>
+        <!--suppress HtmlFormInputWithoutLabel -->
+        <input type="number"
+               class="form-control input-lg"
                ng-model="ctrl.selectedVote"
-               style="font-size: xx-large"
-               uib-btn-radio="voteNum">
-          <span ng-bind="voteNum"></span>
-        </label>
+               min="1"
+               max="100">
       </div>
     </div>
+
   </div>
 
 </div>

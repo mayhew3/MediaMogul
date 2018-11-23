@@ -9,7 +9,6 @@ angular.module('mediaMogulApp')
     self.tv_group_ballot = tv_group_ballot;
 
     self.selectedVote = null;
-    self.possibleVotes = [1,2,3,4,5,6];
 
     function getFormattedDate(date) {
       return self.DateService.getFormattedDate(date);
@@ -17,10 +16,6 @@ angular.module('mediaMogulApp')
 
     self.getOpenDate = function() {
       return getFormattedDate(self.tv_group_ballot.voting_open);
-    };
-
-    self.getVoteButtonClass = function(vote) {
-      return self.selectedVote === vote ? "btn-success" : "btn-primary";
     };
 
     self.canSubmit = function() {
