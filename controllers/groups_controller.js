@@ -7,9 +7,9 @@ const debug = require('debug');
 /* GROUPS */
 
 exports.getMyGroups = function(request, response) {
-  var person_id = request.query.person_id;
+  const person_id = request.query.person_id;
 
-  var sql = "SELECT id, name " +
+  const sql = "SELECT id, name " +
     "FROM tv_group " +
     "WHERE id IN (SELECT tv_group_id " +
     "             FROM tv_group_person " +
@@ -17,14 +17,14 @@ exports.getMyGroups = function(request, response) {
     "             AND retired = $2) " +
     "AND retired = $3 ";
   db.selectWithJSON(sql, [person_id, 0, 0]).then(function(results) {
-    var groups = results;
-    var group_ids = _.pluck(groups, 'id');
+    let groups = results;
+    let group_ids = _.pluck(groups, 'id');
 
     if (group_ids.length < 1) {
       return response.json([]);
     }
 
-    var sql = "SELECT tgp.tv_group_id, tgp.person_id, p.first_name " +
+    const sql = "SELECT tgp.tv_group_id, tgp.person_id, p.first_name " +
       "FROM person p " +
       "INNER JOIN tv_group_person tgp " +
       "  ON tgp.person_id = p.id " +
@@ -32,7 +32,7 @@ exports.getMyGroups = function(request, response) {
       "AND p.retired = $2 " +
       "AND tgp.tv_group_id IN (" + db.createInlineVariableList(group_ids.length, 3) + ") ";
 
-    var values = [
+    const values = [
       0,
       0
     ];
@@ -40,11 +40,11 @@ exports.getMyGroups = function(request, response) {
     addToArray(values, group_ids);
 
     db.selectWithJSON(sql, values).then(function(personResults) {
-      var groupData = _.groupBy(personResults, "tv_group_id");
+      let groupData = _.groupBy(personResults, "tv_group_id");
 
 
       groups.forEach(function(group) {
-        var groupPersons = groupData[group.id];
+        let groupPersons = groupData[group.id];
         group.members = [];
         groupPersons.forEach(function(groupPerson) {
           group.members.push(_.omit(groupPerson, 'tv_group_id'));
@@ -91,9 +91,9 @@ exports.createGroup = function(request, response) {
 };
 
 exports.getGroupPersons = function(request, response) {
-  var tv_group_id = request.query.tv_group_id;
+  const tv_group_id = request.query.tv_group_id;
 
-  var sql = "SELECT id as person_id, first_name " +
+  const sql = "SELECT id as person_id, first_name " +
     "FROM person " +
     "WHERE id IN (SELECT person_id " +
     "             FROM tv_group_person " +
@@ -101,7 +101,7 @@ exports.getGroupPersons = function(request, response) {
     "             AND retired = $2) " +
     "AND retired = $3 ";
 
-  var values = [
+  const values = [
     tv_group_id,
     0,
     0
@@ -111,9 +111,9 @@ exports.getGroupPersons = function(request, response) {
 };
 
 exports.getGroupShows = function(request, response) {
-  var tv_group_id = request.query.tv_group_id;
+  const tv_group_id = request.query.tv_group_id;
 
-  var sql = "SELECT s.id, s.title, s.metacritic, s.poster, tgs.date_added, " +
+  const sql = "SELECT s.id, s.title, s.metacritic, s.poster, tgs.date_added, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
     "    where e.series_id = s.id " +
@@ -137,7 +137,7 @@ exports.getGroupShows = function(request, response) {
     "AND s.tvdb_match_status = $8 ";
 
   db.selectWithJSON(sql, [0, 0, 0, 0, tv_group_id, 0, 0, 'Match Completed']).then(function (seriesResults) {
-    var sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
+    const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
       "INNER JOIN tv_group_series tgs " +
       "  ON tgs.series_id = e.series_id " +
@@ -150,7 +150,7 @@ exports.getGroupShows = function(request, response) {
       "AND tgs.tv_group_id = $6 " +
       "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
-    var values = [
+    const values = [
       0,
       0,
       tv_group_id,
@@ -161,12 +161,12 @@ exports.getGroupShows = function(request, response) {
 
     db.selectWithJSON(sql, values).then(function(episodeResults) {
 
-      var groupedBySeries = _.groupBy(episodeResults, "series_id");
-      for (var seriesId in groupedBySeries) {
+      let groupedBySeries = _.groupBy(episodeResults, "series_id");
+      for (let seriesId in groupedBySeries) {
         if (groupedBySeries.hasOwnProperty(seriesId)) {
-          var unwatchedEpisodes = groupedBySeries[seriesId];
+          let unwatchedEpisodes = groupedBySeries[seriesId];
 
-          var series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+          let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
           debug("Series: " + series.title);
 
           person_controller.calculateUnwatchedDenorms(series, unwatchedEpisodes);
@@ -283,23 +283,23 @@ exports.markEpisodeWatchedByGroup = function(request, response) {
 };
 
 function markEpisodeWatchedForPersons(request) {
-  var payload = request.body.payload;
+  const payload = request.body.payload;
 
   if (payload.changedFields.skipped) {
     console.log("Request to skip episode. Not propagating to persons.");
     return Promise.resolve();
   }
 
-  var member_ids = payload.member_ids;
-  var episode_id = payload.episode_id;
+  const member_ids = payload.member_ids;
+  const episode_id = payload.episode_id;
 
-  var sql = "SELECT er.person_id " +
+  const sql = "SELECT er.person_id " +
     "FROM episode_rating er " +
     "WHERE episode_id = $1 " +
     "AND retired = $2 " +
     "AND person_id IN (" + db.createInlineVariableList(member_ids.length, 3) + ") ";
 
-  var values = [
+  const values = [
     episode_id,
     0
   ];
@@ -307,10 +307,10 @@ function markEpisodeWatchedForPersons(request) {
   addToArray(values, member_ids);
 
   return db.selectWithJSON(sql, values).then(function(personResults) {
-    var existingRatings = _.pluck(personResults, 'person_id');
-    var newRatingPersons = _.difference(member_ids, existingRatings);
+    let existingRatings = _.pluck(personResults, 'person_id');
+    let newRatingPersons = _.difference(member_ids, existingRatings);
 
-    var episodeRatingInfo = {
+    let episodeRatingInfo = {
       episode_id: episode_id,
       watched: payload.changedFields.watched,
       watched_date: payload.changedFields.watched_date
@@ -328,13 +328,13 @@ function addRatingsForPersons(member_ids, episodeRatingInfo) {
     return Promise.resolve();
   }
 
-  var sql = "INSERT INTO episode_rating (person_id, episode_id, retired, watched, watched_date) " +
+  const sql = "INSERT INTO episode_rating (person_id, episode_id, retired, watched, watched_date) " +
     "SELECT p.id, $1, $2, $3, $4 " +
     "FROM person p " +
     "WHERE retired = $5 " +
     "AND p.id IN (" + db.createInlineVariableList(member_ids.length, 6) + ") ";
 
-  var values = [
+  const values = [
     episodeRatingInfo.episode_id,
     0,
     episodeRatingInfo.watched,
@@ -352,14 +352,14 @@ function editRatingsForPersons(member_ids, episodeRatingInfo) {
     return Promise.resolve();
   }
 
-  var sql = "UPDATE episode_rating " +
+  const sql = "UPDATE episode_rating " +
     "SET watched = $1, watched_date = $2 " +
     "WHERE retired = $3 " +
     "AND episode_id = $4 " +
     "AND watched = $5 " +
     "AND person_id IN (" + db.createInlineVariableList(member_ids.length, 6) + ") ";
 
-  var values = [
+  const values = [
     episodeRatingInfo.watched,
     episodeRatingInfo.watched_date,
     0,
@@ -375,9 +375,9 @@ function editRatingsForPersons(member_ids, episodeRatingInfo) {
 
 
 function addOrEditTVGroupEpisode(request) {
-  var payload = request.body.payload;
-  var tv_group_episode = payload.changedFields;
-  var tv_group_episode_id = payload.tv_group_episode_id;
+  const payload = request.body.payload;
+  const tv_group_episode = payload.changedFields;
+  const tv_group_episode_id = payload.tv_group_episode_id;
 
   return new Promise(function(resolve) {
     if (exists(tv_group_episode_id)) {
@@ -398,11 +398,11 @@ function addOrEditTVGroupEpisode(request) {
 }
 
 function addTVGroupEpisode(tv_group_episode) {
-  var sql = "INSERT INTO tv_group_episode (tv_group_id, episode_id, watched, watched_date, skipped, skip_reason, date_added) " +
+  const sql = "INSERT INTO tv_group_episode (tv_group_id, episode_id, watched, watched_date, skipped, skip_reason, date_added) " +
     "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
     "RETURNING id ";
 
-  var values = [
+  const values = [
     tv_group_episode.tv_group_id,
     tv_group_episode.episode_id,
     tv_group_episode.watched,
@@ -431,17 +431,17 @@ exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
 
 function updateTVGroupEpisodesAllPastWatched(payload) {
   return new Promise(function(resolve) {
-    var series_id = payload.series_id;
-    var lastWatched = payload.last_watched;
-    var tv_group_id = payload.tv_group_id;
-    var watched = payload.watched;
-    var skip_reason = payload.skip_reason;
+    const series_id = payload.series_id;
+    const lastWatched = payload.last_watched;
+    const tv_group_id = payload.tv_group_id;
+    const watched = payload.watched;
+    const skip_reason = payload.skip_reason;
 
-    var watched_or_skipped = watched ? "watched" : "skipped";
+    const watched_or_skipped = watched ? "watched" : "skipped";
 
     console.log("Updating tv_group_episodes as " + watched_or_skipped + ", before episode " + lastWatched);
 
-    var sql = 'UPDATE tv_group_episode ' +
+    const sql = 'UPDATE tv_group_episode ' +
       "SET watched = $1, watched_date = $2, skipped = $3, skip_reason = $4 " +
       'WHERE watched = $5 ' +
       'AND skipped = $6 ' +
@@ -455,8 +455,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
       'AND retired = $11) ';
 
 
-
-    var values = [
+    const values = [
       watched,             // watched or skipped
       null,             // !watched or skipped
       !watched,
@@ -471,7 +470,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
     ];
 
     return db.updateNoJSON(sql, values).then(function() {
-      var sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, skip_reason, date_added) " +
+      const sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, skip_reason, date_added) " +
         "SELECT e.id, $1, $2, $3, $4, now() " +
         "FROM episode e " +
         "WHERE e.series_id = $5 " +
@@ -483,7 +482,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
         "FROM tv_group_episode tge " +
         "WHERE tge.tv_group_id = $9" +
         "AND tge.retired = $10)";
-      var values = [
+      const values = [
         tv_group_id,                         // person
         watched,  // watched
         !watched,  // skipped
