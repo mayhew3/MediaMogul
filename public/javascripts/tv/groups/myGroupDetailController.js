@@ -14,6 +14,8 @@ angular.module('mediaMogulApp')
       id: $stateParams.group_id
     };
 
+    self.ballots = [];
+
     NavHelperService.changeSelectedTVGroup(self.group.id);
 
     self.quickFindResult = undefined;
@@ -97,6 +99,10 @@ angular.module('mediaMogulApp')
           if (!exists(show.unwatched_all)) {
             show.unwatched_all = 0;
           }
+        });
+
+        $http.get('/api/ballots', {params: {tv_group_id: self.group.id}}).then(function(ballotResults) {
+          addToArray(self.ballots, ballotResults.data);
         });
       });
       $http.get('/api/groupPersons', {params: {tv_group_id: self.group.id}}).then(function(results) {

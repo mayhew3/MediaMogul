@@ -369,31 +369,6 @@ exports.getNotMyShows = function(request, response) {
   return db.executeQueryWithResults(response, sql, values);
 };
 
-exports.getNotGroupShows = function(request, response) {
-  var tv_group_id = request.query.tv_group_id;
-  console.log("Server call 'getNotGroupShows': Group " + tv_group_id);
-
-  var sql = "SELECT s.id, s.metacritic, s.title, s.poster, s.tvdb_series_id, " +
-                  "(SELECT COUNT(1) " +
-                  "    from episode e " +
-                  "    where e.series_id = s.id " +
-                  "    and e.retired = $1" +
-                  "    and e.season <> $2 " +
-                  "    and e.air_date IS NOT NULL" +
-                  "    and e.air_date < NOW()) as aired_episodes " +
-    "FROM series s " +
-    "WHERE id NOT IN (SELECT tgs.series_id " +
-    "                 FROM tv_group_series tgs " +
-    "                 WHERE tv_group_id = $3) " +
-    "AND s.retired = $4 " +
-    "AND s.tvdb_match_status = $5 ";
-  var values = [
-    0, 0, tv_group_id, 0, 'Match Completed'
-  ];
-
-  return db.executeQueryWithResults(response, sql, values);
-};
-
 exports.rateMyShow = function(request, response) {
   var personId = request.body.PersonId;
   var seriesId = request.body.SeriesId;

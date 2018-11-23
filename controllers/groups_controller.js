@@ -180,6 +180,31 @@ exports.getGroupShows = function(request, response) {
   });
 };
 
+exports.getNotGroupShows = function(request, response) {
+  const tv_group_id = request.query.tv_group_id;
+  console.log("Server call 'getNotGroupShows': Group " + tv_group_id);
+
+  const sql = "SELECT s.id, s.metacritic, s.title, s.poster, s.tvdb_series_id, " +
+    "(SELECT COUNT(1) " +
+    "    from episode e " +
+    "    where e.series_id = s.id " +
+    "    and e.retired = $1" +
+    "    and e.season <> $2 " +
+    "    and e.air_date IS NOT NULL" +
+    "    and e.air_date < NOW()) as aired_episodes " +
+    "FROM series s " +
+    "WHERE id NOT IN (SELECT tgs.series_id " +
+    "                 FROM tv_group_series tgs " +
+    "                 WHERE tv_group_id = $3) " +
+    "AND s.retired = $4 " +
+    "AND s.tvdb_match_status = $5 ";
+  const values = [
+    0, 0, tv_group_id, 0, 'Match Completed'
+  ];
+
+  return db.executeQueryWithResults(response, sql, values);
+};
+
 exports.getGroupEpisodes = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
   const series_id = request.query.series_id;
@@ -502,6 +527,55 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
   });
 }
 
+
+// VOTING
+
+exports.getBallots = function(request, response) {
+  const tv_group_id = request.query.tv_group_id;
+
+  const sql = 'SELECT tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, ' +
+    '  tgs.series_id  ' +
+    'FROM tv_group_ballot tgb ' +
+    'INNER JOIN tv_group_series tgs ' +
+    '  ON tgb.tv_group_series_id = tgs.id ' +
+    'INNER JOIN series s ' +
+    '  ON tgs.series_id = s.id ' +
+    'WHERE tgs.tv_group_id = $1 ' +
+    'AND tgb.retired = $2 ' +
+    'AND tgs.retired = $3 ';
+
+  const values = [
+    tv_group_id,
+    0,
+    0
+  ];
+
+  db.selectWithJSON(sql, values).then(function(ballotResults) {
+    const sql = 'SELECT * ' +
+      'FROM tv_group_vote ' +
+      'WHERE tv_group_ballot_id = $1 ' +
+      'AND retired = $2 ';
+
+    const values = [
+      tv_group_id,
+      0
+    ];
+
+    db.selectWithJSON(sql, values).then(function(voteResults) {
+
+      let groupedByBallot = _.groupBy(voteResults, 'tv_group_ballot_id');
+
+      ballotResults.forEach(function(ballot) {
+        let votesForBallot = groupedByBallot[ballot.id];
+        ballot.votes = _.map(votesForBallot, function (vote) {
+          return _.omit(vote, 'tv_group_ballot_id');
+        });
+      });
+
+      response.json(ballotResults);
+    });
+  });
+};
 
 // UTILITY METHODS
 
