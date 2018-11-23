@@ -215,5 +215,14 @@ module.exports = {
     console.log("Values: " + queryConfig.values);
 
     return this.updateNoJSON(queryConfig.text, queryConfig.values);
+  },
+
+  createInlineVariableList: function(arrSize, starting) {
+    var varNumbers = [];
+    for (var i = starting; i < (starting + arrSize); i++) {
+      varNumbers.push('$' + i);
+    }
+    return varNumbers.join(', ');
   }
+
 };

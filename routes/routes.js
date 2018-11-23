@@ -1,9 +1,9 @@
 module.exports = function(app) {
   var jwt = require('express-jwt');
-  var path = require('path');
   var games = require('../controllers/games_controller');
   var series = require('../controllers/series_controller');
   var persons = require('../controllers/person_controller');
+  var groups = require('../controllers/groups_controller');
 
   var authCheck = jwt({
     secret: new Buffer(process.env.AUTH0_CLIENT_SECRET, 'base64'),
@@ -82,15 +82,15 @@ module.exports = function(app) {
   app.post('/setRatingEndDate', authCheck, persons.setRatingEndDate);
 
   // GROUPS
-  app.get('/api/myGroups', authCheck, persons.getMyGroups);
-  app.get('/api/groupPersons', authCheck, persons.getGroupPersons);
-  app.get('/api/groupShows', authCheck, persons.getGroupShows);
-  app.get('/api/groupEpisodes', authCheck, persons.getGroupEpisodes);
+  app.get('/api/myGroups', authCheck, groups.getMyGroups);
+  app.get('/api/groupPersons', authCheck, groups.getGroupPersons);
+  app.get('/api/groupShows', authCheck, groups.getGroupShows);
+  app.get('/api/groupEpisodes', authCheck, groups.getGroupEpisodes);
   app.get('/api/notGroupShows', authCheck, persons.getNotGroupShows);
 
-  app.post('/api/createGroup', authCheck, persons.createGroup);
-  app.post('/api/groupWatchEpisode', authCheck, persons.markEpisodeWatchedByGroup);
-  app.post('/api/watchPastGroupEpisodes', authCheck, persons.markAllPastEpisodesAsGroupWatched);
+  app.post('/api/createGroup', authCheck, groups.createGroup);
+  app.post('/api/groupWatchEpisode', authCheck, groups.markEpisodeWatchedByGroup);
+  app.post('/api/watchPastGroupEpisodes', authCheck, groups.markAllPastEpisodesAsGroupWatched);
   app.post('/api/addGroupShow', authCheck, persons.addToGroupShows);
 
   // error handlers
