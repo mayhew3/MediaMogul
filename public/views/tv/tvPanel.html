@@ -15,23 +15,9 @@
 
         <!-- POSTER -->
 
-        <a href="">
-          <img class="img-rounded"
-               ng-src="{{show.posterResolved}}"
-               err-src="images/GenericSeries.gif"
-               width="100%"
-               ng-click="ctrl.click(show)"/>
-
-          <!-- UNWATCHED BADGE -->
-          <div class="posterBadge" ng-hide="ctrl.hideBadge() || show.unwatched_all === 0">
-            <span ng-bind="show.unwatched_all"></span>
-          </div>
-
-          <div class="posterTitle" ng-show="show.imageDoesNotExist">
-            <span ng-bind="show.title"></span>
-          </div>
-
-        </a>
+        <tv-poster show="show"
+                   poster-info="ctrl.posterInfo"
+                   series-detail-open="ctrl.open"></tv-poster>
 
         <!-- SUBTITLE (optional) -->
 

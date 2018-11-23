@@ -1,0 +1,23 @@
+
+<!-- POSTER -->
+
+<a href="">
+
+  <img class="img-rounded"
+       ng-src="{{ctrl.show.posterResolved}}"
+       err-src="images/GenericSeries.gif"
+       width="100%"
+       ng-click="ctrl.click(ctrl.show)"
+       alt="{{ctrl.show.title}}"/>
+
+  <!-- UNWATCHED BADGE -->
+
+  <div class="posterBadge" ng-hide="ctrl.posterInfo.hideBadge || ctrl.show.unwatched_all === 0">
+    <span ng-bind="ctrl.show.unwatched_all"></span>
+  </div>
+
+  <div class="posterTitle" ng-show="ctrl.show.imageDoesNotExist">
+    <span ng-bind="ctrl.show.title"></span>
+  </div>
+
+</a>

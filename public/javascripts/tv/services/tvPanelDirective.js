@@ -53,18 +53,18 @@
       return self.exists(self.panelInfo.showEmpty) ? self.panelInfo.showEmpty : false;
     };
 
-    self.hideBadge = function() {
-      return self.exists(self.panelInfo.hideBadge) ? self.panelInfo.hideBadge : false;
-    };
-
     self.subtitle = function(show) {
       return self.exists(self.panelInfo.subtitle) ? self.panelInfo.subtitle(show) : null;
     };
 
-    self.click = self.exists(self.panelInfo.clickOverride) ?
-      self.panelInfo.clickOverride :
-      self.open;
+    self.hideBadge = function() {
+      return self.exists(self.panelInfo.hideBadge) ? self.panelInfo.hideBadge : false;
+    };
 
+    self.posterInfo = {
+          hideBadge: self.hideBadge(),
+          clickOverride: self.panelInfo.clickOverride
+    };
 
     // COMPARATORS
 
