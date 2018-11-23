@@ -2,7 +2,7 @@ angular.module('mediaMogulApp')
 .controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
             'NavHelperService',
   function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService) {
-    var self = this;
+    const self = this;
 
     self.LockService = LockService;
 
@@ -23,32 +23,24 @@ angular.module('mediaMogulApp')
     self.currentPageUpNext = 1;
     self.pageSize = 12;
 
-    self.metacriticSortArray = [orderByMetacritic, '-metacritic', 'title'];
 
     self.dashboardInfos = [
       {
         headerText: "Up for Vote",
         tvFilter: upForVoteFilter,
-        showEmpty: false,
         posterSize: 'large',
-        sortArray: self.metacriticSortArray,
         hideBadge: true,
-        subtitle: noSubtitle,
         panelFormat: 'panel-warning'
       },
       {
         headerText: "Top Queue",
         tvFilter: inProgressFilter,
         showEmpty: true,
-        posterSize: 'large',
-        sortArray: self.metacriticSortArray,
-        hideBadge: false,
-        subtitle: noSubtitle
+        posterSize: 'large'
       },
       {
         headerText: "Upcoming",
         tvFilter: upcomingFilter,
-        showEmpty: false,
         posterSize: 'small',
         sortArray: ['nextAirDate'],
         hideBadge: true,
@@ -57,43 +49,26 @@ angular.module('mediaMogulApp')
       {
         headerText: "Newly Added",
         tvFilter: newlyAddedFilter,
-        showEmpty: false,
-        posterSize: 'large',
-        sortArray: self.metacriticSortArray,
-        hideBadge: false,
-        subtitle: noSubtitle
+        posterSize: 'large'
       },
       {
         headerText: "Mid-Season",
         tvFilter: droppedOffFilter,
-        showEmpty: false,
-        posterSize: 'large',
-        sortArray: self.metacriticSortArray,
-        hideBadge: false,
-        subtitle: noSubtitle
+        posterSize: 'large'
       },
       {
         headerText: "Between Seasons",
         tvFilter: newSeasonFilter,
-        showEmpty: false,
-        posterSize: 'large',
-        sortArray: self.metacriticSortArray,
-        hideBadge: false,
-        subtitle: noSubtitle
+        posterSize: 'large'
       },
       {
         headerText: "To Start",
         tvFilter: toStartFilter,
-        showEmpty: false,
-        posterSize: 'large',
-        sortArray: self.metacriticSortArray,
-        hideBadge: false,
-        subtitle: noSubtitle
+        posterSize: 'large'
       },
       {
         headerText: "Up to Date",
         tvFilter: upToDateFilter,
-        showEmpty: false,
         posterSize: 'small',
         sortArray: ['-last_watched'],
         hideBadge: true,
@@ -179,12 +154,6 @@ angular.module('mediaMogulApp')
         !upcomingFilter(series);
     }
 
-    // COMPARATORS
-
-    function orderByMetacritic(series) {
-      return (series.metacritic === null) ? 1: 0;
-    }
-
     // FILTER HELPERS
 
     function airedRecently(series) {
@@ -215,10 +184,6 @@ angular.module('mediaMogulApp')
 
     // DATE FORMAT
 
-    function noSubtitle(show) {
-      return null;
-    }
-
     function nextAirDate(show) {
       if (exists(show.nextAirDate)) {
         return formatAirTime(new Date(show.nextAirDate));
@@ -234,16 +199,16 @@ angular.module('mediaMogulApp')
     }
 
     function formatAirTime(combinedDate) {
-      var minutesPart = $filter('date')(combinedDate, 'mm');
-      var timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
+      const minutesPart = $filter('date')(combinedDate, 'mm');
+      const timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
       return $filter('date')(combinedDate, timeFormat);
     }
 
     function formatWatchedDate(date) {
-      var thisYear = (new Date).getFullYear();
+      const thisYear = (new Date).getFullYear();
 
       if (date !== null) {
-        var year = new Date(date).getFullYear();
+        const year = new Date(date).getFullYear();
 
         if (year === thisYear) {
           return 'MMM d';

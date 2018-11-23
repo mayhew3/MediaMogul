@@ -1,4 +1,4 @@
-<div class="panel" ng-class="ctrl.panelFormat()" ng-hide="!ctrl.panelInfo.showEmpty && ctrl.totalItems() === 0">
+<div class="panel" ng-class="ctrl.panelFormat()" ng-hide="!ctrl.showEmpty() && ctrl.totalItems() === 0">
 
   <!-- GROUP HEADER -->
   <div class="panel-heading">
@@ -9,7 +9,7 @@
 
     <div class="row">
       <div class="fade-repeat posterRow" ng-class="ctrl.imageColumnClass()" ng-repeat="show in ctrl.shows |
-                    orderBy: ctrl.panelInfo.sortArray |
+                    orderBy: ctrl.orderBy() |
                     filter: ctrl.panelInfo.tvFilter |
                     limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
 
@@ -23,7 +23,7 @@
                ng-click="ctrl.open(show)"/>
 
           <!-- UNWATCHED BADGE -->
-          <div class="posterBadge" ng-hide="ctrl.panelInfo.hideBadge || show.unwatched_all === 0">
+          <div class="posterBadge" ng-hide="ctrl.hideBadge() || show.unwatched_all === 0">
             <span ng-bind="show.unwatched_all"></span>
           </div>
 
@@ -36,7 +36,7 @@
         <!-- SUBTITLE (optional) -->
 
         <div align="right" ng-show="ctrl.exists(ctrl.panelInfo.subtitle(show))">
-          <h5 ng-bind="ctrl.panelInfo.subtitle(show)"></h5>
+          <h5 ng-bind="ctrl.subtitle(show)"></h5>
         </div>
 
       </div>

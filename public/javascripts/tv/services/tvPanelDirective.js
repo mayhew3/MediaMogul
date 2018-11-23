@@ -18,7 +18,7 @@
   }
 
   function tvPanelController($scope) {
-    var self = this;
+    const self = this;
 
     self.shows = $scope.shows;
     self.open = $scope.seriesDetailOpen;
@@ -27,6 +27,7 @@
 
     self.currentPageUpNext = 1;
     self.pageSize = 8;
+
 
     self.imageColumnClass = function() {
       return (self.panelInfo.posterSize === 'small') ? 'col-md-2' : 'col-md-3';
@@ -40,9 +41,33 @@
       return self.exists(self.panelInfo.panelFormat) ? self.panelInfo.panelFormat : 'panel-default';
     };
 
+    self.orderBy = function() {
+      return self.exists(self.panelInfo.sortArray) ? self.panelInfo.sortArray : [orderByMetacritic, '-metacritic', 'title'];
+    };
+
+    self.showEmpty = function() {
+      return self.exists(self.panelInfo.showEmpty) ? self.panelInfo.showEmpty : false;
+    };
+
+    self.hideBadge = function() {
+      return self.exists(self.panelInfo.hideBadge) ? self.panelInfo.hideBadge : false;
+    };
+
+    self.subtitle = function(show) {
+      return self.exists(self.panelInfo.subtitle) ? self.panelInfo.subtitle(show) : null;
+    };
+
     self.exists = function(object) {
       return !_.isUndefined(object) && !_.isNull(object);
     };
+
+
+    // COMPARATORS
+
+    function orderByMetacritic(series) {
+      return (series.metacritic === null) ? 1: 0;
+    }
+
 
   }
 
