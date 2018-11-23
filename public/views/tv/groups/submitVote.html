@@ -10,17 +10,38 @@
   </div>
 
   <div class="col-lg-9">
+
     <div class="row">
+      <div class="col-lg-4">
+        <span class="visible-lg-block">Open Date</span>
+        <span class="largeLabel" ng-bind="ctrl.getOpenDate()"></span>
+      </div>
+      <div class="col-lg-8">
+        <span class="visible-lg-block">Reason</span>
+        <span class="mediumLabel" ng-bind="ctrl.tv_group_ballot.reason"></span>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top: 10px;">
+      <div class="col-lg-4">
+        <span class="visible-lg-block"
+        style="margin-bottom: 5px">Metacritic</span>
+        <rating-box value="ctrl.series.metacritic"
+                    max-value="100"></rating-box>
+      </div>
+    </div>
+
+    <div class="row" style="margin-left: 0; margin-top: 10px;">
       <span class="visible-lg-block largeLabel">Vote</span>
       <div class="btn-group">
-      <label class="btn btn-lg votingButton"
-             ng-repeat="voteNum in ctrl.possibleVotes"
-             ng-class="ctrl.getVoteButtonClass(voteNum)"
-             ng-model="ctrl.selectedVote"
-             style="font-size: xx-large"
-             uib-btn-radio="voteNum">
-        <span ng-bind="voteNum"></span>
-      </label>
+        <label class="btn btn-lg votingButton"
+               ng-repeat="voteNum in ctrl.possibleVotes"
+               ng-class="ctrl.getVoteButtonClass(voteNum)"
+               ng-model="ctrl.selectedVote"
+               style="font-size: xx-large"
+               uib-btn-radio="voteNum">
+          <span ng-bind="voteNum"></span>
+        </label>
       </div>
     </div>
   </div>
@@ -30,6 +51,7 @@
 <div class="modal-footer">
   <input type="button"
          class="btn btn-success"
+         ng-disabled="!ctrl.canSubmit()"
          ng-click="ctrl.submitVote()"
          value="Submit">
   <input type="button"

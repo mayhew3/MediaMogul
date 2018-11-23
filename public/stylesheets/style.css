@@ -198,15 +198,39 @@ h1 {
 
 /* VOTING */
 
+.mediumLabel {
+  font-size: x-large;
+  margin-bottom: 5px;
+}
+
 .largeLabel {
   font-size: xx-large;
   margin-bottom: 5px;
-  margin-top: -10px;
 }
 
 .votingButton {
   padding-left: 30px;
   padding-right: 30px;
+}
+
+/* RATING BOX */
+
+.ratingBox {
+  font-size: 1.7em;
+  text-align: center;
+  font-weight: 800;
+  color: white;
+  width: 70px;
+  height: 48px;
+  border-radius: 3px;
+  padding: 0;
+}
+
+.ratingBox span {
+  display: block;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /*

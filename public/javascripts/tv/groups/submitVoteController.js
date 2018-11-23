@@ -1,15 +1,30 @@
 angular.module('mediaMogulApp')
-.controller('submitVoteController', ['$log', 'LockService', '$http', '$uibModalInstance', 'tv_group_ballot', 'series',
-  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series) {
+.controller('submitVoteController', ['$log', 'LockService', '$http', '$uibModalInstance',
+            'tv_group_ballot', 'series', 'DateService',
+  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, DateService) {
     const self = this;
     self.LockService = LockService;
+    self.DateService = DateService;
     self.series = series;
+    self.tv_group_ballot = tv_group_ballot;
 
-    self.selectedVote = 1;
+    self.selectedVote = null;
     self.possibleVotes = [1,2,3,4,5,6];
+
+    function getFormattedDate(date) {
+      return self.DateService.getFormattedDate(date);
+    }
+
+    self.getOpenDate = function() {
+      return getFormattedDate(self.tv_group_ballot.voting_open);
+    };
 
     self.getVoteButtonClass = function(vote) {
       return self.selectedVote === vote ? "btn-success" : "btn-primary";
+    };
+
+    self.canSubmit = function() {
+      return exists(self.selectedVote);
     };
 
     self.submitVote = function() {
@@ -31,5 +46,10 @@ angular.module('mediaMogulApp')
     self.cancel = function() {
       $uibModalInstance.dismiss();
     };
+
+    function exists(object) {
+      return !_.isUndefined(object) && !_.isNull(object);
+    }
+
   }
 ]);
