@@ -46,8 +46,13 @@
     };
 
     self.orderBy = function() {
-      return self.exists(self.panelInfo.sortArray) ? self.panelInfo.sortArray : [orderByMetacritic, '-metacritic', 'title'];
+      return [nullsLast, getFieldWithDirection(), 'title'];
     };
+
+    function getFieldWithDirection() {
+      const sort = self.panelInfo.sort;
+      return sort.direction === 'asc' ? sort.field : '-' + sort.field;
+    }
 
     self.showEmpty = function() {
       return self.exists(self.panelInfo.showEmpty) ? self.panelInfo.showEmpty : false;
@@ -68,9 +73,10 @@
 
     // COMPARATORS
 
-    function orderByMetacritic(series) {
-      return (series.metacritic === null) ? 1: 0;
+    function nullsLast(series) {
+      return (series[self.panelInfo.sort.field] === null) ? 1: 0;
     }
+
 
 
   }

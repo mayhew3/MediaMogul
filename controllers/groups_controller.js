@@ -114,6 +114,7 @@ exports.getGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
 
   const sql = "SELECT s.id, s.title, s.metacritic, s.poster, tgs.date_added, " +
+    "s.metacritic AS group_score, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
     "    where e.series_id = s.id " +
@@ -600,6 +601,9 @@ function getBallots(tv_group_id, response, seriesResults) {
           let series = _.findWhere(seriesResults, {id: parseInt(series_id)});
 
           series.ballots = ballots;
+
+          const vote_score = calculateGroupRating(ballots[0]);
+          series.group_score = vote_score === null ? series.metacritic : vote_score;
         }
       }
 
@@ -620,22 +624,38 @@ exports.submitVote = function(request, response) {
     vote.vote_value
   ];
 
-  db.executeQueryNoResults(response, sql, values);
+  db.updateNoJSON(sql, values).then(function() {
+    const sql = 'SELECT vote_value ' +
+      'FROM tv_group_vote ' +
+      'WHERE tv_group_ballot_id = $1 ' +
+      'AND retired = $2 ';
+
+    const values = [
+      vote.tv_group_ballot_id,
+      0
+    ];
+
+    db.selectWithJSON(sql, values).then(function(votesResult) {
+      const group_score = calculateGroupRating({votes: votesResult});
+
+      response.json({group_score: group_score});
+    });
+  });
 };
 
-function calculateGroupRating(series, ballot) {
+function calculateGroupRating(ballot) {
   const votes = ballot.votes;
 
   if (_.isUndefined(votes) || votes.length === 0) {
-    return series.metacritic;
+    return null;
   }
 
-  const vote_numbers = _.compact(_.pluck(votes, 'value'));
+  const vote_numbers = _.compact(_.pluck(votes, 'vote_value'));
   const total = _.reduce(vote_numbers, function(memo, num) {return memo + num});
   const average = total / vote_numbers.length;
   const minimum = _.min(vote_numbers);
 
-  const collective_score = ((average * 3) + (minimum * 2)) / 5;
+  return ((average * 3) + (minimum * 2)) / 5;
 }
 
 // UTILITY METHODS

@@ -29,11 +29,12 @@ angular.module('mediaMogulApp')
         person_id: self.LockService.person_id
       };
 
-      $http.post('/api/votes', {vote: payload}).then(function() {
+      $http.post('/api/votes', {vote: payload}).then(function(result) {
         tv_group_ballot.votes.push({
           vote_value: payload.vote_value,
           person_id: payload.person_id
         });
+        series.group_score = result.data.group_score;
         $uibModalInstance.close();
       });
     };

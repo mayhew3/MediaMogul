@@ -27,12 +27,20 @@ angular.module('mediaMogulApp')
         headerText: "Up for Vote",
         tvFilter: upForVoteFilter,
         posterSize: 'large',
+        sort: {
+          field: 'group_score',
+          direction: 'desc'
+        },
         hideBadge: true,
         panelFormat: 'panel-warning',
         clickOverride: submitVotePopup
       },
       {
         headerText: "Top Queue",
+        sort: {
+          field: 'group_score',
+          direction: 'desc'
+        },
         tvFilter: inProgressFilter,
         showEmpty: true,
         posterSize: 'large'
@@ -41,27 +49,46 @@ angular.module('mediaMogulApp')
         headerText: "Upcoming",
         tvFilter: upcomingFilter,
         posterSize: 'small',
-        sortArray: ['nextAirDate'],
+        sort: {
+          field: 'nextAirDate',
+          direction: 'asc'
+        },
         hideBadge: true,
         subtitle: nextAirDate
       },
       {
         headerText: "Newly Added",
+        sort: {
+          field: 'group_score',
+          direction: 'desc'
+        },
         tvFilter: newlyAddedFilter,
         posterSize: 'large'
       },
       {
         headerText: "Mid-Season",
+        sort: {
+          field: 'group_score',
+          direction: 'desc'
+        },
         tvFilter: droppedOffFilter,
         posterSize: 'large'
       },
       {
         headerText: "Between Seasons",
+        sort: {
+          field: 'group_score',
+          direction: 'desc'
+        },
         tvFilter: newSeasonFilter,
         posterSize: 'large'
       },
       {
         headerText: "To Start",
+        sort: {
+          field: 'group_score',
+          direction: 'desc'
+        },
         tvFilter: toStartFilter,
         posterSize: 'large'
       },
@@ -69,7 +96,10 @@ angular.module('mediaMogulApp')
         headerText: "Up to Date",
         tvFilter: upToDateFilter,
         posterSize: 'small',
-        sortArray: ['-last_watched'],
+        sort: {
+          field: 'last_watched',
+          direction: 'desc'
+        },
         hideBadge: true,
         subtitle: lastWatchedDate
       }
