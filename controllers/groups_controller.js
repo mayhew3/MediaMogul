@@ -173,7 +173,7 @@ exports.getGroupShows = function(request, response) {
         }
       }
 
-      response.json(seriesResults);
+      getBallots(tv_group_id, response, seriesResults);
 
     });
 
@@ -544,8 +544,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
 
 // VOTING
 
-exports.getBallots = function(request, response) {
-  const tv_group_id = request.query.tv_group_id;
+function getBallots(tv_group_id, response, seriesResults) {
 
   const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, ' +
     '  tgs.series_id  ' +
@@ -556,7 +555,8 @@ exports.getBallots = function(request, response) {
     '  ON tgs.series_id = s.id ' +
     'WHERE tgs.tv_group_id = $1 ' +
     'AND tgb.retired = $2 ' +
-    'AND tgs.retired = $3 ';
+    'AND tgs.retired = $3 ' +
+    'ORDER BY tgb.voting_open DESC ';
 
   const values = [
     tv_group_id,
@@ -592,10 +592,21 @@ exports.getBallots = function(request, response) {
         });
       });
 
-      response.json(ballotResults);
+      let groupedBySeries = _.groupBy(ballotResults, 'series_id');
+
+      for (let series_id in groupedBySeries) {
+        if (groupedBySeries.hasOwnProperty(series_id)) {
+          let ballots = groupedBySeries[series_id];
+          let series = _.findWhere(seriesResults, {id: parseInt(series_id)});
+
+          series.ballots = ballots;
+        }
+      }
+
+      response.json(seriesResults);
     });
   });
-};
+}
 
 exports.submitVote = function(request, response) {
   const vote = request.body.vote;
@@ -611,6 +622,21 @@ exports.submitVote = function(request, response) {
 
   db.executeQueryNoResults(response, sql, values);
 };
+
+function calculateGroupRating(series, ballot) {
+  const votes = ballot.votes;
+
+  if (_.isUndefined(votes) || votes.length === 0) {
+    return series.metacritic;
+  }
+
+  const vote_numbers = _.compact(_.pluck(votes, 'value'));
+  const total = _.reduce(vote_numbers, function(memo, num) {return memo + num});
+  const average = total / vote_numbers.length;
+  const minimum = _.min(vote_numbers);
+
+  const collective_score = ((average * 3) + (minimum * 2)) / 5;
+}
 
 // UTILITY METHODS
 

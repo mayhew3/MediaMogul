@@ -87,7 +87,6 @@ module.exports = function(app) {
   app.get('/api/groupShows', authCheck, groups.getGroupShows);
   app.get('/api/groupEpisodes', authCheck, groups.getGroupEpisodes);
   app.get('/api/notGroupShows', authCheck, groups.getNotGroupShows);
-  app.get('/api/ballots', authCheck, groups.getBallots);
 
   app.post('/api/createGroup', authCheck, groups.createGroup);
   app.post('/api/groupWatchEpisode', authCheck, groups.markEpisodeWatchedByGroup);

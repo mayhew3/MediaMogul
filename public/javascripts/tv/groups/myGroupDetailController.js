@@ -14,8 +14,6 @@ angular.module('mediaMogulApp')
       id: $stateParams.group_id
     };
 
-    self.ballots = [];
-
     NavHelperService.changeSelectedTVGroup(self.group.id);
 
     self.quickFindResult = undefined;
@@ -87,9 +85,6 @@ angular.module('mediaMogulApp')
           }
         });
 
-        $http.get('/api/ballots', {params: {tv_group_id: self.group.id}}).then(function(ballotResults) {
-          addToArray(self.ballots, ballotResults.data);
-        });
       });
       $http.get('/api/groupPersons', {params: {tv_group_id: self.group.id}}).then(function(results) {
         self.group.members = results.data;
@@ -178,22 +173,18 @@ angular.module('mediaMogulApp')
     }
 
     function isUpForVote(series) {
-      const seriesUpForVote = _.pluck(getUnvotedBallots(), 'series_id');
-      return _.contains(seriesUpForVote, series.id);
-    }
-
-    function getUnvotedBallots() {
-      return _.filter(self.ballots, function(ballot) {
+      return _.filter(series.ballots, function(ballot) {
         const peopleWhoHaveVoted = _.pluck(ballot.votes, 'person_id');
         return !_.contains(peopleWhoHaveVoted, self.LockService.person_id);
-      });
+      }).length > 0;
     }
 
     // BALLOT HELPERS
 
     function getBallotForShow(show) {
-      return _.findWhere(self.ballots, {series_id: show.id});
+      return _.findWhere(show.ballots, {voting_closed: null});
     }
+
 
     // DATE FORMAT
 
