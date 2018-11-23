@@ -9,14 +9,22 @@
                poster-info="{hideBadge: true}"></tv-poster>
   </div>
 
-  Vote:
-  <label ng-repeat="voteNum in ctrl.possibleVotes"
-         ng-class="ctrl.getVoteButtonClass(voteNum)"
-         ng-model="ctrl.selectedVote"
-         style="font-size: x-large"
-         uib-btn-radio="voteNum">
-    <span ng-bind="voteNum"></span>
-  </label>
+  <div class="col-lg-9">
+    <div class="row">
+      <span class="visible-lg-block largeLabel">Vote</span>
+      <div class="btn-group">
+      <label class="btn btn-lg votingButton"
+             ng-repeat="voteNum in ctrl.possibleVotes"
+             ng-class="ctrl.getVoteButtonClass(voteNum)"
+             ng-model="ctrl.selectedVote"
+             style="font-size: xx-large"
+             uib-btn-radio="voteNum">
+        <span ng-bind="voteNum"></span>
+      </label>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div class="modal-footer">

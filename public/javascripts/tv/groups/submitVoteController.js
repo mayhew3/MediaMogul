@@ -9,7 +9,7 @@ angular.module('mediaMogulApp')
     self.possibleVotes = [1,2,3,4,5,6];
 
     self.getVoteButtonClass = function(vote) {
-      return self.selectedVote === vote ? "btn btn-success" : "btn btn-primary";
+      return self.selectedVote === vote ? "btn-success" : "btn-primary";
     };
 
     self.submitVote = function() {

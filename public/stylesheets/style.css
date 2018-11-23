@@ -195,6 +195,20 @@ h1 {
   margin-top: 10px;
 }
 
+
+/* VOTING */
+
+.largeLabel {
+  font-size: xx-large;
+  margin-bottom: 5px;
+  margin-top: -10px;
+}
+
+.votingButton {
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
 /*
 
 TODO: figure out how to make height dynamic based on width, AND color it. Relative positioning makes it impossible.
