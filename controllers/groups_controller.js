@@ -650,12 +650,12 @@ function calculateGroupRating(ballot) {
     return null;
   }
 
-  const vote_numbers = _.compact(_.pluck(votes, 'vote_value'));
+  const vote_numbers = _.pluck(votes, 'vote_value');
   const total = _.reduce(vote_numbers, function(memo, num) {return memo + num});
   const average = total / vote_numbers.length;
   const minimum = _.min(vote_numbers);
 
-  return ((average * 3) + (minimum * 2)) / 5;
+  return ((average * 2) + (minimum * 3)) / 5;
 }
 
 // UTILITY METHODS
