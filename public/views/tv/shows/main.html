@@ -1,4 +1,33 @@
 
+<!-- PENDING section -->
+<div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.ratingsPending) > 0">
+  <div class="panel-heading">
+    <h3>Ratings Pending</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-4 col-md-3 posterRow" ng-repeat="show in ctrl.series |
+                filter:ctrl.ratingsPending |
+                orderBy:['-dynamic_rating']">
+        <a ng-click="ctrl.open(show)" href="">
+          <img class="img-rounded"
+               ng-style="ctrl.posterStyle(show)"
+               ng-src="{{show.posterResolved}}"
+               err-src="images/GenericSeries.gif"
+               width="100%"/>
+          <div class="posterBadge">
+            <span ng-bind="show.rating_pending_episodes"></span>
+          </div>
+          <div class="posterTitle" ng-show="show.imageDoesNotExist">
+            <span ng-bind="show.title"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- QUEUE section -->
 <div class="panel panel-default" ng-show="ctrl.countWhere(ctrl.showInQueue) > 0">
   <div class="panel-heading">

@@ -53,13 +53,19 @@ angular.module('mediaMogulApp')
       return dateIsWithinLastDays(series.date_added, 8);
     }
 
+    self.ratingsPending = function(series) {
+      return series.rating_pending_episodes > 0;
+    };
+
     self.showInQueue = function(series) {
       return self.firstTier(series) &&
+        !self.ratingsPending(series) &&
         (airedRecently(series) || watchedRecently(series) || addedRecently(series));
     };
 
     self.continuePinned = function(series) {
       return self.firstTier(series) &&
+        !self.ratingsPending(series) &&
         !self.showInQueue(series) &&
         series.midSeason === true &&
         hasWatchedEpisodes(series);
@@ -67,12 +73,14 @@ angular.module('mediaMogulApp')
 
     self.continueBacklog = function(series) {
       return self.secondTier(series) &&
+        !self.ratingsPending(series) &&
         series.midSeason === true &&
         hasWatchedEpisodes(series);
     };
 
     self.newSeasonPinned = function(series) {
       return self.firstTier(series) &&
+        !self.ratingsPending(series) &&
         !self.showInQueue(series) &&
         series.midSeason !== true &&
         hasWatchedEpisodes(series);
@@ -80,18 +88,21 @@ angular.module('mediaMogulApp')
 
     self.newSeasonBacklog = function(series) {
       return self.secondTier(series) &&
+        !self.ratingsPending(series) &&
         series.midSeason !== true &&
         hasWatchedEpisodes(series);
     };
 
     self.toStartPinned = function(series) {
       return self.firstTier(series) &&
+        !self.ratingsPending(series) &&
         !self.showInQueue(series) &&
         !hasWatchedEpisodes(series);
     };
 
     self.toStartBacklog = function(series) {
       return self.secondTier(series) &&
+        !self.ratingsPending(series) &&
         !hasWatchedEpisodes(series);
     };
 

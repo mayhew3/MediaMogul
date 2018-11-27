@@ -61,6 +61,15 @@ exports.getMyShows = function(request, response) {
     "    and e.season <> $8 " +
     "    and e.air_date IS NOT NULL" +
     "    and e.air_date < NOW()) as aired_episodes, " +
+    "(SELECT COUNT(1) " +
+    "  FROM episode_rating er " +
+    "  INNER JOIN episode e " +
+    "    ON er.episode_id = e.id" +
+    "  WHERE e.series_id = s.id " +
+    "  AND e.retired = $7 " +
+    "  AND er.retired = $7 " +
+    "  AND er.rating_pending = $9" +
+    "  AND er.person_id = $1) as rating_pending_episodes, " +
     "s.tvdb_series_id, " +
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +
@@ -91,7 +100,7 @@ exports.getMyShows = function(request, response) {
     "AND s.tvdb_match_status = $3 " +
     "AND s.retired = $4 ";
   var values = [
-    personId, false, 'Match Completed', 0, 0, 0, 0, 0
+    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
