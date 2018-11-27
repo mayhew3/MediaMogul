@@ -1065,6 +1065,8 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       return episode.absolute_number;
     });
 
+
+
     $log.debug("There are " + airedEpisodes.length + " aired episodes.");
 
     var unwatchedEpisodesList = _.filter(airedEpisodes, function(episode) {
@@ -1111,6 +1113,9 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       series.first_unwatched = firstUnwatched;
       series.unwatched_streaming = 0;
       series.unwatched_all = unwatchedEpisodes;
+      series.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
+        return exists(episode.rating_pending) && episode.rating_pending === true;
+      }).length;
 
       series.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
     });

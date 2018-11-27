@@ -434,6 +434,7 @@ exports.getMyEpisodes = function(request, response) {
       'er.rating_character,' +
       'er.rating_story,' +
       'er.rating_value,' +
+      'er.rating_pending, ' +
       'er.review,' +
       'er.id as rating_id ' +
       'FROM episode_rating er ' +
@@ -457,6 +458,7 @@ exports.getMyEpisodes = function(request, response) {
           episodeMatch.rating_character = episodeRating.rating_character;
           episodeMatch.rating_story = episodeRating.rating_story;
           episodeMatch.rating_value = episodeRating.rating_value;
+          episodeMatch.rating_pending = episodeRating.rating_pending;
           episodeMatch.review = episodeRating.review;
           episodeMatch.rating_id = episodeRating.rating_id;
         }

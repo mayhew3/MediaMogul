@@ -29,7 +29,8 @@ angular.module('mediaMogulApp')
         rating_character: episode.rating_character,
         rating_story: episode.rating_story,
         rating_value: episode.rating_value,
-        review: episode.review
+        review: episode.review,
+        rating_pending: episode.rating_pending
       };
 
       self.interfaceRating = {
@@ -40,7 +41,8 @@ angular.module('mediaMogulApp')
         rating_character: episode.rating_character,
         rating_story: episode.rating_story,
         rating_value: episode.rating_value,
-        review: episode.review
+        review: episode.review,
+        rating_pending: episode.rating_pending
       };
 
       self.updateOrAddRating = function() {
@@ -81,6 +83,7 @@ angular.module('mediaMogulApp')
           self.interfaceRating.watched = true;
           self.watched_date = new Date().toLocaleDateString("en-US", options);
         }
+        self.interfaceRating.rating_pending = false;
       };
 
       self.getChangedFields = function() {
@@ -175,6 +178,7 @@ angular.module('mediaMogulApp')
         self.episode.rating_story = self.interfaceRating.rating_story;
         self.episode.rating_value = self.interfaceRating.rating_value;
         self.episode.review = self.interfaceRating.review;
+        self.episode.rating_pending = self.interfaceRating.rating_pending;
 
         self.episode.watched = self.interfaceRating.watched;
         self.episode.watched_date = self.watched_date;
