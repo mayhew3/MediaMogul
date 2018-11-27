@@ -161,7 +161,9 @@ angular.module('mediaMogulApp')
       });
 
       self.rowClass = function(episode) {
-        if (episode.nextUp) {
+        if (episode.rating_pending) {
+          return "ratingPendingRow";
+        } else if (episode.nextUp) {
           return "nextUpRow";
         } else if (episode.unaired) {
           return "unairedRow";

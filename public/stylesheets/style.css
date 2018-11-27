@@ -332,6 +332,11 @@ div.gameCard {
   color: lime;
 }
 
+.ratingPendingRow {
+  border: solid 2px orange;
+  color: orange;
+}
+
 .unwatchedRow {
   color: lightgreen;
 }
