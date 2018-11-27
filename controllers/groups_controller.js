@@ -368,17 +368,18 @@ function addRatingsForPersons(member_ids, episodeRatingInfo) {
     return Promise.resolve();
   }
 
-  const sql = "INSERT INTO episode_rating (person_id, episode_id, retired, watched, watched_date) " +
-    "SELECT p.id, $1, $2, $3, $4 " +
+  const sql = "INSERT INTO episode_rating (person_id, episode_id, retired, watched, watched_date, rating_pending) " +
+    "SELECT p.id, $1, $2, $3, $4, $5 " +
     "FROM person p " +
-    "WHERE retired = $5 " +
-    "AND p.id IN (" + db.createInlineVariableList(member_ids.length, 6) + ") ";
+    "WHERE retired = $6 " +
+    "AND p.id IN (" + db.createInlineVariableList(member_ids.length, 7) + ") ";
 
   const values = [
     episodeRatingInfo.episode_id,
     0,
     episodeRatingInfo.watched,
     episodeRatingInfo.watched_date,
+    true,
     0
   ];
 
@@ -393,15 +394,16 @@ function editRatingsForPersons(member_ids, episodeRatingInfo) {
   }
 
   const sql = "UPDATE episode_rating " +
-    "SET watched = $1, watched_date = $2 " +
-    "WHERE retired = $3 " +
-    "AND episode_id = $4 " +
-    "AND watched = $5 " +
-    "AND person_id IN (" + db.createInlineVariableList(member_ids.length, 6) + ") ";
+    "SET watched = $1, watched_date = $2, rating_pending = $3 " +
+    "WHERE retired = $4 " +
+    "AND episode_id = $5 " +
+    "AND watched = $6 " +
+    "AND person_id IN (" + db.createInlineVariableList(member_ids.length, 7) + ") ";
 
   const values = [
     episodeRatingInfo.watched,
     episodeRatingInfo.watched_date,
+    true,
     0,
     episodeRatingInfo.episode_id,
     false
