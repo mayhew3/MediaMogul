@@ -466,7 +466,7 @@ function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
 exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
   Promise.all([
     updateTVGroupEpisodesAllPastWatched(request.body),
-    person_controller.updateEpisodeRatingsAllPastWatched(request.body)
+    person_controller.updateEpisodeRatingsAllPastWatched(request.body, true)
   ]).then(function() {
     response.json({msg: "Success!"});
   });
