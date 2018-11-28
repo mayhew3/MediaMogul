@@ -233,6 +233,14 @@ h1 {
   transform: translateY(-50%);
 }
 
+/* GROUP LIST */
+
+.groupPillMembers {
+  color: lightblue;
+  font-size: 9px;
+}
+
+
 /*
 
 TODO: figure out how to make height dynamic based on width, AND color it. Relative positioning makes it impossible.

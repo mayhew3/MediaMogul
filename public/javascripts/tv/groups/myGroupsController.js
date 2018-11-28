@@ -45,6 +45,14 @@ angular.module('mediaMogulApp')
       }
     }
 
+    self.getGroupList = function(group) {
+      const membersWithoutMe = _.filter(group.members, function(member) {
+        return member.person_id !== self.LockService.person_id;
+      });
+      const memberNames = _.pluck(membersWithoutMe, 'first_name');
+      return memberNames.join(', ');
+    };
+
     self.createGroup = function() {
       $uibModal.open({
         templateUrl: 'views/tv/groups/createGroup.html',

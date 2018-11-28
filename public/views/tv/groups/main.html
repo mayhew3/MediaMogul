@@ -6,7 +6,8 @@
     <ul class="nav nav-pills nav-stacked btn-sm" ng-repeat="group in ctrl.groups">
       <li role="group" ng-class="ctrl.isActive(group.id)">
         <a ng-click="ctrl.changeSelectedGroup(group.id)">
-          <span ng-bind="group.name"></span>
+          <span ng-bind="group.name"></span><br>
+          <span ng-bind="ctrl.getGroupList(group)" class="groupPillMembers"></span>
         </a>
       </li>
     </ul>
