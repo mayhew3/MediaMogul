@@ -14,6 +14,8 @@ angular.module('mediaMogulApp')
       self.episode = episode;
       self.previousEpisodes = previousEpisodes;
 
+      self.skipRating = false;
+
       self.watched_date = episode.watched_date === null ? null :
         new Date(episode.watched_date).toLocaleDateString("en-US", options);
 
@@ -84,6 +86,14 @@ angular.module('mediaMogulApp')
           self.watched_date = new Date().toLocaleDateString("en-US", options);
         }
         self.interfaceRating.rating_pending = false;
+      };
+
+      self.onSkipRatingChange = function() {
+        if (self.skipRating) {
+          self.interfaceRating.rating_pending = false;
+        } else {
+          self.interfaceRating.rating_pending = self.originalRating.rating_pending;
+        }
       };
 
       self.getChangedFields = function() {
