@@ -31,7 +31,6 @@ angular.module('mediaMogulApp')
           field: 'group_score',
           direction: 'desc'
         },
-        hideBadge: true,
         panelFormat: 'panel-warning',
         clickOverride: submitVotePopup
       },
@@ -43,7 +42,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: inProgressFilter,
         showEmpty: true,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       },
       {
         headerText: "Upcoming",
@@ -53,7 +53,6 @@ angular.module('mediaMogulApp')
           field: 'nextAirDate',
           direction: 'asc'
         },
-        hideBadge: true,
         subtitle: nextAirDate
       },
       {
@@ -63,7 +62,8 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: newlyAddedFilter,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       },
       {
         headerText: "Mid-Season",
@@ -72,7 +72,8 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: droppedOffFilter,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       },
       {
         headerText: "Between Seasons",
@@ -81,7 +82,8 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: newSeasonFilter,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       },
       {
         headerText: "To Start",
@@ -90,7 +92,8 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: toStartFilter,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       },
       {
         headerText: "Up to Date",
@@ -100,7 +103,6 @@ angular.module('mediaMogulApp')
           field: 'last_watched',
           direction: 'desc'
         },
-        hideBadge: true,
         subtitle: lastWatchedDate
       }
     ];

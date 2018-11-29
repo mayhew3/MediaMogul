@@ -12,8 +12,8 @@
 
   <!-- UNWATCHED BADGE -->
 
-  <div class="posterBadge" ng-hide="ctrl.posterInfo.hideBadge || ctrl.show.unwatched_all === 0">
-    <span ng-bind="ctrl.show.unwatched_all"></span>
+  <div class="posterBadge" ng-hide="ctrl.badgeValue() === null || ctrl.badgeValue() === 0">
+    <span ng-bind="ctrl.badgeValue()"></span>
   </div>
 
   <div class="posterTitle" ng-show="ctrl.show.imageDoesNotExist">

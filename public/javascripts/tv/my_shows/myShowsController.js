@@ -137,8 +137,8 @@ angular.module('mediaMogulApp')
           field: 'dynamic_rating',
           direction: 'desc'
         },
-        hideBadge: false,
-        panelFormat: 'panel-warning'
+        panelFormat: 'panel-warning',
+        badgeField: 'rating_pending_episodes'
       },
       {
         headerText: 'Up Next',
@@ -148,7 +148,8 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         showEmpty: true,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       },
       {
         headerText: "Upcoming",
@@ -158,7 +159,6 @@ angular.module('mediaMogulApp')
           field: 'nextAirDate',
           direction: 'asc'
         },
-        hideBadge: true,
         subtitle: nextAirDate
       },
       {
@@ -168,7 +168,8 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.continuePinned,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       },
       {
         headerText: 'New Season',
@@ -177,7 +178,8 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.newSeasonPinned,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       },
       {
         headerText: 'To Start',
@@ -186,7 +188,8 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.toStartPinned,
-        posterSize: 'large'
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
       }
 
     ];

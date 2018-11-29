@@ -62,13 +62,9 @@
       return self.exists(self.panelInfo.subtitle) ? self.panelInfo.subtitle(show) : null;
     };
 
-    self.hideBadge = function() {
-      return self.exists(self.panelInfo.hideBadge) ? self.panelInfo.hideBadge : false;
-    };
-
     self.posterInfo = {
-          hideBadge: self.hideBadge(),
-          clickOverride: self.panelInfo.clickOverride
+          clickOverride: self.panelInfo.clickOverride,
+          badgeField: self.panelInfo.badgeField
     };
 
     // COMPARATORS

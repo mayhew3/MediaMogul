@@ -28,6 +28,10 @@
       return !_.isUndefined(object) && !_.isNull(object);
     }
 
+    self.badgeValue = function() {
+      return exists(self.posterInfo.badgeField) ? self.show[self.posterInfo.badgeField] : null;
+    };
+
     self.click = exists(self.posterInfo.clickOverride) ?
       self.posterInfo.clickOverride :
       self.open;
