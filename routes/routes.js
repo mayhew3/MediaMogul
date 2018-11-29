@@ -41,6 +41,7 @@ module.exports = function(app) {
   app.get('/upcomingEpisodes', authCheck, series.getUpcomingEpisodes);
   app.get('/tvdbErrors', authCheck, series.getTVDBErrors);
   app.get('/ratingYears', authCheck, series.getAllRatingYears);
+  app.get('/api/tvdbMatches', authCheck, series.getTVDBMatches);
 
   // API for iOS app
   app.get('/primeTV', authCheck, series.getPrimeTV);

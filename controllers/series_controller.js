@@ -1,4 +1,55 @@
 const db = require('./database_util');
+const requestLib = require('request');
+var _ = require('underscore');
+
+exports.token = null;
+
+function getToken() {
+  return new Promise(function(resolve, reject) {
+    // noinspection JSUnresolvedVariable
+    const apiKey = process.env.TVDB_API_KEY;
+
+    const urlString = 'https://api.thetvdb.com/login';
+
+    // noinspection SpellCheckingInspection
+    var options = {
+      url: urlString,
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: {
+        'apikey': apiKey
+      },
+      json: true
+    };
+
+    requestLib(options, function(error, response, body) {
+      if (error) {
+        response.send("Error getting TVDB token: " + error);
+        reject(error);
+      } else if (response.statusCode !== 200) {
+        response.send("Unexpected status code from TVDB API: " + response.statusCode);
+        reject("Bad status code: " + response.statusCode);
+      } else {
+        exports.token = body.token;
+        resolve(exports.token);
+      }
+    });
+  });
+}
+getToken();
+
+function maybeRefreshToken() {
+  if (exports.token === null) {
+    return getToken();
+  } else {
+    return new Promise(function(resolve) {
+      resolve(exports.token);
+    });
+  }
+}
 
 exports.getSeriesWithPossibleMatchInfo = function(request, response) {
   console.log("Series with Matches call received.");
@@ -264,6 +315,58 @@ exports.changeTier = function(req, response) {
   db.executeQueryNoResults(response, sql, [tier, seriesId]);
 };
 
+exports.getTVDBMatches = function(request, response) {
+  const series_name = request.query.series_name;
+  console.log("Finding TVDB matches for series: " + series_name);
+
+  maybeRefreshToken().then(function (token) {
+
+    const formatted_name = series_name
+      .toLowerCase()
+      .replace(/ /g, '_')
+      .replace(/[^\w-]+/g, '');
+
+    const seriesUrl = 'https://api.thetvdb.com/search/series';
+
+    const options = {
+      url: seriesUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + token,
+        'Accept-Language': 'en'
+      },
+      qs: {
+        'name': formatted_name
+      },
+      json: true
+    };
+
+    requestLib(options, function (error, tvdb_response, body) {
+      if (error) {
+        response.send("Error getting TVDB data: " + error);
+        reject(error);
+      } else if (tvdb_response.statusCode !== 200) {
+        response.send("Unexpected status code from TVDB API: " + tvdb_response.statusCode);
+        reject("Bad status code: " + tvdb_response.statusCode);
+      } else {
+        const seriesData = body.data;
+        const prunedData = _.map(seriesData, function(seriesObj) {
+          // noinspection JSUnresolvedVariable
+          return {
+            tvdb_series_name: seriesObj.seriesName,
+            tvdb_series_ext_id: seriesObj.id
+          };
+        });
+
+        response.json(prunedData);
+        resolve();
+      }
+    });
+  });
+
+};
+
 exports.addSeries = function(req, res) {
   console.log("Entered addSeries server call: " + JSON.stringify(req.body.series));
 
@@ -397,6 +500,7 @@ exports.addEpisodeGroupRating = function(request, response) {
     "($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) " +
     "RETURNING id ";
 
+  // noinspection JSUnresolvedVariable
   var values = [
     episodeGroupRating.series_id,
     episodeGroupRating.year,

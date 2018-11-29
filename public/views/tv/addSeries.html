@@ -26,54 +26,12 @@
         </div>
 
         <div class="col-lg-3">
-
-          <label class="control-label" for="newMetacriticInput">Metacritic</label>
-          <input type="number"
-                 class="form-control"
-                 id="newMetacriticInput"
-                 name="metacriticInput"
-                 min="1"
-                 max="100"
-                 ng-model="ctrl.series.metacritic"/>
-
-
-          <label class="control-label" for="newRatingInput">My Rating</label>
-          <input type="number"
-                 class="form-control"
-                 id="newRatingInput"
-                 name="myRatingInput"
-                 min="1"
-                 max="100"
-                 ng-model="ctrl.series.mayhew_rating"/>
-
-        </div>
-
-
-        <div class="col-lg-6">
-          <label for="tierGroup">Tier</label>
-          <div id="tierGroup">
-            <label ng-repeat="tier in ctrl.tiers"
-                   ng-class="ctrl.getButtonClass(tier)"
-                   ng-model="ctrl.series.tier"
-                   uib-btn-radio="tier">
-              <span ng-bind="tier"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="col-lg-6">
-          <label for="locationGroup">Viewing Location</label>
-          <div id="locationGroup">
-            <label ng-repeat="location in ctrl.viewingLocations"
-                   ng-class="ctrl.getLocButtonClass(location)"
-                   ng-model="ctrl.selectedLocation"
-                   uib-btn-radio="location">
-              <span ng-bind="location.name"></span>
-            </label>
-          </div>
+          <input type="button"
+                 class="btn btn-info"
+                 value="Search"
+                 ng-click="ctrl.updateTVDBMatches()">
         </div>
       </div>
-
     </form>
 
   </div>

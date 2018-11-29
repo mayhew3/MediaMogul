@@ -1,11 +1,12 @@
 angular.module('mediaMogulApp')
-  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'LockService',
-  function($log, EpisodeService, $uibModalInstance, LockService) {
+  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'LockService', '$http',
+  function($log, EpisodeService, $uibModalInstance, LockService, $http) {
     var self = this;
 
     self.LockService = LockService;
 
     self.series = {};
+    self.tvdb_matches = [];
 
     self.tiers = [1, 2, 3, 4, 5];
 
@@ -21,6 +22,12 @@ angular.module('mediaMogulApp')
       self.showExists = !!EpisodeService.getSeriesWithTitle(title);
     };
 
+    self.updateTVDBMatches = function() {
+      $http.get('/api/tvdbMatches', {params: {series_name: self.series.title}}).then(function(results) {
+        addToArray(self.tvdb_matches, results.data);
+      });
+    };
+
     self.getButtonClass = function(tier) {
       return self.series.tier === tier ? "btn btn-success" : "btn btn-primary";
     };
@@ -32,6 +39,10 @@ angular.module('mediaMogulApp')
       return self.selectedLocation.name === location.name ? "btn btn-success" : "btn btn-primary";
     };
 
+
+    function addToArray(originalArray, newArray) {
+      originalArray.push.apply(originalArray, newArray);
+    }
 
     self.ok = function() {
       self.series.ViewingLocations = [self.selectedLocation];
