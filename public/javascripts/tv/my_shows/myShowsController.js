@@ -369,6 +369,12 @@ angular.module('mediaMogulApp')
         controller: 'addSeriesController as ctrl',
         size: 'lg',
         resolve: {
+          addSeriesCallback: function() {
+            return function(show) {
+              // todo: separate section for Match Confirmed
+              // self.series.push(show);
+            };
+          }
         }
       });
     };

@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'LockService', '$http',
-  function($log, EpisodeService, $uibModalInstance, LockService, $http) {
+  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'LockService', '$http', 'addSeriesCallback',
+  function($log, EpisodeService, $uibModalInstance, LockService, $http, addSeriesCallback) {
     var self = this;
 
     self.LockService = LockService;
@@ -25,7 +25,7 @@ angular.module('mediaMogulApp')
 
     self.updateTVDBMatches = function() {
       $http.get('/api/tvdbMatches', {params: {series_name: self.series.title}}).then(function(results) {
-        addToArray(self.tvdb_matches, results.data);
+        refreshArray(self.tvdb_matches, results.data);
         self.tvdb_matches.forEach(updatePosterLocation);
         if (self.tvdb_matches.length > 0) {
           self.selectedShow = self.tvdb_matches[0];
@@ -75,16 +75,23 @@ angular.module('mediaMogulApp')
       originalArray.push.apply(originalArray, newArray);
     }
 
+    function refreshArray(originalArray, newArray) {
+      originalArray.length = 0;
+      addToArray(originalArray, newArray);
+    }
+
     self.ok = function() {
-      self.series.ViewingLocations = [self.selectedLocation];
       self.series.date_added = new Date;
       self.series.person_id = LockService.person_id;
-      var errorResponse = EpisodeService.addSeries(self.series);
-      if (errorResponse) {
-        $log.debug("Error adding series. Response: " + errorResponse);
-      } else {
+      self.series.tvdb_id = self.selectedShow.tvdb_id;
+      self.series.poster = self.selectedShow.poster;
+
+      EpisodeService.addSeries(self.series).then(function(result) {
+        self.series.id = result.data.seriesId;
+        self.series.tvdb_match_status = 'Match Confirmed';
+        addSeriesCallback(self.series);
         $uibModalInstance.close();
-      }
+      });
     };
 
     self.cancel = function() {

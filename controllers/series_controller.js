@@ -344,11 +344,11 @@ exports.getTVDBMatches = function(request, response) {
 
     requestLib(options, function (error, tvdb_response, body) {
       if (error) {
+        console.log("Error getting TVDB data: " + error);
         response.send("Error getting TVDB data: " + error);
-        reject(error);
       } else if (tvdb_response.statusCode !== 200) {
-        response.send("Unexpected status code from TVDB API: " + tvdb_response.statusCode);
-        reject("Bad status code: " + tvdb_response.statusCode);
+        console.log("Unexpected status code from TVDB API: " + tvdb_response.statusCode + ", " + tvdb_response.statusText);
+        response.json([]);
       } else {
         const seriesData = body.data;
         const prunedData = _.map(seriesData, function(seriesObj) {
@@ -423,26 +423,27 @@ var insertSeries = function(series, response) {
   console.log("Inserting series.");
 
   var sql = "INSERT INTO series (" +
-      "title, tier, metacritic, mayhew_rating, date_added, tvdb_new, metacritic_new, tvdb_match_status, person_id) " +
+      "title, date_added, tvdb_new, metacritic_new, tvdb_match_status, person_id, " +
+      "tvdb_series_ext_id, tvdb_confirm_date, poster) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) " +
       "RETURNING id ";
   var values = [
     series.title,
-    series.tier,
-    series.metacritic,
-    series.mayhew_rating,
     new Date,
+    false,
     true,
-    true,
-    'Match First Pass',
-    series.person_id
+    'Match Confirmed',
+    series.person_id,
+    series.tvdb_id,
+    new Date,
+    series.poster
   ];
 
   db.selectWithJSON(sql, values).then(function (results) {
     var seriesId = results[0].id;
-    return insertSeriesViewingLocation(seriesId, series.ViewingLocations[0].id, response);
+    response.json({seriesId: seriesId})
   }, function(err) {
-    response.json("Error inserting series: " + err);
+    response.status(500).send(err);
   });
 
 };

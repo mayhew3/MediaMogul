@@ -555,11 +555,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
   };
   this.addSeries = function(series) {
     $log.debug("Adding series " + JSON.stringify(series));
-    $http.post('/addSeries', {series: series}).then(function() {
-      return null;
-    }, function(errResponse) {
-      return errResponse;
-    });
+    return $http.post('/addSeries', {series: series});
   };
 
   this.addToMyShows = function(show) {

@@ -14,26 +14,27 @@
 
         <div class="col-lg-6">
 
-          <label class="control-label" for="newSeriesTitle">Name</label>
-          <input type="text"
-                 class="form-control"
-                 id="newSeriesTitle"
-                 name="newSeriesTitle"
-                 ng-required="true"
-                 ng-change="ctrl.updateShowExists()"
-                 ng-model="ctrl.series.title"/>
-        </div>
-
-        <div class="col-lg-3">
-          <input type="button"
-                 class="btn btn-info"
-                 value="Search"
-                 ng-click="ctrl.updateTVDBMatches()">
+          <div class="input-group">
+            <input type="text"
+                   class="form-control"
+                   id="newSeriesTitle"
+                   name="newSeriesTitle"
+                   placeholder="Series Name"
+                   ng-required="true"
+                   ng-change="ctrl.updateShowExists()"
+                   ng-model="ctrl.series.title"/>
+            <span class="input-group-btn">
+              <input type="button"
+                     class="btn btn-info"
+                     value="Search"
+                     ng-click="ctrl.updateTVDBMatches()">
+            </span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="row">
+    <div class="row" style="margin-top: 10px">
       <div class="col-lg-12">
         <!--suppress JSUnusedLocalSymbols -->
         <div class="fade-repeat col-lg-3 posterRow" ng-repeat="show in ctrl.tvdb_matches">
