@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService',
-  function($log, $uibModal, $interval, EpisodeService, LockService) {
+  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
+  function($log, $uibModal, $interval, EpisodeService, LockService, $filter) {
     var self = this;
 
     self.LockService = LockService;
@@ -126,6 +126,71 @@ angular.module('mediaMogulApp')
       return (angular.isDefined(series.dynamic_rating) ? -1: 0);
     };
 
+    /* DASHBOARD INFOS */
+
+    self.dashboardInfos = [
+      {
+        headerText: "Ratings Pending",
+        tvFilter: self.ratingsPending,
+        posterSize: 'large',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        hideBadge: false,
+        panelFormat: 'panel-warning'
+      },
+      {
+        headerText: 'Up Next',
+        tvFilter: self.showInQueue,
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        showEmpty: true,
+        posterSize: 'large'
+      },
+      {
+        headerText: "Upcoming",
+        tvFilter: self.upcomingSoon,
+        posterSize: 'small',
+        sort: {
+          field: 'nextAirDate',
+          direction: 'asc'
+        },
+        hideBadge: true,
+        subtitle: nextAirDate
+      },
+      {
+        headerText: 'Continue',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.continuePinned,
+        posterSize: 'large'
+      },
+      {
+        headerText: 'New Season',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.newSeasonPinned,
+        posterSize: 'large'
+      },
+      {
+        headerText: 'To Start',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.toStartPinned,
+        posterSize: 'large'
+      }
+
+    ];
+
     function hasUnwatchedEpisodes(series) {
       return series.unwatched_all > 0;
     }
@@ -140,6 +205,23 @@ angular.module('mediaMogulApp')
 
     function hasImportantUnmatchedEpisodes(series) {
       return series.unmatched_episodes > 0 && series.my_tier === 1;
+    }
+
+    function nextAirDate(show) {
+      if (exists(show.nextAirDate)) {
+        return formatAirTime(new Date(show.nextAirDate));
+      }
+      return null;
+    }
+
+    function exists(object) {
+      return !_.isUndefined(object) && !_.isNull(object);
+    }
+
+    function formatAirTime(combinedDate) {
+      const minutesPart = $filter('date')(combinedDate, 'mm');
+      const timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
+      return $filter('date')(combinedDate, timeFormat);
     }
 
     function dateIsWithinLastDays(referenceDate, daysAgo) {
@@ -181,9 +263,14 @@ angular.module('mediaMogulApp')
       };
     }
 
+    function addToArray(originalArray, newArray) {
+      originalArray.push.apply(originalArray, newArray);
+    }
+
+
     self.refreshSeriesList = function() {
       EpisodeService.updateMyShowsList().then(function () {
-        self.series = EpisodeService.getMyShows();
+        addToArray(self.series, EpisodeService.getMyShows());
         $log.debug("Controller has " + self.series.length + " shows.");
         self.series.forEach(function (seri) {
           updateFullRating(seri);
