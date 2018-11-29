@@ -273,10 +273,15 @@ angular.module('mediaMogulApp')
       originalArray.push.apply(originalArray, newArray);
     }
 
+    function refreshArray(originalArray, newArray) {
+      originalArray.length = 0;
+      addToArray(originalArray, newArray);
+    }
+
 
     self.refreshSeriesList = function() {
       EpisodeService.updateMyShowsList().then(function () {
-        addToArray(self.series, EpisodeService.getMyShows());
+        refreshArray(self.series, EpisodeService.getMyShows());
         $log.debug("Controller has " + self.series.length + " shows.");
         self.series.forEach(function (seri) {
           updateFullRating(seri);
@@ -365,8 +370,6 @@ angular.module('mediaMogulApp')
         size: 'lg',
         resolve: {
         }
-      }).result.finally(function() {
-        self.refreshSeriesList();
       });
     };
   }
