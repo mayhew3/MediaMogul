@@ -63,7 +63,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: newlyAddedFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        pageLimit: 8
       },
       {
         headerText: "Mid-Season",
@@ -73,7 +74,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: droppedOffFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        pageLimit: 8
       },
       {
         headerText: "Between Seasons",
@@ -83,7 +85,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: newSeasonFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        pageLimit: 8
       },
       {
         headerText: "To Start",
@@ -93,7 +96,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: toStartFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        pageLimit: 8
       },
       {
         headerText: "Up to Date",
@@ -103,7 +107,8 @@ angular.module('mediaMogulApp')
           field: 'last_watched',
           direction: 'desc'
         },
-        subtitle: lastWatchedDate
+        subtitle: lastWatchedDate,
+        pageLimit: 6
       }
     ];
 

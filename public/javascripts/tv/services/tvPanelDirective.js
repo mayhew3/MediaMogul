@@ -26,11 +26,12 @@
     self.panelInfo = $scope.panelInfo;
 
     self.currentPageUpNext = 1;
-    self.pageSize = 8;
 
     self.exists = function(object) {
       return !_.isUndefined(object) && !_.isNull(object);
     };
+
+    self.pageSize = self.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
 
     self.imageColumnClass = function() {

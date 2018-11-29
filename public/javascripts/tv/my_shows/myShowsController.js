@@ -169,7 +169,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.continuePinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        pageLimit: 8
       },
       {
         headerText: 'New Season',
@@ -179,7 +180,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.newSeasonPinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        pageLimit: 4
       },
       {
         headerText: 'To Start',
@@ -189,7 +191,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.toStartPinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        pageLimit: 4
       }
 
     ];
