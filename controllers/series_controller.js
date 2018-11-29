@@ -354,18 +354,63 @@ exports.getTVDBMatches = function(request, response) {
         const prunedData = _.map(seriesData, function(seriesObj) {
           // noinspection JSUnresolvedVariable
           return {
-            tvdb_series_name: seriesObj.seriesName,
-            tvdb_series_ext_id: seriesObj.id
+            name: seriesObj.seriesName,
+            tvdb_id: seriesObj.id,
+            poster: null
           };
         });
 
-        response.json(prunedData);
-        resolve();
+        let posterUpdates = [];
+        prunedData.forEach(function(prunedSeries) {
+          posterUpdates.push(getTopPoster(prunedSeries));
+        });
+
+        Promise.all(posterUpdates).then(function() {
+          response.json(prunedData);
+          resolve();
+        }).catch(function() {
+          response.send("Error on poster retrieval.");
+        });
       }
     });
   });
 
 };
+
+function getTopPoster(seriesObj) {
+  return new Promise(function(resolve, reject) {
+    const posterUrl = 'https://api.thetvdb.com/series/' + seriesObj.tvdb_id + '/images/query';
+    const options = {
+      url: posterUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + exports.token,
+        'Accept-Language': 'en'
+      },
+      qs: {
+        'keyType': 'poster'
+      },
+      json: true
+    };
+
+    requestLib(options, function (error, tvdb_response, body) {
+      if (error) {
+        resolve();
+      } else if (tvdb_response.statusCode !== 200) {
+        resolve();
+      } else {
+        const posterData = body.data;
+        if (posterData.length === 0) {
+          resolve();
+        } else {
+          seriesObj.poster = posterData[0].fileName;
+          resolve();
+        }
+      }
+    });
+  });
+}
 
 exports.addSeries = function(req, res) {
   console.log("Entered addSeries server call: " + JSON.stringify(req.body.series));
