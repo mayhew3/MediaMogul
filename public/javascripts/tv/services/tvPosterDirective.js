@@ -32,6 +32,12 @@
       return exists(self.posterInfo.badgeField) ? self.show[self.posterInfo.badgeField] : null;
     };
 
+    self.extraStyles = exists(self.posterInfo.extraStyles) ?
+      self.posterInfo.extraStyles :
+      function() {
+        return '';
+      };
+
     self.click = exists(self.posterInfo.clickOverride) ?
       self.posterInfo.clickOverride :
       self.open;

@@ -354,7 +354,7 @@ exports.getTVDBMatches = function(request, response) {
         const prunedData = _.map(seriesData, function(seriesObj) {
           // noinspection JSUnresolvedVariable
           return {
-            name: seriesObj.seriesName,
+            title: seriesObj.seriesName,
             tvdb_id: seriesObj.id,
             poster: null
           };
@@ -367,9 +367,8 @@ exports.getTVDBMatches = function(request, response) {
 
         Promise.all(posterUpdates).then(function() {
           response.json(prunedData);
-          resolve();
-        }).catch(function() {
-          response.send("Error on poster retrieval.");
+        }).catch(function(error) {
+          console.log("Error on poster retrieval: " + error);
         });
       }
     });
@@ -378,7 +377,7 @@ exports.getTVDBMatches = function(request, response) {
 };
 
 function getTopPoster(seriesObj) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function(resolve) {
     const posterUrl = 'https://api.thetvdb.com/series/' + seriesObj.tvdb_id + '/images/query';
     const options = {
       url: posterUrl,

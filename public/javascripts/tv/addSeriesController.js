@@ -11,6 +11,7 @@ angular.module('mediaMogulApp')
     self.tiers = [1, 2, 3, 4, 5];
 
     self.selectedLocation = null;
+    self.selectedShow = null;
 
     self.showExists = false;
 
@@ -25,8 +26,38 @@ angular.module('mediaMogulApp')
     self.updateTVDBMatches = function() {
       $http.get('/api/tvdbMatches', {params: {series_name: self.series.title}}).then(function(results) {
         addToArray(self.tvdb_matches, results.data);
+        self.tvdb_matches.forEach(updatePosterLocation);
+        if (self.tvdb_matches.length > 0) {
+          self.selectedShow = self.tvdb_matches[0];
+        }
       });
     };
+
+    self.posterInfo = {
+      clickOverride: updateSelectedShow,
+      extraStyles: posterStyle
+    };
+
+    function posterStyle(match) {
+      if (match === self.selectedShow) {
+        return {"border": "solid limegreen"};
+      } else {
+        return {"border": "solid gray"};
+      }
+    }
+
+    function updateSelectedShow(show) {
+      self.selectedShow = show;
+    }
+
+    function updatePosterLocation(show) {
+      show.imageDoesNotExist = !show.poster;
+      show.posterResolved = amendPosterLocation(show.poster);
+    }
+
+    function amendPosterLocation(posterPath) {
+      return posterPath ? 'http://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
+    }
 
     self.getButtonClass = function(tier) {
       return self.series.tier === tier ? "btn btn-success" : "btn btn-primary";
