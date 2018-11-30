@@ -8,6 +8,10 @@ function getToken() {
   return new Promise(function(resolve, reject) {
     // noinspection JSUnresolvedVariable
     const apiKey = process.env.TVDB_API_KEY;
+    if (_.isUndefined(apiKey)) {
+      console.error("No TVDB_API_KEY variable found!");
+      reject(new Error("No TVDB_API_KEY variable found!"));
+    }
 
     const urlString = 'https://api.thetvdb.com/login';
 
