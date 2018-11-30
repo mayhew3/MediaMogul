@@ -7,6 +7,7 @@ angular.module('mediaMogulApp')
 
     self.series = {};
     self.tvdb_matches = [];
+    self.used_tvdb_ids = [];
 
     self.tiers = [1, 2, 3, 4, 5];
 
@@ -23,15 +24,34 @@ angular.module('mediaMogulApp')
       self.showExists = !!EpisodeService.getSeriesWithTitle(title);
     };
 
+    self.updateTVDBIDs = function() {
+      $http.get('/api/tvdbIDs').then(function(results) {
+        refreshArray(self.used_tvdb_ids, results.data);
+      });
+    };
+    self.updateTVDBIDs();
+
     self.updateTVDBMatches = function() {
       $http.get('/api/tvdbMatches', {params: {series_name: self.series.title}}).then(function(results) {
         refreshArray(self.tvdb_matches, results.data);
         self.tvdb_matches.forEach(updatePosterLocation);
         if (self.tvdb_matches.length > 0) {
-          self.selectedShow = self.tvdb_matches[0];
+          self.selectedShow = _.find(self.tvdb_matches, function(show) {
+            return !TVDBIDAlreadyExists(show);
+          });
         }
       });
     };
+
+    function TVDBIDAlreadyExists(show) {
+      const existingMatch = _.findWhere(self.used_tvdb_ids, {tvdb_series_ext_id: show.tvdb_id});
+      return exists(existingMatch);
+    }
+
+    function exists(object) {
+      return !_.isUndefined(object) && object !== null;
+    }
+
 
     self.posterInfo = {
       clickOverride: updateSelectedShow,
@@ -39,15 +59,24 @@ angular.module('mediaMogulApp')
     };
 
     function posterStyle(match) {
-      if (match === self.selectedShow) {
-        return {"border": "solid limegreen"};
+      let styleObject = {};
+
+      if (TVDBIDAlreadyExists(match)) {
+        styleObject["opacity"] = "0.5";
+        styleObject['border'] = "solid black";
+      } else if (match === self.selectedShow) {
+        styleObject['border'] = "solid limegreen";
       } else {
-        return {"border": "solid gray"};
+        styleObject['border'] = "solid gray";
       }
+
+      return styleObject;
     }
 
     function updateSelectedShow(show) {
-      self.selectedShow = show;
+      if (!TVDBIDAlreadyExists(show)) {
+        self.selectedShow = show;
+      }
     }
 
     function updatePosterLocation(show) {

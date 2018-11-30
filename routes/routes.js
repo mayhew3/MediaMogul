@@ -42,6 +42,7 @@ module.exports = function(app) {
   app.get('/tvdbErrors', authCheck, series.getTVDBErrors);
   app.get('/ratingYears', authCheck, series.getAllRatingYears);
   app.get('/api/tvdbMatches', authCheck, series.getTVDBMatches);
+  app.get('/api/tvdbIDs', authCheck, series.getMatchedTVDBIDs);
 
   // API for iOS app
   app.get('/primeTV', authCheck, series.getPrimeTV);
@@ -72,6 +73,8 @@ module.exports = function(app) {
   app.get('/getMyEpisodes', authCheck, persons.getMyEpisodes);
   app.get('/myUpcomingEpisodes', authCheck, persons.getMyUpcomingEpisodes);
   app.get('/showBasicInfo', authCheck, persons.getShowBasicInfo);
+  app.get('/api/myShowsAdd', authCheck, persons.myShowsForAdd);
+
   app.post('/addToMyShows', authCheck, persons.addToMyShows);
   app.post('/removeFromMyShows', authCheck, persons.removeFromMyShows);
   app.post('/updateMyShow', authCheck, persons.updateMyShow);

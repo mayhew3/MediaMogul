@@ -186,6 +186,30 @@ exports.getMyShows = function(request, response) {
 
 };
 
+exports.myShowsForAdd = function(request, response) {
+  var personId = request.query.PersonId;
+  console.log("Server call: Person " + personId);
+
+  const sql = 'SELECT s.id, ' +
+    's.tvdb_series_ext_id, ' +
+    's.tvdb_match_status ' +
+    'FROM series s ' +
+    'INNER JOIN person_series ps ' +
+    '  ON ps.series_id = s.id ' +
+    'WHERE ps.person_id = $1 ' +
+    'AND s.suggestion = $2 ' +
+    'AND s.retired = $3 ' +
+    'AND ps.retired = $3 ';
+
+  const values = [
+    personId,
+    false,
+    0
+  ];
+
+  db.executeQueryWithResults(response, sql, values);
+};
+
 // denorm helper
 
 exports.calculateUnwatchedDenorms = function(series, unwatchedEpisodes) {

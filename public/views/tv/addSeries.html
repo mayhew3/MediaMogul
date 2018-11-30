@@ -27,6 +27,7 @@
               <input type="button"
                      class="btn btn-info"
                      value="Search"
+                     ng-disabled="ctrl.used_tvdb_ids.length === 0"
                      ng-click="ctrl.updateTVDBMatches()">
             </span>
           </div>

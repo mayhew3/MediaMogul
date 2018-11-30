@@ -411,6 +411,24 @@ function getTopPoster(seriesObj) {
   });
 }
 
+exports.getMatchedTVDBIDs = function(request, response) {
+
+  const sql = 'SELECT s.id, ' +
+    's.tvdb_series_ext_id ' +
+    'FROM series s ' +
+    'WHERE s.tvdb_match_status IN ($1, $2) ' +
+    'AND s.retired = $3 ' +
+    'ORDER BY s.tvdb_series_ext_id ';
+
+  const values = [
+    'Match Confirmed',
+    'Match Completed',
+    0
+  ];
+
+  db.executeQueryWithResults(response, sql, values);
+};
+
 exports.addSeries = function(req, res) {
   console.log("Entered addSeries server call: " + JSON.stringify(req.body.series));
 
