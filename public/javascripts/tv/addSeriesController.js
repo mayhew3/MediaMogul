@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'LockService', '$http', 'addSeriesCallback',
-  function($log, EpisodeService, $uibModalInstance, LockService, $http, addSeriesCallback) {
+  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'LockService', '$http', 'addSeriesCallback', 'ArrayService',
+  function($log, EpisodeService, $uibModalInstance, LockService, $http, addSeriesCallback, ArrayService) {
     var self = this;
 
     self.LockService = LockService;
@@ -26,14 +26,14 @@ angular.module('mediaMogulApp')
 
     self.updateTVDBIDs = function() {
       $http.get('/api/tvdbIDs').then(function(results) {
-        refreshArray(self.used_tvdb_ids, results.data);
+        ArrayService.refreshArray(self.used_tvdb_ids, results.data);
       });
     };
     self.updateTVDBIDs();
 
     self.updateTVDBMatches = function() {
       $http.get('/api/tvdbMatches', {params: {series_name: self.series.title}}).then(function(results) {
-        refreshArray(self.tvdb_matches, results.data);
+        ArrayService.refreshArray(self.tvdb_matches, results.data);
         self.tvdb_matches.forEach(updatePosterLocation);
         if (self.tvdb_matches.length > 0) {
           self.selectedShow = _.find(self.tvdb_matches, function(show) {
@@ -99,15 +99,6 @@ angular.module('mediaMogulApp')
       return self.selectedLocation.name === location.name ? "btn btn-success" : "btn btn-primary";
     };
 
-
-    function addToArray(originalArray, newArray) {
-      originalArray.push.apply(originalArray, newArray);
-    }
-
-    function refreshArray(originalArray, newArray) {
-      originalArray.length = 0;
-      addToArray(originalArray, newArray);
-    }
 
     self.ok = function() {
       self.series.date_added = new Date;

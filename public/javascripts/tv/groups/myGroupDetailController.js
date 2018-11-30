@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
 .controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
-            'NavHelperService',
-  function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService) {
+            'NavHelperService', 'ArrayService',
+  function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService, ArrayService) {
     const self = this;
 
     self.LockService = LockService;
@@ -114,7 +114,7 @@ angular.module('mediaMogulApp')
 
     function updateShows() {
       $http.get('/api/groupShows', {params: {tv_group_id: self.group.id}}).then(function(results) {
-        refreshArray(self.shows, results.data);
+        ArrayService.refreshArray(self.shows, results.data);
         self.shows.forEach(function(show) {
           updatePosterLocation(show);
           if (!exists(show.unwatched_all)) {
@@ -277,18 +277,6 @@ angular.module('mediaMogulApp')
       }
 
       return moment().add(days, 'day').isAfter(moment(referenceDate));
-    }
-
-
-    // ARRAY METHODS
-
-    function refreshArray(originalArray, newArray) {
-      originalArray.length = 0;
-      addToArray(originalArray, newArray);
-    }
-
-    function addToArray(originalArray, newArray) {
-      originalArray.push.apply(originalArray, newArray);
     }
 
 

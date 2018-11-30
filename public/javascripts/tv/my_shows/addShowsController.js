@@ -1,6 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http',
-    function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http) {
+                                      'ArrayService',
+    function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService) {
       var self = this;
 
       self.LockService = LockService;
@@ -203,20 +204,11 @@ angular.module('mediaMogulApp')
           });
           self.totalItems = self.series.length;
           $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
-            refreshArray(self.mySeriesRequests, results.data);
+            ArrayService.refreshArray(self.mySeriesRequests, results.data);
           });
         });
       };
       self.refreshSeriesList();
-
-      function refreshArray(originalArray, newArray) {
-        originalArray.length = 0;
-        addToArray(originalArray, newArray);
-      }
-
-      function addToArray(originalArray, newArray) {
-        originalArray.push.apply(originalArray, newArray);
-      }
 
 
       self.posterStyle = function(series) {

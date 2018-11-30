@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-.controller('myGroupsController', ['$log', 'LockService', '$http', '$state', 'NavHelperService', '$uibModal',
-  function($log, LockService, $http, $state, NavHelperService, $uibModal) {
+.controller('myGroupsController', ['$log', 'LockService', '$http', '$state', 'NavHelperService', '$uibModal', 'ArrayService',
+  function($log, LockService, $http, $state, NavHelperService, $uibModal, ArrayService) {
     let self = this;
 
     self.LockService = LockService;
@@ -18,7 +18,7 @@ angular.module('mediaMogulApp')
 
     self.fetchGroups = function() {
       $http.get('/api/myGroups', {params: {person_id: LockService.person_id}}).then(function(results) {
-        refreshArray(self.groups, results.data);
+        ArrayService.refreshArray(self.groups, results.data);
         let navGroup = self.NavHelperService.getSelectedTVGroup();
 
         if (navGroup !== null) {
@@ -66,15 +66,6 @@ angular.module('mediaMogulApp')
         }
       });
     };
-
-    function refreshArray(originalArray, newArray) {
-      originalArray.length = 0;
-      addToArray(originalArray, newArray);
-    }
-
-    function addToArray(originalArray, newArray) {
-      originalArray.push.apply(originalArray, newArray);
-    }
 
   }
 ]);

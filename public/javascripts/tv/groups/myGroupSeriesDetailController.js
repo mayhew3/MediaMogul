@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('myGroupSeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'group',
-    '$uibModal', '$filter', 'LockService', '$http', '$timeout',
-  function($log, EpisodeService, $uibModalInstance, series, group, $uibModal, $filter, LockService, $http, $timeout) {
+    '$uibModal', '$filter', 'LockService', '$http', '$timeout', 'ArrayService',
+  function($log, EpisodeService, $uibModalInstance, series, group, $uibModal, $filter, LockService, $http, $timeout, ArrayService) {
     var self = this;
 
     self.LockService = LockService;
@@ -21,7 +21,7 @@ angular.module('mediaMogulApp')
 
     self.updateEpisodes = function() {
       $http.get('/api/groupEpisodes', {params: {series_id: series.id, tv_group_id: group.id}}).then(function(result) {
-        refreshArray(self.episodes, result.data);
+        ArrayService.refreshArray(self.episodes, result.data);
         updateSeasonLabels();
         $timeout(function() {
           console.log('Delay finished! Populating tooltips!');
@@ -31,15 +31,6 @@ angular.module('mediaMogulApp')
       });
     };
     self.updateEpisodes();
-
-    function refreshArray(originalArray, newArray) {
-      originalArray.length = 0;
-      addToArray(originalArray, newArray);
-    }
-
-    function addToArray(originalArray, newArray) {
-      originalArray.push.apply(originalArray, newArray);
-    }
 
     self.shouldHide = function(episode) {
       // todo: remove when MM-236 is resolved.

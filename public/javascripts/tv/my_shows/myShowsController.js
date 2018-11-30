@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http',
-  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http) {
+  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http', 'ArrayService',
+  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService) {
     var self = this;
 
     self.LockService = LockService;
@@ -282,19 +282,10 @@ angular.module('mediaMogulApp')
       };
     }
 
-    function addToArray(originalArray, newArray) {
-      originalArray.push.apply(originalArray, newArray);
-    }
-
-    function refreshArray(originalArray, newArray) {
-      originalArray.length = 0;
-      addToArray(originalArray, newArray);
-    }
-
 
     self.refreshSeriesList = function() {
       EpisodeService.updateMyShowsList().then(function () {
-        refreshArray(self.series, EpisodeService.getMyShows());
+        ArrayService.refreshArray(self.series, EpisodeService.getMyShows());
         $log.debug("Controller has " + self.series.length + " shows.");
         self.series.forEach(function (seri) {
           updateFullRating(seri);
@@ -304,7 +295,7 @@ angular.module('mediaMogulApp')
         });
         if (self.LockService.isAdmin()) {
           $http.get('/api/seriesRequest').then(function(results) {
-            refreshArray(self.series_requests, results.data);
+            ArrayService.refreshArray(self.series_requests, results.data);
           });
         }
       });
