@@ -1,4 +1,4 @@
-function EpisodeService($log, $http, $q, $filter, LockService) {
+function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   var shows = [];
   var myShows = [];
   var notMyShows = [];
@@ -1069,7 +1069,7 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
       return !episode.watched && !isTrue(episode.skipped);
     });
     var watchedEpisodesWithDates = _.filter(airedEpisodes, function(episode) {
-      return episode.watched && exists(episode.watched_date);
+      return episode.watched && ArrayService.exists(episode.watched_date);
     });
 
     $log.debug("Found " + unwatchedEpisodesList.length + " unwatched episodes:");
@@ -1104,13 +1104,13 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
 
       var lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
-      series.last_watched = exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
+      series.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
       series.last_unwatched = lastUnwatched;
       series.first_unwatched = firstUnwatched;
       series.unwatched_streaming = 0;
       series.unwatched_all = unwatchedEpisodes;
       series.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
-        return exists(episode.rating_pending) && episode.rating_pending === true;
+        return ArrayService.exists(episode.rating_pending) && episode.rating_pending === true;
       }).length;
 
       series.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
@@ -1123,10 +1123,6 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
 
   function isFalse(field) {
     return _.isBoolean(field) && field === false;
-  }
-
-  function exists(object) {
-    return !_.isUndefined(object) && object !== null;
   }
 
   function isBefore(newDate, trackingDate) {
@@ -1147,4 +1143,4 @@ function EpisodeService($log, $http, $q, $filter, LockService) {
 }
 
 angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', EpisodeService]);
+  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService', EpisodeService]);

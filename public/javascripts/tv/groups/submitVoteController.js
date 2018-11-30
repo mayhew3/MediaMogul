@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
 .controller('submitVoteController', ['$log', 'LockService', '$http', '$uibModalInstance',
-            'tv_group_ballot', 'series', 'DateService',
-  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, DateService) {
+            'tv_group_ballot', 'series', 'DateService', 'ArrayService',
+  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, DateService, ArrayService) {
     const self = this;
     self.LockService = LockService;
     self.DateService = DateService;
@@ -19,7 +19,7 @@ angular.module('mediaMogulApp')
     };
 
     self.canSubmit = function() {
-      return exists(self.selectedVote);
+      return ArrayService.exists(self.selectedVote);
     };
 
     self.submitVote = function() {
@@ -42,10 +42,6 @@ angular.module('mediaMogulApp')
     self.cancel = function() {
       $uibModalInstance.dismiss();
     };
-
-    function exists(object) {
-      return !_.isUndefined(object) && !_.isNull(object);
-    }
 
   }
 ]);

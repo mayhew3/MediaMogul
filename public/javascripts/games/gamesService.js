@@ -1,4 +1,4 @@
-function GamesService($log, $http, LockService) {
+function GamesService($log, $http, LockService, ArrayService) {
   var games = [];
   var notMyGames = [];
   var platforms = [];
@@ -44,38 +44,34 @@ function GamesService($log, $http, LockService) {
 
 
   this.updateNumericFields = function(game) {
-    if (exists(game.metacritic)) {
+    if (ArrayService.exists(game.metacritic)) {
       game.metacritic = parseFloat(game.metacritic);
     }
-    if (exists(game.rating)) {
+    if (ArrayService.exists(game.rating)) {
       game.rating = parseFloat(game.rating);
     }
-    if (exists(game.minutes_played)) {
+    if (ArrayService.exists(game.minutes_played)) {
       game.minutes_played = parseInt(game.minutes_played);
     }
-    if (exists(game.timetotal)) {
+    if (ArrayService.exists(game.timetotal)) {
       game.timetotal = parseFloat(game.timetotal);
     }
-    if (exists(game.replay_score)) {
+    if (ArrayService.exists(game.replay_score)) {
       game.replay_score = parseFloat(game.replay_score);
     }
-    if (exists(game.final_score)) {
+    if (ArrayService.exists(game.final_score)) {
       game.final_score = parseFloat(game.final_score);
     }
-    if (exists(game.howlong_id)) {
+    if (ArrayService.exists(game.howlong_id)) {
       game.howlong_id = parseInt(game.howlong_id);
     }
-    if (exists(game.giantbomb_id)) {
+    if (ArrayService.exists(game.giantbomb_id)) {
       game.giantbomb_id = parseInt(game.giantbomb_id);
     }
-    if (exists(game.last_played)) {
+    if (ArrayService.exists(game.last_played)) {
       game.last_played = new Date(game.last_played);
     }
   };
-
-  function exists(dbValue) {
-    return dbValue !== null && !_.isUndefined(dbValue);
-  }
 
   this.getGamesList = function() {
     return games;
@@ -219,4 +215,4 @@ function GamesService($log, $http, LockService) {
 }
 
 angular.module('mediaMogulApp')
-  .service('GamesService', ['$log', '$http', 'LockService', GamesService]);
+  .service('GamesService', ['$log', '$http', 'LockService', 'ArrayService', GamesService]);

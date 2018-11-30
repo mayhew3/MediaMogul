@@ -227,14 +227,10 @@ angular.module('mediaMogulApp')
     }
 
     function nextAirDate(show) {
-      if (exists(show.nextAirDate)) {
+      if (ArrayService.exists(show.nextAirDate)) {
         return formatAirTime(new Date(show.nextAirDate));
       }
       return null;
-    }
-
-    function exists(object) {
-      return !_.isUndefined(object) && !_.isNull(object);
     }
 
     function formatAirTime(combinedDate) {

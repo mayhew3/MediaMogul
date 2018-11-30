@@ -45,11 +45,7 @@ angular.module('mediaMogulApp')
 
     function TVDBIDAlreadyExists(show) {
       const existingMatch = _.findWhere(self.used_tvdb_ids, {tvdb_series_ext_id: show.tvdb_id});
-      return exists(existingMatch);
-    }
-
-    function exists(object) {
-      return !_.isUndefined(object) && object !== null;
+      return ArrayService.exists(existingMatch);
     }
 
 

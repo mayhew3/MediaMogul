@@ -7,7 +7,7 @@
   function ratingBox() {
     return {
       templateUrl: 'views/ratingBox.html',
-      controller: ['$scope', '$filter', ratingBoxController],
+      controller: ['$scope', '$filter', 'ArrayService', ratingBoxController],
       controllerAs: 'ctrl',
       scope: {
         value: '=',
@@ -16,7 +16,7 @@
     }
   }
 
-  function ratingBoxController($scope, $filter) {
+  function ratingBoxController($scope, $filter, ArrayService) {
     const self = this;
 
     self.value = $scope.value;
@@ -28,7 +28,7 @@
     };
 
     self.getFormattedNumber = function(value) {
-      if (!exists(value)) {
+      if (!ArrayService.exists(value)) {
         return '--';
       } else {
         let floored = Math.floor(value);
@@ -54,10 +54,6 @@
     };
 
 
-
-    function exists(object) {
-      return !_.isUndefined(object) && !_.isNull(object);
-    }
 
   }
 })();

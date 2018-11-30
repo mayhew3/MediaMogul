@@ -7,7 +7,7 @@
   function tvPoster() {
     return {
       templateUrl: 'views/tv/tvPoster.html',
-      controller: ['$scope', tvPosterController],
+      controller: ['$scope', 'ArrayService', tvPosterController],
       controllerAs: 'ctrl',
       scope: {
         show: '=',
@@ -17,32 +17,28 @@
     }
   }
 
-  function tvPosterController($scope) {
+  function tvPosterController($scope, ArrayService) {
     const self = this;
 
     self.show = $scope.show;
     self.posterInfo = $scope.posterInfo;
     self.open = $scope.seriesDetailOpen;
 
-    function exists(object) {
-      return !_.isUndefined(object) && !_.isNull(object);
-    }
-
     self.badgeValue = function() {
-      return exists(self.posterInfo.badgeField) ? self.show[self.posterInfo.badgeField] : null;
+      return ArrayService.exists(self.posterInfo.badgeField) ? self.show[self.posterInfo.badgeField] : null;
     };
 
     self.tvdbPosterPath = function() {
       return self.show.poster ? 'http://thetvdb.com/banners/' + self.show.poster : 'images/GenericSeries.gif';
     };
 
-    self.extraStyles = exists(self.posterInfo.extraStyles) ?
+    self.extraStyles = ArrayService.exists(self.posterInfo.extraStyles) ?
       self.posterInfo.extraStyles :
       function() {
         return '';
       };
 
-    self.click = exists(self.posterInfo.clickOverride) ?
+    self.click = ArrayService.exists(self.posterInfo.clickOverride) ?
       self.posterInfo.clickOverride :
       self.open;
   }

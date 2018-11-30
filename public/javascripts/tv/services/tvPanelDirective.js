@@ -7,7 +7,7 @@
   function tvPanel() {
     return {
       templateUrl: 'views/tv/tvPanel.html',
-      controller: ['$scope', tvPanelController],
+      controller: ['$scope', 'ArrayService', tvPanelController],
       controllerAs: 'ctrl',
       scope: {
         shows: '=',
@@ -17,21 +17,18 @@
     }
   }
 
-  function tvPanelController($scope) {
+  function tvPanelController($scope, ArrayService) {
     const self = this;
 
     self.shows = $scope.shows;
     self.open = $scope.seriesDetailOpen;
 
     self.panelInfo = $scope.panelInfo;
+    self.ArrayService = ArrayService;
 
     self.currentPageUpNext = 1;
 
-    self.exists = function(object) {
-      return !_.isUndefined(object) && !_.isNull(object);
-    };
-
-    self.pageSize = self.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
+    self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
 
     self.imageColumnClass = function() {
@@ -39,7 +36,7 @@
     };
 
     self.tvFilter = function(show) {
-      return self.exists(self.panelInfo.tvFilter) ? self.panelInfo.tvFilter(show) : true;
+      return ArrayService.exists(self.panelInfo.tvFilter) ? self.panelInfo.tvFilter(show) : true;
     };
 
     self.totalItems = function() {
@@ -48,7 +45,7 @@
     };
 
     self.panelFormat = function() {
-      return self.exists(self.panelInfo.panelFormat) ? self.panelInfo.panelFormat : 'panel-default';
+      return ArrayService.exists(self.panelInfo.panelFormat) ? self.panelInfo.panelFormat : 'panel-default';
     };
 
     self.orderBy = function() {
@@ -61,11 +58,11 @@
     }
 
     self.showEmpty = function() {
-      return self.exists(self.panelInfo.showEmpty) ? self.panelInfo.showEmpty : false;
+      return ArrayService.exists(self.panelInfo.showEmpty) ? self.panelInfo.showEmpty : false;
     };
 
     self.subtitle = function(show) {
-      return self.exists(self.panelInfo.subtitle) ? self.panelInfo.subtitle(show) : null;
+      return ArrayService.exists(self.panelInfo.subtitle) ? self.panelInfo.subtitle(show) : null;
     };
 
     self.posterInfo = {

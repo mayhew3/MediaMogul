@@ -117,7 +117,7 @@ angular.module('mediaMogulApp')
         ArrayService.refreshArray(self.shows, results.data);
         self.shows.forEach(function(show) {
           updatePosterLocation(show);
-          if (!exists(show.unwatched_all)) {
+          if (!ArrayService.exists(show.unwatched_all)) {
             show.unwatched_all = 0;
           }
         });
@@ -226,14 +226,14 @@ angular.module('mediaMogulApp')
     // DATE FORMAT
 
     function nextAirDate(show) {
-      if (exists(show.nextAirDate)) {
+      if (ArrayService.exists(show.nextAirDate)) {
         return formatAirTime(new Date(show.nextAirDate));
       }
       return null;
     }
 
     function lastWatchedDate(show) {
-      if (exists(show.last_watched)) {
+      if (ArrayService.exists(show.last_watched)) {
         return $filter('date')(show.last_watched, formatWatchedDate(show.last_watched), 'America/Los_Angeles');
       }
       return null;
@@ -283,11 +283,7 @@ angular.module('mediaMogulApp')
     // BOOLEAN METHODS
 
     function isTrue(object) {
-      return exists(object) && object === true;
-    }
-
-    function exists(object) {
-      return !_.isUndefined(object) && !_.isNull(object);
+      return ArrayService.exists(object) && object === true;
     }
 
     function updatePosterLocation(show) {
