@@ -2,7 +2,7 @@ const _ = require('underscore');
 const db = require('./database_util');
 const person_controller = require('./person_controller');
 const debug = require('debug');
-
+const ArrayService = require('./array_util');
 
 /* GROUPS */
 
@@ -37,7 +37,7 @@ exports.getMyGroups = function(request, response) {
       0
     ];
 
-    addToArray(values, group_ids);
+    ArrayService.addToArray(values, group_ids);
 
     db.selectWithJSON(sql, values).then(function(personResults) {
       let groupData = _.groupBy(personResults, "tv_group_id");
@@ -82,7 +82,7 @@ exports.createGroup = function(request, response) {
       0
     ];
 
-    addToArray(values, person_ids);
+    ArrayService.addToArray(values, person_ids);
 
     db.updateNoJSON(sql, values).then(function() {
       response.json({tv_group_id: tv_group_id});
@@ -344,7 +344,7 @@ function markEpisodeWatchedForPersons(request) {
     0
   ];
 
-  addToArray(values, member_ids);
+  ArrayService.addToArray(values, member_ids);
 
   return db.selectWithJSON(sql, values).then(function(personResults) {
     let existingRatings = _.pluck(personResults, 'person_id');
@@ -382,7 +382,7 @@ function addRatingsForPersons(member_ids, episodeRatingInfo) {
     0
   ];
 
-  addToArray(values, member_ids);
+  ArrayService.addToArray(values, member_ids);
 
   return db.updateNoJSON(sql, values);
 }
@@ -410,7 +410,7 @@ function editRatingsForPersons(member_ids, episodeRatingInfo) {
     false
   ];
 
-  addToArray(values, member_ids);
+  ArrayService.addToArray(values, member_ids);
 
   return db.updateNoJSON(sql, values);
 }
@@ -665,8 +665,4 @@ function calculateGroupRating(ballot) {
 
 function exists(object) {
   return object !== null && object !== undefined;
-}
-
-function addToArray(originalArray, newArray) {
-  originalArray.push.apply(originalArray, newArray);
 }

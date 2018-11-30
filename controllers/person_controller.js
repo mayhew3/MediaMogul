@@ -1,6 +1,7 @@
 var _ = require('underscore');
 const db = require('./database_util');
 const debug = require('debug');
+const ArrayService = require('./array_util');
 
 exports.getPersonInfo = function(request, response) {
   var email = request.query.email;
@@ -784,7 +785,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
       0                 // retired
     ];
 
-    addToArray(values, person_ids);
+    ArrayService.addToArray(values, person_ids);
 
     db.updateNoJSON(sql, values).then(function() {
       const ratingClause = rating_notifications ?
@@ -818,7 +819,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
         "AND er.person_id = p.id) " +
         "AND p.id IN (" + db.createInlineVariableList(person_ids.length, values.length + 1) + ") ";
 
-      addToArray(values, person_ids);
+      ArrayService.addToArray(values, person_ids);
 
       db.updateNoJSON(sql, values).then(function() {
         return resolve();
@@ -833,8 +834,4 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
 
 function exists(object) {
   return object !== null && object !== undefined;
-}
-
-function addToArray(originalArray, newArray) {
-  originalArray.push.apply(originalArray, newArray);
 }
