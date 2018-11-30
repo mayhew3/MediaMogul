@@ -12,6 +12,8 @@ angular.module('mediaMogulApp')
 
       self.selectedPill = "Main";
 
+      self.mySeriesRequests = [];
+
       self.currentPage = 1;
       self.pageSize = 12;
 
@@ -57,6 +59,17 @@ angular.module('mediaMogulApp')
       self.showInQueue = function(series) {
         return self.firstTier(series) &&
           airedInLastDays(series.first_unwatched, 8);
+      };
+
+      self.seriesRequestPanel = {
+        headerText: 'Open Series Requests',
+        sort: {
+          field: 'title',
+          direction: 'asc'
+        },
+        panelFormat: 'panel-info',
+        posterSize: 'small',
+        showEmpty: false
       };
 
       self.otherActive = function(series) {
@@ -189,9 +202,22 @@ angular.module('mediaMogulApp')
             return 0 - show.dynamic_rating;
           });
           self.totalItems = self.series.length;
+          $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
+            refreshArray(self.mySeriesRequests, results.data);
+          });
         });
       };
       self.refreshSeriesList();
+
+      function refreshArray(originalArray, newArray) {
+        originalArray.length = 0;
+        addToArray(originalArray, newArray);
+      }
+
+      function addToArray(originalArray, newArray) {
+        originalArray.push.apply(originalArray, newArray);
+      }
+
 
       self.posterStyle = function(series) {
         if (series.recordingNow === true) {
