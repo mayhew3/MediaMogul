@@ -378,6 +378,11 @@ angular.module('mediaMogulApp')
             return function(show) {
               return EpisodeService.addSeries(show);
             };
+          },
+          postAddCallback: function() {
+            return function(show) {
+              // no-op
+            }
           }
         }
       });

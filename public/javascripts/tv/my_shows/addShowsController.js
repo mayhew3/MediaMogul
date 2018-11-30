@@ -251,8 +251,13 @@ angular.module('mediaMogulApp')
           size: 'lg',
           resolve: {
             addSeriesCallback: function() {
-              return function(show) {
-                return $http.post('/api/seriesRequest', {seriesRequest: show});
+              return function(seriesRequest) {
+                return $http.post('/api/seriesRequest', {seriesRequest: seriesRequest});
+              };
+            },
+            postAddCallback: function() {
+              return function(seriesRequest) {
+                self.mySeriesRequests.push(seriesRequest);
               };
             }
           }
