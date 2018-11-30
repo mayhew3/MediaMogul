@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('gameDashboardController', ['$log', '$uibModal', 'GamesService',
-    function($log, $uibModal, GamesService) {
+  .controller('gameDashboardController', ['$log', '$uibModal', 'GamesService', 'ArrayService',
+    function($log, $uibModal, GamesService, ArrayService) {
       var self = this;
 
       var MAX_GAMES = 6;
@@ -90,14 +90,9 @@ angular.module('mediaMogulApp')
           return scoreFunction(game) * -1;
         });
 
-        addToArray(showcaseArray, _.first(sorted, MAX_GAMES));
+        ArrayService.addToArray(showcaseArray, _.first(sorted, MAX_GAMES));
         self.uncategorizedGames = _.difference(self.uncategorizedGames, showcaseArray);
       }
-
-      function addToArray(originalArray, newArray) {
-        originalArray.push.apply(originalArray, newArray);
-      }
-
 
       // RECENTLY PLAYED SHOWCASE
 

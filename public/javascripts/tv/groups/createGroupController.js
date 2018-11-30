@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('createGroupController', ['$http', 'createGroupCallback', 'LockService', '$uibModalInstance',
-    function createGroupController($http, createGroupCallback, LockService, $uibModalInstance) {
+  .controller('createGroupController', ['$http', 'createGroupCallback', 'LockService', '$uibModalInstance', 'ArrayService',
+    function createGroupController($http, createGroupCallback, LockService, $uibModalInstance, ArrayService) {
       const self = this;
 
       self.name = null;
@@ -20,7 +20,7 @@ angular.module('mediaMogulApp')
             person.name = person.first_name + ' ' + person.last_name;
           });
 
-          addToArray(self.persons, persons);
+          ArrayService.addToArray(self.persons, persons);
         });
       };
       self.fetchPersons();
@@ -51,10 +51,6 @@ angular.module('mediaMogulApp')
       self.cancel = function() {
         $uibModalInstance.dismiss();
       };
-
-      function addToArray(originalArray, newArray) {
-        originalArray.push.apply(originalArray, newArray);
-      }
 
     }
   ]);
