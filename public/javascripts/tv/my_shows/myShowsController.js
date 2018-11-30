@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-  function($log, $uibModal, $interval, EpisodeService, LockService, $filter) {
+  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http',
+  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http) {
     var self = this;
 
     self.LockService = LockService;
@@ -9,6 +9,8 @@ angular.module('mediaMogulApp')
 
     self.tiers = [1, 2, 3, 4, 5];
     self.unwatchedOnly = true;
+
+    self.series_requests = [];
 
     self.selectedPill = "Main";
 
@@ -197,6 +199,17 @@ angular.module('mediaMogulApp')
 
     ];
 
+    self.seriesRequestPanel = {
+      headerText: 'Series Requests',
+      sort: {
+        field: 'title',
+        direction: 'asc'
+      },
+      panelFormat: 'panel-info',
+      posterSize: 'large',
+      showEmpty: false
+    };
+
     function hasUnwatchedEpisodes(series) {
       return series.unwatched_all > 0;
     }
@@ -289,6 +302,11 @@ angular.module('mediaMogulApp')
         self.series = _.sortBy(self.series, function(show) {
           return 0 - show.dynamic_rating;
         });
+        if (self.LockService.isAdmin()) {
+          $http.get('/api/seriesRequest').then(function(results) {
+            refreshArray(self.series_requests, results.data);
+          });
+        }
       });
     };
     self.refreshSeriesList();

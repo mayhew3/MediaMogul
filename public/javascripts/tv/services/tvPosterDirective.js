@@ -32,6 +32,10 @@
       return exists(self.posterInfo.badgeField) ? self.show[self.posterInfo.badgeField] : null;
     };
 
+    self.tvdbPosterPath = function() {
+      return self.show.poster ? 'http://thetvdb.com/banners/' + self.show.poster : 'images/GenericSeries.gif';
+    };
+
     self.extraStyles = exists(self.posterInfo.extraStyles) ?
       self.posterInfo.extraStyles :
       function() {

@@ -55,7 +55,7 @@
   <div class="modal-footer">
     <button class="btn btn-success"
             ng-click="ctrl.ok()"
-            ng-show="ctrl.LockService.isAdmin()"
+            ng-show="ctrl.LockService.isUser()"
             ng-disabled="ctrl.selectedShow === null || !ctrl.LockService.isAuthenticated">Submit</button>
     <button class="btn btn-primary"
             ng-click="ctrl.cancel()">Cancel</button>

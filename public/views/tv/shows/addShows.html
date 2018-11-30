@@ -19,7 +19,7 @@
       </li>
     </ul>
 
-    <ul class="nav nav-pills nav-stacked btn-sm nav-pills-success">
+    <ul class="nav nav-pills nav-stacked btn-sm nav-pills-success" ng-show="ctrl.LockService.isUser()">
       <li role="tv">
         <a href ng-click="ctrl.seriesRequest()">
           Series Request

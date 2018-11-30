@@ -232,6 +232,29 @@ exports.seriesRequest = function(request, response) {
 
 };
 
+exports.getAllOpenSeriesRequests = function(request, response) {
+  const sql = 'SELECT sr.id, sr.person_id, sr.tvdb_series_ext_id, sr.title, sr.poster, p.first_name, p.last_name ' +
+    'FROM series_request sr ' +
+    'INNER JOIN person p ' +
+    '  ON sr.person_id = p.id ' +
+    'WHERE sr.completed IS NULL ' +
+    'AND sr.rejected IS NULL ';
+
+  db.executeQueryWithResults(response, sql, []);
+};
+
+exports.getMySeriesRequests = function(request, response) {
+  const sql = 'SELECT id, tvdb_series_ext_id, title, poster ' +
+    'FROM series_request ' +
+    'WHERE completed IS NULL ' +
+    'AND rejected IS NULL ' +
+    'AND person_id = $1 ';
+
+  const values = [request.query.person_id];
+
+  db.executeQueryWithResults(response, sql, values);
+};
+
 // denorm helper
 
 exports.calculateUnwatchedDenorms = function(series, unwatchedEpisodes) {

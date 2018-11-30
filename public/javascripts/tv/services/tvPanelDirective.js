@@ -38,8 +38,13 @@
       return (self.panelInfo.posterSize === 'small') ? 'col-md-2' : 'col-md-3';
     };
 
+    self.tvFilter = function(show) {
+      return self.exists(self.panelInfo.tvFilter) ? self.panelInfo.tvFilter(show) : true;
+    };
+
     self.totalItems = function() {
-      return self.shows.filter(self.panelInfo.tvFilter).length;
+      return self.shows.length === 0 ? 0 :
+        self.shows.filter(self.tvFilter).length;
     };
 
     self.panelFormat = function() {
