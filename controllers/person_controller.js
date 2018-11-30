@@ -1,4 +1,4 @@
-var _ = require('underscore');
+const _ = require('underscore');
 const db = require('./database_util');
 const debug = require('debug');
 const ArrayService = require('./array_util');
@@ -521,7 +521,7 @@ exports.getMyEpisodes = function(request, response) {
           return episode.id === episodeRating.episode_id;
         });
 
-        if (exists(episodeMatch)) {
+        if (ArrayService.exists(episodeMatch)) {
           episodeMatch.watched_date = episodeRating.watched_date;
           episodeMatch.watched = episodeRating.watched;
           episodeMatch.rating_funny = episodeRating.rating_funny;
@@ -829,9 +829,3 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
 };
 
 
-
-// UTILITY METHODS
-
-function exists(object) {
-  return object !== null && object !== undefined;
-}

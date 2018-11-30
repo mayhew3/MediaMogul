@@ -14,7 +14,7 @@ function ArrayService() {
 
   self.exists = function(object) {
     return !_.isUndefined(object) && !_.isNull(object);
-  }
+  };
 
 
 }

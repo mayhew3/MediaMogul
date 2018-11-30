@@ -290,7 +290,7 @@ exports.getGroupEpisodes = function(request, response) {
             return episode.id === groupEpisode.episode_id;
           });
 
-          if (exists(episodeMatch)) {
+          if (ArrayService.exists(episodeMatch)) {
             episodeMatch.watched_date = groupEpisode.watched_date;
             episodeMatch.watched = groupEpisode.watched;
             episodeMatch.skipped = groupEpisode.skipped;
@@ -423,7 +423,7 @@ function addOrEditTVGroupEpisode(request) {
   const tv_group_episode_id = payload.tv_group_episode_id;
 
   return new Promise(function(resolve) {
-    if (exists(tv_group_episode_id)) {
+    if (ArrayService.exists(tv_group_episode_id)) {
       editTVGroupEpisode(tv_group_episode, tv_group_episode_id).then(function () {
         resolve({
           tv_group_episode_id: tv_group_episode_id
@@ -659,10 +659,4 @@ function calculateGroupRating(ballot) {
   const minimum = _.min(vote_numbers);
 
   return ((average * 2) + (minimum * 3)) / 5;
-}
-
-// UTILITY METHODS
-
-function exists(object) {
-  return object !== null && object !== undefined;
 }
