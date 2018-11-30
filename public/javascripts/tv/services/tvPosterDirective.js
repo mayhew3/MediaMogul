@@ -32,6 +32,10 @@
       return self.show.poster ? 'http://thetvdb.com/banners/' + self.show.poster : 'images/GenericSeries.gif';
     };
 
+    self.alreadyExists = function() {
+      return ArrayService.exists(self.posterInfo.alreadyExists) ? self.posterInfo.alreadyExists(self.show) : false;
+    };
+
     self.extraStyles = ArrayService.exists(self.posterInfo.extraStyles) ?
       self.posterInfo.extraStyles :
       function() {

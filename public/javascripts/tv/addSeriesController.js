@@ -52,7 +52,8 @@ angular.module('mediaMogulApp')
 
     self.posterInfo = {
       clickOverride: updateSelectedShow,
-      extraStyles: posterStyle
+      extraStyles: posterStyle,
+      alreadyExists: TVDBIDAlreadyExists
     };
 
     function posterStyle(match) {

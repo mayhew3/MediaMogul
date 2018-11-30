@@ -66,8 +66,9 @@
     };
 
     self.posterInfo = {
-          clickOverride: self.panelInfo.clickOverride,
-          badgeField: self.panelInfo.badgeField
+      clickOverride: self.panelInfo.clickOverride,
+      badgeField: self.panelInfo.badgeField,
+      alreadyExists: self.panelInfo.alreadyExists
     };
 
     // COMPARATORS

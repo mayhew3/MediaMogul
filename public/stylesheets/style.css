@@ -240,6 +240,24 @@ h1 {
   font-size: 9px;
 }
 
+/* SERIES REQUEST */
+
+.alreadyExistsOverlay {
+  color: orange;
+  font-size: 24pt;
+  font-weight: bolder;
+  text-shadow: 2px 2px #0c0d0e;
+}
+
+.centeredInFrame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  vertical-align: middle;
+  text-align: center;
+  transform: translateX(-50%) translateY(-50%);
+}
+
 
 /*
 
@@ -296,12 +314,6 @@ div.gameCard {
   color: black;
   font-size: 13pt;
   font-weight: bolder;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  vertical-align: middle;
-  text-align: center;
-  transform: translateX(-50%) translateY(-50%);
 }
 
 .addShowButton {

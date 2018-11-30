@@ -17,8 +17,12 @@
     <span ng-bind="ctrl.badgeValue()"></span>
   </div>
 
-  <div class="posterTitle" ng-hide="ctrl.show.poster">
+  <div class="centeredInFrame posterTitle" ng-hide="ctrl.show.poster">
     <span ng-bind="ctrl.show.title"></span>
+  </div>
+
+  <div class="centeredInFrame alreadyExistsOverlay" ng-show="ctrl.alreadyExists()">
+    <span>Already Added</span>
   </div>
 
 </a>
