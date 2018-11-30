@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-    function($log, $uibModal, $interval, EpisodeService, LockService, $filter) {
+  .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http',
+    function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http) {
       var self = this;
 
       self.LockService = LockService;
@@ -220,6 +220,22 @@ angular.module('mediaMogulApp')
             },
             adding: function() {
               return false;
+            }
+          }
+        });
+      };
+
+
+      self.seriesRequest = function() {
+        $uibModal.open({
+          templateUrl: 'views/tv/addSeries.html',
+          controller: 'addSeriesController as ctrl',
+          size: 'lg',
+          resolve: {
+            addSeriesCallback: function() {
+              return function(show) {
+                return $http.post('/api/seriesRequest', {seriesRequest: show});
+              };
             }
           }
         });

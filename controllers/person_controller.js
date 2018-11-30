@@ -210,6 +210,28 @@ exports.myShowsForAdd = function(request, response) {
   db.executeQueryWithResults(response, sql, values);
 };
 
+exports.seriesRequest = function(request, response) {
+  const series_request = request.body.seriesRequest;
+
+  var sql = "INSERT INTO series_request (" +
+    "title, person_id, tvdb_series_ext_id, poster) " +
+    "VALUES ($1, $2, $3, $4) " +
+    "RETURNING id ";
+  var values = [
+    series_request.title,
+    series_request.person_id,
+    series_request.tvdb_id,
+    series_request.poster
+  ];
+
+  db.selectWithJSON(sql, values).then(function (results) {
+    response.json({seriesRequestId: results[0].id})
+  }, function(err) {
+    response.status(500).send(err);
+  });
+
+};
+
 // denorm helper
 
 exports.calculateUnwatchedDenorms = function(series, unwatchedEpisodes) {

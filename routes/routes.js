@@ -84,6 +84,7 @@ module.exports = function(app) {
   app.post('/increaseYear', authCheck, persons.increaseYear);
   app.post('/revertYear', authCheck, persons.revertYear);
   app.post('/setRatingEndDate', authCheck, persons.setRatingEndDate);
+  app.post('/api/seriesRequest', authCheck, persons.seriesRequest);
 
   // GROUPS
   app.get('/api/myGroups', authCheck, groups.getMyGroups);
