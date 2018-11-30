@@ -115,10 +115,9 @@ angular.module('mediaMogulApp')
       self.series.tvdb_id = self.selectedShow.tvdb_id;
       self.series.poster = self.selectedShow.poster;
 
-      EpisodeService.addSeries(self.series).then(function(result) {
+      addSeriesCallback(self.series).then(function(result) {
         self.series.id = result.data.seriesId;
         self.series.tvdb_match_status = 'Match Confirmed';
-        addSeriesCallback(self.series);
         $uibModalInstance.close();
       });
     };

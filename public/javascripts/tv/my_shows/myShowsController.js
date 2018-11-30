@@ -371,8 +371,7 @@ angular.module('mediaMogulApp')
         resolve: {
           addSeriesCallback: function() {
             return function(show) {
-              // todo: separate section for Match Confirmed
-              // self.series.push(show);
+              return EpisodeService.addSeries(show);
             };
           }
         }
