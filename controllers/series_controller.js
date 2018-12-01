@@ -1,6 +1,7 @@
 const db = require('./database_util');
 const requestLib = require('request');
 var _ = require('underscore');
+const ArrayService = require('./array_util');
 
 exports.token = null;
 
@@ -432,6 +433,99 @@ exports.getMatchedTVDBIDs = function(request, response) {
 
   db.executeQueryWithResults(response, sql, values);
 };
+
+exports.handleSeriesRequest = function(request, response) {
+  const tvdb_id = request.body.tvdb_id;
+  const handling = request.body.handling;
+
+  doPreUpdateWork(handling, tvdb_id).then(function() {
+    updateSeriesRequest(handling, tvdb_id, response);
+  }).catch(function(error) {
+    response.status(500).send(error);
+  });
+};
+
+function doPreUpdateWork(handling, tvdb_id) {
+  return new Promise(function(resolve, reject) {
+    if (handling === 'rejected') {
+      resolve();
+    } else if (handling === 'approved') {
+      addSeries(tvdb_id).then(function() {
+        resolve();
+      })
+    } else {
+      console.error('Unexpected value for "handling": ' + handling + '"');
+      reject(new Error('Unexpected value for "handling": ' + handling + '"'));
+    }
+  });
+}
+
+function addSeries(tvdb_id) {
+  const sql = 'SELECT sr.* ' +
+    'FROM series_request sr ' +
+    'WHERE sr.tvdb_series_ext_id = $1 ' +
+    'AND sr.retired = $2 ';
+
+  const values = [
+    tvdb_id,
+    0
+  ];
+
+  return db.selectWithJSON(sql, values).then(function (results) {
+    const person_ids = _.pluck(results, 'person_id');
+    const firstRequest = results[0];
+
+    const sql = 'INSERT INTO series (' +
+      'title, tvdb_new, metacritic_new, tvdb_match_status, person_id, ' +
+      'tvdb_series_ext_id, tvdb_confirm_date, poster) ' +
+      'VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ' +
+      'RETURNING id ';
+
+    const values = [
+      firstRequest.title,
+      false,
+      true,
+      'Match Confirmed',
+      person_ids[0],
+      tvdb_id,
+      new Date,
+      firstRequest.poster
+    ];
+
+    return db.selectWithJSON(sql, values).then(function (results) {
+      const series_id = results[0].id;
+
+      const sql = "INSERT INTO person_series " +
+        "(person_id, series_id, tier) " +
+        "SELECT p.id, $1, $2 " +
+        "FROM person p " +
+        "WHERE p.id IN (" + db.createInlineVariableList(person_ids.length, 3) + ")";
+      const values = [
+        series_id, 1
+      ];
+
+      ArrayService.addToArray(values, person_ids);
+
+      return db.updateNoJSON(sql, values);
+    });
+  });
+}
+
+function updateSeriesRequest(handling, tvdb_id, response) {
+  const sql = 'UPDATE series_request ' +
+    'SET ' + handling + ' = $1 ' +
+    'WHERE tvdb_series_ext_id = $2 ' +
+    'AND approved IS NULL ' +
+    'AND rejected IS NULL ' +
+    'AND completed IS NULL ';
+
+  const values = [
+    new Date,
+    tvdb_id
+  ];
+
+  db.executeQueryNoResults(response, sql, values);
+}
 
 exports.addSeries = function(req, res) {
   console.log("Entered addSeries server call: " + JSON.stringify(req.body.series));

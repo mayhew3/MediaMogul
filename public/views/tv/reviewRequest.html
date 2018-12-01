@@ -1,0 +1,36 @@
+<div class="modal-header">
+  <h3 class="modal-title">Review Series Request</h3>
+</div>
+
+<div class="modal-body clearfix">
+
+  <div class="col-lg-3">
+    <tv-poster show="ctrl.seriesRequest"
+               panel-info="{}"></tv-poster>
+  </div>
+
+  <div class="col-lg-9">
+    <div class="btn-group">
+      <input type="button"
+             value="Approve"
+             uib-btn-radio="'approved'"
+             ng-model="ctrl.handling"
+              ng-class="ctrl.getHandlingButtonClass('approved')">
+      <input type="button"
+             value="Reject"
+             uib-btn-radio="'rejected'"
+             ng-model="ctrl.handling"
+             ng-class="ctrl.getHandlingButtonClass('rejected')">
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-success"
+          ng-click="ctrl.ok()"
+          ng-show="ctrl.LockService.isAdmin()"
+          ng-disabled="ctrl.handling === null || !ctrl.LockService.isAuthenticated">Submit</button>
+  <button class="btn btn-primary"
+          ng-click="ctrl.cancel()">Cancel</button>
+</div>

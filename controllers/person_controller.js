@@ -238,7 +238,7 @@ exports.getAllOpenSeriesRequests = function(request, response) {
     'FROM series_request sr ' +
     'INNER JOIN person p ' +
     '  ON sr.person_id = p.id ' +
-    'WHERE sr.completed IS NULL ' +
+    'WHERE sr.approved IS NULL ' +
     'AND sr.rejected IS NULL ';
 
   db.executeQueryWithResults(response, sql, []);

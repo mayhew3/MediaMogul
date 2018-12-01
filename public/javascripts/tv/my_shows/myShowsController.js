@@ -302,6 +302,10 @@ angular.module('mediaMogulApp')
       removeFromArray(self.series, show);
     }
 
+    function removeFromRequests(seriesRequest) {
+      removeFromArray(self.series_requests, seriesRequest);
+    }
+
     function removeFromArray(arr, element) {
       var indexOf = arr.indexOf(element);
       if (indexOf < 0) {
@@ -346,6 +350,24 @@ angular.module('mediaMogulApp')
           },
           adding: function() {
             return false;
+          }
+        }
+      }).result.finally(function() {
+        self.quickFindResult = undefined;
+      });
+    };
+
+    self.reviewRequest = function(seriesRequest) {
+      $uibModal.open({
+        templateUrl: 'views/tv/reviewRequest.html',
+        controller: 'reviewRequestController as ctrl',
+        size: 'lg',
+        resolve: {
+          seriesRequest: function() {
+            return seriesRequest;
+          },
+          postAddCallback: function() {
+            return removeFromRequests;
           }
         }
       }).result.finally(function() {
