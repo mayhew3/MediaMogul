@@ -4,26 +4,41 @@
 
 <div class="modal-body clearfix">
 
-  <div class="col-lg-3">
-    <tv-poster show="ctrl.seriesRequest"
-               poster-info="{}"></tv-poster>
-  </div>
+  <div class="row">
 
-  <div class="col-lg-9">
-    <div class="btn-group">
-      <input type="button"
-             value="Approve"
-             uib-btn-radio="'approved'"
-             ng-model="ctrl.handling"
-              ng-class="ctrl.getHandlingButtonClass('approved')">
-      <input type="button"
-             value="Reject"
-             uib-btn-radio="'rejected'"
-             ng-model="ctrl.handling"
-             ng-class="ctrl.getHandlingButtonClass('rejected')">
+    <div class="col-lg-3">
+      <tv-poster show="ctrl.seriesRequest"
+                 poster-info="{}"></tv-poster>
     </div>
-  </div>
 
+    <div class="col-lg-9">
+
+      <div class="row">
+        <div class="col-lg-12">
+          <span>Submitted by: {{ctrl.seriesRequest.first_name}} {{ctrl.seriesRequest.last_name}}</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="btn-group">
+            <input type="button"
+                   value="Approve"
+                   uib-btn-radio="'approved'"
+                   ng-model="ctrl.handling"
+                   ng-class="ctrl.getHandlingButtonClass('approved')">
+            <input type="button"
+                   value="Reject"
+                   uib-btn-radio="'rejected'"
+                   ng-model="ctrl.handling"
+                   ng-class="ctrl.getHandlingButtonClass('rejected')">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
 <div class="modal-footer">
