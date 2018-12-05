@@ -35,6 +35,16 @@ angular.module('mediaMogulApp')
         clickOverride: submitVotePopup
       },
       {
+        headerText: "Needs First Vote",
+        tvFilter: needsFirstVote,
+        posterSize: 'large',
+        sort: {
+          field: 'group_score',
+          direction: 'desc'
+        },
+        panelFormat: 'panel-info'
+      },
+      {
         headerText: "Top Queue",
         sort: {
           field: 'group_score',
@@ -207,6 +217,14 @@ angular.module('mediaMogulApp')
 
     function hasWatchedEpisodes(series) {
       return (series.aired_episodes - series.unwatched_all) !== 0;
+    }
+
+    function needsFirstVote(series) {
+      return self.LockService.isAdmin() && hasNeverBeenVotedOn(series) && hasUnwatchedEpisodes(series);
+    }
+
+    function hasNeverBeenVotedOn(series) {
+      return !ArrayService.exists(series.ballots) || series.ballots.length === 0;
     }
 
     function isUpForVote(series) {
