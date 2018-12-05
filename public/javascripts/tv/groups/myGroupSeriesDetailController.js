@@ -77,6 +77,12 @@ angular.module('mediaMogulApp')
       return "";
     };
 
+    self.hasOpenBallot = function() {
+      return ArrayService.exists(_.find(self.series.ballots, function(ballot) {
+        return !ArrayService.exists(ballot.voting_closed);
+      }));
+    };
+
     function updateSeasonLabels() {
       self.episodes.forEach(function (episode) {
         var season = episode.season;

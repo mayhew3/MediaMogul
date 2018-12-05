@@ -29,7 +29,7 @@
         Date Added: <span ng-bind="ctrl.series.date_added"></span><br><br>
       </div>
 
-      <div class="row" style="margin-top: 20px" ng-show="ctrl.LockService.isAdmin()">
+      <div class="row" style="margin-top: 20px" ng-show="ctrl.LockService.isAdmin() && !ctrl.hasOpenBallot()">
         <input type="button"
                class="btn btn-success"
                ng-click="ctrl.addBallot()"
