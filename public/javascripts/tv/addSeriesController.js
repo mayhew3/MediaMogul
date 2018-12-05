@@ -15,6 +15,8 @@ angular.module('mediaMogulApp')
     self.selectedLocation = null;
     self.selectedShow = null;
 
+    self.alternateText = null;
+
     self.showExists = false;
 
     self.viewingLocations = EpisodeService.getViewingLocations();
@@ -33,13 +35,17 @@ angular.module('mediaMogulApp')
     self.updateTVDBIDs();
 
     self.updateTVDBMatches = function() {
+      self.alternateText = "Retrieving matches...";
       $http.get('/api/tvdbMatches', {params: {series_name: self.series.title}}).then(function(results) {
         ArrayService.refreshArray(self.tvdb_matches, results.data);
         self.tvdb_matches.forEach(updatePosterLocation);
         if (self.tvdb_matches.length > 0) {
+          self.alternateText = null;
           self.selectedShow = _.find(self.tvdb_matches, function(show) {
             return !TVDBIDAlreadyExists(show);
           });
+        } else {
+          self.alternateText = "No matches found.";
         }
       });
     };
@@ -103,6 +109,7 @@ angular.module('mediaMogulApp')
       self.series.person_id = LockService.person_id;
       self.series.tvdb_id = self.selectedShow.tvdb_id;
       self.series.poster = self.selectedShow.poster;
+      self.series.title = self.selectedShow.title;
 
       addSeriesCallback(self.series).then(function(result) {
         self.series.id = result.data.seriesId;

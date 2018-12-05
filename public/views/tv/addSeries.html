@@ -35,7 +35,7 @@
       </div>
     </div>
 
-    <div class="row" style="margin-top: 10px">
+    <div class="row" style="margin-top: 10px" ng-hide="ctrl.alternateText">
       <div class="col-lg-12">
         <!--suppress JSUnusedLocalSymbols -->
         <div class="fade-repeat col-lg-3 posterRow" ng-repeat="show in ctrl.tvdb_matches">
@@ -51,6 +51,13 @@
         </div>
       </div>
     </div>
+
+    <div class="row" style="margin-top: 10px" ng-show="ctrl.alternateText">
+      <div class="col-lg-12">
+        <span ng-bind="ctrl.alternateText"></span>
+      </div>
+    </div>
+
   </div>
   <div class="modal-footer">
     <button class="btn btn-success"
