@@ -1,0 +1,39 @@
+<div class="modal-header">
+  <h1 ng-bind="ctrl.series.title"></h1>
+</div>
+
+<div class="modal-body clearfix">
+
+  <div class="col-lg-3">
+    <tv-poster show="ctrl.series"
+               poster-info="{}"></tv-poster>
+  </div>
+
+  <div class="col-lg-9">
+
+    <div class="row">
+      <div class="col-lg-8">
+        <input type="text"
+               class="form-control"
+               placeholder="Reason"
+               ng-model="ctrl.reason">
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="modal-footer">
+  <input type="button"
+         class="btn btn-success"
+         ng-disabled="!ctrl.canSubmit()"
+         ng-click="ctrl.addBallot()"
+         value="Submit">
+  <input type="button"
+         class="btn btn-default"
+         ng-click="ctrl.cancel()"
+         value="Cancel">
+</div>
+
+

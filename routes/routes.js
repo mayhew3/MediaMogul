@@ -101,6 +101,7 @@ module.exports = function(app) {
   app.post('/api/watchPastGroupEpisodes', authCheck, groups.markAllPastEpisodesAsGroupWatched);
   app.post('/api/addGroupShow', authCheck, groups.addToGroupShows);
   app.post('/api/votes', authCheck, groups.submitVote);
+  app.post('/api/ballots', authCheck, groups.addBallot);
 
   // error handlers
 

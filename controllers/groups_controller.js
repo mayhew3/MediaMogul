@@ -113,7 +113,7 @@ exports.getGroupPersons = function(request, response) {
 exports.getGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
 
-  const sql = "SELECT s.id, s.title, s.metacritic, s.poster, tgs.date_added, " +
+  const sql = "SELECT s.id, s.title, s.metacritic, s.poster, tgs.date_added, tgs.id as tv_group_series_id, " +
     "s.metacritic AS group_score, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
@@ -614,6 +614,22 @@ function getBallots(tv_group_id, response, seriesResults) {
     });
   });
 }
+
+exports.addBallot = function(request, response) {
+  const tv_group_series_id = request.body.tv_group_series_id;
+  const reason = request.body.reason;
+
+  const sql = 'INSERT INTO tv_group_ballot (voting_open, reason, tv_group_series_id) ' +
+    'VALUES (now(), $1, $2) ' +
+    'RETURNING id ';
+
+  const values = [
+    reason,
+    tv_group_series_id
+  ];
+
+  db.executeQueryWithResults(response, sql, values);
+};
 
 exports.submitVote = function(request, response) {
   const vote = request.body.vote;

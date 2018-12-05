@@ -20,7 +20,7 @@
         Rating: <rating-box value="ctrl.series.group_score"
                                 max-value="100"></rating-box>
       </div>
-      <div class="row" ng-show="ctrl.debugOn">
+      <div class="row" style="margin-top: 20px" ng-show="ctrl.debugOn">
         Aired: <span ng-bind="ctrl.series.aired_episodes"></span><br><br>
         Unwatched: <span ng-bind="ctrl.series.unwatched_all"></span><br><br>
         First Unwatched: <span ng-bind="ctrl.series.first_unwatched"></span><br><br>
@@ -28,6 +28,14 @@
         Midseason: <span ng-bind="ctrl.series.midSeason"></span><br><br>
         Date Added: <span ng-bind="ctrl.series.date_added"></span><br><br>
       </div>
+
+      <div class="row" style="margin-top: 20px" ng-show="ctrl.LockService.isAdmin()">
+        <input type="button"
+               class="btn btn-success"
+               ng-click="ctrl.addBallot()"
+               value="Add Ballot">
+      </div>
+
     </div>
 
     <div class="col-lg-9">

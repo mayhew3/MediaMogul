@@ -30,6 +30,9 @@ angular.module('mediaMogulApp')
       };
 
       $http.post('/api/votes', {vote: payload}).then(function(result) {
+        if (!_.isArray(tv_group_ballot.votes)) {
+          tv_group_ballot.votes = [];
+        }
         tv_group_ballot.votes.push({
           vote_value: payload.vote_value,
           person_id: payload.person_id
