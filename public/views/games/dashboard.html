@@ -1,13 +1,12 @@
 
 <div class="container" style="margin-top: 10px">
 
-  <label>Quick Find:
-    <input type="text"
-           ng-model="ctrl.quickFindResult"
-           uib-typeahead="game as game.title for game in ctrl.games | filter:{title:$viewValue} | limitTo:5"
-           typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
-           class="form-control">
-  </label>
+  <input type="text"
+         ng-model="ctrl.quickFindResult"
+         placeholder="Search..."
+         uib-typeahead="game as game.title for game in ctrl.games | filter:{title:$viewValue} | limitTo:5"
+         typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
+         class="darkInput form-control">
   <br>
 
   <!--suppress JSUnusedLocalSymbols -->

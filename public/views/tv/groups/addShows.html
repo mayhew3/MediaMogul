@@ -9,7 +9,7 @@
   <div class="modal-body clearfix">
 
     <div class="row">
-      <div class="col-lg-8">
+      <div class="col-lg-8" style="margin-top: -20px">
         <ul uib-pagination
             ng-show="ctrl.totalItems > ctrl.pageSize"
             total-items="ctrl.totalItems"
@@ -18,12 +18,11 @@
             max-size="10"></ul>
       </div>
       <div class="col-lg-4" style="text-align: right">
-        <label>Filter:
-          <input type="text"
-                 ng-model="ctrl.titleSearch"
-                 ng-change="ctrl.updateTitleSearch()"
-                 class="form-control">
-        </label>
+        <input type="text"
+               placeholder="Search..."
+               ng-model="ctrl.titleSearch"
+               ng-change="ctrl.updateTitleSearch()"
+               class="darkInput form-control">
       </div>
     </div>
 

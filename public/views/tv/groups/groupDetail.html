@@ -4,20 +4,21 @@
   <h4 ng-bind="ctrl.memberNames" ></h4>
   </div>
 
-  <div class="col-lg-5" style="text-align:right">
-    <label>Quick Find:
-      <input type="text"
-             ng-model="ctrl.quickFindResult"
-             uib-typeahead="show as show.title for show in ctrl.shows | filter:{title:$viewValue} | limitTo:5"
-             typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
-             class="form-control">
-    </label>
+  <div class="col-lg-4" style="text-align:right">
+    <input type="text"
+           ng-model="ctrl.quickFindResult"
+           placeholder="Search..."
+           uib-typeahead="show as show.title for show in ctrl.shows | filter:{title:$viewValue} | limitTo:5"
+           typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
+           class="darkInput form-control">
 
+  </div>
+
+  <div class="col-lg-1">
     <button type="button"
             style="margin-bottom: 3px; margin-left: 10px"
             class="btn btn-success"
             ng-click="ctrl.addShows()">Add Shows</button>
-
   </div>
 </div>
 

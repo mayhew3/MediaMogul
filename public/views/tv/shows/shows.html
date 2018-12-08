@@ -63,15 +63,14 @@
     </li>
   </ul>
 
-  <ul class="nav nav-pills nav-stacked">
+  <ul class="nav nav-pills nav-stacked" style="margin-top: 20px">
     <li>
-      <label>Quick Find:
-        <input type="text"
-               ng-model="ctrl.quickFindResult"
-               uib-typeahead="show as show.title for show in ctrl.series | filter:{title:$viewValue} | limitTo:5"
-               typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
-               class="form-control">
-      </label>
+      <input type="text"
+             placeholder="Quick Find..."
+             ng-model="ctrl.quickFindResult"
+             uib-typeahead="show as show.title for show in ctrl.series | filter:{title:$viewValue} | limitTo:5"
+             typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
+             class="darkInput form-control">
     </li>
   </ul>
 
