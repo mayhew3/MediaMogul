@@ -18,7 +18,8 @@
     "pg": "^7.5.0",
     "request": "2.88.0",
     "serve-favicon": "2.5.0",
-    "underscore": "^1.9.1"
+    "underscore": "^1.9.1",
+    "postgres-mmethods": "^0.9.1"
   },
   "engines": {
     "node": "8.11.2",

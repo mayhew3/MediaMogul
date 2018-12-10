@@ -1,5 +1,5 @@
 const _ = require('underscore');
-const db = require('./database_util');
+const db = require('postgres-mmethods');
 const debug = require('debug');
 const ArrayService = require('./array_util');
 

@@ -1,4 +1,4 @@
-const db = require('./database_util');
+const db = require('postgres-mmethods');
 const requestLib = require('request');
 var _ = require('underscore');
 const ArrayService = require('./array_util');

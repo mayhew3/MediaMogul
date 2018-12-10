@@ -1,4 +1,4 @@
-const db = require('./database_util');
+const db = require('postgres-mmethods');
 
 exports.getGames = function (request, response) {
   var person_id = request.query.PersonId;
