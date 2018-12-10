@@ -7,7 +7,7 @@
   function gameGroup() {
     return {
       templateUrl: 'views/games/gameGroup.html',
-      controller: ['$scope', '$filter', gameGroupController],
+      controller: ['$scope', '$filter', 'ArrayService', gameGroupController],
       controllerAs: 'ctrl',
       scope: {
         header: '=',
@@ -21,7 +21,7 @@
     }
   }
 
-  function gameGroupController($scope, $filter) {
+  function gameGroupController($scope, $filter, ArrayService) {
     var self = this;
 
     self.header = $scope.header;
@@ -38,9 +38,10 @@
     self.titleSearch = undefined;
 
     self.totalItems = function() {
-      return $filter('filterByTitle')(self.games.filter(self.gamesFilter), self.titleSearch).length;
+      return ArrayService.exists(self.gamesFilter) ?
+        $filter('filterByTitle')(self.games.filter(self.gamesFilter), self.titleSearch).length :
+        self.games.length;
     };
-
 
   }
 

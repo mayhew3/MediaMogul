@@ -25,7 +25,7 @@
     "express",
     "media"
   ],
-  "homepage": "http://media-mogul.herokuapp.com",
+  "homepage": "https://mediamogul.mayhew3.com",
   "private": true,
   "ignore": [
     "**/.*",

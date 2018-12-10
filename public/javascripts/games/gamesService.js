@@ -144,7 +144,7 @@ function GamesService($log, $http, LockService, ArrayService) {
     if (game.igdb_poster !== null && game.igdb_poster !== '') {
       game.imageUrl = "https://images.igdb.com/igdb/image/upload/t_720p/" + game.igdb_poster +  ".jpg";
     } else if (game.logo !== null && game.logo !== '') {
-      game.imageUrl = "http://cdn.edgecast.steamstatic.com/steam/apps/" + game.steamid + "/header.jpg";
+      game.imageUrl = "https://cdn.edgecast.steamstatic.com/steam/apps/" + game.steamid + "/header.jpg";
     } else if (game.giantbomb_medium_url !== null) {
       game.imageUrl = game.giantbomb_medium_url;
     } else {

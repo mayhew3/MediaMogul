@@ -29,7 +29,7 @@
     };
 
     self.tvdbPosterPath = function() {
-      return self.show.poster ? 'http://thetvdb.com/banners/' + self.show.poster : 'images/GenericSeries.gif';
+      return self.show.poster ? 'https://thetvdb.com/banners/' + self.show.poster : 'images/GenericSeries.gif';
     };
 
     self.alreadyExists = function() {

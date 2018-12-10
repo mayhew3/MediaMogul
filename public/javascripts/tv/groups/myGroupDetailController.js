@@ -310,7 +310,7 @@ angular.module('mediaMogulApp')
     }
 
     function amendPosterLocation(posterPath) {
-      return posterPath ? 'http://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
+      return posterPath ? 'https://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
     }
 
     function addShowToGroupCollection(show) {

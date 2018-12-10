@@ -94,7 +94,7 @@ angular.module('mediaMogulApp')
         }
 
         episode.imageResolved = episode.tvdb_filename ?
-          'http://thetvdb.com/banners/' + episode.tvdb_filename :
+          'https://thetvdb.com/banners/' + episode.tvdb_filename :
           'images/GenericEpisode.gif';
       });
 

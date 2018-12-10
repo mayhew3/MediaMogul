@@ -184,7 +184,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   }
 
   function amendPosterLocation(posterPath) {
-    return posterPath ? 'http://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
+    return posterPath ? 'https://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
   }
 
   this.updateNumericFields = function(show) {
@@ -306,7 +306,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
       $log.debug(episodes.length + " episodes found for series " + episodeRatingGroup.title);
 
       episodes.forEach( function(episode) {
-        episode.imageResolved = episode.tvdb_filename ? 'http://thetvdb.com/banners/' + episode.tvdb_filename : 'images/GenericEpisode.gif';
+        episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/' + episode.tvdb_filename : 'images/GenericEpisode.gif';
         self.updateRatingFields(episode);
       });
     });
@@ -335,7 +335,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
         $log.debug("Locations has " + series.viewingLocations.length + " rows.");
 
         episodes.forEach( function(episode) {
-          episode.imageResolved = episode.tvdb_filename ? 'http://thetvdb.com/banners/'+episode.tvdb_filename : 'images/GenericEpisode.gif';
+          episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/'+episode.tvdb_filename : 'images/GenericEpisode.gif';
 
           episode.colorStyle = function() {
             if (episode.watched !== true) {
@@ -385,7 +385,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
         $log.debug("Locations has " + series.viewingLocations.length + " rows.");
 
         episodes.forEach( function(episode) {
-          episode.imageResolved = episode.tvdb_filename ? 'http://thetvdb.com/banners/'+episode.tvdb_filename : 'images/GenericEpisode.gif';
+          episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/'+episode.tvdb_filename : 'images/GenericEpisode.gif';
 
           episode.colorStyle = function() {
             if (episode.watched !== true) {
