@@ -63,9 +63,12 @@ angular.module('mediaMogulApp')
           if (err || !authResult) {
             self.isAuthenticated = false;
             if (err) {
-              console.log("Error on renew: " + err);
-              alert('Failed to renew. Error: ' + err.error + ". Check the console for further details.");
-              deferred.reject("Error on renew: " + err);
+              console.log("Error on renew: " + err.error);
+              if (self.isAdmin()) {
+                alert('Failed to renew. Error: ' + err.error + ". Check the console for further details.");
+                console.log("Full error object: " + JSON.stringify(err));
+              }
+              deferred.reject(err);
             } else {
               console.log("No result received on renew.");
               deferred.reject("No result received on renew.");
