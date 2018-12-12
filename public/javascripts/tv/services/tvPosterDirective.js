@@ -36,6 +36,10 @@
       return ArrayService.exists(self.posterInfo.alreadyExists) ? self.posterInfo.alreadyExists(self.show) : false;
     };
 
+    self.showNoTrailer = function() {
+      return self.posterInfo.shouldAskForPoster && !self.show.trailer_link;
+    };
+
     self.extraStyles = ArrayService.exists(self.posterInfo.extraStyles) ?
       self.posterInfo.extraStyles :
       function() {

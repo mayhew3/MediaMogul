@@ -68,7 +68,8 @@
     self.posterInfo = {
       clickOverride: self.panelInfo.clickOverride,
       badgeField: self.panelInfo.badgeField,
-      alreadyExists: self.panelInfo.alreadyExists
+      alreadyExists: self.panelInfo.alreadyExists,
+      shouldAskForPoster: self.panelInfo.shouldAskForPoster
     };
 
     // COMPARATORS

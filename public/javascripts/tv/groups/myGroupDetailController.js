@@ -42,7 +42,8 @@ angular.module('mediaMogulApp')
           field: 'group_score',
           direction: 'desc'
         },
-        panelFormat: 'panel-info'
+        panelFormat: 'panel-info',
+        shouldAskForPoster: true
       },
       {
         headerText: "Top Queue",
