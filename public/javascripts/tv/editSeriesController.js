@@ -68,14 +68,16 @@ angular.module('mediaMogulApp')
       metacritic: self.series.metacritic,
       mayhew_rating: self.series.mayhew_rating,
       tvdb_hint: self.series.tvdb_hint,
-      metacritic_hint: self.series.metacritic_hint
+      metacritic_hint: self.series.metacritic_hint,
+      trailer_link: self.series.trailer_link
     };
 
     self.interfaceFields = {
       metacritic: self.series.metacritic,
       mayhew_rating: self.series.mayhew_rating,
       tvdb_hint: self.series.tvdb_hint,
-      metacritic_hint: self.series.metacritic_hint
+      metacritic_hint: self.series.metacritic_hint,
+      trailer_link: self.series.trailer_link
     };
 
     self.getTierButtonClass = function(tier) {
@@ -120,6 +122,7 @@ angular.module('mediaMogulApp')
       self.series.mayhew_rating = self.interfaceFields.mayhew_rating;
       self.series.tvdb_hint = self.interfaceFields.tvdb_hint;
       self.series.metacritic_hint = self.interfaceFields.metacritic_hint;
+      self.series.trailer_link = self.interfaceFields.trailer_link;
 
       var changedFields = {};
       for (var key in self.interfaceFields) {

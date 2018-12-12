@@ -77,6 +77,7 @@ exports.getMyShows = function(request, response) {
     "s.last_tvdb_error, " +
     "s.poster, " +
     "s.air_time, " +
+    "s.trailer_link, " +
     "s.tivo_series_v2_ext_id, " +
     "ps.rating as my_rating, " +
     "ps.unwatched_episodes, " +
