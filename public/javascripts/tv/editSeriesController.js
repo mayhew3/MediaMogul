@@ -15,7 +15,9 @@ angular.module('mediaMogulApp')
     self.addedViewingLocations = [];
     self.removedViewingLocations = [];
 
-    updateViewingLocations();
+    if (self.series.viewingLocations) {
+      updateViewingLocations();
+    }
 
     function updateViewingLocations() {
       self.viewingLocations.forEach(function(viewingLocation) {

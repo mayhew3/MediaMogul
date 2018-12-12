@@ -395,6 +395,22 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.openEditSeries = function() {
+      $uibModal.open({
+        templateUrl: 'views/tv/editSeries.html',
+        controller: 'editSeriesController',
+        controllerAs: 'ctrl',
+        size: 'lg',
+        resolve: {
+          series: function() {
+            return self.series;
+          }, episodes: function() {
+            return self.episodes;
+          }
+        }
+      })
+    };
+
     self.openChangePoster = function () {
       if (LockService.isAdmin()) {
         $uibModal.open({

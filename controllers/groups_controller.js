@@ -115,6 +115,7 @@ exports.getGroupShows = function(request, response) {
 
   const sql = "SELECT s.id, s.title, s.metacritic, s.poster, tgs.date_added, tgs.id as tv_group_series_id, " +
     "s.metacritic AS group_score, " +
+    "s.trailer_link, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
     "    where e.series_id = s.id " +

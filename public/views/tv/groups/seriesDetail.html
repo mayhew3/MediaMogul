@@ -36,6 +36,13 @@
                value="Add Ballot">
       </div>
 
+      <div class="row" style="margin-top: 20px" ng-show="ctrl.LockService.isAdmin()">
+        <input type="button"
+               class="btn btn-default"
+               ng-click="ctrl.openEditSeries()"
+               value="Edit">
+      </div>
+
     </div>
 
     <div class="col-lg-9">

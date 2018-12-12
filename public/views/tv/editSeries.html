@@ -64,7 +64,7 @@
                ng-model="ctrl.interfaceFields.trailer_link"/>
       </div>
 
-      <div class="form-group col-lg-6">
+      <div class="form-group col-lg-6" ng-show="ctrl.series.viewingLocations">
         <label for="locationGroup">Viewing Locations</label>
         <div id="locationGroup">
           <label ng-repeat="location in ctrl.inputViewingLocations |
