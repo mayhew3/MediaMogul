@@ -11,7 +11,7 @@ angular.module('mediaMogulApp')
 
       self.callbackBase = function() {
         var protocol_host = $location.protocol() + "://" + $location.host();
-        var optional_port = $location.port() === 80 ? '' : ':' + $location.port();
+        var optional_port = ($location.port() === 80 || $location.port() === 443) ? '' : ':' + $location.port();
         return protocol_host + optional_port;
       };
 
