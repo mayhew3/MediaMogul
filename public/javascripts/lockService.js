@@ -57,28 +57,31 @@ angular.module('mediaMogulApp')
       });
 
       self.renew = function() {
-        var deferred = $q.defer();
+        let deferred = $q.defer();
         console.log("Attempting to renew token...");
         self.lock.checkSession({}, function(err, authResult) {
           if (err || !authResult) {
             self.isAuthenticated = false;
             if (err) {
               console.log("Error on renew: " + err.error);
-              if (self.isAdmin()) {
+              if (self.user_role === 'admin') {
                 alert('Failed to renew. Error: ' + err.error + ". Check the console for further details.");
                 console.log("Full error object: " + JSON.stringify(err));
               }
               deferred.reject(err);
+              return deferred.promise;
             } else {
               console.log("No result received on renew.");
               deferred.reject("No result received on renew.");
+              return deferred.promise;
             }
           } else {
             if (authResult.accessToken && authResult.idToken) {
               console.log('Authentication renewed!', authResult);
               self.isAuthenticated = true;
               self.setSession(authResult, function () {});
-              return deferred.resolve();
+              deferred.resolve();
+              return deferred.promise;
             }
           }
         });

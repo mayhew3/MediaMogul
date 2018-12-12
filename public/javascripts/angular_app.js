@@ -239,8 +239,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
 
               $location.path(nextPath);
 
-            }).catch(function(err) {
-              console.log("Received error from renewal: " + err.error);
+            }).catch(function(error) {
+              console.log("Received error from renewal: " + error.error);
               self.sendHome();
             });
           }
