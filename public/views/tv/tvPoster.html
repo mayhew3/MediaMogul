@@ -17,7 +17,7 @@
     <span ng-bind="ctrl.badgeValue()"></span>
   </div>
 
-  <div class="centeredInFrame posterTitle" ng-hide="ctrl.show.poster">
+  <div class="centeredInFrame posterTitle" ng-show="!ctrl.show.poster || ctrl.show.imageDoesNotExist">
     <span ng-bind="ctrl.show.title"></span>
   </div>
 
