@@ -8,43 +8,35 @@
     </div>
   </div>
 
-  <div class="container col-lg-12">
-    <ul class="nav nav-tabs">
-      <li ui-sref="tv.shows.main" ui-sref-active="active">
-        <a>My Shows</a>
-      </li>
-      <li ui-sref="tv.rate" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
-        <a>
-          Rate
-          <span class="badge"
-                ng-show="ctrl.getNumberOfShowsToRate() > 0"
-                ng-bind="ctrl.getNumberOfShowsToRate()"></span>
-        </a>
-      </li>
-      <li ui-sref="tv.addshows.main" ui-sref-active="active">
-        <a>Add More</a>
-      </li>
-      <li ui-sref="tv.groups" ui-sref-active="active" ng-show="ctrl.LockService.isUser()">
-        <a>My Groups</a>
-      </li>
-      <li ui-sref="tv.match.seriesmatching" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
-        <a>
-          Match
-          <span class="badge pillTabRed"
-                      ng-show="ctrl.getNumberOfPendingMatches() > 0"
-                      ng-bind="ctrl.getNumberOfPendingMatches()"></span>
-        </a>
+  <ul class="nav nav-tabs">
+    <li ui-sref="tv.shows.main" ui-sref-active="active">
+      <a>My Shows</a>
+    </li>
+    <li ui-sref="tv.rate" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
+      <a>
+        Rate
+        <span class="badge"
+              ng-show="ctrl.getNumberOfShowsToRate() > 0"
+              ng-bind="ctrl.getNumberOfShowsToRate()"></span>
+      </a>
+    </li>
+    <li ui-sref="tv.addshows.main" ui-sref-active="active">
+      <a>Add More</a>
+    </li>
+    <li ui-sref="tv.groups" ui-sref-active="active" ng-show="ctrl.LockService.isUser()">
+      <a>My Groups</a>
+    </li>
+    <li ui-sref="tv.match.seriesmatching" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
+      <a>
+        Match
+        <span class="badge pillTabRed"
+              ng-show="ctrl.getNumberOfPendingMatches() > 0"
+              ng-bind="ctrl.getNumberOfPendingMatches()"></span>
+      </a>
 
-      </li>
-    </ul>
+    </li>
+  </ul>
 
-  </div>
-
-
-  <div class="container col-lg-12">
-
-    <div ui-view></div>
-
-  </div>
+  <div ui-view></div>
 
 </div>
