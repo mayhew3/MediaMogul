@@ -8,22 +8,22 @@
     "postinstall": "bower install"
   },
   "dependencies": {
-    "body-parser": "1.18.3",
-    "bower": "1.8.4",
-    "cookie-parser": "1.4.3",
-    "debug": "^4.0.1",
-    "express": "4.16.3",
-    "express-jwt": "5.3.1",
-    "morgan": "^1.9.1",
-    "pg": "^7.5.0",
-    "request": "2.88.0",
-    "serve-favicon": "2.5.0",
-    "underscore": "^1.9.1",
-    "postgres-mmethods": "^0.9.2"
+    "body-parser": "~1.18.3",
+    "bower": "~1.8.4",
+    "cookie-parser": "~1.4.3",
+    "debug": "~4.0.1",
+    "express": "~4.16.3",
+    "express-jwt": "~5.3.1",
+    "morgan": "~1.9.1",
+    "pg": "~7.5.0",
+    "request": "~2.88.0",
+    "serve-favicon": "~2.5.0",
+    "underscore": "~1.9.1",
+    "postgres-mmethods": "~0.9.2"
   },
   "engines": {
     "node": "8.11.2",
-    "npm": "6.4.1"
+    "npm": "6.5.0"
   },
   "keywords": [
     "node",

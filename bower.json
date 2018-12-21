@@ -12,7 +12,16 @@
     "angular-lock": "^3.0.0",
     "auth0.js": "^9.8.0",
     "angular-route": "^1.7.5",
-    "angular-cookies": "^1.7.5"
+    "angular-cookies": "^1.7.5",
+    "underscore": "^1.9.0",
+    "bootstrap-datepicker": "^1.8.0",
+    "auth0-lock": "^11.12.1",
+    "angular-jwt": "^0.1.10",
+    "angular-bootstrap": "^2.5.0",
+    "bootstrap": "^3.4.0",
+    "moment": "^2.23.0",
+    "a0-angular-storage": "^0.0.15",
+    "jQuery": "^3.3.1"
   },
   "resolutions": {
     "auth0.js": "9.8.0",
