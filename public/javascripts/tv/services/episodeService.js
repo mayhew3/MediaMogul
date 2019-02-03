@@ -946,90 +946,97 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
           return episode.absolute_number;
         });
 
-        var watchedEpisodes = _.filter(eligibleEpisodes, function(episode) {
-          return episode.watched && self.watchedInTime(episode);
-        });
-
-        var ratedEpisodes = _.filter(watchedEpisodes, function(episode) {
-          return episode.rating_value !== null;
-        });
-        var rating_values = _.map(ratedEpisodes, function(episode) {
-          return episode.rating_value;
-        });
-
-        var avg_rating = _.isEmpty(rating_values) ? null : self.averageFromNumbers(rating_values);
-        var last_rating = _.isEmpty(rating_values) ? null : _.last(rating_values);
-        var max_rating = _.isEmpty(rating_values) ? null : _.max(rating_values);
-
-        var suggested_rating = _.isEmpty(rating_values) ? null :
-          ((avg_rating * 5) + (max_rating * 3) + (last_rating * 1)) / 9;
-
-        var unwatchedEpisodes = _.filter(eligibleEpisodes, function(episode) {
-          return !episode.watched || !self.watchedInTime(episode);
-        });
-        var nextUnwatched = _.first(unwatchedEpisodes);
-
-        var aired = LockService.isAdmin() ?
-          _.filter(eligibleEpisodes, function(episode) {
-            return episode.air_time !== null && episode.air_time < new Date;
-          }).length :
-          episodeGroupRating.aired;
-
-        var post_update_episodes = 0;
-        if (episodeGroupRating.review_update_date) {
-          var eparray = _.filter(watchedEpisodes, function(episode) {
-            return new Date(episode.watched_date) > new Date(episodeGroupRating.review_update_date);
-          });
-          post_update_episodes = eparray.length;
-        }
-
-        if (insertingNewRating) {
-
-          episodeGroupRating.avg_rating = avg_rating === null ? null : parseFloat(avg_rating.toFixed(1));
-          episodeGroupRating.last_rating = last_rating;
-          episodeGroupRating.max_rating = max_rating;
-          episodeGroupRating.suggested_rating = suggested_rating === null ? null : parseFloat(suggested_rating.toFixed(1));
-          episodeGroupRating.watched = watchedEpisodes.length;
-          episodeGroupRating.rated = ratedEpisodes.length;
-          episodeGroupRating.next_air_date = nextUnwatched == null ? null : new Date(nextUnwatched.air_date);
-          episodeGroupRating.aired = aired;
-          episodeGroupRating.post_update_episodes = post_update_episodes;
-          episodeGroupRating.num_episodes = eligibleEpisodes.length;
-
-          return self.addEpisodeGroupRating(episodeGroupRating);
-
+        if (eligibleEpisodes.length === 0) {
+          if (!insertingNewRating) {
+            // todo: delete rating because there are now no eligible episodes.
+          }
         } else {
 
-          var originalFields = {
-            avg_rating: parseFloat(episodeGroupRating.avg_rating),
-            last_rating: parseInt(episodeGroupRating.last_rating),
-            max_rating: parseInt(episodeGroupRating.max_rating),
-            suggested_rating: parseFloat(episodeGroupRating.suggested_rating),
-            watched: episodeGroupRating.watched,
-            rated: episodeGroupRating.rated,
-            next_air_date: new Date(episodeGroupRating.next_air_date),
-            aired: episodeGroupRating.aired,
-            post_update_episodes: episodeGroupRating.post_update_episodes
-          };
+          var watchedEpisodes = _.filter(eligibleEpisodes, function(episode) {
+            return episode.watched && self.watchedInTime(episode);
+          });
 
-          var updatedFields = {
-            avg_rating: parseFloat(avg_rating.toFixed(1)),
-            last_rating: last_rating,
-            max_rating: max_rating,
-            suggested_rating: parseFloat(suggested_rating.toFixed(1)),
-            watched: watchedEpisodes.length,
-            rated: ratedEpisodes.length,
-            next_air_date: nextUnwatched == null ? null : new Date(nextUnwatched.air_date),
-            aired: aired,
-            post_update_episodes: post_update_episodes
-          };
+          var ratedEpisodes = _.filter(watchedEpisodes, function(episode) {
+            return episode.rating_value !== null;
+          });
+          var rating_values = _.map(ratedEpisodes, function(episode) {
+            return episode.rating_value;
+          });
 
-          var changedFields = self.getChangedFields(originalFields, updatedFields);
+          var avg_rating = _.isEmpty(rating_values) ? null : self.averageFromNumbers(rating_values);
+          var last_rating = _.isEmpty(rating_values) ? null : _.last(rating_values);
+          var max_rating = _.isEmpty(rating_values) ? null : _.max(rating_values);
 
-          if (Object.keys(changedFields).length > 0) {
-            return self.updateEpisodeGroupRating(episodeGroupRating.id, changedFields);
+          var suggested_rating = _.isEmpty(rating_values) ? null :
+            ((avg_rating * 5) + (max_rating * 3) + (last_rating * 1)) / 9;
+
+          var unwatchedEpisodes = _.filter(eligibleEpisodes, function(episode) {
+            return !episode.watched || !self.watchedInTime(episode);
+          });
+          var nextUnwatched = _.first(unwatchedEpisodes);
+
+          var aired = LockService.isAdmin() ?
+            _.filter(eligibleEpisodes, function(episode) {
+              return episode.air_time !== null && episode.air_time < new Date;
+            }).length :
+            episodeGroupRating.aired;
+
+          var post_update_episodes = 0;
+          if (episodeGroupRating.review_update_date) {
+            var eparray = _.filter(watchedEpisodes, function(episode) {
+              return new Date(episode.watched_date) > new Date(episodeGroupRating.review_update_date);
+            });
+            post_update_episodes = eparray.length;
           }
 
+          if (insertingNewRating) {
+
+            episodeGroupRating.avg_rating = avg_rating === null ? null : parseFloat(avg_rating.toFixed(1));
+            episodeGroupRating.last_rating = last_rating;
+            episodeGroupRating.max_rating = max_rating;
+            episodeGroupRating.suggested_rating = suggested_rating === null ? null : parseFloat(suggested_rating.toFixed(1));
+            episodeGroupRating.watched = watchedEpisodes.length;
+            episodeGroupRating.rated = ratedEpisodes.length;
+            episodeGroupRating.next_air_date = nextUnwatched == null ? null : new Date(nextUnwatched.air_date);
+            episodeGroupRating.aired = aired;
+            episodeGroupRating.post_update_episodes = post_update_episodes;
+            episodeGroupRating.num_episodes = eligibleEpisodes.length;
+
+            return self.addEpisodeGroupRating(episodeGroupRating);
+
+          } else {
+
+            var originalFields = {
+              avg_rating: parseFloat(episodeGroupRating.avg_rating),
+              last_rating: parseInt(episodeGroupRating.last_rating),
+              max_rating: parseInt(episodeGroupRating.max_rating),
+              suggested_rating: parseFloat(episodeGroupRating.suggested_rating),
+              watched: episodeGroupRating.watched,
+              rated: episodeGroupRating.rated,
+              next_air_date: new Date(episodeGroupRating.next_air_date),
+              aired: episodeGroupRating.aired,
+              post_update_episodes: episodeGroupRating.post_update_episodes
+            };
+
+            var updatedFields = {
+              avg_rating: parseFloat(avg_rating.toFixed(1)),
+              last_rating: last_rating,
+              max_rating: max_rating,
+              suggested_rating: parseFloat(suggested_rating.toFixed(1)),
+              watched: watchedEpisodes.length,
+              rated: ratedEpisodes.length,
+              next_air_date: nextUnwatched == null ? null : new Date(nextUnwatched.air_date),
+              aired: aired,
+              post_update_episodes: post_update_episodes
+            };
+
+            var changedFields = self.getChangedFields(originalFields, updatedFields);
+
+            if (Object.keys(changedFields).length > 0) {
+              return self.updateEpisodeGroupRating(episodeGroupRating.id, changedFields);
+            }
+
+          }
         }
 
       }, function(errResponse) {
