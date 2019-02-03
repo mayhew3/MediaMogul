@@ -21,7 +21,7 @@
     "bootstrap": "^3.4.0",
     "moment": "^2.23.0",
     "a0-angular-storage": "^0.0.15",
-    "jQuery": "^3.3.1"
+    "jquery": "^3.3.1"
   },
   "resolutions": {
     "auth0.js": "9.8.0",
