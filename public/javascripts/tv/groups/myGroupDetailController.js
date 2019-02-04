@@ -363,6 +363,9 @@ angular.module('mediaMogulApp')
           },
           series: function() {
             return show;
+          },
+          tv_group: function() {
+            return self.group;
           }
         }
       });

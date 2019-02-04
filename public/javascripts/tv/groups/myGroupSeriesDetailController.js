@@ -20,7 +20,7 @@ angular.module('mediaMogulApp')
     self.firstUnwatchedNumber = null;
 
     self.updateEpisodes = function() {
-      $http.get('/api/groupEpisodes', {params: {series_id: series.id, tv_group_id: group.id}}).then(function(result) {
+      $http.get('/api/groupEpisodes', {params: {series_id: series.id, tv_group_id: self.group.id}}).then(function(result) {
         ArrayService.refreshArray(self.episodes, result.data);
         updateSeasonLabels();
         $timeout(function() {
@@ -177,7 +177,7 @@ angular.module('mediaMogulApp')
 
     function hasAllWatchers(episode) {
       const person_ids = episode.person_ids;
-      return !_.isUndefined(person_ids) && (person_ids.length === group.members.length);
+      return !_.isUndefined(person_ids) && (person_ids.length === self.group.members.length);
     }
 
     function getWatchersWhoArentMe(episode) {
@@ -341,7 +341,7 @@ angular.module('mediaMogulApp')
             return episode;
           },
           group: function() {
-            return group;
+            return self.group;
           },
           previousEpisodes: function() {
             return getPreviousEpisodes(episode);

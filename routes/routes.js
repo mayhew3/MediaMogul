@@ -103,6 +103,8 @@ module.exports = function(app) {
   app.post('/api/votes', authCheck, groups.submitVote);
   app.post('/api/ballots', authCheck, groups.addBallot);
 
+  app.patch('/api/ballots', authCheck, groups.editBallot);
+
   // error handlers
 
   // development error handler

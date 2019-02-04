@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
 .controller('submitVoteController', ['$log', 'LockService', '$http', '$uibModalInstance',
-            'tv_group_ballot', 'series', 'DateService', 'ArrayService',
-  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, DateService, ArrayService) {
+            'tv_group_ballot', 'series', 'tv_group', 'DateService', 'ArrayService',
+  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, tv_group, DateService, ArrayService) {
     const self = this;
     self.LockService = LockService;
     self.DateService = DateService;
@@ -38,9 +38,25 @@ angular.module('mediaMogulApp')
           person_id: payload.person_id
         });
         series.group_score = result.data.group_score;
-        $uibModalInstance.close();
+
+        maybeCloseBallot().then(function() {
+          $uibModalInstance.close();
+        });
       });
     };
+
+    function maybeCloseBallot() {
+      if (tv_group.members.length === tv_group_ballot.votes.length) {
+        const changedFields = {
+          voting_closed: new Date
+        };
+        return $http.patch('api/ballots', { changedFields: changedFields, tv_group_ballot_id: tv_group_ballot.id});
+      } else {
+        return new Promise(function(resolve) {
+          resolve();
+        });
+      }
+    }
 
     self.cancel = function() {
       $uibModalInstance.dismiss();

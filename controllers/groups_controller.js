@@ -632,6 +632,13 @@ exports.addBallot = function(request, response) {
   db.executeQueryWithResults(response, sql, values);
 };
 
+exports.editBallot = function(request, response) {
+  const changedFields = request.body.changedFields;
+  const tvGroupBallotId = request.body.tv_group_ballot_id;
+
+  db.updateObjectWithChangedFields(response, changedFields, "tv_group_ballot", tvGroupBallotId);
+};
+
 exports.submitVote = function(request, response) {
   const vote = request.body.vote;
 
