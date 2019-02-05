@@ -20,6 +20,9 @@
         Rating: <rating-box value="ctrl.series.group_score"
                                 max-value="100"></rating-box>
       </div>
+      <div class="row" style="margin-top: 20px" ng-show="ctrl.getOutstandingVoteCount() > 0">
+        Votes Left: <span ng-bind="ctrl.getOutstandingVoteCount() + ' / ' + ctrl.group.members.length"></span>
+      </div>
       <div class="row" style="margin-top: 20px" ng-show="ctrl.debugOn">
         Aired: <span ng-bind="ctrl.series.aired_episodes"></span><br><br>
         Unwatched: <span ng-bind="ctrl.series.unwatched_all"></span><br><br>

@@ -77,10 +77,21 @@ angular.module('mediaMogulApp')
       return "";
     };
 
+    // BALLOT HELPERS
+
+    function getBallotForShow() {
+      return _.findWhere(self.series.ballots, {voting_closed: null});
+    }
+
+    self.getOutstandingVoteCount = function() {
+      const ballot = getBallotForShow();
+      return ArrayService.exists(ballot) ?
+        group.members.length - ballot.votes.length :
+        0;
+    };
+
     self.hasOpenBallot = function() {
-      return ArrayService.exists(_.find(self.series.ballots, function(ballot) {
-        return !ArrayService.exists(ballot.voting_closed);
-      }));
+      return ArrayService.exists(getBallotForShow());
     };
 
     function updateSeasonLabels() {
