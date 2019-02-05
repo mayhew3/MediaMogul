@@ -94,7 +94,7 @@ function GamesService($log, $http, LockService, ArrayService) {
 
   this.addGame = function(game) {
     $log.debug("Adding game " + JSON.stringify(game));
-    $http.post('/api/addgame', {game: game}).then(function() {
+    $http.post('/api/addgame', {game: game, PersonId: LockService.person_id}).then(function() {
       self.updateRating(game);
       $log.debug(game.title + " updated to rating: " + game.FullRating);
       games.push(game);

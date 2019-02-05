@@ -68,24 +68,23 @@ exports.addGame = function(request, response) {
   console.log("Adding game with " + JSON.stringify(game));
   console.log("User: " + request.user);
 
-  var sql = "INSERT INTO game (title, platform, date_added) " +
-    "VALUES ($1, $2, $3, $4, $5) " +
+  const sql = "INSERT INTO game (title, platform) " +
+    "VALUES ($1, $2) " +
     "RETURNING id ";
-  var values =
+  const values =
     [game.title,
-    game.platform,
-    game.date_added];
+    game.platform];
 
   console.log("SQL: " + sql);
   console.log("Values: " + values);
 
-  db.selectWithJSON(response, sql, values).then(function(results) {
+  db.selectWithJSON(sql, values).then(function(results) {
     var game_id = results[0].id;
 
     var sql = "INSERT INTO person_game (game_id, person_id, rating, tier, minutes_played)" +
-      "VALUES ($1, $2, $3, 2, 0)";
+      "VALUES ($1, $2, $3, $4, $5)";
     var values = [
-      game_id, person_id, game.rating
+      game_id, person_id, game.rating, 2, 0
     ];
     db.executeQueryNoResults(response, sql, values);
   });
