@@ -15,9 +15,10 @@ exports.getGames = function (request, response) {
     'INNER JOIN person_game pg ' +
     '  ON pg.game_id = g.id ' +
     'WHERE pg.person_id = $1 ' +
+    'AND pg.retired = $2 ' +
     'ORDER BY g.metacritic DESC, pg.minutes_played DESC, g.date_added DESC';
 
-  return db.executeQueryWithResults(response, sql, [person_id]);
+  return db.executeQueryWithResults(response, sql, [person_id, 0]);
 };
 
 exports.getGamesWithPossibleMatchInfo = function(request, response) {
