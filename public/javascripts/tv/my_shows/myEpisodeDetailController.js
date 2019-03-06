@@ -61,6 +61,8 @@ angular.module('mediaMogulApp')
                 resolve(result);
               });
             }
+          } else {
+            resolve();
           }
         });
       };
@@ -155,6 +157,8 @@ angular.module('mediaMogulApp')
         if (isNotEmpty(changedFields) && LockService.isAdmin()) {
           return EpisodeService.updateEpisode(self.episode.id, changedFields);
         }
+        
+        return new Promise((resolve) => resolve());
       }
 
       function isNotEmpty(obj) {
@@ -211,8 +215,10 @@ angular.module('mediaMogulApp')
       self.updateAndClose = function() {
         self.updateOrAddRating()
           .then(function (response) {
-            episode.rating_id = response.data.rating_id;
-            series.dynamic_rating = response.data.dynamic_rating;
+            if (response) {
+              episode.rating_id = response.data.rating_id;
+              series.dynamic_rating = response.data.dynamic_rating;
+            }
             return updateWatchedStatus();
           }).then(function () {
           updateEpisodeFields();
