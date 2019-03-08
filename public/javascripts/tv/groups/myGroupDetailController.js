@@ -121,6 +121,17 @@ angular.module('mediaMogulApp')
         pageLimit: 8
       },
       {
+        headerText: "All",
+        sort: {
+          field: 'group_score',
+          direction: 'desc'
+        },
+        tvFilter: allVotedFilter,
+        posterSize: 'large',
+        badgeField: 'unwatched_all',
+        pageLimit: 8
+      },
+      {
         headerText: "Up to Date",
         tvFilter: upToDateFilter,
         posterSize: 'small',
@@ -156,6 +167,11 @@ angular.module('mediaMogulApp')
 
     function upForVoteFilter(series) {
       return isAwaitingMyVote(series);
+    }
+
+    function allVotedFilter(series) {
+      return !hasOpenBallots(series) &&
+          hasUnwatchedEpisodes(series);
     }
 
     function awaitingVotesFilter(series) {
