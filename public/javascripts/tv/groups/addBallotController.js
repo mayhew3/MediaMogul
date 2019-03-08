@@ -6,7 +6,13 @@ angular.module('mediaMogulApp')
     self.LockService = LockService;
     self.DateService = DateService;
     self.series = series;
-    self.reason = null;
+    self.reason = "To Start";
+    self.possibleReasons = [
+      "To Start",
+      "Post-Buffet",
+      "New Season",
+      "Absence Refresh"
+    ];
 
     self.canSubmit = function() {
       return ArrayService.exists(self.reason);

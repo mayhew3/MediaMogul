@@ -13,10 +13,11 @@
 
     <div class="row">
       <div class="col-lg-8">
-        <input type="text"
-               class="darkInput form-control"
-               placeholder="Reason"
-               ng-model="ctrl.reason">
+        <label for="reasonInput">Reason</label>
+        <select id="reasonInput"
+                ng-model="ctrl.reason"
+                ng-options="x for x in ctrl.possibleReasons"
+                class="form-control darkInput"></select>
       </div>
     </div>
 
