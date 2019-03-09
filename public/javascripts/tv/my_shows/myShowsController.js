@@ -52,33 +52,37 @@ angular.module('mediaMogulApp')
     };
 
     self.addTimerForNextAirDate = function() {
-      const airDates = _.pluck(_.filter(self.series, self.allUnaired), 'nextAirDate');
-      const nextAirDate = _.min(airDates);
+      $http.get('api/nextAired', {params: {person_id: LockService.person_id}}).then(function(results) {
+        self.nextShowsToUpdate = results.data.shows;
+        if (self.nextShowsToUpdate.length > 0) {
+          const nextAirDate = new Date(results.data.air_time);
+          const delay = nextAirDate - Date.now();
 
-      if (nextAirDate) {
-        self.nextShowsToUpdate = _.where(self.series, {nextAirDate: nextAirDate});
-        const delay = nextAirDate - Date.now();
+          console.log("Adding timeout for " + self.nextShowsToUpdate.length + " shows, " + formatAirTime(nextAirDate));
 
-        console.log("Adding timeout for " + self.nextShowsToUpdate[0].title + ", " + formatAirTime(nextAirDate));
-
-        self.nextTimeout = $timeout(function() {
-          console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
-          _.forEach(self.nextShowsToUpdate, function(show) {
-            console.log(' - Updating show ' + show.title);
-            show.unwatched_all = show.unwatched_all + 1;
-            show.first_unwatched = show.nextAirDate;
-            show.nextAirDate = undefined;
-            show.nextAirDateFormatted = undefined;
+          self.nextTimeout = $timeout(function() {
+            console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
+            _.forEach(self.nextShowsToUpdate, function(show) {
+              const series_id = parseInt(show.series_id);
+              const series = _.findWhere(self.series, {id: series_id});
+              console.log(' - Updating show ' + series.title);
+              series.unwatched_all += show.episode_count;
+              series.first_unwatched = nextAirDate;
+              series.nextAirDate = show.next_air_time ? new Date(show.next_air_time) : undefined;
+            });
+            self.nextTimeout = undefined;
+            self.nextShowsToUpdate = [];
+            self.addTimerForNextAirDate();
+          }, delay);
+          $scope.$on('$destroy', function() {
+            console.log("Destroying timer.");
+            $timeout.cancel(self.nextTimeout);
           });
-          self.nextTimeout = undefined;
-          self.nextShowsToUpdate = [];
-          self.addTimerForNextAirDate();
-        }, delay);
-        $scope.$on('$destroy', function() {
-          console.log("Destroying timer.");
-          $timeout.cancel(self.nextTimeout);
-        });
-      }
+        } else {
+          console.log("No shows in collection found with upcoming air time!");
+        }
+      });
+
     };
 
     function airedRecently(series) {
