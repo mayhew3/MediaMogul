@@ -1,6 +1,7 @@
 angular.module('mediaMogulApp')
-  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http', 'ArrayService', '$scope',
-  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope) {
+  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
+    '$http', 'ArrayService', '$scope', '$timeout',
+  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout) {
     var self = this;
 
     self.LockService = LockService;
@@ -60,7 +61,7 @@ angular.module('mediaMogulApp')
 
         console.log("Adding timeout for " + self.nextShowsToUpdate[0].title + ", " + formatAirTime(nextAirDate));
 
-        self.nextTimeout = setTimeout(function () {
+        self.nextTimeout = $timeout(function() {
           console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
           _.forEach(self.nextShowsToUpdate, function(show) {
             console.log(' - Updating show ' + show.title);
@@ -68,12 +69,15 @@ angular.module('mediaMogulApp')
             show.first_unwatched = show.nextAirDate;
             show.nextAirDate = undefined;
             show.nextAirDateFormatted = undefined;
-            $scope.$apply();
           });
           self.nextTimeout = undefined;
           self.nextShowsToUpdate = [];
           self.addTimerForNextAirDate();
         }, delay);
+        $scope.$on('$destroy', function() {
+          console.log("Destroying timer.");
+          $timeout.cancel(self.nextTimeout);
+        });
       }
     };
 
