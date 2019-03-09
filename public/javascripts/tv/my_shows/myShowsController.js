@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http', 'ArrayService',
-  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService) {
+  .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http', 'ArrayService', '$scope',
+  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope) {
     var self = this;
 
     self.LockService = LockService;
@@ -20,6 +20,9 @@ angular.module('mediaMogulApp')
     self.currentPageNewSeason = 1;
     self.currentPageToStart = 1;
     self.pageSize = 12;
+
+    self.nextTimeout = undefined;
+    self.nextShowsToUpdate = [];
 
     self.isActive = function(pillName) {
       return (pillName === self.selectedPill) ? "active" : null;
@@ -41,6 +44,37 @@ angular.module('mediaMogulApp')
       return dateIsInNextDays(series.nextAirDate, 7) &&
         (!hasUnwatchedEpisodes(series) ||
         self.showInQueue(series));
+    };
+
+    self.allUnaired = function(series) {
+      return ArrayService.exists(series.nextAirDate) && series.nextAirDate > Date.now();
+    };
+
+    self.addTimerForNextAirDate = function() {
+      const airDates = _.pluck(_.filter(self.series, self.allUnaired), 'nextAirDate');
+      const nextAirDate = _.min(airDates);
+
+      if (nextAirDate) {
+        self.nextShowsToUpdate = _.where(self.series, {nextAirDate: nextAirDate});
+        const delay = nextAirDate - Date.now();
+
+        console.log("Adding timeout for " + self.nextShowsToUpdate[0].title + ", " + formatAirTime(nextAirDate));
+
+        self.nextTimeout = setTimeout(function () {
+          console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
+          _.forEach(self.nextShowsToUpdate, function(show) {
+            console.log(' - Updating show ' + show.title);
+            show.unwatched_all = show.unwatched_all + 1;
+            show.first_unwatched = show.nextAirDate;
+            show.nextAirDate = undefined;
+            show.nextAirDateFormatted = undefined;
+            $scope.$apply();
+          });
+          self.nextTimeout = undefined;
+          self.nextShowsToUpdate = [];
+          self.addTimerForNextAirDate();
+        }, delay);
+      }
     };
 
     function airedRecently(series) {
@@ -294,6 +328,7 @@ angular.module('mediaMogulApp')
             ArrayService.refreshArray(self.series_requests, results.data);
           });
         }
+        self.addTimerForNextAirDate();
       });
     };
     self.refreshSeriesList();

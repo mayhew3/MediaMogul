@@ -75,6 +75,8 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
+
+
   this.updateNotMyShowsList = function() {
     return $http.get('/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
       $log.debug("Shows returned " + response.data.length + " items.");
@@ -202,7 +204,8 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
 
   self.formatNextAirDate = function(show) {
     if (!_.isUndefined(show.nextAirDate) && !_.isNull(show.nextAirDate)) {
-      show.nextAirDateFormatted = self.formatAirTime(new Date(show.nextAirDate));
+      show.nextAirDate = new Date(show.nextAirDate);
+      show.nextAirDateFormatted = self.formatAirTime(show.nextAirDate);
     }
   };
 
@@ -268,7 +271,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   };
 
   this.updateNextAirDate = function(series, episode) {
-    series.nextAirDate = episode.air_time === null ? episode.air_date : episode.air_time;
+    series.nextAirDate = episode.air_time === null ? new Date(episode.air_date) : new Date(episode.air_time);
     var combinedDate = self.getAirTime(episode);
     series.nextAirDateFormatted = self.formatAirTime(combinedDate);
   };
