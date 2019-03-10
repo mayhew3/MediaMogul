@@ -189,7 +189,7 @@ exports.getMyShows = function(request, response) {
 };
 
 exports.getNextAiredInfo = function(request, response) {
-  const sql = 'SELECT e.* ' +
+  const sql = 'SELECT e.series_id, e.air_time ' +
     'FROM episode e ' +
     'INNER JOIN series s ' +
     '  ON e.series_id = s.id ' +
@@ -204,7 +204,7 @@ exports.getNextAiredInfo = function(request, response) {
   db.selectWithJSON(sql, [request.query.person_id, 0]).then(function (results) {
     if (results.length > 0) {
       const earliestTime = results[0].air_time;
-      const earliestEpisodes = _.where(results, {air_time: earliestTime});
+      const earliestEpisodes = _.filter(results, episode => episode.air_time.getTime() === earliestTime.getTime());
       const groupedBySeries = _.groupBy(earliestEpisodes, 'series_id');
 
       const resultObjects = [];
