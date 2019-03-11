@@ -55,6 +55,11 @@ angular.module('mediaMogulApp')
       $http.get('api/nextAired', {params: {person_id: LockService.person_id}}).then(function(results) {
         self.nextShowsToUpdate = results.data.shows;
         if (self.nextShowsToUpdate.length > 0) {
+          if (self.nextTimeout) {
+            $timeout.cancel(self.nextTimeout);
+            self.nextTimeout = undefined;
+          }
+          
           const nextAirDate = new Date(results.data.air_time);
           const delay = nextAirDate - Date.now();
 
@@ -70,6 +75,7 @@ angular.module('mediaMogulApp')
               series.first_unwatched = nextAirDate;
               series.nextAirDate = show.next_air_time ? new Date(show.next_air_time) : undefined;
             });
+            $timeout.cancel(self.nextTimeout);
             self.nextTimeout = undefined;
             self.nextShowsToUpdate = [];
             self.addTimerForNextAirDate();
