@@ -172,6 +172,7 @@
              name="review"
              ng-disabled="ctrl.skipRating"
              rows="5"
+             ng-model-options="{ updateOn: 'blur' }"
              ng-required="false"
              ng-model="ctrl.interfaceRating.review"></textarea>
 
