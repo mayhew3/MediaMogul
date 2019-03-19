@@ -7,6 +7,7 @@ angular.module('mediaMogulApp')
     self.LockService = LockService;
 
     self.series = [];
+    self.pendingShows = [];
 
     self.tiers = [1, 2, 3, 4, 5];
     self.unwatchedOnly = true;
@@ -103,6 +104,11 @@ angular.module('mediaMogulApp')
       return dateIsWithinLastDays(series.date_added, 8);
     }
 
+    self.showFetchingEpisodes = function(series) {
+      return self.LockService.isAdmin() ||
+          (series.person_id && series.person_id === self.LockService.person_id);
+    };
+
     self.ratingsPending = function(series) {
       return series.rating_pending_episodes > 0;
     };
@@ -177,6 +183,17 @@ angular.module('mediaMogulApp')
     };
 
     /* DASHBOARD INFOS */
+
+    self.pendingDashboardInfo = {
+      headerText: "Fetching Episodes",
+      tvFilter: self.showFetchingEpisodes,
+      posterSize: 'small',
+      sort: {
+        field: 'dynamic_rating',
+        direction: 'desc'
+      },
+      panelFormat: 'panel-warning'
+    };
 
     self.dashboardInfos = [
       {
@@ -344,6 +361,9 @@ angular.module('mediaMogulApp')
         }
         self.addTimerForNextAirDate();
       });
+      EpisodeService.updateMyPendingShowsList().then(function() {
+        ArrayService.refreshArray(self.pendingShows, EpisodeService.getPendingShowsList());
+      })
     };
     self.refreshSeriesList();
 
@@ -353,6 +373,7 @@ angular.module('mediaMogulApp')
 
     function removeFromRequests(seriesRequest) {
       removeFromArray(self.series_requests, seriesRequest);
+      self.pendingShows.push(seriesRequest);
     }
 
     function removeFromArray(arr, element) {
@@ -452,7 +473,8 @@ angular.module('mediaMogulApp')
           },
           postAddCallback: function() {
             return function(show) {
-              // no-op
+              EpisodeService.addToPendingShows(show);
+              self.pendingShows.push(show);
             }
           }
         }

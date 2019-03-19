@@ -21,6 +21,7 @@
                    name="newSeriesTitle"
                    placeholder="Series Name"
                    ng-required="true"
+                   ng-model-options="{ updateOn: 'blur' }"
                    ng-change="ctrl.updateShowExists()"
                    ng-model="ctrl.series.title"/>
             <span class="input-group-btn">

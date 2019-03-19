@@ -1,6 +1,7 @@
 function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   var shows = [];
   var myShows = [];
+  var myPendingShows = [];
   var notMyShows = [];
   var episodes = [];
   var episodeGroupRatings = [];
@@ -75,7 +76,15 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
+  this.updateMyPendingShowsList = function() {
+    return $http.get('/myPendingShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
+      $log.debug("Shows returned " + response.data.length + " items.");
+      myPendingShows = response.data;
 
+    }, function (errResponse) {
+      console.error('Error while fetching series list: ' + errResponse);
+    });
+  };
 
   this.updateNotMyShowsList = function() {
     return $http.get('/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
@@ -508,6 +517,14 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
 
   this.getSeriesList = function() {
     return shows;
+  };
+
+  this.getPendingShowsList = function() {
+    return myPendingShows;
+  };
+
+  this.addToPendingShows = function(series) {
+    myPendingShows.push(series);
   };
 
   this.getMyShows = function() {

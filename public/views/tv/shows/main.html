@@ -3,6 +3,12 @@
           panel-info="ctrl.seriesRequestPanel"
           series-detail-open="ctrl.reviewRequest"></tv-panel>
 
+
+<!--suppress JSUnusedLocalSymbols -->
+<tv-panel ng-show="ctrl.LockService.isUser()"
+          shows="ctrl.pendingShows"
+          panel-info="ctrl.pendingDashboardInfo"></tv-panel>
+
 <!--suppress JSUnusedLocalSymbols -->
 <div ng-repeat="panel in ctrl.dashboardInfos">
   <tv-panel shows="ctrl.series"

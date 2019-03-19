@@ -42,6 +42,30 @@ exports.addPerson = function(request, response) {
   return db.executeQueryWithResults(response, sql, values);
 };
 
+exports.getMyPendingShows = function(request, response) {
+  var personId = request.query.PersonId;
+  console.log("Server call: Person " + personId);
+
+  var sql = "SELECT s.id, " +
+      "s.title, " +
+      "s.metacritic, " +
+      "s.tvdb_series_id, " +
+      "s.tvdb_manual_queue, " +
+      "s.last_tvdb_update, " +
+      "s.last_tvdb_error, " +
+      "s.poster, " +
+      "s.person_id " +
+      "FROM series s " +
+      "WHERE s.suggestion = $1 " +
+      "AND s.tvdb_match_status = $2 " +
+      "AND s.retired = $3 ";
+  var values = [
+    false, 'Match Confirmed', 0
+  ];
+
+  db.executeQueryWithResults(response, sql, values);
+};
+
 exports.getMyShows = function(request, response) {
   var personId = request.query.PersonId;
   console.log("Server call: Person " + personId);
