@@ -100,13 +100,15 @@ angular.module('mediaMogulApp')
     self.originalFields = {
       rating: self.episodeGroup.rating,
       review: self.episodeGroup.review,
-      review_update_date: self.episodeGroup.review_update_date == null ? null : new Date(self.episodeGroup.review_update_date)
+      review_update_date: self.episodeGroup.review_update_date == null ? null : new Date(self.episodeGroup.review_update_date),
+      post_update_episodes: self.episodeGroup.post_update_episodes
     };
 
     self.interfaceFields = {
       rating: self.episodeGroup.rating,
       review: self.episodeGroup.review,
-      review_update_date: self.episodeGroup.review_update_date == null ? null : new Date(self.episodeGroup.review_update_date)
+      review_update_date: self.episodeGroup.review_update_date == null ? null : new Date(self.episodeGroup.review_update_date),
+      post_update_episodes: self.episodeGroup.post_update_episodes
     };
 
 
@@ -174,16 +176,19 @@ angular.module('mediaMogulApp')
       }
 
       if (episodeGroup.review !== self.interfaceFields.review) {
-        console.log("Review changed. Updating review_update_date")
+        console.log("Review changed. Updating review_update_date");
         self.interfaceFields.review_update_date = new Date;
+        self.interfaceFields.post_update_episodes = 0;
       }
-
-      episodeGroup.rating = self.interfaceFields.rating;
-      episodeGroup.review = self.interfaceFields.review;
 
       var changedFields = self.getChangedFields();
       if (Object.keys(changedFields).length > 0) {
-        return EpisodeService.updateEpisodeGroupRating(self.episodeGroup.id, changedFields);
+        return EpisodeService.updateEpisodeGroupRating(self.episodeGroup.id, changedFields).then(function() {
+          episodeGroup.rating = self.interfaceFields.rating;
+          episodeGroup.review = self.interfaceFields.review;
+          episodeGroup.review_update_date = self.interfaceFields.review_update_date;
+          episodeGroup.post_update_episodes = self.interfaceFields.post_update_episodes;
+        });
       }
       return new Promise(function(resolve) {
         return resolve();
