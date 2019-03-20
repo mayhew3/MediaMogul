@@ -10,6 +10,16 @@ angular.module('mediaMogulApp')
 
       self.timeAgo = function(timeThing) {
         return timeThing ? moment(timeThing).fromNow() : '';
+      };
+
+      self.getLastConnect = function(service) {
+        return self.timeAgo(service.last_connect);
+      };
+
+      self.getLastFailure = function(service) {
+        return new Date(service.last_connect) > new Date(service.last_failure) ?
+          '' :
+          self.timeAgo(service.last_failure);
       }
     }
   ]);
