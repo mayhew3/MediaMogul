@@ -1,16 +1,30 @@
 angular.module('mediaMogulApp')
-  .service('ExternalServicesService', ['$log', '$http', 'ArrayService',
-    function($log, $http, ArrayService) {
+  .service('ExternalServicesService', ['$log', '$http', 'ArrayService', '$timeout',
+    function($log, $http, ArrayService, $timeout) {
       const self = this;
 
       self.externalServices = [];
+      self.nextTimeout = undefined;
 
       self.updateExternalServices = function() {
+        console.log('Updating external services.');
         return $http.get('/api/services').then(function(response) {
           ArrayService.refreshArray(self.externalServices, response.data);
+
+          if (self.nextTimeout) {
+            $timeout.cancel(self.nextTimeout);
+            self.nextTimeout = undefined;
+          }
+
+          console.log("Setting new timer...");
+
+          self.nextTimeout = $timeout(self.updateExternalServices, 1000 * 15);
+
         });
       };
       self.updateExternalServices();
+
+
 
       self.getThresholdTime = function(service) {
         if (service.service_name === 'tvdb') {
