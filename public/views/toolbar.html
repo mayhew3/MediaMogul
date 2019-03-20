@@ -26,7 +26,12 @@
       <ul class="nav navbar-nav navbar-right">
         <li class="navbar-text" ng-show="toolbar.LockService.isAuthenticated" ng-bind="'Hi, ' + toolbar.LockService.firstName + '!'"></li>
         <li ng-class="toolbar.getLinkClass('Admin')" ng-show="toolbar.LockService.isAdmin()">
-          <a ui-sref="admin.tv.tvdb">Admin</a>
+          <a ui-sref="admin.services">
+            Admin
+            <span class="badge pillTabRed"
+                  ng-show="toolbar.getNumberOfOverdueServices() > 0"
+                  ng-bind="toolbar.getNumberOfOverdueServices()"></span>
+          </a>
         </li>
         <li ng-show="toolbar.LockService.isAuthenticated">
           <a href="#" ng-click="toolbar.logout()">Sign Out</a>

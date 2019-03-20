@@ -6,10 +6,12 @@ angular.module('mediaMogulApp')
       self.LockService = LockService;
       self.ExternalServicesService = ExternalServicesService;
 
-      self.ExternalServicesService.updateExternalServices();
-
       self.timeAgo = function(timeThing) {
         return timeThing ? moment(timeThing).fromNow() : '';
+      };
+
+      self.getRowClass = function(service) {
+        return self.ExternalServicesService.needsWarning(service) ? 'externalServiceFailRow' : '';
       };
 
       self.getLastConnect = function(service) {

@@ -19,7 +19,8 @@
           <th>Last Failed</th>
         </tr>
         </thead>
-        <tr data-ng-repeat="externalService in ctrl.ExternalServicesService.externalServices">
+        <tr data-ng-repeat="externalService in ctrl.ExternalServicesService.externalServices"
+            ng-class="ctrl.getRowClass(externalService)">
           <td ng-bind="externalService.service_name"></td>
           <td ng-bind="ctrl.getLastConnect(externalService)"></td>
           <td ng-bind="ctrl.getLastFailure(externalService)"></td>

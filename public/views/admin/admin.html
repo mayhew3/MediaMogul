@@ -10,11 +10,16 @@
 
   <div class="container col-lg-12">
     <ul class="nav nav-tabs">
+      <li ui-sref="admin.services" ui-sref-active="active">
+        <a>
+          Services
+          <span class="badge pillTabRed"
+                ng-show="ctrl.getNumberOfOverdueServices() > 0"
+                ng-bind="ctrl.getNumberOfOverdueServices()"></span>
+        </a>
+      </li>
       <li ui-sref="admin.tv.tvdb" ui-sref-active="active">
         <a>TV</a>
-      </li>
-      <li ui-sref="admin.services" ui-sref-active="active">
-        <a>Services</a>
       </li>
     </ul>
   </div>
