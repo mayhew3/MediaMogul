@@ -1,5 +1,6 @@
 module.exports = function(app) {
   var jwt = require('express-jwt');
+  var admin = require('../controllers/admin_controller');
   var games = require('../controllers/games_controller');
   var series = require('../controllers/series_controller');
   var persons = require('../controllers/person_controller');
@@ -39,11 +40,14 @@ module.exports = function(app) {
   app.get('/seriesViewingLocations', authCheck, series.getSeriesViewingLocations);
   app.get('/unmatchedEpisodes', authCheck, series.getUnmatchedEpisodes);
   app.get('/upcomingEpisodes', authCheck, series.getUpcomingEpisodes);
-  app.get('/tvdbErrors', authCheck, series.getTVDBErrors);
   app.get('/ratingYears', authCheck, series.getAllRatingYears);
   app.get('/api/tvdbMatches', authCheck, series.getTVDBMatches);
   app.get('/api/tvdbIDs', authCheck, series.getMatchedTVDBIDs);
 
+  // ADMIN
+  app.get('/tvdbErrors', authCheck, admin.getTVDBErrors);
+  app.get('/api/services', authCheck, admin.getExternalServices);
+  
   // API for iOS app
   app.get('/primeTV', authCheck, series.getPrimeTV);
   app.get('/primeSeriesInfo', authCheck, series.getPrimeSeriesInfo);

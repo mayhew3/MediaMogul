@@ -233,16 +233,6 @@ exports.getUnmatchedEpisodes = function(req, response) {
   return db.executeQueryWithResults(response, sql, [req.query.TiVoSeriesId, 0, false]);
 };
 
-exports.getTVDBErrors = function(req, response) {
-  console.log("TVDB Errors request received.");
-
-  var sql = 'SELECT * ' +
-    'FROM tvdb_update_error ' +
-    'ORDER BY id DESC ';
-
-  return db.executeQueryWithResults(response, sql, []);
-};
-
 exports.getPrimeTV = function(req, response) {
   console.log("PrimeTV endpoint called.");
 
