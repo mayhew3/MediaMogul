@@ -21,8 +21,8 @@
         </thead>
         <tr data-ng-repeat="externalService in ctrl.ExternalServicesService.externalServices">
           <td ng-bind="externalService.service_name"></td>
-          <td ng-bind="externalService.last_connect|date:'MM.dd.yy'"></td>
-          <td ng-bind="externalService.last_failure|date:'MM.dd.yy'"></td>
+          <td ng-bind="ctrl.timeAgo(externalService.last_connect)"></td>
+          <td ng-bind="ctrl.timeAgo(externalService.last_failure)"></td>
         </tr>
       </table>
     </div>

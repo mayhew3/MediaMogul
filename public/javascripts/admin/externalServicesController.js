@@ -7,5 +7,9 @@ angular.module('mediaMogulApp')
       self.ExternalServicesService = ExternalServicesService;
 
       self.ExternalServicesService.updateExternalServices();
+
+      self.timeAgo = function(timeThing) {
+        return timeThing ? moment(timeThing).fromNow() : '';
+      }
     }
   ]);
