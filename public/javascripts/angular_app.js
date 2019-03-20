@@ -129,6 +129,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         })
         .state('admin', {
           url: '/admin',
+          controller: 'adminTopController',
+          controllerAs: 'ctrl',
           templateUrl: 'views/admin/admin.html'
         })
         .state('admin.tv', {
