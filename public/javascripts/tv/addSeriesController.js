@@ -38,7 +38,6 @@ angular.module('mediaMogulApp')
       self.alternateText = "Retrieving matches...";
       $http.get('/api/tvdbMatches', {params: {series_name: self.series.title}}).then(function(results) {
         ArrayService.refreshArray(self.tvdb_matches, results.data);
-        self.tvdb_matches.forEach(updatePosterLocation);
         if (self.tvdb_matches.length > 0) {
           self.alternateText = null;
           self.selectedShow = _.find(self.tvdb_matches, function(show) {
@@ -81,15 +80,6 @@ angular.module('mediaMogulApp')
       if (!TVDBIDAlreadyExists(show)) {
         self.selectedShow = show;
       }
-    }
-
-    function updatePosterLocation(show) {
-      show.imageDoesNotExist = !show.poster;
-      show.posterResolved = amendPosterLocation(show.poster);
-    }
-
-    function amendPosterLocation(posterPath) {
-      return posterPath ? 'https://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
     }
 
     self.getButtonClass = function(tier) {

@@ -54,6 +54,7 @@ exports.getMyPendingShows = function(request, response) {
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
       "s.poster, " +
+      "s.cloud_poster, " +
       "s.person_id " +
       "FROM series s " +
       "WHERE s.suggestion = $1 " +
@@ -100,6 +101,7 @@ exports.getMyShows = function(request, response) {
     "s.last_tvdb_update, " +
     "s.last_tvdb_error, " +
     "s.poster, " +
+    "s.cloud_poster, " +
     "s.air_time, " +
     "s.trailer_link, " +
     "s.tivo_series_v2_ext_id, " +
@@ -428,7 +430,7 @@ function stoppedMidseason(nextEpisode) {
 
 exports.getShowBasicInfo = function(request, response) {
   var sql =
-    "SELECT id, title, poster " +
+    "SELECT id, title, poster, cloud_poster " +
     "FROM series " +
     "WHERE retired = $1";
 

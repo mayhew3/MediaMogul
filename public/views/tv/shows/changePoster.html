@@ -7,10 +7,9 @@
   <div class="fade-repeat col-lg-3 posterRow" ng-repeat="poster in ctrl.allPosters">
     <img class="img-rounded"
          ng-style="ctrl.posterStyle(poster)"
-         ng-src="{{poster.posterResolved}}"
+         ng-src="{{ctrl.tvdbPosterPath(poster)}}"
          ng-click="ctrl.selectPoster(poster)"
          width="100%"/>
-    <h4 ng-bind="poster.poster_path"></h4>
   </div>
 
 </div>

@@ -148,7 +148,6 @@ angular.module('mediaMogulApp')
       $http.get('/api/groupShows', {params: {tv_group_id: self.group.id}}).then(function(results) {
         ArrayService.refreshArray(self.shows, results.data);
         self.shows.forEach(function(show) {
-          updatePosterLocation(show);
           if (!ArrayService.exists(show.unwatched_all)) {
             show.unwatched_all = 0;
           }
@@ -338,15 +337,6 @@ angular.module('mediaMogulApp')
 
     function isTrue(object) {
       return ArrayService.exists(object) && object === true;
-    }
-
-    function updatePosterLocation(show) {
-      show.imageDoesNotExist = !show.poster;
-      show.posterResolved = amendPosterLocation(show.poster);
-    }
-
-    function amendPosterLocation(posterPath) {
-      return posterPath ? 'https://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
     }
 
     function addShowToGroupCollection(show) {

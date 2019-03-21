@@ -67,7 +67,7 @@ angular.module('mediaMogulApp')
           var tempShows = response.data;
           tempShows.forEach(function (show) {
             show.metacritic = parseInt(show.metacritic);
-            updatePosterLocation(show);
+            EpisodeService.updatePosterLocation(show);
           });
           $log.debug("Finished updating.");
           self.series = tempShows;
@@ -75,15 +75,6 @@ angular.module('mediaMogulApp')
         }, function (errResponse) {
           console.error('Error while fetching series list: ' + errResponse);
         });
-      }
-
-      function updatePosterLocation(show) {
-        show.imageDoesNotExist = !show.poster;
-        show.posterResolved = amendPosterLocation(show.poster);
-      }
-
-      function amendPosterLocation(posterPath) {
-        return posterPath ? 'https://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
       }
 
       self.posterStyle = function(series) {

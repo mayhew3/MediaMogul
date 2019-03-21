@@ -264,6 +264,78 @@ angular.module('mediaMogulApp')
 
     ];
 
+    self.continuePanels = [
+      {
+        headerText: 'Continue',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.continuePinned,
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
+      },
+      {
+        headerText: 'Backlog',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.continueBacklog,
+        posterSize: 'large',
+        badgeField: 'unwatched_all',
+        pageLimit: 12
+      }
+    ];
+
+    self.newSeasonPanels = [
+      {
+        headerText: 'New Season',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.newSeasonPinned,
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
+      },
+      {
+        headerText: 'Backlog',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.newSeasonBacklog,
+        posterSize: 'large',
+        badgeField: 'unwatched_all',
+        pageLimit: 12
+      }
+    ];
+
+    self.toStartPanels = [
+      {
+        headerText: 'To Start',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.toStartPinned,
+        posterSize: 'large',
+        badgeField: 'unwatched_all'
+      },
+      {
+        headerText: 'Backlog',
+        sort: {
+          field: 'dynamic_rating',
+          direction: 'desc'
+        },
+        tvFilter: self.toStartBacklog,
+        posterSize: 'large',
+        badgeField: 'unwatched_all',
+        pageLimit: 12
+      }
+    ];
+
     self.seriesRequestPanel = {
       headerText: 'Series Requests',
       sort: {

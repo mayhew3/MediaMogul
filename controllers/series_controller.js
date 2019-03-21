@@ -114,7 +114,7 @@ exports.getEpisodeGroupRating = function(request, response) {
 exports.getEpisodeGroupRatings = function(request, response) {
   var year = request.query.Year;
 
-  var sql = 'SELECT s.title, s.poster, egr.* ' +
+  var sql = 'SELECT s.title, s.poster, s.cloud_poster, egr.* ' +
     'FROM episode_group_rating egr ' +
     'INNER JOIN series s ' +
     ' ON egr.series_id = s.id ' +
@@ -213,10 +213,11 @@ exports.getAllPosters = function(req, response) {
   var tvdbSeriesId = req.query.tvdb_series_id;
   console.log("All Posters call received. Params: {SeriesId: " + tvdbSeriesId + "}");
 
-  var sql = 'SELECT poster_path ' +
+  var sql = 'SELECT poster_path, cloud_poster ' +
     'FROM tvdb_poster ' +
     'WHERE tvdb_series_id = $1 ' +
-    'AND retired = $2 ';
+    'AND retired = $2 ' +
+    'ORDER BY id ';
   return db.executeQueryWithResults(response, sql, [tvdbSeriesId, 0]);
 };
 
@@ -241,6 +242,7 @@ exports.getPrimeTV = function(req, response) {
     'CASE WHEN ps.rating IS NULL THEN s.metacritic ELSE ps.rating END as my_rating, ' +
     's.metacritic, ' +
     's.poster, ' +
+    's.cloud_poster, ' +
     'ps.unwatched_episodes as unwatched, ' +
     'ps.first_unwatched ' +
     'FROM series s ' +

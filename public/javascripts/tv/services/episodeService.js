@@ -113,7 +113,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
       $log.debug("Shows returned " + showresponse.data.length + " items.");
       var tempShows = showresponse.data;
       tempShows.forEach(function (show) {
-        updatePosterLocation(show);
+        self.updatePosterLocation(show);
       });
       $log.debug("Finished updating.");
       shows = tempShows;
@@ -189,13 +189,12 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  function updatePosterLocation(show) {
-    show.imageDoesNotExist = !show.poster;
-    show.posterResolved = amendPosterLocation(show.poster);
-  }
+  self.updatePosterLocation = function(show) {
+    show.posterResolved = amendPosterLocation(show.cloud_poster);
+  };
 
   function amendPosterLocation(posterPath) {
-    return posterPath ? 'https://thetvdb.com/banners/' + posterPath : 'images/GenericSeries.gif';
+    return posterPath ? 'https://res.cloudinary.com/media-mogul/image/upload/' + posterPath : 'images/GenericSeries.gif';
   }
 
   this.updateNumericFields = function(show) {
@@ -208,7 +207,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     if (show.metacritic !== null) {
       show.metacritic = parseInt(show.metacritic);
     }
-    updatePosterLocation(show);
+    self.updatePosterLocation(show);
   };
 
   self.formatNextAirDate = function(show) {
@@ -485,7 +484,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
       $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
       allPosters = response.data;
       allPosters.forEach(function (poster) {
-        poster.posterResolved = amendPosterLocation(poster.poster_path);
+        poster.posterResolved = amendPosterLocation(poster.cloud_poster);
       });
     });
   };

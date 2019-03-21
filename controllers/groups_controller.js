@@ -113,7 +113,7 @@ exports.getGroupPersons = function(request, response) {
 exports.getGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
 
-  const sql = "SELECT s.id, s.title, s.metacritic, s.poster, tgs.date_added, tgs.id as tv_group_series_id, " +
+  const sql = "SELECT s.id, s.title, s.metacritic, s.poster, s.cloud_poster, tgs.date_added, tgs.id as tv_group_series_id, " +
     "s.metacritic AS group_score, " +
     "s.trailer_link, " +
     "(SELECT COUNT(1) " +
@@ -200,7 +200,7 @@ exports.getNotGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
   console.log("Server call 'getNotGroupShows': Group " + tv_group_id);
 
-  const sql = "SELECT s.id, s.metacritic, s.title, s.poster, s.tvdb_series_id, " +
+  const sql = "SELECT s.id, s.metacritic, s.title, s.poster, s.cloud_poster, s.tvdb_series_id, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
     "    where e.series_id = s.id " +

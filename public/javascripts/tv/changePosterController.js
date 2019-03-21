@@ -30,6 +30,10 @@ angular.module('mediaMogulApp')
         }
       };
 
+      self.tvdbPosterPath = function(poster) {
+        return poster.cloud_poster ? 'https://res.cloudinary.com/media-mogul/image/upload/' + poster.cloud_poster : 'images/GenericSeries.gif';
+      };
+
       self.selectPoster = function(poster) {
         self.selectedPoster = poster;
       };
@@ -38,10 +42,12 @@ angular.module('mediaMogulApp')
       self.ok = function() {
         if (self.selectedPoster.poster_path !== series.poster) {
           var changedFields = {
-            poster: self.selectedPoster.poster_path
+            poster: self.selectedPoster.poster_path,
+            cloud_poster: self.selectedPoster.cloud_poster
           };
           EpisodeService.updateSeries(series.id, changedFields).then(function() {
             series.poster = self.selectedPoster.poster_path;
+            series.cloud_poster = self.selectedPoster.cloud_poster;
             series.imageDoesNotExist = !series.poster;
             series.posterResolved = self.selectedPoster.posterResolved;
           });

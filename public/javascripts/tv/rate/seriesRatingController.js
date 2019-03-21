@@ -10,7 +10,7 @@ angular.module('mediaMogulApp')
 
     $log.debug("SeriesId: " + self.episodeGroup.series_id);
 
-    self.posterResolved = episodeGroup.poster ? 'https://thetvdb.com/banners/' + episodeGroup.poster : 'images/GenericSeries.gif';
+    self.posterResolved = episodeGroup.cloud_poster ? 'https://res.cloudinary.com/media-mogul/image/upload/' + episodeGroup.cloud_poster : 'images/GenericSeries.gif';
 
     self.episodes = [];
     self.possibleMatches = [];
