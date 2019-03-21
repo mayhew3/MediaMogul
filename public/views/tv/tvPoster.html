@@ -17,7 +17,7 @@
     <span ng-bind="ctrl.badgeValue()"></span>
   </div>
 
-  <div class="centeredInFrame posterTitle" ng-show="!ctrl.show.cloud_poster || ctrl.show.imageDoesNotExist">
+  <div class="centeredInFrame posterTitle" ng-show="ctrl.showTitleOverPoster()">
     <span ng-bind="ctrl.show.title"></span>
   </div>
 

@@ -94,6 +94,10 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(getBallotForShow());
     };
 
+    self.tvdbPosterPath = function() {
+      return EpisodeService.constructFullPosterLocation(self.series);
+    };
+
     function updateSeasonLabels() {
       self.episodes.forEach(function (episode) {
         var season = episode.season;

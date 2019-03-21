@@ -190,7 +190,17 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   };
 
   self.updatePosterLocation = function(show) {
-    show.posterResolved = amendPosterLocation(show.cloud_poster);
+    show.posterResolved = self.constructFullPosterLocation(show);
+  };
+
+  self.constructFullPosterLocation = function(show) {
+    if (show.cloud_poster) {
+      return 'https://res.cloudinary.com/media-mogul/image/upload/' + show.cloud_poster;
+    } else if (show.poster) {
+      return 'https://thetvdb.com/banners/' + show.poster;
+    } else {
+      return 'images/GenericSeries.gif';
+    }
   };
 
   function amendPosterLocation(posterPath) {

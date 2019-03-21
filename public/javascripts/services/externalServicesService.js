@@ -7,7 +7,7 @@ angular.module('mediaMogulApp')
       self.nextTimeout = undefined;
 
       self.updateExternalServices = function() {
-        console.log('Updating external services.');
+        // console.log('Updating external services.');
         return $http.get('/api/services').then(function(response) {
           ArrayService.refreshArray(self.externalServices, response.data);
 
@@ -16,7 +16,7 @@ angular.module('mediaMogulApp')
             self.nextTimeout = undefined;
           }
 
-          console.log("Setting new timer...");
+          // console.log("Setting new timer...");
 
           self.nextTimeout = $timeout(self.updateExternalServices, 1000 * 15);
 

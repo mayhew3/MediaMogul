@@ -29,11 +29,21 @@
     };
 
     self.tvdbPosterPath = function() {
-      return self.show.cloud_poster ? 'https://res.cloudinary.com/media-mogul/image/upload/' + self.show.cloud_poster : 'images/GenericSeries.gif';
+      if (self.show.cloud_poster) {
+        return 'https://res.cloudinary.com/media-mogul/image/upload/' + self.show.cloud_poster;
+      } else if (self.show.poster) {
+        return 'https://thetvdb.com/banners/' + self.show.poster;
+      } else {
+        return 'images/GenericSeries.gif';
+      }
     };
 
     self.alreadyExists = function() {
       return ArrayService.exists(self.posterInfo.alreadyExists) ? self.posterInfo.alreadyExists(self.show) : false;
+    };
+
+    self.showTitleOverPoster = function() {
+      return self.imageDoesNotExist || self.tvdbPosterPath() === 'images/GenericSeries.gif';
     };
 
     self.showNoTrailer = function() {

@@ -31,7 +31,13 @@ angular.module('mediaMogulApp')
       };
 
       self.tvdbPosterPath = function(poster) {
-        return poster.cloud_poster ? 'https://res.cloudinary.com/media-mogul/image/upload/' + poster.cloud_poster : 'images/GenericSeries.gif';
+        if (poster.cloud_poster) {
+          return 'https://res.cloudinary.com/media-mogul/image/upload/' + poster.cloud_poster;
+        } else if (poster.poster_path) {
+          return 'https://thetvdb.com/banners/' + poster.poster_path;
+        } else {
+          return 'images/GenericSeries.gif';
+        }
       };
 
       self.selectPoster = function(poster) {
@@ -49,7 +55,7 @@ angular.module('mediaMogulApp')
             series.poster = self.selectedPoster.poster_path;
             series.cloud_poster = self.selectedPoster.cloud_poster;
             series.imageDoesNotExist = !series.poster;
-            series.posterResolved = self.selectedPoster.posterResolved;
+            EpisodeService.updatePosterLocation(series);
           });
         }
         $uibModalInstance.close();

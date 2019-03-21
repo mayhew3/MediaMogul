@@ -10,8 +10,6 @@ angular.module('mediaMogulApp')
 
     $log.debug("SeriesId: " + self.episodeGroup.series_id);
 
-    self.posterResolved = episodeGroup.cloud_poster ? 'https://res.cloudinary.com/media-mogul/image/upload/' + episodeGroup.cloud_poster : 'images/GenericSeries.gif';
-
     self.episodes = [];
     self.possibleMatches = [];
 
@@ -37,6 +35,10 @@ angular.module('mediaMogulApp')
 
     self.toggleShowDetail = function() {
       self.showDetail = !self.showDetail;
+    };
+
+    self.tvdbPosterPath = function() {
+      return EpisodeService.constructFullPosterLocation(self.episodeGroup);
     };
 
     self.getWatchedDateOrWatched = function(episode) {

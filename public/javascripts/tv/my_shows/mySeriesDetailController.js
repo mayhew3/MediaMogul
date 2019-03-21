@@ -63,6 +63,10 @@ angular.module('mediaMogulApp')
       }
     }
 
+    self.tvdbPosterPath = function() {
+      return EpisodeService.constructFullPosterLocation(self.series);
+    };
+
     self.isSelectedAddingEpisodes = function(label) {
       return label === self.selectedAddingEpisodes;
     };
