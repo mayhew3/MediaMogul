@@ -67,6 +67,10 @@ angular.module('mediaMogulApp')
       return EpisodeService.constructFullPosterLocation(self.series);
     };
 
+    self.getSeasonLabel = function(season) {
+      return season === 0 ? 'Specials' : 'Season ' + season;
+    };
+
     self.isSelectedAddingEpisodes = function(label) {
       return label === self.selectedAddingEpisodes;
     };

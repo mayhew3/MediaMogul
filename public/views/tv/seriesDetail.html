@@ -137,15 +137,14 @@
     </div>
 
     <div class="bottomRow" ng-show="ctrl.shouldDisplayEpisodeList()">
-      Season:
-      <label ng-repeat="season in ctrl.seasonLabels"
-             ng-class="ctrl.getSeasonButtonClass(season)"
-             ng-model="ctrl.selectedSeason"
-             style="font-size: x-large"
-             uib-btn-radio="season">
-        <span ng-bind="season"></span>
-      </label>
+      <select class="form-control input-lg darkInput" ng-model="ctrl.selectedSeason">
+        <option ng-repeat="season in ctrl.seasonLabels"
+                ng-value="season">
+          {{ctrl.getSeasonLabel(season)}}
+        </option>
+      </select>
     </div>
+
   </div>
 
   <table class="table table-striped table-hover" ng-show="ctrl.shouldDisplayEpisodeList()">
