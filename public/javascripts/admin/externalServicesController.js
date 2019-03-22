@@ -11,11 +11,11 @@ angular.module('mediaMogulApp')
       };
 
       self.getRowClass = function(service) {
-        return self.ExternalServicesService.needsWarning(service) ? 'externalServiceFailRow' : '';
+        return self.ExternalServicesService.needsWarning(service) ? 'danger' : '';
       };
 
       self.getLastConnect = function(service) {
-        return self.timeAgo(service.last_connect);
+        return service.last_connect ? self.timeAgo(service.last_connect) : 'never';
       };
 
       self.getLastFailure = function(service) {
