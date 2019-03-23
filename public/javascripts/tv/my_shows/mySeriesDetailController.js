@@ -191,7 +191,7 @@ angular.module('mediaMogulApp')
         if (self.watchMultiple) {
           if (episode.unaired) {
             return "danger";
-          } else if (episode.watched) {
+          } else if (self.watchedOrWatchPending(episode)) {
             return "success";
           } else {
             return "warning";
@@ -212,7 +212,7 @@ angular.module('mediaMogulApp')
       };
 
       self.watchButtonClass = function(episode) {
-        if (episode.watched) {
+        if (self.watchedOrWatchPending(episode)) {
           return "btn-warning";
         } else {
           return "btn-success";
@@ -220,7 +220,7 @@ angular.module('mediaMogulApp')
       };
 
       self.watchButtonText = function(episode) {
-        if (episode.watched) {
+        if (self.watchedOrWatchPending(episode)) {
           return "Unwatch";
         } else {
           return "Watch";
@@ -235,21 +235,56 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.watchMulti = function(episode) {
-        episode.watched_pending = true;
+      self.toggleMulti = function(episode) {
+        episode.watched_pending = !self.watchedOrWatchPending(episode);
       };
 
-      self.unwatchMulti = function(episode) {
-        episode.watched_pending = false;
+      self.submitMulti = function() {
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
+
+        const watched = _.filter(changed, episode => {
+          return !_.isUndefined(episode.watched_pending) && episode.watched_pending === true;
+        });
+        const unwatched = _.filter(changed, episode => episode.watched_pending === false);
+
+        const watched_ids = _.pluck(watched, 'id');
+        const unwatched_ids = _.pluck(unwatched, 'id');
+
+        const payload = {
+          PersonId: LockService.person_id,
+          watched_ids: watched_ids,
+          unwatched_ids: unwatched_ids};
+
+        $http.post('api/markEpisodesWatched', payload).then(() => {
+          changed.forEach(episode => episode.watched = episode.watched_pending);
+          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
+            updateNextUp();
+            self.clearPending();
+            self.watchMultiple = false;
+          });
+        });
       };
 
-      self.watchMultiAndPrevious = function(targetEpisode) {
-        _.filter(self.episodes, episode => {
+      self.cancelMulti = function() {
+        self.clearPending();
+        self.watchMultiple = false;
+      };
+
+      self.clearPending = function() {
+        const pending = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending));
+        pending.forEach(episode => episode.watched_pending = undefined);
+      };
+
+      self.toggleMultiAndPrevious = function(targetEpisode) {
+        const targetState = !self.watchedOrWatchPending(targetEpisode);
+        const eligibleEpisodes = _.filter(self.episodes, episode => {
           return self.episodeFilter &&
             episode.absolute_number &&
             episode.absolute_number <= targetEpisode.absolute_number;
         });
+        eligibleEpisodes.forEach(episode => episode.watched_pending = targetState);
       };
+
 
       let unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
@@ -554,7 +589,7 @@ angular.module('mediaMogulApp')
     };
 
     self.openEpisodeDetailFromRow = function(episode) {
-      if (!self.adding) {
+      if (!self.adding && !self.watchMultiple) {
         self.openEpisodeDetail(episode);
       }
     };

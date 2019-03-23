@@ -766,6 +766,72 @@ exports.markAllPastEpisodesAsWatched = function(request, response) {
   });
 };
 
+exports.markEpisodesWatched = function(request, response) {
+  const person_id = request.body.PersonId;
+  const watched_episode_ids = request.body.watched_ids;
+  const unwatched_episode_ids = request.body.unwatched_ids;
+
+  const all_episode_ids = [];
+  ArrayService.addToArray(all_episode_ids, watched_episode_ids);
+  ArrayService.addToArray(all_episode_ids, unwatched_episode_ids);
+
+  const existing_sql = 'SELECT episode_id ' +
+      'FROM episode_rating ' +
+      'WHERE person_id = $1 ' +
+      'AND episode_id IN (' + db.createInlineVariableList(all_episode_ids.length, 2) + ')';
+  const existing_values = [person_id];
+  ArrayService.addToArray(existing_values, all_episode_ids);
+  db.selectWithJSON(existing_sql, existing_values).then(results => {
+    const existing_ids = _.pluck(results, 'episode_id');
+    const existing_watched_ids = _.intersection(watched_episode_ids, existing_ids);
+    const existing_unwatched_ids = _.intersection(unwatched_episode_ids, existing_ids);
+
+    const new_watched_ids = _.without(watched_episode_ids, existing_ids);
+
+    const updates = [];
+
+    if (existing_watched_ids.length > 0) {
+      const watched_sql = 'UPDATE episode_rating ' +
+          'SET watched = $1 ' +
+          'WHERE person_id = $2 ' +
+          'AND episode_id IN (' + db.createInlineVariableList(existing_watched_ids.length, 3) + ')';
+      const watched_values = [true, person_id];
+      ArrayService.addToArray(watched_values, existing_watched_ids);
+      updates.push(db.updateNoJSON(watched_sql, watched_values));
+    }
+
+    if (existing_unwatched_ids.length > 0) {
+      const unwatched_sql = 'UPDATE episode_rating ' +
+          'SET watched = $1, watched_date = NULL ' +
+          'WHERE person_id = $2 ' +
+          'AND episode_id IN (' + db.createInlineVariableList(existing_unwatched_ids.length, 3) + ')';
+      const unwatched_values = [false, person_id];
+      ArrayService.addToArray(unwatched_values, existing_unwatched_ids);
+      updates.push(db.updateNoJSON(unwatched_sql, unwatched_values));
+    }
+
+    if (new_watched_ids.length > 0) {
+      const new_watched_sql = 'INSERT INTO episode_rating (person_id, episode_id, watched) ' +
+          'SELECT $1, id, $2 ' +
+          'FROM episode ' +
+          'WHERE id IN (' + db.createInlineVariableList(new_watched_ids.length, 3) + ')';
+      const new_watched_values = [person_id, true];
+      ArrayService.addToArray(new_watched_values, new_watched_ids);
+      updates.push(db.updateNoJSON(new_watched_sql, new_watched_values));
+    }
+
+    Promise.all(updates).then(function() {
+      response.json({msg: 'Success'});
+    });
+  });
+};
+
+function getUpdatePromise(sql, values) {
+  return new Promise(function(resolve) {
+    db.updateNoJSON(sql, values).then(() => resolve());
+  });
+}
+
 exports.getSystemVars = function(request, response) {
   console.log("Getting system vars.");
 

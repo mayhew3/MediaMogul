@@ -138,10 +138,22 @@
 
     <div class="bottomMiddle">
       <button type="button"
-              class="btn btn-lg"
-              ng-class="ctrl.watchMultipleButtonClass()"
+              class="btn btn-lg btn-success"
+              ng-show="!ctrl.watchMultiple"
               ng-click="ctrl.clickWatchMultiple()">
         Watch Multiple
+      </button>
+      <button type="button"
+              class="btn btn-lg btn-success"
+              ng-show="ctrl.watchMultiple"
+              ng-click="ctrl.submitMulti()">
+        Submit
+      </button>
+      <button type="button"
+              class="btn btn-lg btn-primary"
+              ng-show="ctrl.watchMultiple"
+              ng-click="ctrl.cancelMulti()">
+        Cancel
       </button>
     </div>
 
@@ -194,7 +206,7 @@
                    ng-value="ctrl.watchButtonText(episode)"
                    ng-class="ctrl.watchButtonClass(episode)"
                    ng-show="episode.season !== 0 && !episode.unaired"
-                   ng-click="ctrl.selectLastWatchedEpisode(episode)">
+                   ng-click="ctrl.toggleMulti(episode)">
           </td>
           <td ng-show="ctrl.watchMultiple">
             <input type="button"
@@ -202,7 +214,7 @@
                    value="This & Previous"
                    ng-class="ctrl.watchButtonClass(episode)"
                    ng-show="episode.season !== 0 && !episode.unaired"
-                   ng-click="ctrl.selectLastWatchedEpisode(episode)">
+                   ng-click="ctrl.toggleMultiAndPrevious(episode)">
           </td>
           <td ng-show="ctrl.adding">
             <input type="button"
