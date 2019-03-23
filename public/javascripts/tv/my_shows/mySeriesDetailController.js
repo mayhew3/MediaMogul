@@ -226,8 +226,7 @@ angular.module('mediaMogulApp')
       if (nextUp.length > 0) {
         const nextEpisode = nextUp[0];
         const nextEpisodeNumber = nextEpisode.episode_number;
-        let wantedPage = Math.ceil(nextEpisodeNumber / self.pageSize);
-        self.currentPage = wantedPage;
+        self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
       }
     };
 
