@@ -136,7 +136,16 @@
       </div>
     </div>
 
-    <div class="bottomRow" ng-show="ctrl.shouldDisplaySeasonList() && ctrl.shouldDisplayEpisodeList()">
+    <div class="bottomMiddle">
+      <button type="button"
+              class="btn btn-lg"
+              ng-class="ctrl.watchMultipleButtonClass()"
+              ng-click="ctrl.clickWatchMultiple()">
+        Watch Multiple
+      </button>
+    </div>
+
+    <div class="bottomRight" ng-show="ctrl.shouldDisplaySeasonList() && ctrl.shouldDisplayEpisodeList()">
       <select class="form-control input-lg darkInput"
               ng-model="ctrl.selectedSeason"
               ng-change="ctrl.onSeasonSelect()">
@@ -158,8 +167,8 @@
           <th>Title</th>
           <th>Date</th>
           <th>Watched</th>
-          <th ng-show="ctrl.owned">Rating</th>
-          <th ng-show="ctrl.adding">Select</th>
+          <th ng-show="ctrl.owned && !ctrl.watchMultiple">Rating</th>
+          <th ng-show="ctrl.adding || ctrl.watchMultiple">Select</th>
         </tr>
         </thead>
         <tr data-ng-repeat="episode in ctrl.episodes |
@@ -171,19 +180,35 @@
           <td ng-bind="episode.episode_number"></td>
           <td ng-bind="episode.title" class="episodeDescription"></td>
           <td ng-bind="episode.air_time|date:ctrl.getDateFormat(episode.air_time):'America/Los_Angeles'"></td>
-          <td>
+          <td ng-hide="ctrl.watchMultiple">
             <span ng-bind="ctrl.getWatchedDateOrWatched(episode)"></span>
           </td>
           <td ng-style="episode.colorStyle()"
               width="70"
-              ng-show="ctrl.owned">
+              ng-show="ctrl.owned && !ctrl.watchMultiple">
             <span ng-bind="ctrl.getRating(episode)"></span>
+          </td>
+          <td ng-show="ctrl.watchMultiple">
+            <input type="button"
+                   class="btn"
+                   ng-value="ctrl.watchButtonText(episode)"
+                   ng-class="ctrl.watchButtonClass(episode)"
+                   ng-show="episode.season !== 0 && !episode.unaired"
+                   ng-click="ctrl.selectLastWatchedEpisode(episode)">
+          </td>
+          <td ng-show="ctrl.watchMultiple">
+            <input type="button"
+                   class="btn"
+                   value="This & Previous"
+                   ng-class="ctrl.watchButtonClass(episode)"
+                   ng-show="episode.season !== 0 && !episode.unaired"
+                   ng-click="ctrl.selectLastWatchedEpisode(episode)">
           </td>
           <td ng-show="ctrl.adding">
             <input type="button"
                    class="btn btn-success btn-sm"
                    value="Select"
-                   ng-show="episode.season !== 0 && !self.isUnaired(episode)"
+                   ng-show="episode.season !== 0 && !ctrl.isUnaired(episode)"
                    ng-click="ctrl.selectLastWatchedEpisode(episode)">
             <input type="button"
                    class="btn btn-info btn-sm"

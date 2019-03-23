@@ -34,6 +34,8 @@ angular.module('mediaMogulApp')
     self.pageSize = 15;
     self.currentPage = 1;
 
+    self.watchMultiple = false;
+
     self.originalFields = {
       my_rating: self.series.my_rating
     };
@@ -90,6 +92,14 @@ angular.module('mediaMogulApp')
 
     self.getHighlightedEpisodesButton = function(label) {
       return self.isSelectedAddingEpisodes(label) ? 'btn-success' : 'btn-default';
+    };
+
+    self.watchMultipleButtonClass = function() {
+      return self.watchMultiple ? 'btn-success' : 'btn-primary';
+    };
+
+    self.clickWatchMultiple = function() {
+      self.watchMultiple = !self.watchMultiple;
     };
 
     self.allWatched = function() {
@@ -172,23 +182,73 @@ angular.module('mediaMogulApp')
         if (season !== null && !(self.seasonLabels.indexOf(season) > -1) && !self.shouldHide(episode)) {
           self.seasonLabels.push(season);
         }
-        if (isUnaired(episode)) {
+        if (self.isUnaired(episode)) {
           episode.unaired = true;
         }
       });
 
       self.rowClass = function(episode) {
-        if (episode.rating_pending) {
-          return "ratingPendingRow";
-        } else if (episode.nextUp) {
-          return "nextUpRow";
-        } else if (episode.unaired) {
-          return "unairedRow";
-        } else if (isUnwatchedEpisode(episode)) {
-          return "unwatchedRow";
+        if (self.watchMultiple) {
+          if (episode.unaired) {
+            return "danger";
+          } else if (episode.watched) {
+            return "success";
+          } else {
+            return "warning";
+          }
+        } else {
+          if (episode.rating_pending) {
+            return "ratingPendingRow";
+          } else if (episode.nextUp) {
+            return "nextUpRow";
+          } else if (episode.unaired) {
+            return "unairedRow";
+          } else if (isUnwatchedEpisode(episode)) {
+            return "unwatchedRow";
+          }
         }
 
         return "";
+      };
+
+      self.watchButtonClass = function(episode) {
+        if (episode.watched) {
+          return "btn-warning";
+        } else {
+          return "btn-success";
+        }
+      };
+
+      self.watchButtonText = function(episode) {
+        if (episode.watched) {
+          return "Unwatch";
+        } else {
+          return "Watch";
+        }
+      };
+
+      self.watchedOrWatchPending = function(episode) {
+        if (_.isUndefined(episode.watched_pending)) {
+          return episode.watched;
+        } else {
+          return episode.watched_pending;
+        }
+      };
+
+      self.watchMulti = function(episode) {
+        episode.watched_pending = true;
+      };
+
+      self.unwatchMulti = function(episode) {
+        episode.watched_pending = false;
+      };
+
+      self.watchMultiAndPrevious = function(targetEpisode) {
+        _.filter(self.episodes, episode => {
+          return self.episodeFilter &&
+            episode.absolute_number &&
+            episode.absolute_number <= targetEpisode.absolute_number;
+        });
       };
 
       let unwatchedEpisodes = self.episodes.filter(function (episode) {
@@ -269,13 +329,13 @@ angular.module('mediaMogulApp')
           return {labelClass: "label label-info", labelText: "Recorded"};
         }
       } else if (episode.streaming) {
-        if (isUnaired(episode)) {
+        if (self.isUnaired(episode)) {
           return {labelClass: "label label-danger", labelText: "Unaired"};
         } else {
           return {labelClass: "label label-success", labelText: "Streaming"};
         }
       } else {
-        if (isUnaired(episode)) {
+        if (self.isUnaired(episode)) {
           return {labelClass: "label label-danger", labelText: "Unaired"};
         }
         return null;
@@ -307,7 +367,7 @@ angular.module('mediaMogulApp')
       });
     };
 
-    function isUnaired(episode) {
+    self.isUnaired = function(episode) {
       // unaired if the air time is after now.
 
       let isNull = episode.air_time === null;
@@ -315,7 +375,7 @@ angular.module('mediaMogulApp')
       let hasSufficientDiff = (diff > 0);
 
       return isNull || hasSufficientDiff;
-    }
+    };
 
     self.episodeFilter = function(episode) {
       return episode.season === self.selectedSeason && !self.shouldHide(episode);

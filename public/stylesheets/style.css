@@ -115,8 +115,15 @@ h1 {
   padding-top: 0;
 }
 
-.bottomRow {
+.bottomMiddle {
   grid-column-start: 2;
+  grid-column-end: 3;
+  grid-row: 2;
+  justify-self: start;
+}
+
+.bottomRight {
+  grid-column-start: 3;
   grid-column-end: 4;
   grid-row: 2;
   justify-self: end;
