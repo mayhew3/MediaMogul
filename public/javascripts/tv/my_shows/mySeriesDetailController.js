@@ -31,6 +31,8 @@ angular.module('mediaMogulApp')
 
     self.daysSinceLastUpdate = Math.floor((new Date - new Date(self.lastUpdate)) / 1000 / 60 / 60 / 24);
 
+    self.pageSize = 15;
+    self.currentPage = 1;
 
     self.originalFields = {
       my_rating: self.series.my_rating
@@ -40,6 +42,9 @@ angular.module('mediaMogulApp')
       my_rating: self.series.my_rating
     };
 
+    self.totalItems = function() {
+      return self.episodes.filter(self.episodeFilter).length;
+    };
 
     EpisodeService.updateMyEpisodeList(self.series).then(function() {
       self.episodes = EpisodeService.getEpisodes();
@@ -197,6 +202,7 @@ angular.module('mediaMogulApp')
         self.selectedSeason = firstUnwatched.season;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
+          self.onSeasonSelect();
         }
       } else {
         let allEpisodes = self.episodes.filter(function (episode) {
@@ -211,6 +217,19 @@ angular.module('mediaMogulApp')
         }
       }
     }
+
+    self.onSeasonSelect = function() {
+      self.currentPage = 1;
+      const nextUp = _.filter(self.episodes, episode => {
+        return self.episodeFilter(episode) && episode.nextUp;
+      });
+      if (nextUp.length > 0) {
+        const nextEpisode = nextUp[0];
+        const nextEpisodeNumber = nextEpisode.episode_number;
+        let wantedPage = Math.ceil(nextEpisodeNumber / self.pageSize);
+        self.currentPage = wantedPage;
+      }
+    };
 
     self.ratingInputClass = function() {
       return self.ratingIsChanged() ? 'col-lg-7' : 'col-lg-4';
