@@ -136,7 +136,7 @@
       </div>
     </div>
 
-    <div class="bottomRow" ng-show="ctrl.shouldDisplayEpisodeList()">
+    <div class="bottomRow" ng-show="ctrl.shouldDisplaySeasonList() && ctrl.shouldDisplayEpisodeList()">
       <select class="form-control input-lg darkInput" ng-model="ctrl.selectedSeason">
         <option ng-repeat="season in ctrl.seasonLabels"
                 ng-value="season">

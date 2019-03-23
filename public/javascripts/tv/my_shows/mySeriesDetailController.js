@@ -75,6 +75,10 @@ angular.module('mediaMogulApp')
       return label === self.selectedAddingEpisodes;
     };
 
+    self.shouldDisplaySeasonList = function() {
+      return self.seasonLabels.length > 1;
+    };
+
     self.shouldDisplayEpisodeList = function() {
       return self.owned || self.isSelectedAddingEpisodes('Some');
     };
