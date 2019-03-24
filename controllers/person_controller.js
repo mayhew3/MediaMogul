@@ -826,12 +826,6 @@ exports.markEpisodesWatched = function(request, response) {
   });
 };
 
-function getUpdatePromise(sql, values) {
-  return new Promise(function(resolve) {
-    db.updateNoJSON(sql, values).then(() => resolve());
-  });
-}
-
 exports.getSystemVars = function(request, response) {
   console.log("Getting system vars.");
 

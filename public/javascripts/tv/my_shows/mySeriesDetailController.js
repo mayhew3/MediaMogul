@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'removeSeriesCallback', 'adding',
+    '$uibModal', '$filter', 'LockService', '$http', 'removeSeriesCallback', 'adding', 
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
            removeSeriesCallback, adding) {
     const self = this;
@@ -242,28 +242,40 @@ angular.module('mediaMogulApp')
       self.submitMulti = function() {
         const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
 
-        const watched = _.filter(changed, episode => {
-          return !_.isUndefined(episode.watched_pending) && episode.watched_pending === true;
+        maybeUpdateMultiWatch(changed).then(() => {
+          self.clearPending();
         });
-        const unwatched = _.filter(changed, episode => episode.watched_pending === false);
 
-        const watched_ids = _.pluck(watched, 'id');
-        const unwatched_ids = _.pluck(unwatched, 'id');
-
-        const payload = {
-          PersonId: LockService.person_id,
-          watched_ids: watched_ids,
-          unwatched_ids: unwatched_ids};
-
-        $http.post('api/markEpisodesWatched', payload).then(() => {
-          changed.forEach(episode => episode.watched = episode.watched_pending);
-          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
-            updateNextUp();
-            self.clearPending();
-            self.watchMultiple = false;
-          });
-        });
+        self.watchMultiple = false;
       };
+
+      function maybeUpdateMultiWatch(changed) {
+        if (changed.length > 0) {
+          const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
+
+          const watched = _.filter(changed, episode => {
+            return !_.isUndefined(episode.watched_pending) && episode.watched_pending === true;
+          });
+          const unwatched = _.filter(changed, episode => episode.watched_pending === false);
+
+          const watched_ids = _.pluck(watched, 'id');
+          const unwatched_ids = _.pluck(unwatched, 'id');
+
+          const payload = {
+            PersonId: LockService.person_id,
+            watched_ids: watched_ids,
+            unwatched_ids: unwatched_ids};
+
+          return $http.post('api/markEpisodesWatched', payload).then(() => {
+            changed.forEach(episode => episode.watched = episode.watched_pending);
+            EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
+              updateNextUp();
+            });
+          });
+        } else {
+          return new Promise(resolve => resolve());
+        }
+      }
 
       self.cancelMulti = function() {
         self.clearPending();
