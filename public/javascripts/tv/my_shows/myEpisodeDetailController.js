@@ -68,12 +68,15 @@ angular.module('mediaMogulApp')
       };
 
       self.changeWatched = function() {
-        $log.debug("On Change");
         if (self.interfaceRating.watched) {
           self.watched_date = new Date().toLocaleDateString("en-US", options);
         } else {
           self.watched_date = null;
         }
+      };
+
+      self.watchButtonText = function() {
+        return self.interfaceRating.watched ? 'Watched' : 'Mark Watched';
       };
 
       self.changeWatchedDate = function() {
@@ -143,14 +146,8 @@ angular.module('mediaMogulApp')
         return 'yyyy.M.d';
       };
 
-      self.getSectionClass = function(side) {
-        if (side === "watched" && self.interfaceFields.watched) {
-          return "form-watched";
-        } else if (side === "skipped" && self.interfaceFields.skipped) {
-          return "form-skipped";
-        } else {
-          return "form-notselected";
-        }
+      self.getSectionClass = function() {
+        return self.interfaceRating.watched ? 'form-watched' : 'form-notselected';
       };
 
 
