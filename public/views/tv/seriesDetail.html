@@ -139,19 +139,19 @@
     <div class="bottomMiddle">
       <button type="button"
               class="btn btn-lg btn-success"
-              ng-show="!ctrl.watchMultiple"
+              ng-show="!ctrl.watchMultiple && !ctrl.adding"
               ng-click="ctrl.clickWatchMultiple()">
         Watch Multiple
       </button>
       <button type="button"
               class="btn btn-lg btn-success"
-              ng-show="ctrl.watchMultiple"
+              ng-show="ctrl.watchMultiple && !ctrl.adding"
               ng-click="ctrl.submitMulti()">
         Submit
       </button>
       <button type="button"
               class="btn btn-lg btn-primary"
-              ng-show="ctrl.watchMultiple"
+              ng-show="ctrl.watchMultiple && !ctrl.adding"
               ng-click="ctrl.cancelMulti()">
         Cancel
       </button>

@@ -1,10 +1,13 @@
 angular.module('mediaMogulApp')
-  .controller('myEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode', 'previousEpisodes', 'series', 'LockService', 'readOnly',
-    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService, readOnly) {
+  .controller('myEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode',
+    'previousEpisodes', 'series', 'LockService', 'readOnly', 'allPastWatchedCallback', 'firstUnwatched',
+    function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService, readOnly
+             , allPastWatchedCallback, firstUnwatched) {
       const self = this;
       self.rating_id = episode.rating_id;
       self.LockService = LockService;
       self.readOnly = readOnly;
+      self.firstUnwatched = firstUnwatched;
 
       const options = {
         year: "numeric", month: "2-digit",
@@ -66,6 +69,16 @@ angular.module('mediaMogulApp')
           }
         });
       };
+
+      function maybeUpdateAllPastEpisodes() {
+        return new Promise(resolve => {
+          if (self.allPastEpisodes) {
+            allPastWatchedCallback(self.episode.absolute_number).then(() => resolve());
+          } else {
+            resolve();
+          }
+        });
+      }
 
       self.changeWatched = function() {
         if (self.interfaceRating.watched) {
@@ -231,7 +244,9 @@ angular.module('mediaMogulApp')
             return updateWatchedStatus();
           }).then(function () {
           updateEpisodeFields();
-          $uibModalInstance.close();
+          maybeUpdateAllPastEpisodes().then(function() {
+            $uibModalInstance.close();
+          });
         });
       };
 

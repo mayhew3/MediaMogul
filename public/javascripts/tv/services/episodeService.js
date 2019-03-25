@@ -698,11 +698,21 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   }
 
-  this.markMyPastWatched = function(SeriesId, lastWatched) {
-    return $http.post('/markMyPastWatched', {SeriesId: SeriesId, LastWatched: lastWatched, PersonId: LockService.person_id}).then(function() {
-      $log.debug("Success?")
-    }, function(errResponse) {
-      $log.debug("Error calling the method: " + errResponse);
+  this.markMyPastWatched = function(series, episodes, lastWatched) {
+    return new Promise((resolve, reject) => {
+      $http.post('/markMyPastWatched', {SeriesId: series.id, LastWatched: lastWatched, PersonId: LockService.person_id}).then(function() {
+        $log.debug("Past watched API call complete.");
+        episodes.forEach(function(episode) {
+          $log.debug(lastWatched + ", " + episode.absolute_number);
+          if (episode.absolute_number !== null && episode.absolute_number <= lastWatched && episode.season !== 0) {
+            episode.watched = true;
+          }
+        });
+        resolve();
+      }, function(errResponse) {
+        $log.debug("Error calling the method: " + errResponse);
+        reject();
+      });
     });
   };
 
@@ -1048,10 +1058,10 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
             };
 
             var updatedFields = {
-              avg_rating: parseFloat(avg_rating.toFixed(1)),
+              avg_rating: avg_rating ? parseFloat(avg_rating.toFixed(1)) : undefined,
               last_rating: last_rating,
               max_rating: max_rating,
-              suggested_rating: parseFloat(suggested_rating.toFixed(1)),
+              suggested_rating: suggested_rating ? parseFloat(suggested_rating.toFixed(1)) : undefined,
               watched: watchedEpisodes.length,
               rated: ratedEpisodes.length,
               next_air_date: nextUnwatched == null ? null : new Date(nextUnwatched.air_date),

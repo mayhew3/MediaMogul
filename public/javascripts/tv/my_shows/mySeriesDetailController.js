@@ -20,6 +20,8 @@ angular.module('mediaMogulApp')
 
     self.removed = false;
 
+    self.firstUnwatchedNumber = null;
+
     self.selectedAddingEpisodes = 'None';
     self.selectedLastWatchedEpisode = null;
 
@@ -135,6 +137,7 @@ angular.module('mediaMogulApp')
 
       if (unwatchedEpisodes.length > 0) {
         let firstUnwatched = unwatchedEpisodes[0];
+        self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
         }
@@ -175,6 +178,116 @@ angular.module('mediaMogulApp')
       });
     };
 
+    self.rowClass = function(episode) {
+      if (self.watchMultiple) {
+        if (episode.unaired) {
+          return "danger";
+        } else if (self.watchedOrWatchPending(episode)) {
+          return "success";
+        } else {
+          return "warning";
+        }
+      } else {
+        if (episode.rating_pending) {
+          return "ratingPendingRow";
+        } else if (episode.nextUp) {
+          return "nextUpRow";
+        } else if (episode.unaired) {
+          return "unairedRow";
+        } else if (isUnwatchedEpisode(episode)) {
+          return "unwatchedRow";
+        }
+      }
+
+      return "";
+    };
+
+    self.watchButtonClass = function(episode) {
+      if (self.watchedOrWatchPending(episode)) {
+        return "btn-warning";
+      } else {
+        return "btn-success";
+      }
+    };
+
+    self.watchButtonText = function(episode) {
+      if (self.watchedOrWatchPending(episode)) {
+        return "Unwatch";
+      } else {
+        return "Watch";
+      }
+    };
+
+    self.watchedOrWatchPending = function(episode) {
+      if (_.isUndefined(episode.watched_pending)) {
+        return episode.watched;
+      } else {
+        return episode.watched_pending;
+      }
+    };
+
+    self.toggleMulti = function(episode) {
+      episode.watched_pending = !self.watchedOrWatchPending(episode);
+    };
+
+    self.submitMulti = function() {
+      const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
+
+      maybeUpdateMultiWatch(changed).then(() => {
+        self.clearPending();
+      });
+
+      self.watchMultiple = false;
+    };
+
+    function maybeUpdateMultiWatch(changed) {
+      if (changed.length > 0) {
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
+
+        const watched = _.filter(changed, episode => {
+          return !_.isUndefined(episode.watched_pending) && episode.watched_pending === true;
+        });
+        const unwatched = _.filter(changed, episode => episode.watched_pending === false);
+
+        const watched_ids = _.pluck(watched, 'id');
+        const unwatched_ids = _.pluck(unwatched, 'id');
+
+        const payload = {
+          PersonId: LockService.person_id,
+          watched_ids: watched_ids,
+          unwatched_ids: unwatched_ids};
+
+        return $http.post('api/markEpisodesWatched', payload).then(() => {
+          changed.forEach(episode => episode.watched = episode.watched_pending);
+          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
+            updateNextUp();
+          });
+        });
+      } else {
+        return new Promise(resolve => resolve());
+      }
+    }
+
+    self.cancelMulti = function() {
+      self.clearPending();
+      self.watchMultiple = false;
+    };
+
+    self.clearPending = function() {
+      const pending = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending));
+      pending.forEach(episode => episode.watched_pending = undefined);
+    };
+
+    self.toggleMultiAndPrevious = function(targetEpisode) {
+      const targetState = !self.watchedOrWatchPending(targetEpisode);
+      const eligibleEpisodes = _.filter(self.episodes, episode => {
+        return self.episodeFilter &&
+          episode.absolute_number &&
+          episode.absolute_number <= targetEpisode.absolute_number;
+      });
+      eligibleEpisodes.forEach(episode => episode.watched_pending = targetState);
+    };
+
     function updateSeasonLabels() {
       self.episodes.forEach(function (episode) {
         // $log.debug("AIR DATE: " + episode.air_date);
@@ -187,117 +300,6 @@ angular.module('mediaMogulApp')
         }
       });
 
-      self.rowClass = function(episode) {
-        if (self.watchMultiple) {
-          if (episode.unaired) {
-            return "danger";
-          } else if (self.watchedOrWatchPending(episode)) {
-            return "success";
-          } else {
-            return "warning";
-          }
-        } else {
-          if (episode.rating_pending) {
-            return "ratingPendingRow";
-          } else if (episode.nextUp) {
-            return "nextUpRow";
-          } else if (episode.unaired) {
-            return "unairedRow";
-          } else if (isUnwatchedEpisode(episode)) {
-            return "unwatchedRow";
-          }
-        }
-
-        return "";
-      };
-
-      self.watchButtonClass = function(episode) {
-        if (self.watchedOrWatchPending(episode)) {
-          return "btn-warning";
-        } else {
-          return "btn-success";
-        }
-      };
-
-      self.watchButtonText = function(episode) {
-        if (self.watchedOrWatchPending(episode)) {
-          return "Unwatch";
-        } else {
-          return "Watch";
-        }
-      };
-
-      self.watchedOrWatchPending = function(episode) {
-        if (_.isUndefined(episode.watched_pending)) {
-          return episode.watched;
-        } else {
-          return episode.watched_pending;
-        }
-      };
-
-      self.toggleMulti = function(episode) {
-        episode.watched_pending = !self.watchedOrWatchPending(episode);
-      };
-
-      self.submitMulti = function() {
-        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
-
-        maybeUpdateMultiWatch(changed).then(() => {
-          self.clearPending();
-        });
-
-        self.watchMultiple = false;
-      };
-
-      function maybeUpdateMultiWatch(changed) {
-        if (changed.length > 0) {
-          const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
-
-          const watched = _.filter(changed, episode => {
-            return !_.isUndefined(episode.watched_pending) && episode.watched_pending === true;
-          });
-          const unwatched = _.filter(changed, episode => episode.watched_pending === false);
-
-          const watched_ids = _.pluck(watched, 'id');
-          const unwatched_ids = _.pluck(unwatched, 'id');
-
-          const payload = {
-            PersonId: LockService.person_id,
-            watched_ids: watched_ids,
-            unwatched_ids: unwatched_ids};
-
-          return $http.post('api/markEpisodesWatched', payload).then(() => {
-            changed.forEach(episode => episode.watched = episode.watched_pending);
-            EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
-              updateNextUp();
-            });
-          });
-        } else {
-          return new Promise(resolve => resolve());
-        }
-      }
-
-      self.cancelMulti = function() {
-        self.clearPending();
-        self.watchMultiple = false;
-      };
-
-      self.clearPending = function() {
-        const pending = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending));
-        pending.forEach(episode => episode.watched_pending = undefined);
-      };
-
-      self.toggleMultiAndPrevious = function(targetEpisode) {
-        const targetState = !self.watchedOrWatchPending(targetEpisode);
-        const eligibleEpisodes = _.filter(self.episodes, episode => {
-          return self.episodeFilter &&
-            episode.absolute_number &&
-            episode.absolute_number <= targetEpisode.absolute_number;
-        });
-        eligibleEpisodes.forEach(episode => episode.watched_pending = targetState);
-      };
-
-
       let unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
@@ -307,6 +309,7 @@ angular.module('mediaMogulApp')
       if (unwatchedEpisodes.length > 0) {
         let firstUnwatched = unwatchedEpisodes[0];
         self.selectedSeason = firstUnwatched.season;
+        self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
           self.onSeasonSelect();
@@ -475,12 +478,6 @@ angular.module('mediaMogulApp')
 
       EpisodeService.markMyPastWatched(self.series.id, lastWatched+1).then(function() {
         $log.debug("Finished update, adjusting denorms.");
-        self.episodes.forEach(function(episode) {
-          $log.debug(lastWatched + ", " + episode.absolute_number);
-          if (episode.absolute_number !== null && episode.absolute_number <= lastWatched && episode.season !== 0) {
-            episode.watched = true;
-          }
-        });
         EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function() {
           updateNextUp();
           $uibModalInstance.close();
@@ -491,7 +488,6 @@ angular.module('mediaMogulApp')
     };
 
     function getLastAired() {
-
 
       let airedEpisodes = _.sortBy(_.filter(self.episodes, hasAired), function(episode) {
         return -episode.absolute_number;
@@ -588,6 +584,12 @@ angular.module('mediaMogulApp')
           },
           readOnly: function () {
             return !self.owned;
+          },
+          allPastWatchedCallback: function() {
+            return markMyPastWatched;
+          },
+          firstUnwatched: function() {
+            return episode.absolute_number === self.firstUnwatchedNumber;
           }
         }
       }).result.finally(function () {
@@ -599,6 +601,10 @@ angular.module('mediaMogulApp')
         });
       });
     };
+
+    function markMyPastWatched(lastWatched) {
+      return EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched);
+    }
 
     self.openEpisodeDetailFromRow = function(episode) {
       if (!self.adding && !self.watchMultiple) {
