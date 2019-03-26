@@ -54,25 +54,35 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   };
 
   this.updateMyShowsList = function() {
-    return $http.get('/myShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
-      $log.debug("Shows returned " + response.data.length + " items.");
-      var tempShows = response.data;
-      tempShows.forEach(function (show) {
-        self.updateNumericFields(show);
-        self.formatNextAirDate(show);
-      });
-      $log.debug("Finished updating.");
-      ArrayService.refreshArray(myShows, tempShows);
+    return new Promise((resolve, reject) => {
+      $http.get('/myShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
+        $log.debug("Shows returned " + response.data.length + " items.");
+        var tempShows = response.data;
+        tempShows.forEach(function (show) {
+          self.updateNumericFields(show);
+          self.formatNextAirDate(show);
+        });
+        let lostShow = _.findWhere(tempShows, {title: 'Lost'});
+        let lostTier = lostShow.tier;
+        $log.debug("Finished updating.");
+        ArrayService.refreshArray(myShows, tempShows);
 
-      $http.get('/viewingLocations').then(function (viewingResponse) {
-        $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
-        viewingLocations = viewingResponse.data;
-      }, function (errViewing) {
-        console.error('Error while fetching viewing location list: ' + errViewing);
-      });
+        lostShow = _.findWhere(myShows, {title: 'Lost'});
+        lostTier = lostShow.tier;
 
-    }, function (errResponse) {
-      console.error('Error while fetching series list: ' + errResponse);
+        $http.get('/viewingLocations').then(function (viewingResponse) {
+          $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
+          viewingLocations = viewingResponse.data;
+          resolve();
+        }, function (errViewing) {
+          console.error('Error while fetching viewing location list: ' + errViewing);
+          reject();
+        });
+
+      }, function (errResponse) {
+        console.error('Error while fetching series list: ' + errResponse);
+        reject();
+      });
     });
   };
 

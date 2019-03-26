@@ -2,7 +2,7 @@ angular.module('mediaMogulApp')
   .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
     '$http', 'ArrayService', '$scope', '$timeout',
   function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout) {
-    var self = this;
+    const self = this;
 
     self.LockService = LockService;
 
@@ -32,8 +32,7 @@ angular.module('mediaMogulApp')
 
     self.firstTier = function(series) {
       return series.my_tier === 1
-         && hasUnwatchedEpisodes(series)
-        ;
+         && hasUnwatchedEpisodes(series);
     };
 
     self.secondTier = function(series) {
@@ -423,15 +422,17 @@ angular.module('mediaMogulApp')
         self.series.forEach(function (seri) {
           updateFullRating(seri);
         });
-        self.series = _.sortBy(self.series, function(show) {
+        ArrayService.refreshArray(self.series, _.sortBy(self.series, function(show) {
           return 0 - show.dynamic_rating;
-        });
+        }));
         if (self.LockService.isAdmin()) {
           $http.get('/api/seriesRequest').then(function(results) {
             ArrayService.refreshArray(self.series_requests, results.data);
           });
         }
         self.addTimerForNextAirDate();
+      }).catch(err => {
+        throw new Error(err);
       });
       EpisodeService.updateMyPendingShowsList().then(function() {
         ArrayService.refreshArray(self.pendingShows, EpisodeService.getPendingShowsList());
