@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'removeSeriesCallback', 'adding', 
+    '$uibModal', '$filter', 'LockService', '$http', 'addSeriesCallback', 'removeSeriesCallback', 'adding',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           removeSeriesCallback, adding) {
+           addSeriesCallback, removeSeriesCallback, adding) {
     const self = this;
 
     self.LockService = LockService;
@@ -170,12 +170,6 @@ angular.module('mediaMogulApp')
 
     self.getTierButtonClass = function(tier) {
       return self.series.my_tier === tier ? "btn btn-success" : "btn btn-primary";
-    };
-
-    self.changeTier = function(tier) {
-      EpisodeService.changeMyTier(self.series.id, tier).then(function() {
-        self.series.my_tier = tier;
-      });
     };
 
     self.rowClass = function(episode) {
@@ -451,6 +445,28 @@ angular.module('mediaMogulApp')
       return 'yyyy.M.d';
     };
 
+    self.changeTier = function(tier) {
+      maybeReAddShow().then(() => {
+        EpisodeService.changeMyTier(self.series.id, tier).then(function() {
+          self.series.my_tier = tier;
+        });
+      });
+    };
+
+    function maybeReAddShow() {
+      return new Promise(resolve => {
+        if (self.removed) {
+          EpisodeService.addToMyShows(self.series).then(() => {
+            addSeriesCallback(self.series);
+            self.removed = false;
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      });
+    }
+
     self.removeFromMyShows = function() {
       if (!self.removed) {
         EpisodeService.removeFromMyShows(self.series).then(function () {
@@ -463,9 +479,6 @@ angular.module('mediaMogulApp')
     };
 
     self.markAllPastWatched = function() {
-      if (self.isSelectedAddingEpisodes('All')) {
-
-      }
 
       if (self.selectedLastWatchedEpisode === null) {
         $log.debug('Mark Past Watched called with no selected episode.');

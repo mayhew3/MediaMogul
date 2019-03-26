@@ -440,6 +440,10 @@ angular.module('mediaMogulApp')
     };
     self.refreshSeriesList();
 
+    function addToMyShows(show) {
+      self.series.push(show);
+    }
+
     function removeFromMyShows(show) {
       removeFromArray(self.series, show);
     }
@@ -487,6 +491,9 @@ angular.module('mediaMogulApp')
           },
           owned: function() {
             return true;
+          },
+          addSeriesCallback: function() {
+            return addToMyShows;
           },
           removeSeriesCallback: function() {
             return removeFromMyShows;
