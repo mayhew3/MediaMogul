@@ -90,40 +90,33 @@
 
             <div class="row">
 
-              <div class="col-lg-6">
+              <div class="col-lg-3">
                 <label class="control-label" for="watchedDate">Watched On</label>
                 <!-- Watch Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
                 <div class="date">
                   <input type="text"
                          id="watchedDate"
                          name="watchedDate"
-                         class="darkInput form-control"
+                         class="darkInput form-control input-lg"
                          ng-model="ctrl.watched_date"
                          ng-change="ctrl.changeWatchedDate()">
                 </div>
               </div>
 
-              <div class="col-lg-6">
-                <div class="row">
-                  <!-- Rating -->
-                  <div class="form-group col-lg-6" ng-hide="ctrl.readOnly" ng-show="ctrl.interfaceRating.watched">
-                    <label class="control-label" for="ratingValue">Rating</label>
-                    <input type="number"
-                           class="darkInput form-control input-lg"
-                           id="ratingValue"
-                           name="ratingValue"
-                           ng-required="false"
-                           ng-disabled="ctrl.skipRating"
-                           min="1"
-                           max="100"
-                           ng-model="ctrl.interfaceRating.rating_value"
-                           ng-change="ctrl.onRatingChange()"/>
-                  </div>
-
-                </div>
+              <!-- Rating -->
+              <div class="col-lg-3" ng-hide="ctrl.readOnly" ng-show="ctrl.interfaceRating.watched">
+                <label class="control-label" for="ratingValue">Rating</label>
+                <input type="number"
+                       class="darkInput form-control input-lg"
+                       id="ratingValue"
+                       name="ratingValue"
+                       ng-required="false"
+                       ng-disabled="ctrl.skipRating"
+                       min="1"
+                       max="100"
+                       ng-model="ctrl.interfaceRating.rating_value"
+                       ng-change="ctrl.onRatingChange()"/>
               </div>
-
-
 
             </div>
 
