@@ -62,7 +62,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
         self.formatNextAirDate(show);
       });
       $log.debug("Finished updating.");
-      myShows = tempShows;
+      ArrayService.refreshArray(myShows, tempShows);
 
       $http.get('/viewingLocations').then(function (viewingResponse) {
         $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
