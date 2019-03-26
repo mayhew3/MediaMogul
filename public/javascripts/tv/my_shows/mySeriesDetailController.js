@@ -476,7 +476,7 @@ angular.module('mediaMogulApp')
 
       $log.debug("Last Watched: Episode " + lastWatched);
 
-      EpisodeService.markMyPastWatched(self.series.id, lastWatched+1).then(function() {
+      EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched+1).then(function() {
         $log.debug("Finished update, adjusting denorms.");
         EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function() {
           updateNextUp();
