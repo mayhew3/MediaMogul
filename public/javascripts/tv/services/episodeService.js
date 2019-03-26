@@ -62,13 +62,8 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
           self.updateNumericFields(show);
           self.formatNextAirDate(show);
         });
-        let lostShow = _.findWhere(tempShows, {title: 'Lost'});
-        let lostTier = lostShow.tier;
         $log.debug("Finished updating.");
         ArrayService.refreshArray(myShows, tempShows);
-
-        lostShow = _.findWhere(myShows, {title: 'Lost'});
-        lostTier = lostShow.tier;
 
         $http.get('/viewingLocations').then(function (viewingResponse) {
           $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
