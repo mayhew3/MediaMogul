@@ -328,14 +328,79 @@ exports.getAllOpenSeriesRequests = function(request, response) {
 exports.getMySeriesRequests = function(request, response) {
   const sql = 'SELECT id, tvdb_series_ext_id, title, poster ' +
     'FROM series_request ' +
-    'WHERE completed IS NULL ' +
+    'WHERE approved IS NULL ' +
     'AND rejected IS NULL ' +
-    'AND person_id = $1 ';
+    'AND person_id = $1 ' +
+    'AND retired = $2 ';
 
-  const values = [request.query.person_id];
+  const values = [request.query.person_id, 0];
 
-  db.executeQueryWithResults(response, sql, values);
+  db.selectWithJSON(sql, values).then(function(myRequests) {
+    const sql = 'SELECT sr.id, sr2.approved, sr2.rejected ' +
+      'FROM series_request sr ' +
+      'INNER JOIN series_request sr2 ' +
+      '  ON sr.tvdb_series_ext_id = sr2.tvdb_series_ext_id ' +
+      'WHERE sr.person_id = $1 ' +
+      'AND sr2.person_id <> $1 ' +
+      'AND sr.retired = $2 ' +
+      'AND sr2.retired = $2 ' +
+      'AND sr.approved IS NULL ' +
+      'AND sr.rejected IS NULL ' +
+      'AND (sr2.approved IS NOT NULL OR sr2.rejected IS NOT NULL) ';
+
+    db.selectWithJSON(sql, [request.query.person_id, 0]).then(function(dupeRequests) {
+      _.forEach(dupeRequests, dupeRequest => removeDuplicateRequest(myRequests, dupeRequest));
+
+      const sql = 'SELECT sr.id ' +
+        'FROM series_request sr ' +
+        'INNER JOIN series s ' +
+        '  ON sr.tvdb_series_ext_id = s.tvdb_series_ext_id ' +
+        'WHERE sr.person_id = $1 ' +
+        'AND sr.approved IS NULL ' +
+        'AND sr.rejected IS NULL ' +
+        'AND s.tvdb_match_status = $3 ' +
+        'AND sr.retired = $2 ' +
+        'AND s.retired = $2 ';
+
+      const values = [request.query.person_id, 0, 'Match Completed'];
+
+      db.selectWithJSON(sql, values).then(function(completedRequests) {
+        _.forEach(completedRequests, completedRequest => completeCompletedRequests(myRequests, completedRequest));
+
+        response.json(myRequests);
+      });
+    });
+  });
 };
+
+function removeDuplicateRequest(myRequests, dupeRequest) {
+  const matching = _.findWhere(myRequests, {id: dupeRequest.id});
+  markRequestResolved(matching, dupeRequest);
+  ArrayService.removeFromArray(myRequests, matching);
+}
+
+function completeCompletedRequests(myRequests, completedRequest) {
+  completedRequest.approved = new Date();
+  const matching = _.findWhere(myRequests, {id: completedRequest.id});
+  markRequestResolved(matching, completedRequest);
+  ArrayService.removeFromArray(myRequests, matching);
+}
+
+function markRequestResolved(myRequest, dupeRequest) {
+  const resolution = dupeRequest.approved ?
+    {
+      type: 'approved',
+      resolution_date: dupeRequest.approved
+    } :
+    {
+      type: 'rejected',
+      resolution_date: dupeRequest.rejected
+    };
+  const sql = 'UPDATE series_request ' +
+    'SET ' + resolution.type + ' = $1 ' +
+    'WHERE id = $2 ';
+  db.updateNoJSON(sql, [resolution.resolution_date, myRequest.id]);
+}
 
 // denorm helper
 

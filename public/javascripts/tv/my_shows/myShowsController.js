@@ -449,8 +449,13 @@ angular.module('mediaMogulApp')
     }
 
     function removeFromRequests(seriesRequest) {
-      removeFromArray(self.series_requests, seriesRequest);
+      removeAllRequestsForShow(seriesRequest.tvdb_series_ext_id);
       self.pendingShows.push(seriesRequest);
+    }
+
+    function removeAllRequestsForShow(tvdb_id) {
+      const matchingRequests = _.where(self.series_requests, {tvdb_series_ext_id: tvdb_id});
+      _.forEach(matchingRequests, matchingRequest => removeFromArray(self.series_requests, matchingRequest));
     }
 
     function removeFromArray(arr, element) {

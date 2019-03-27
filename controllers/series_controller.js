@@ -442,7 +442,7 @@ function doPreUpdateWork(handling, tvdb_id) {
     if (handling === 'rejected') {
       resolve();
     } else if (handling === 'approved') {
-      addSeries(tvdb_id).then(function() {
+      maybeAddSeries(tvdb_id).then(function() {
         resolve();
       })
     } else {
@@ -452,55 +452,87 @@ function doPreUpdateWork(handling, tvdb_id) {
   });
 }
 
-function addSeries(tvdb_id) {
-  const sql = 'SELECT sr.* ' +
-    'FROM series_request sr ' +
-    'WHERE sr.tvdb_series_ext_id = $1 ' +
-    'AND sr.retired = $2 ';
+function maybeAddSeries(tvdb_id) {
+  return new Promise(resolve => {
 
-  const values = [
-    tvdb_id,
-    0
-  ];
-
-  return db.selectWithJSON(sql, values).then(function (results) {
-    const person_ids = _.pluck(results, 'person_id');
-    const firstRequest = results[0];
-
-    const sql = 'INSERT INTO series (' +
-      'title, tvdb_new, metacritic_new, tvdb_match_status, person_id, ' +
-      'tvdb_series_ext_id, tvdb_confirm_date, poster) ' +
-      'VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ' +
-      'RETURNING id ';
+    const sql = 'SELECT sr.* ' +
+      'FROM series_request sr ' +
+      'WHERE sr.tvdb_series_ext_id = $1 ' +
+      'AND sr.retired = $2 ';
 
     const values = [
-      firstRequest.title,
-      false,
-      true,
-      'Match Confirmed',
-      person_ids[0],
       tvdb_id,
-      new Date,
-      firstRequest.poster
+      0
     ];
 
-    return db.selectWithJSON(sql, values).then(function (results) {
-      const series_id = results[0].id;
+    db.selectWithJSON(sql, values).then(function (requestResults) {
+      const person_ids = _.pluck(requestResults, 'person_id');
+      const seriesRequest = requestResults[0];
 
-      const sql = "INSERT INTO person_series " +
-        "(person_id, series_id, tier) " +
-        "SELECT p.id, $1, $2 " +
-        "FROM person p " +
-        "WHERE p.id IN (" + db.createInlineVariableList(person_ids.length, 3) + ")";
-      const values = [
-        series_id, 1
-      ];
+      getOrInsertNewSeries(tvdb_id, seriesRequest, person_ids[0]).then(function (series_id) {
 
-      ArrayService.addToArray(values, person_ids);
+        const sql = "INSERT INTO person_series " +
+          "(person_id, series_id, tier) " +
+          "SELECT p.id, $1, $2 " +
+          "FROM person p " +
+          "WHERE p.id IN (" + db.createInlineVariableList(person_ids.length, 3) + ")";
+        const values = [
+          series_id, 1
+        ];
 
-      return db.updateNoJSON(sql, values);
+        ArrayService.addToArray(values, person_ids);
+
+        db.updateNoJSON(sql, values).then(() => resolve());
+      });
     });
   });
+
+}
+
+function getOrInsertNewSeries(tvdb_id, seriesRequest, person_id) {
+  return new Promise(resolve => {
+
+    const sql = 'SELECT id ' +
+      'FROM series ' +
+      'WHERE tvdb_series_ext_id = $1 ' +
+      'AND retired = $2 ';
+
+    const values = [
+      tvdb_id,
+      0
+    ];
+
+    db.selectWithJSON(sql, values).then(existingSeries => {
+      if (existingSeries.length > 0) {
+        const existing_id = existingSeries[0].id;
+        resolve(existing_id);
+      } else {
+
+        const sql = 'INSERT INTO series (' +
+          'title, tvdb_new, metacritic_new, tvdb_match_status, person_id, ' +
+          'tvdb_series_ext_id, tvdb_confirm_date, poster) ' +
+          'VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ' +
+          'RETURNING id ';
+
+        const values = [
+          seriesRequest.title,
+          false,
+          true,
+          'Match Confirmed',
+          person_id,
+          tvdb_id,
+          new Date,
+          seriesRequest.poster
+        ];
+
+        db.selectWithJSON(sql, values).then(seriesResults => {
+          resolve(seriesResults[0].id);
+        });
+      }
+
+    });
+  });
+
 }
 
 function updateSeriesRequest(handling, tvdb_id, response) {
@@ -508,8 +540,7 @@ function updateSeriesRequest(handling, tvdb_id, response) {
     'SET ' + handling + ' = $1 ' +
     'WHERE tvdb_series_ext_id = $2 ' +
     'AND approved IS NULL ' +
-    'AND rejected IS NULL ' +
-    'AND completed IS NULL ';
+    'AND rejected IS NULL ';
 
   const values = [
     new Date,
