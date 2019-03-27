@@ -3,12 +3,12 @@ angular.module('mediaMogulApp')
             'previousEpisodes', 'series', 'LockService', 'group', '$http', 'allPastWatchedCallback', 'firstUnwatched',
     function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService,
              group, $http, allPastWatchedCallback, firstUnwatched) {
-      var self = this;
+      const self = this;
       self.tv_group_episode_id = episode.tv_group_episode_id;
       self.LockService = LockService;
       self.firstUnwatched = firstUnwatched;
 
-      var options = {
+      const options = {
         year: "numeric", month: "2-digit",
         day: "2-digit", timeZone: "America/Los_Angeles"
       };
@@ -93,16 +93,16 @@ angular.module('mediaMogulApp')
         }
       };
 
+      self.clearWatchedDate = function() {
+        self.watched_date = null;
+      };
+
       self.changeSkipped = function() {
         $log.debug("On Change");
         self.interfaceFields.watched = false;
         self.watched_date = null;
         self.allPastEpisodes = false;
         self.interfaceFields.skip_reason = null;
-      };
-
-      self.changeWatchedDate = function() {
-        self.interfaceFields.watched = self.watched_date !== null;
       };
 
       self.anyRatingChanged = function() {

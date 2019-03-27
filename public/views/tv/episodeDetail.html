@@ -90,16 +90,23 @@
 
             <div class="row">
 
-              <div class="col-lg-3">
+              <div class="col-lg-4">
                 <label class="control-label" for="watchedDate">Watched On</label>
                 <!-- Watch Date (uses Bootstrap Switch - remember javascript snippet at bottom to activate!) -->
-                <div class="date">
+
+                <div class="input-group">
                   <input type="text"
                          id="watchedDate"
                          name="watchedDate"
-                         class="darkInput form-control input-lg"
-                         ng-model="ctrl.watched_date"
-                         ng-change="ctrl.changeWatchedDate()">
+                         class="darkInput form-control input-lg date"
+                         ng-model="ctrl.watched_date">
+                  <span class="input-group-btn">
+                    <input type="button"
+                           class="btn btn-default btn-lg"
+                           value="Clear"
+                           ng-disabled="!ctrl.watched_date"
+                           ng-click="ctrl.clearWatchedDate()">
+                  </span>
                 </div>
               </div>
 
@@ -132,7 +139,7 @@
               </div>
 
               <div class="form-group col-lg-5 form-text">
-                <span>Mark this episode watched today, and all previous episodes as watched with no date.</span>
+                <span>Mark this episode watched with above date, and all previous episodes as watched with no date.</span>
               </div>
 
             </div>
@@ -294,7 +301,7 @@
   $(document).ready(function()  {
     $('#watchedDate').datepicker({
       todayBtn: "linked",
-      clearBtn: true,
+      clearBtn: false,
       daysOfWeekHighlighted: "0,6",
       autoclose: true,
       todayHighlight: true

@@ -92,8 +92,8 @@ angular.module('mediaMogulApp')
         return self.interfaceRating.watched ? 'Watched' : 'Mark Watched';
       };
 
-      self.changeWatchedDate = function() {
-        self.interfaceRating.watched = self.watched_date !== null;
+      self.clearWatchedDate = function() {
+        self.watched_date = null;
       };
 
       self.anyRatingChanged = function() {
@@ -101,10 +101,6 @@ angular.module('mediaMogulApp')
       };
 
       self.onRatingChange = function() {
-        if (!self.interfaceRating.watched) {
-          self.interfaceRating.watched = true;
-          self.watched_date = new Date().toLocaleDateString("en-US", options);
-        }
         self.interfaceRating.rating_pending = false;
       };
 
