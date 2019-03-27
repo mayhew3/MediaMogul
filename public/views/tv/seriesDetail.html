@@ -250,5 +250,6 @@
          value="Add Show"
          ng-show="ctrl.adding"
          ng-click="ctrl.submitSeriesAdded()">
-  <button class="btn btn-primary" ng-click="ctrl.close()">Close</button>
+  <button class="btn btn-primary" ng-hide="ctrl.watchMultiple" ng-click="ctrl.close()">Close</button>
+  <button class="btn btn-success btn-lg" ng-show="ctrl.watchMultiple" ng-click="ctrl.submitAndClose()">Submit and Close</button>
 </div>

@@ -225,13 +225,16 @@ angular.module('mediaMogulApp')
     };
 
     self.submitMulti = function() {
-      const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
+      return new Promise(resolve => {
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
 
-      maybeUpdateMultiWatch(changed).then(() => {
-        self.clearPending();
+        maybeUpdateMultiWatch(changed).then(() => {
+          self.clearPending();
+          resolve();
+        });
+
+        self.watchMultiple = false;
       });
-
-      self.watchMultiple = false;
     };
 
     function maybeUpdateMultiWatch(changed) {
@@ -667,6 +670,10 @@ angular.module('mediaMogulApp')
       EpisodeService.addToMyShows(self.series).then(function() {
         self.markAllPastWatched();
       });
+    };
+
+    self.submitAndClose = function() {
+      self.submitMulti().then(() => $uibModalInstance.close());
     };
 
     self.close = function() {
