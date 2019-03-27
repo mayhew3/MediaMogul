@@ -182,6 +182,9 @@ angular.module('mediaMogulApp')
             owned: function() {
               return false;
             },
+            addSeriesCallback: function() {
+              return null;
+            },
             removeSeriesCallback: function() {
               return null;
             },
@@ -232,6 +235,9 @@ angular.module('mediaMogulApp')
             },
             owned: function() {
               return false;
+            },
+            addSeriesCallback: function() {
+              return null;
             },
             removeSeriesCallback: function() {
               return null;

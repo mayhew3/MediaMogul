@@ -139,7 +139,7 @@
     <div class="bottomMiddle">
       <button type="button"
               class="btn btn-lg btn-success"
-              ng-show="!ctrl.watchMultiple && !ctrl.adding"
+              ng-show="!ctrl.watchMultiple && !ctrl.adding && ctrl.shouldDisplayEpisodeList()"
               ng-click="ctrl.clickWatchMultiple()">
         Watch Multiple
       </button>
