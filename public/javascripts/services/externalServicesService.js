@@ -8,12 +8,11 @@ angular.module('mediaMogulApp')
       self.nextTimeout = undefined;
 
       self.updateExternalServices = function() {
-        // console.log('Updating external services.');
         return $http.get('/api/services').then(function(response) {
           ArrayService.refreshArray(self.externalServices, response.data);
 
+          // io() is global function provided by socket.io, requires no import
           io().on('ext_service_update', function(externalService) {
-            console.log('External Service Update: ' + externalService.service_name + ', ' + externalService.last_connect);
             addOrReplaceExternalService(externalService);
             self.scopes.forEach(scope => scope.$apply());
           });
