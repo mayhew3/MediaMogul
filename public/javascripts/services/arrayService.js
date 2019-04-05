@@ -16,5 +16,13 @@ function ArrayService() {
     return !_.isUndefined(object) && !_.isNull(object);
   };
 
+  self.removeFromArray = function(arr, element) {
+    const indexOf = arr.indexOf(element);
+    if (indexOf < 0) {
+      $log.debug("No element found!");
+      return;
+    }
+    arr.splice(indexOf, 1);
+  }
 
 }

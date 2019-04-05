@@ -1,32 +1,34 @@
 angular.module('mediaMogulApp')
-  .service('ExternalServicesService', ['$log', '$http', 'ArrayService', '$timeout',
-    function($log, $http, ArrayService, $timeout) {
+  .service('ExternalServicesService', ['$log', '$http', 'ArrayService',
+    function($log, $http, ArrayService) {
       const self = this;
 
       self.externalServices = [];
+      self.scopes = [];
       self.nextTimeout = undefined;
 
       self.updateExternalServices = function() {
         // console.log('Updating external services.');
         return $http.get('/api/services').then(function(response) {
           ArrayService.refreshArray(self.externalServices, response.data);
-/*
 
-          if (self.nextTimeout) {
-            $timeout.cancel(self.nextTimeout);
-            self.nextTimeout = undefined;
-          }
-
-          // console.log("Setting new timer...");
-
-          self.nextTimeout = $timeout(self.updateExternalServices, 1000 * 15);
-*/
+          io().on('ext_service_update', function(externalService) {
+            console.log('External Service Update: ' + externalService.service_name + ', ' + externalService.last_connect);
+            addOrReplaceExternalService(externalService);
+            self.scopes.forEach(scope => scope.$apply());
+          });
 
         });
       };
       self.updateExternalServices();
 
-
+      function addOrReplaceExternalService(externalService) {
+        const matching = _.findWhere(self.externalServices, {id: externalService.id});
+        if (matching) {
+          ArrayService.removeFromArray(self.externalServices, matching);
+        }
+        self.externalServices.push(externalService);
+      }
 
       self.getThresholdTime = function(service) {
         if (service.service_name === 'tvdb') {
