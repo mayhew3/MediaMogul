@@ -41,15 +41,11 @@ angular.module('mediaMogulApp')
 
       self.needsWarning = function(service) {
         const connectDate = service.last_connect ? moment(service.last_connect) : null;
-        const failureDate = service.last_failure ? moment(service.last_failure) : null;
 
         if (connectDate) {
           const thresholdTime = self.getThresholdTime(service);
           if (connectDate.isBefore(thresholdTime)) {
             return true;
-          }
-          if (failureDate) {
-            return failureDate.isAfter(connectDate);
           }
         } else {
           return true;
