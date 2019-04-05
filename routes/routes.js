@@ -5,6 +5,7 @@ module.exports = function(app) {
   var series = require('../controllers/series_controller');
   var persons = require('../controllers/person_controller');
   var groups = require('../controllers/groups_controller');
+  require('../controllers/event_handlers');
 
   var authCheck = jwt({
     secret: new Buffer(process.env.AUTH0_CLIENT_SECRET, 'base64'),
