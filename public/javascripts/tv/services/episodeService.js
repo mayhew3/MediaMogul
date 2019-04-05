@@ -318,11 +318,15 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   }
 
   this.updateEpisodeListForRating = function(episodeRatingGroup) {
-    return $http.get('/episodeList', {params: {SeriesId: episodeRatingGroup.series_id}}).then(function(episodeResponse) {
+    return $http.get('/episodeListForRating', {params: {
+        SeriesId: episodeRatingGroup.series_id,
+        PersonId: LockService.person_id,
+        Year: episodeRatingGroup.year
+      }}).then(function(episodeResponse) {
       episodes = [];
-      var tempEpisodes = episodeResponse.data;
+      const tempEpisodes = episodeResponse.data;
       tempEpisodes.forEach(function(episode) {
-        var existing = self.findEpisodeWithId(episode.id);
+        const existing = self.findEpisodeWithId(episode.id);
         if (existing) {
           removeFromArray(episodes, existing);
         }

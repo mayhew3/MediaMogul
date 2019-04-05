@@ -42,6 +42,7 @@ module.exports = function(app) {
   app.get('/unmatchedEpisodes', authCheck, series.getUnmatchedEpisodes);
   app.get('/upcomingEpisodes', authCheck, series.getUpcomingEpisodes);
   app.get('/ratingYears', authCheck, series.getAllRatingYears);
+  app.get('/episodeListForRating', authCheck, series.getEpisodesForRating);
   app.get('/api/tvdbMatches', authCheck, series.getTVDBMatches);
   app.get('/api/tvdbIDs', authCheck, series.getMatchedTVDBIDs);
 

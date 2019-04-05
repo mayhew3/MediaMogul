@@ -178,6 +178,52 @@ exports.getEpisodes = function(req, response) {
   return db.executeQueryWithResults(response, sql, [req.query.SeriesId, 0, 0]);
 };
 
+exports.getEpisodesForRating = function(req, response) {
+  console.log("Episode call received. Params: " + JSON.stringify(req.query));
+  const series_id = req.query.SeriesId;
+  const person_id = req.query.PersonId;
+  const year = req.query.Year;
+
+  const sql = 'SELECT ' +
+      'e.id, ' +
+      'e.season, ' +
+      'e.episode_number, ' +
+      'e.streaming, ' +
+      'e.on_tivo, ' +
+      'e.air_time, ' +
+      'e.title, ' +
+      'er.rating_value,\n' +
+      'er.rating_funny, ' +
+      'er.rating_story, ' +
+      'er.rating_character, ' +
+      'er.review, ' +
+      'er.watched_date, ' +
+      'er.watched ' +
+      'FROM episode e\n' +
+      'INNER JOIN episode_rating er\n' +
+      ' ON er.episode_id = e.id\n' +
+      'INNER JOIN episode_group_rating egr\n' +
+      ' ON egr.series_id = e.series_id\n' +
+      'WHERE e.series_id = $1\n' +
+      'AND er.person_id = $2\n' +
+      'AND e.retired = $3\n' +
+      'AND er.retired = $3\n' +
+      'AND egr.retired = $3\n' +
+      'AND air_date IS NOT NULL\n' +
+      'AND air_date BETWEEN egr.start_date AND egr.end_date\n' +
+      'AND egr.year = $4\n' +
+      'ORDER BY e.absolute_number';
+
+
+  const values = [
+    series_id,
+    person_id,
+    0,
+    year
+  ];
+  return db.executeQueryWithResults(response, sql, values);
+};
+
 exports.getRecordingNow = function(req, response) {
   var sql = 'SELECT e.series_id ' +
       'FROM tivo_episode te ' +
