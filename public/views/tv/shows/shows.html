@@ -1,85 +1,51 @@
 
 <div style="margin-top: 10px">
 
-<div class="container col-lg-2">
+  <div class="row" style="margin-bottom: 10px;">
+    <div class="col-lg-3">
 
-  <ul class="nav nav-pills nav-stacked btn-sm">
-    <li role="tv" ng-class="ctrl.isActive('Main')">
-      <a ui-sref="tv.shows.main" ng-click="ctrl.selectedPill='Main'">
-        Main<span class="badge" ng-show="ctrl.countWhere(ctrl.showInQueue) > 0" ng-bind="ctrl.countWhere(ctrl.showInQueue)"></span>
-      </a>
-    </li>
-    <li role="tv" ng-class="ctrl.isActive('Continue')">
-      <a ui-sref="tv.shows.continue" ng-click="ctrl.selectedPill='Continue'">
-        Continue
-      </a>
-    </li>
-    <li role="tv" ng-class="ctrl.isActive('NewSeason')">
-      <a ui-sref="tv.shows.newSeason" ng-click="ctrl.selectedPill='NewSeason'">
-        New Season
-      </a>
-    </li>
-    <li role="tv" ng-class="ctrl.isActive('ToStart')">
-      <a ui-sref="tv.shows.toStart" ng-click="ctrl.selectedPill='ToStart'">
-        To Start
-      </a>
-    </li>
-    <!--
-    <li role="tv" ng-class="ctrl.isActive('Unmatched')" ng-show="ctrl.LockService.isAdmin()">
-      <a ui-sref="tv.shows.unmatched" ng-click="ctrl.selectedPill='Unmatched'">
-        Unmatched
-        <span class="badge pillTabRed"
-              ng-show="ctrl.countWhere(ctrl.hasImportantUnmatched) > 0"
-              ng-bind="ctrl.countWhere(ctrl.hasImportantUnmatched)"></span>
-        <span class="badge"
-              ng-show="ctrl.countWhere(ctrl.hasInactiveUnmatched) > 0"
-              ng-bind="ctrl.countWhere(ctrl.hasInactiveUnmatched)"></span>
-      </a>
-    </li>
-    <li role="tv" ng-class="ctrl.isActive('BlogTest')">
-      <a ui-sref="tv.shows.blogtest" ng-click="ctrl.selectedPill='BlogTest'">
-        BlogTest
-      </a>
-    </li>
-    -->
-  </ul>
+      <select class="form-control input-lg darkInput"
+              ng-model="ctrl.selectedPill"
+              ng-change="ctrl.onCategoryChange()">
+        <option ng-repeat="category in ctrl.categories"
+                ng-value="category.sref">
+          {{category.label}}
+        </option>
+      </select>
 
-  <ul class="nav nav-pills nav-stacked btn-sm">
-    <li role="tv">
-      <a href ng-click="ctrl.refreshSeriesList()">
-        Update
-      </a>
-    </li>
-  </ul>
+    </div>
+    <div class="col-lg-3">
 
-  <ul class="nav nav-pills nav-stacked btn-sm nav-pills-success">
-    <li role="tv">
-      <a href
-         ng-click="ctrl.addSeries()"
-         ng-show="ctrl.LockService.isAdmin()"
-         ng-disabled="!ctrl.LockService.isAuthenticated">
-        Add Series
-      </a>
-    </li>
-  </ul>
+          <button type="button"
+                  class="btn btn-lg btn-default"
+                  ng-click="ctrl.refreshSeriesList()">
+            Update
+          </button>
 
-  <ul class="nav nav-pills nav-stacked" style="margin-top: 20px">
-    <li>
+          <button type="button"
+                  class="btn btn-lg btn-success"
+             ng-click="ctrl.addSeries()"
+             ng-show="ctrl.LockService.isAdmin()"
+             ng-disabled="!ctrl.LockService.isAuthenticated">
+            Add Series
+          </button>
+
+    </div>
+    <div class="col-lg-6 custom-typeahead">
       <input type="text"
              placeholder="Quick Find..."
              ng-model="ctrl.quickFindResult"
              uib-typeahead="show as show.title for show in ctrl.series | filter:{title:$viewValue} | limitTo:5"
              typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
-             class="darkInput form-control">
-    </li>
-  </ul>
+             class="darkInput form-control input-lg">
+    </div>
+  </div>
 
-</div>
+  <div class="row">
+    <div class="col-lg-12">
 
-<div class="container col-lg-10">
+      <div ui-view></div>
 
-  <div ui-view></div>
-
-
-</div>
+    </div>
+  </div>
 </div>

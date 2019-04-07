@@ -378,6 +378,12 @@ div.gameCard {
   color: orange;
 }
 
+.custom-typeahead .dropdown-menu li a {
+  font-size: 16px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 .unwatchedRow {
   color: lightgreen;
 }

@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-    '$http', 'ArrayService', '$scope', '$timeout',
-  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout) {
+    '$http', 'ArrayService', '$scope', '$timeout', '$state',
+  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout, $state) {
     const self = this;
 
     self.LockService = LockService;
@@ -14,7 +14,7 @@ angular.module('mediaMogulApp')
 
     self.series_requests = [];
 
-    self.selectedPill = "Main";
+    self.selectedPill = "main";
 
     self.quickFindResult = undefined;
 
@@ -25,6 +25,29 @@ angular.module('mediaMogulApp')
 
     self.nextTimeout = undefined;
     self.nextShowsToUpdate = [];
+
+    self.categories = [
+      {
+        label: 'Main',
+        sref: 'main'
+      },
+        {
+        label: 'Continue',
+        sref: 'continue'
+      },
+        {
+        label: 'New Season',
+        sref: 'newSeason'
+      },
+        {
+        label: 'To Start',
+        sref: 'toStart'
+      }
+    ];
+
+    self.onCategoryChange = function() {
+      $state.go('tv.shows.' + self.selectedPill);
+    };
 
     self.isActive = function(pillName) {
       return (pillName === self.selectedPill) ? "active" : null;
@@ -198,7 +221,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Ratings Pending",
         tvFilter: self.ratingsPending,
-        posterSize: 'large',
+        posterSize: 'small',
         sort: {
           field: 'dynamic_rating',
           direction: 'desc'
@@ -214,7 +237,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         showEmpty: true,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all'
       },
       {
@@ -234,7 +257,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.continuePinned,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all',
         pageLimit: 8
       },
@@ -245,7 +268,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.newSeasonPinned,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all',
         pageLimit: 4
       },
@@ -256,7 +279,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.toStartPinned,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all',
         pageLimit: 4
       }
@@ -271,7 +294,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.continuePinned,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all'
       },
       {
@@ -281,7 +304,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.continueBacklog,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all',
         pageLimit: 12
       }
@@ -295,7 +318,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.newSeasonPinned,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all'
       },
       {
@@ -305,7 +328,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.newSeasonBacklog,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all',
         pageLimit: 12
       }
@@ -319,7 +342,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.toStartPinned,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all'
       },
       {
@@ -329,7 +352,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.toStartBacklog,
-        posterSize: 'large',
+        posterSize: 'small',
         badgeField: 'unwatched_all',
         pageLimit: 12
       }
@@ -342,7 +365,7 @@ angular.module('mediaMogulApp')
         direction: 'asc'
       },
       panelFormat: 'panel-info',
-      posterSize: 'large',
+      posterSize: 'small',
       showEmpty: false
     };
 
