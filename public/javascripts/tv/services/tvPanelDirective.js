@@ -32,7 +32,7 @@
 
 
     self.imageColumnClass = function() {
-      return (self.panelInfo.posterSize === 'small') ? 'col-xs-4 col-md-2' : 'col-xs-6 col-md-3';
+      return (self.panelInfo.posterSize === 'small') ? 'col-xs-6 col-md-2' : 'col-xs-6 col-md-3';
     };
 
     self.tvFilter = function(show) {
