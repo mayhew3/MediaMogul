@@ -175,10 +175,6 @@ h1 {
   vertical-align: middle;
 }
 
-.ratingInputBox {
-  padding: 0;
-}
-
 .ratingInput {
   text-align: center;
   font-size: 1.7em;
@@ -189,7 +185,21 @@ h1 {
   height: 100%;
 }
 
+.seriesRatingInput {
+  text-align: center;
+  font-size: 1.7em;
+  font-weight: 500;
+  padding: 0;
+  width: 72px;
+  height: 45px;
+}
+
 .ratingInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.seriesRatingInput::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
@@ -197,8 +207,8 @@ h1 {
 .ratingSaveButton {
   padding-left: 0;
   padding-right: 0;
-  width: 100%;
-  height: 100%;
+  width: 50px;
+  height: 45px;
   text-align: center;
 }
 
@@ -207,9 +217,6 @@ h1 {
 .detailRightSide {
   margin-right: 10px;
   padding: 0 10px 10px 0;
-}
-
-.ownershipButtonGroup {
 }
 
 .adminButtonGroup {
