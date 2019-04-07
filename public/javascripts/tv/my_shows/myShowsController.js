@@ -32,7 +32,7 @@ angular.module('mediaMogulApp')
         sref: 'main'
       },
         {
-        label: 'Continue',
+        label: 'Mid-Season',
         sref: 'continue'
       },
         {
@@ -251,7 +251,7 @@ angular.module('mediaMogulApp')
         subtitle: nextAirDate
       },
       {
-        headerText: 'Continue',
+        headerText: 'Mid-Season',
         sort: {
           field: 'dynamic_rating',
           direction: 'desc'
@@ -259,7 +259,7 @@ angular.module('mediaMogulApp')
         tvFilter: self.continuePinned,
         posterSize: 'small',
         badgeField: 'unwatched_all',
-        pageLimit: 8
+        pageLimit: 12
       },
       {
         headerText: 'New Season',
@@ -270,7 +270,7 @@ angular.module('mediaMogulApp')
         tvFilter: self.newSeasonPinned,
         posterSize: 'small',
         badgeField: 'unwatched_all',
-        pageLimit: 4
+        pageLimit: 6
       },
       {
         headerText: 'To Start',
@@ -281,14 +281,14 @@ angular.module('mediaMogulApp')
         tvFilter: self.toStartPinned,
         posterSize: 'small',
         badgeField: 'unwatched_all',
-        pageLimit: 4
+        pageLimit: 6
       }
 
     ];
 
     self.continuePanels = [
       {
-        headerText: 'Continue',
+        headerText: 'Mid-Season',
         sort: {
           field: 'dynamic_rating',
           direction: 'desc'

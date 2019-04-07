@@ -85,7 +85,7 @@ angular.module('mediaMogulApp')
         tvFilter: newlyAddedFilter,
         posterSize: 'small',
         badgeField: 'unwatched_all',
-        pageLimit: 8
+        pageLimit: 12
       },
       {
         headerText: "Mid-Season",
@@ -96,7 +96,7 @@ angular.module('mediaMogulApp')
         tvFilter: droppedOffFilter,
         posterSize: 'small',
         badgeField: 'unwatched_all',
-        pageLimit: 8
+        pageLimit: 12
       },
       {
         headerText: "Between Seasons",
@@ -107,7 +107,7 @@ angular.module('mediaMogulApp')
         tvFilter: newSeasonFilter,
         posterSize: 'small',
         badgeField: 'unwatched_all',
-        pageLimit: 8
+        pageLimit: 12
       },
       {
         headerText: "To Start",
@@ -118,7 +118,7 @@ angular.module('mediaMogulApp')
         tvFilter: toStartFilter,
         posterSize: 'small',
         badgeField: 'unwatched_all',
-        pageLimit: 8
+        pageLimit: 12
       },
       {
         headerText: "All",
@@ -129,7 +129,7 @@ angular.module('mediaMogulApp')
         tvFilter: allVotedFilter,
         posterSize: 'small',
         badgeField: 'unwatched_all',
-        pageLimit: 8
+        pageLimit: 12
       },
       {
         headerText: "Up to Date",
