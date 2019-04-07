@@ -195,9 +195,9 @@
       <table class="table table-striped table-hover" ng-show="ctrl.shouldDisplayEpisodeList()">
         <thead>
         <tr>
-          <th>Episode</th>
+          <th>Ep</th>
           <th>Title</th>
-          <th>Date</th>
+          <th class="hidden-xs">Date</th>
           <th>Watched</th>
           <th ng-show="ctrl.owned && !ctrl.watchMultiple">Rating</th>
           <th ng-show="ctrl.adding || ctrl.watchMultiple">Select</th>
@@ -211,7 +211,8 @@
             ng-class="ctrl.rowClass(episode)">
           <td ng-bind="episode.episode_number"></td>
           <td ng-bind="episode.title" class="episodeDescription"></td>
-          <td ng-bind="episode.air_time|date:ctrl.getDateFormat(episode.air_time):'America/Los_Angeles'"></td>
+          <td class="hidden-xs"
+              ng-bind="episode.air_time|date:ctrl.getDateFormat(episode.air_time):'America/Los_Angeles'"></td>
           <td ng-hide="ctrl.watchMultiple">
             <span ng-bind="ctrl.getWatchedDateOrWatched(episode)"></span>
           </td>
