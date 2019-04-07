@@ -17,6 +17,9 @@ angular.module('mediaMogulApp')
     self.seasonLabels = [];
     self.selectedSeason = null;
 
+    self.pageSize = 15;
+    self.currentPage = 1;
+
     self.firstUnwatchedNumber = null;
 
     self.updateEpisodes = function() {
@@ -35,6 +38,26 @@ angular.module('mediaMogulApp')
     self.shouldHide = function(episode) {
       // todo: remove when MM-236 is resolved.
       return episode.air_time === null;
+    };
+
+    self.totalItems = function() {
+      return self.episodes.filter(self.episodeFilter).length;
+    };
+
+    self.onSeasonSelect = function() {
+      self.currentPage = 1;
+      const nextUp = _.filter(self.episodes, episode => {
+        return self.episodeFilter(episode) && episode.nextUp;
+      });
+      if (nextUp.length > 0) {
+        const nextEpisode = nextUp[0];
+        const nextEpisodeNumber = nextEpisode.episode_number;
+        self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
+      }
+    };
+
+    self.getSeasonLabel = function(season) {
+      return season === 0 ? 'Specials' : 'Season ' + season;
     };
 
     function isUnwatchedEpisode(episode) {
@@ -125,6 +148,7 @@ angular.module('mediaMogulApp')
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
+          self.onSeasonSelect();
         }
       } else {
         var allEpisodes = self.episodes.filter(function (episode) {
