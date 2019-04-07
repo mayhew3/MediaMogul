@@ -23,6 +23,10 @@ h1 {
   margin: 0;
 }
 
+select {
+  -webkit-appearance: none;
+}
+
 .externalServiceFailRow {
   border: solid 2px red;
   color: #FF8888;
