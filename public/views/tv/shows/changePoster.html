@@ -3,14 +3,17 @@
 </div>
 
 <div class="modal-body clearfix">
+  <div class="row">
 
-  <div class="fade-repeat col-md-3 col-sm-4 col-xs-6 posterRow" ng-repeat="poster in ctrl.allPosters">
-    <img class="img-rounded"
-         ng-style="ctrl.posterStyle(poster)"
-         src="{{ctrl.tvdbPosterPath(poster)}}"
-         err-src="images/GenericSeries.gif"
-         ng-click="ctrl.selectPoster(poster)"
-         width="100%"/>
+    <div class="fade-repeat col-md-3 col-sm-4 col-xs-6 posterRow" ng-repeat="poster in ctrl.allPosters">
+      <img class="img-rounded"
+           ng-style="ctrl.posterStyle(poster)"
+           src="{{ctrl.tvdbPosterPath(poster)}}"
+           err-src="images/GenericSeries.gif"
+           ng-click="ctrl.selectPoster(poster)"
+           width="100%"/>
+    </div>
+
   </div>
 
 </div>
