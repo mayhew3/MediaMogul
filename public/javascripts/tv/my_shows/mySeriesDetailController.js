@@ -72,6 +72,10 @@ angular.module('mediaMogulApp')
       }
     }
 
+    function isProjectedToBeWatched(episode) {
+      return self.selectedLastWatchedEpisode != null && !isUnwatchedEpisode(episode);
+    }
+
     self.tvdbPosterPath = function() {
       return EpisodeService.constructFullPosterLocation(self.series);
     };
@@ -173,7 +177,7 @@ angular.module('mediaMogulApp')
     };
 
     self.rowClass = function(episode) {
-      if (self.watchMultiple) {
+      if (self.watchMultiple || self.adding) {
         if (episode.unaired) {
           return "danger";
         } else if (self.watchedOrWatchPending(episode)) {
@@ -213,7 +217,9 @@ angular.module('mediaMogulApp')
     };
 
     self.watchedOrWatchPending = function(episode) {
-      if (_.isUndefined(episode.watched_pending)) {
+      if (isProjectedToBeWatched(episode)) {
+        return true;
+      } else if (_.isUndefined(episode.watched_pending)) {
         return episode.watched;
       } else {
         return episode.watched_pending;
