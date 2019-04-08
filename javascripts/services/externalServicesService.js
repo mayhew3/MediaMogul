@@ -33,7 +33,7 @@ angular.module('mediaMogulApp')
         if (service.service_name === 'tvdb') {
           return moment().subtract(1, 'hours');
         } else if (service.service_name === 'HowLongToBeat') {
-          return moment().subtract(36, 'hours');
+          return moment().subtract(5, 'hours');
         }
         return undefined;
       };
