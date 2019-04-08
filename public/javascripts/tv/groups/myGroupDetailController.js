@@ -26,7 +26,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Up for Vote",
         tvFilter: upForVoteFilter,
-        posterSize: 'small',
+        posterSize: 'large',
         sort: {
           field: 'group_score',
           direction: 'desc'
@@ -37,7 +37,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Needs First Vote",
         tvFilter: needsFirstVote,
-        posterSize: 'small',
+        posterSize: 'large',
         sort: {
           field: 'group_score',
           direction: 'desc'
@@ -48,7 +48,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Awaiting Votes",
         tvFilter: awaitingVotesFilter,
-        posterSize: 'small',
+        posterSize: 'large',
         sort: {
           field: 'title',
           direction: 'asc'
@@ -63,7 +63,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: inProgressFilter,
         showEmpty: true,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all'
       },
       {
@@ -83,7 +83,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: newlyAddedFilter,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       },
@@ -94,7 +94,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: droppedOffFilter,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       },
@@ -105,7 +105,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: newSeasonFilter,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       },
@@ -116,7 +116,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: toStartFilter,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       },
@@ -127,7 +127,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: allVotedFilter,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       },

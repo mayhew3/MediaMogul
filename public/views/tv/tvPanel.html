@@ -5,7 +5,7 @@
     <h3 ng-bind="ctrl.panelInfo.headerText"></h3>
   </div>
 
-  <div class="panel-body">
+  <div class="panel-body" style="padding-bottom: 0">
 
     <div class="row">
       <div class="fade-repeat posterRow" ng-class="ctrl.imageColumnClass()" ng-repeat="show in ctrl.shows |
@@ -21,7 +21,7 @@
 
         <!-- SUBTITLE (optional) -->
 
-        <div align="right" ng-show="ctrl.ArrayService.exists(ctrl.panelInfo.subtitle(show))">
+        <div align="right" ng-show="ctrl.ArrayService.exists(ctrl.panelInfo.subtitle(show))" style="height: 30px">
           <h5 ng-bind="ctrl.subtitle(show)"></h5>
         </div>
 

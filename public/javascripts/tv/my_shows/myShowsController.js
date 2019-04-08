@@ -221,7 +221,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Ratings Pending",
         tvFilter: self.ratingsPending,
-        posterSize: 'small',
+        posterSize: 'large',
         sort: {
           field: 'dynamic_rating',
           direction: 'desc'
@@ -237,7 +237,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         showEmpty: true,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all'
       },
       {
@@ -257,7 +257,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.continuePinned,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       },
@@ -268,7 +268,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.newSeasonPinned,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 6
       },
@@ -279,7 +279,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.toStartPinned,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 6
       }
@@ -294,7 +294,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.continuePinned,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all'
       },
       {
@@ -304,7 +304,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.continueBacklog,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       }
@@ -318,7 +318,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.newSeasonPinned,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all'
       },
       {
@@ -328,7 +328,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.newSeasonBacklog,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       }
@@ -342,7 +342,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.toStartPinned,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all'
       },
       {
@@ -352,7 +352,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: self.toStartBacklog,
-        posterSize: 'small',
+        posterSize: 'large',
         badgeField: 'unwatched_all',
         pageLimit: 12
       }
@@ -365,7 +365,7 @@ angular.module('mediaMogulApp')
         direction: 'asc'
       },
       panelFormat: 'panel-info',
-      posterSize: 'small',
+      posterSize: 'large',
       showEmpty: false
     };
 

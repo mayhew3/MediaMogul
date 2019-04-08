@@ -69,7 +69,7 @@ angular.module('mediaMogulApp')
           direction: 'asc'
         },
         panelFormat: 'panel-info',
-        posterSize: 'small',
+        posterSize: 'large',
         showEmpty: false
       };
 
