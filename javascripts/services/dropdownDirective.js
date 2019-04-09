@@ -13,6 +13,7 @@
         initialValue: '=',
         possibleValues: '=',
         formatFunction: '=',
+        badgeValueFunction: '=',
         onChangeCallback: '='
       }
     }
@@ -24,6 +25,7 @@
     self.initialValue = $scope.initialValue;
     self.possibleValues = $scope.possibleValues;
     self.formatFunction = $scope.formatFunction;
+    self.badgeValueFunction = $scope.badgeValueFunction;
     self.onChangeCallback = $scope.onChangeCallback;
 
     self.isOpen = false;
@@ -32,7 +34,16 @@
     self.selectValue = function(value) {
       self.selectedValue.value = value;
       self.onChangeCallback(value);
-    }
+    };
 
+    self.rowClass = function(value) {
+      return value === self.selectedValue.value ? 'highlightedEntry' : '';
+    };
+
+    self.hideBadge = function(value) {
+      return _.isUndefined(self.badgeValueFunction) ||
+        _.isUndefined(self.badgeValueFunction(value)) ||
+        self.badgeValueFunction(value) === 0
+    };
   }
 })();

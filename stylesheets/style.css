@@ -375,6 +375,14 @@ div.gameCard {
   background-color: red;
 }
 
+.pillTabGreen {
+  background-color: #55BB33;
+}
+
+.highlightedEntry {
+  background-color: #111;
+}
+
 .nextUpRow {
   border: solid 2px lime;
   color: lime;

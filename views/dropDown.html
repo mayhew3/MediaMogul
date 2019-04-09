@@ -16,9 +16,15 @@
       role="menu"
       aria-labelledby="single-button">
     <li role="menuitem"
-        ng-repeat="value in ctrl.possibleValues">
+        ng-repeat="value in ctrl.possibleValues"
+        ng-class="ctrl.rowClass(value)"
+        style="font-size: 16pt">
       <a ng-click="ctrl.selectValue(value)">
         {{ctrl.formatFunction(value)}}
+        <span class="badge pillTabGreen"
+              ng-hide="ctrl.hideBadge(value)">
+          {{ctrl.badgeValueFunction(value)}}
+        </span>
       </a>
     </li>
   </ul>

@@ -373,6 +373,15 @@ angular.module('mediaMogulApp')
       });
     };
 
+    self.getUnwatchedForSeason = function(season) {
+      const unwatched = _.filter(self.episodes, self.isAiredUnwatched);
+      return _.filter(unwatched, {season: season}).length;
+    };
+
+    self.isAiredUnwatched = function(episode) {
+      return !self.isUnaired(episode) && isUnwatchedEpisode(episode);
+    };
+
     self.getPinnedClass = function() {
       return self.series.my_tier === 1 ? "btn-success" : "btn-default";
     };
