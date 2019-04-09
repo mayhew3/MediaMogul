@@ -9,7 +9,7 @@
           uib-dropdown-toggle
           style="width: 100%; display:inline-block;"
           ng-disabled="disabled">
-    {{ctrl.formatFunction(ctrl.selectedValue.value)}} <span class="caret"></span>
+    {{ctrl.formatFunction(ctrl.selectedValue.label)}} <span class="caret"></span>
   </button>
   <ul class="dropdown-menu"
       uib-dropdown-menu
@@ -25,6 +25,8 @@
               ng-hide="ctrl.hideBadge(value)">
           {{ctrl.badgeValueFunction(value)}}
         </span>
+
+<!--        <span ng-bind="ctrl.getGroupList(group)" class="groupPillMembers"></span>-->
       </a>
     </li>
   </ul>
