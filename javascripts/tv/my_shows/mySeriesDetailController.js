@@ -33,10 +33,16 @@ angular.module('mediaMogulApp')
 
     self.daysSinceLastUpdate = Math.floor((new Date - new Date(self.lastUpdate)) / 1000 / 60 / 60 / 24);
 
+    /* PAGING */
     self.pageSize = 15;
     self.currentPage = 1;
 
     self.watchMultiple = false;
+
+    /* DROPDOWN */
+    self.status = {
+      is_open: false
+    };
 
     self.originalFields = {
       my_rating: self.series.my_rating
@@ -341,6 +347,11 @@ angular.module('mediaMogulApp')
         const nextEpisodeNumber = nextEpisode.episode_number;
         self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
       }
+    };
+
+    self.selectSeason = function(season) {
+      self.selectedSeason = season;
+      self.onSeasonSelect();
     };
 
     self.ratingInputClass = function() {
