@@ -1,0 +1,25 @@
+
+<!-- Single button -->
+<div class="btn-group"
+     uib-dropdown
+     is-open="ctrl.isOpen">
+  <button id="single-button"
+          type="button"
+          class="btn btn-default btn-lg"
+          uib-dropdown-toggle
+          style="width: 100%; display:inline-block;"
+          ng-disabled="disabled">
+    {{ctrl.formatFunction(ctrl.selectedValue.value)}} <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu"
+      uib-dropdown-menu
+      role="menu"
+      aria-labelledby="single-button">
+    <li role="menuitem"
+        ng-repeat="value in ctrl.possibleValues">
+      <a ng-click="ctrl.selectValue(value)">
+        {{ctrl.formatFunction(value)}}
+      </a>
+    </li>
+  </ul>
+</div>

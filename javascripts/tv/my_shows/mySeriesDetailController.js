@@ -16,7 +16,9 @@ angular.module('mediaMogulApp')
     self.tiers = [1, 2];
 
     self.seasonLabels = [];
-    self.selectedSeason = null;
+    self.selectedSeason = {
+      value: null
+    };
 
     self.removed = false;
 
@@ -317,7 +319,7 @@ angular.module('mediaMogulApp')
 
       if (unwatchedEpisodes.length > 0) {
         let firstUnwatched = unwatchedEpisodes[0];
-        self.selectedSeason = firstUnwatched.season;
+        self.selectedSeason.value = firstUnwatched.season;
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
@@ -330,9 +332,9 @@ angular.module('mediaMogulApp')
         });
 
         if (allEpisodes.length > 0) {
-          self.selectedSeason = allEpisodes[0].season;
+          self.selectedSeason.value = allEpisodes[0].season;
         } else {
-          self.selectedSeason = 0;
+          self.selectedSeason.value = 0;
         }
       }
     }
@@ -350,7 +352,7 @@ angular.module('mediaMogulApp')
     };
 
     self.selectSeason = function(season) {
-      self.selectedSeason = season;
+      self.selectedSeason.value = season;
       self.onSeasonSelect();
     };
 
@@ -442,12 +444,12 @@ angular.module('mediaMogulApp')
     };
 
     self.episodeFilter = function(episode) {
-      return episode.season === self.selectedSeason && !self.shouldHide(episode);
+      return episode.season === self.selectedSeason.value && !self.shouldHide(episode);
     };
 
 
     self.getSeasonButtonClass = function(season) {
-      return self.selectedSeason === season ? "btn btn-success" : "btn btn-primary";
+      return self.selectedSeason.value === season ? "btn btn-success" : "btn btn-primary";
     };
 
     self.getDateFormat = function(date) {

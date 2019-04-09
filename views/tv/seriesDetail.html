@@ -175,28 +175,10 @@
     <!-- Season Dropdown -->
     <div class="col-md-3 col-sm-4 col-xs-6" ng-show="ctrl.shouldDisplaySeasonList() && ctrl.shouldDisplayEpisodeList()">
 
-      <!-- Single button -->
-      <div class="btn-group"
-           uib-dropdown
-           is-open="ctrl.status.is_open">
-        <button id="single-button"
-                type="button"
-                class="btn btn-default btn-lg"
-                uib-dropdown-toggle
-                style="width: 100%"
-                ng-disabled="disabled">
-          {{ctrl.getSeasonLabel(ctrl.selectedSeason)}} <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu"
-            uib-dropdown-menu
-            role="menu"
-            aria-labelledby="single-button">
-          <li role="menuitem"
-              ng-repeat="season in ctrl.seasonLabels">
-            <a ng-click="ctrl.selectSeason(season)">{{ctrl.getSeasonLabel(season)}}</a>
-          </li>
-        </ul>
-      </div>
+      <drop-down initial-value="ctrl.selectedSeason"
+                 possible-values="ctrl.seasonLabels"
+                 format-function="ctrl.getSeasonLabel"
+                 on-change-callback="ctrl.onSeasonSelect"></drop-down>
 
     </div>
 
