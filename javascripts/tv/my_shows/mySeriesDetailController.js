@@ -366,7 +366,7 @@ angular.module('mediaMogulApp')
     };
 
     self.selectSeason = function(season) {
-      self.selectedSeason.label = season;
+      self.selectedSeason.label = season.label;
       self.onSeasonSelect();
     };
 

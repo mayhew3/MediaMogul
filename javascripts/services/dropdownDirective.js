@@ -32,7 +32,7 @@
     self.selectedValue = self.initialValue;
 
     self.selectValue = function(value) {
-      self.selectedValue.label = value;
+      self.selectedValue = value;
       self.onChangeCallback(value);
     };
 
