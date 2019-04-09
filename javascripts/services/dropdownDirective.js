@@ -37,7 +37,7 @@
     };
 
     self.rowClass = function(value) {
-      return value === self.selectedValue.label ? 'highlightedEntry' : '';
+      return value.label === self.selectedValue.label ? 'highlightedEntry' : '';
     };
 
     self.hideBadge = function(value) {
