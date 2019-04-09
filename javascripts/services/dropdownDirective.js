@@ -32,18 +32,22 @@
     self.selectedValue = self.initialValue;
 
     self.selectValue = function(value) {
-      self.selectedValue.value = value;
+      self.selectedValue.label = value;
       self.onChangeCallback(value);
     };
 
     self.rowClass = function(value) {
-      return value === self.selectedValue.value ? 'highlightedEntry' : '';
+      return value === self.selectedValue.label ? 'highlightedEntry' : '';
     };
 
     self.hideBadge = function(value) {
       return _.isUndefined(self.badgeValueFunction) ||
         _.isUndefined(self.badgeValueFunction(value)) ||
         self.badgeValueFunction(value) === 0
+    };
+
+    self.showSubtitle = function(value) {
+
     };
   }
 })();
