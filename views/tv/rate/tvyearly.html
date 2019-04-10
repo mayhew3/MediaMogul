@@ -3,11 +3,16 @@
   <div class="page-header" id="banner" style="margin-top: 0">
     <div class="row">
       <div class="col-lg-12">
-        <h1>TV Ratings -
-          <select ng-model="ctrl.viewedYear"
-                  ng-options="x for x in ctrl.possibleYears"
-                  ng-change="ctrl.changeViewedYear()"
-                  class="headerDropdown"></select></h1>
+
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <h1>TV Ratings</h1>
+        </div>
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+          <drop-down initial-value="ctrl.viewedYear"
+                     possible-values="ctrl.possibleYears"
+                     on-change-callback="ctrl.changeYear"></drop-down>
+        </div>
+
       </div>
     </div>
   </div>
