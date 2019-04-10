@@ -5,7 +5,6 @@ angular.module('mediaMogulApp')
       let myPendingShows = [];
       let notMyShows = [];
       let episodes = [];
-      let possibleMatches = [];
       const self = this;
 
       self.updateMyShowsList = function() {
@@ -66,10 +65,6 @@ angular.module('mediaMogulApp')
           return 'images/GenericSeries.gif';
         }
       };
-
-      function amendPosterLocation(posterPath) {
-        return posterPath ? 'https://res.cloudinary.com/media-mogul/image/upload/' + posterPath : 'images/GenericSeries.gif';
-      }
 
       self.updateNumericFields = function(show) {
         if (show.tier !== null) {
@@ -271,24 +266,8 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.updatePossibleMatches = function(series) {
-        return $http.get('/possibleMatches', {params: {SeriesId: series.id}}).then(function(response) {
-          $log.debug("Possible matches returned " + response.data.length + " items.");
-          possibleMatches = response.data;
-          possibleMatches.forEach(function (match) {
-            match.posterResolved = amendPosterLocation(match.poster);
-          });
-        }, function(errResponse) {
-          console.error('Error while fetching possible match list: ' + errResponse);
-        });
-      };
-
       self.getEpisodes = function() {
         return episodes;
-      };
-
-      self.getPossibleMatches = function() {
-        return possibleMatches;
       };
 
       self.getPendingShowsList = function() {
