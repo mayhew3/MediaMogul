@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'addSeriesCallback', 'removeSeriesCallback', 'adding',
+    '$uibModal', '$filter', 'LockService', '$http', 'addSeriesCallback', 'removeSeriesCallback', 'adding', 'YearlyRatingService',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           addSeriesCallback, removeSeriesCallback, adding) {
+           addSeriesCallback, removeSeriesCallback, adding, YearlyRatingService) {
     const self = this;
 
     self.LockService = LockService;
@@ -653,7 +653,7 @@ angular.module('mediaMogulApp')
       }).result.finally(function () {
         EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
           if (LockService.isAdmin()) {
-            EpisodeService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
+            YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
           }
           updateNextUp();
         });

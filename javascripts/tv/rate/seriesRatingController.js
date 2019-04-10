@@ -1,7 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('seriesRatingController', ['$log', 'EpisodeService', '$uibModalInstance', 'episodeGroup', '$uibModal', '$filter', 'LockService',
-  function($log, EpisodeService, $uibModalInstance, episodeGroup, $uibModal, $filter, LockService) {
-    var self = this;
+  .controller('seriesRatingController', ['$log', 'EpisodeService', '$uibModalInstance', 'episodeGroup', '$uibModal',
+    '$filter', 'LockService', 'YearlyRatingService', 'ArrayService', '$scope',
+  function($log, EpisodeService, $uibModalInstance, episodeGroup, $uibModal, $filter, LockService, YearlyRatingService,
+           ArrayService, $scope) {
+    const self = this;
 
     self.LockService = LockService;
 
@@ -24,8 +26,9 @@ angular.module('mediaMogulApp')
 
     self.showDetail = false;
 
-    EpisodeService.updateEpisodeListForRating(self.episodeGroup).then(function() {
-      self.episodes = EpisodeService.getEpisodes();
+    YearlyRatingService.getEpisodeListForRating(self.episodeGroup).then(function(episodes) {
+      ArrayService.refreshArray(self.episodes, episodes);
+      $scope.$apply();
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     });
 
@@ -172,9 +175,9 @@ angular.module('mediaMogulApp')
 
     self.updateRating = function() {
       if (episodeGroup.rating === null && self.interfaceFields.rating !== null) {
-        EpisodeService.decrementNumberOfShowsToRate();
+        YearlyRatingService.decrementNumberOfShowsToRate();
       } else if (episodeGroup.rating !== null && (self.interfaceFields.rating === null || self.interfaceFields.rating === '')) {
-        EpisodeService.incrementNumberOfShowsToRate();
+        YearlyRatingService.incrementNumberOfShowsToRate();
       }
 
       if (episodeGroup.review !== self.interfaceFields.review) {
@@ -185,7 +188,7 @@ angular.module('mediaMogulApp')
 
       var changedFields = self.getChangedFields();
       if (Object.keys(changedFields).length > 0) {
-        return EpisodeService.updateEpisodeGroupRating(self.episodeGroup.id, changedFields).then(function() {
+        return YearlyRatingService.updateEpisodeGroupRating(self.episodeGroup.id, changedFields).then(function() {
           episodeGroup.rating = self.interfaceFields.rating;
           episodeGroup.review = self.interfaceFields.review;
           episodeGroup.review_update_date = self.interfaceFields.review_update_date;
