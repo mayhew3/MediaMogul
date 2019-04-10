@@ -4,7 +4,6 @@ angular.module('mediaMogulApp')
       let myShows = [];
       let myPendingShows = [];
       let notMyShows = [];
-      let episodes = [];
       const self = this;
 
       self.updateMyShowsList = function() {
@@ -125,12 +124,13 @@ angular.module('mediaMogulApp')
         urlCalls.push($http.get('/episodeList', {params: {SeriesId: series.id}}));
         urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
 
+        const episodes = [];
+
         $q.all(urlCalls).then(
           function(results) {
-            episodes = [];
             let tempEpisodes = results[0].data;
             tempEpisodes.forEach(function(episode) {
-              let existing = self.findEpisodeWithId(episode.id);
+              let existing = self.findEpisodeWithId(episodes, episode.id);
               if (existing) {
                 ArrayService.removeFromArray(episodes, existing);
               }
@@ -161,7 +161,7 @@ angular.module('mediaMogulApp')
               };
               self.updateRatingFields(episode);
             });
-            return deferred.resolve();
+            return deferred.resolve(episodes);
           },
           function(errors) {
             deferred.reject(errors);
@@ -175,12 +175,13 @@ angular.module('mediaMogulApp')
         urlCalls.push($http.get('/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
         urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
 
+        const episodes = [];
+
         $q.all(urlCalls).then(
           function(results) {
-            episodes = [];
             let tempEpisodes = results[0].data;
             tempEpisodes.forEach(function(episode) {
-              let existing = self.findEpisodeWithId(episode.id);
+              let existing = self.findEpisodeWithId(episodes, episode.id);
               if (existing) {
                 ArrayService.removeFromArray(episodes, existing);
               }
@@ -211,7 +212,7 @@ angular.module('mediaMogulApp')
               };
               self.updateRatingFields(episode);
             });
-            return deferred.resolve();
+            return deferred.resolve(episodes);
           },
           function(errors) {
             deferred.reject(errors);
@@ -219,7 +220,7 @@ angular.module('mediaMogulApp')
         return deferred.promise;
       };
 
-      self.findEpisodeWithId = function(id) {
+      self.findEpisodeWithId = function(episodes, id) {
         let matching = episodes.filter(function(episode) {
           return episode.id === id;
         });
@@ -264,10 +265,6 @@ angular.module('mediaMogulApp')
         if (episode.watched === null) {
           episode.watched = false;
         }
-      };
-
-      self.getEpisodes = function() {
-        return episodes;
       };
 
       self.getPendingShowsList = function() {
