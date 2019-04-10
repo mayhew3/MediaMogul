@@ -67,13 +67,9 @@ exports.getMyPendingShows = function(request, response) {
   db.executeQueryWithResults(response, sql, values);
 };
 
-exports.getMyShows = function(request, response) {
-  var personId = request.query.PersonId;
-  console.log("Server call: Person " + personId);
+function getAllRawMyShows(person_id) {
 
-  let startTime = new Date;
-
-  var sql = "SELECT s.id, " +
+  const sql = "SELECT s.id, " +
     "s.title, " +
     "ps.tier, " +
     "s.metacritic, " +
@@ -127,12 +123,17 @@ exports.getMyShows = function(request, response) {
     "AND s.suggestion = $2 " +
     "AND s.tvdb_match_status = $3 " +
     "AND s.retired = $4 ";
-  var values = [
-    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true
+  const values = [
+    person_id, false, 'Match Completed', 0, 0, 0, 0, 0, true
   ];
+  return db.selectWithJSON(sql, values);
+}
 
-  db.selectWithJSON(sql, values).then(function (seriesResults) {
-    var sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
+function getShowsUsingFunction(person_id, initialFunction, response) {
+  const startTime = new Date;
+
+  initialFunction(person_id).then(function (seriesResults) {
+    let sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = e.series_id " +
@@ -145,18 +146,18 @@ exports.getMyShows = function(request, response) {
       "AND ps.person_id = $5 " +
       "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
-    var values = [
+    const values = [
       0,
       0,
-      personId,
+      person_id,
       true,
-      personId
+      person_id
     ];
 
     db.selectWithJSON(sql, values).then(function(episodeResults) {
 
-      var groupedBySeries = _.groupBy(episodeResults, "series_id");
-      for (var seriesId in groupedBySeries) {
+      let groupedBySeries = _.groupBy(episodeResults, "series_id");
+      for (let seriesId in groupedBySeries) {
         if (groupedBySeries.hasOwnProperty(seriesId)) {
           let unwatchedEpisodes = groupedBySeries[seriesId];
 
@@ -167,7 +168,7 @@ exports.getMyShows = function(request, response) {
         }
       }
 
-      var sql =
+      let sql =
         "SELECT e.series_id, er.episode_id, er.rating_value " +
         "FROM episode_rating er " +
         "INNER JOIN episode e " +
@@ -183,17 +184,17 @@ exports.getMyShows = function(request, response) {
         "AND ps.person_id = $4 " +
         "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
 
-      var values = [
+      let values = [
         true,
         0,
-        personId,
-        personId
+        person_id,
+        person_id
       ];
 
       db.selectWithJSON(sql, values).then(function(ratingResults) {
 
-        var groupedBySeries = _.groupBy(ratingResults, "series_id");
-        for (var seriesId in groupedBySeries) {
+        let groupedBySeries = _.groupBy(ratingResults, "series_id");
+        for (let seriesId in groupedBySeries) {
           if (groupedBySeries.hasOwnProperty(seriesId)) {
             let seriesRatings = groupedBySeries[seriesId];
 
@@ -211,7 +212,10 @@ exports.getMyShows = function(request, response) {
 
     });
   });
+}
 
+exports.getMyShows = function(request, response) {
+  getShowsUsingFunction(request.query.PersonId, getAllRawMyShows, response);
 };
 
 exports.getNextAiredInfo = function(request, response) {
