@@ -1,21 +1,21 @@
 angular.module('mediaMogulApp')
   .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService',
     function ($log, $http, $q, $filter, LockService, ArrayService) {
-      var shows = [];
-      var myShows = [];
-      var myPendingShows = [];
-      var notMyShows = [];
-      var episodes = [];
-      var unmatchedEpisodes = [];
-      var possibleMatches = [];
-      var viewingLocations = [];
-      var allPosters = [];
-      var tvdbErrors = [];
-      var pendingMatches = 0;
+      let shows = [];
+      let myShows = [];
+      let myPendingShows = [];
+      let notMyShows = [];
+      let episodes = [];
+      let unmatchedEpisodes = [];
+      let possibleMatches = [];
+      let viewingLocations = [];
+      let allPosters = [];
+      let tvdbErrors = [];
+      let pendingMatches = 0;
       const self = this;
 
       self.getSeriesWithTitle = function(SeriesTitle) {
-        var filtered = shows.filter(function(seriesElement) {
+        let filtered = shows.filter(function(seriesElement) {
           return seriesElement.title === SeriesTitle;
         });
         return filtered[0];
@@ -25,7 +25,7 @@ angular.module('mediaMogulApp')
         return new Promise((resolve, reject) => {
           $http.get('/myShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
             $log.debug("Shows returned " + response.data.length + " items.");
-            var tempShows = response.data;
+            let tempShows = response.data;
             tempShows.forEach(function (show) {
               self.updateNumericFields(show);
               self.formatNextAirDate(show);
@@ -62,7 +62,7 @@ angular.module('mediaMogulApp')
       self.updateNotMyShowsList = function() {
         return $http.get('/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
           $log.debug("Shows returned " + response.data.length + " items.");
-          var tempShows = response.data;
+          let tempShows = response.data;
           tempShows.forEach(function (show) {
             self.updateNumericFields(show);
           });
@@ -82,9 +82,9 @@ angular.module('mediaMogulApp')
       };
 
       self.updateSeriesMatchList = function() {
-        return $http.get('/seriesMatchList').then(function (showresponse) {
-          $log.debug("Shows returned " + showresponse.data.length + " items.");
-          var tempShows = showresponse.data;
+        return $http.get('/seriesMatchList').then(function (showResponse) {
+          $log.debug("Shows returned " + showResponse.data.length + " items.");
+          let tempShows = showResponse.data;
           tempShows.forEach(function (show) {
             self.updatePosterLocation(show);
           });
@@ -121,26 +121,6 @@ angular.module('mediaMogulApp')
 
       self.decrementPendingMatches = function() {
         pendingMatches--;
-      };
-
-      self.getRatingYear = function() {
-        return ratingYear;
-      };
-
-      self.getRatingEndDate = function() {
-        return ratingEndDate;
-      };
-
-      self.getAllRatingYears = function() {
-        return allRatingYears;
-      };
-
-      self.updateEpisodeGroupRatings = function(year) {
-        return $http.get('/episodeGroupRatings', {params: {Year: year}}).then(function (groupResponse) {
-          var tempShows = groupResponse.data;
-          $log.debug("Series returned for year " + year + ": " + tempShows.length);
-          episodeGroupRatings = tempShows;
-        });
       };
 
       self.updatePosterLocation = function(show) {
@@ -194,8 +174,8 @@ angular.module('mediaMogulApp')
         return $http.get('/tvdbErrors').then(function (payload) {
           tvdbErrors = payload.data;
           tvdbErrors.forEach(function(tvdb_error) {
-            var exceptionClass = tvdb_error.exception_class;
-            var exceptionParts = exceptionClass.split('.');
+            let exceptionClass = tvdb_error.exception_class;
+            let exceptionParts = exceptionClass.split('.');
             tvdb_error.shortClass = exceptionParts[exceptionParts.length -1];
           });
         });
@@ -206,8 +186,8 @@ angular.module('mediaMogulApp')
         return $http.get('recordingNow').then(function(recordingNowResults) {
           recordingNowResults.data.forEach(function (episode) {
             // $log.debug("Found recording in progress for series id " + episode.series_id);
-            var series_id = episode.series_id;
-            var series = findSeriesWithId(series_id);
+            let series_id = episode.series_id;
+            let series = findSeriesWithId(series_id);
             if (series === null) {
               $log.debug("Unable to find recording now with series id '" + series_id + "'.");
             } else {
@@ -224,7 +204,7 @@ angular.module('mediaMogulApp')
       }
 
       self.combineDateAndTime = function(date, time) {
-        var combinedStr = $filter('date')(date, 'shortDate', '+0000') + " " + time;
+        let combinedStr = $filter('date')(date, 'shortDate', '+0000') + " " + time;
         return new Date(combinedStr);
       };
 
@@ -237,14 +217,14 @@ angular.module('mediaMogulApp')
       };
 
       self.formatAirTime = function(combinedDate) {
-        var minutesPart = $filter('date')(combinedDate, 'mm');
-        var timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
+        let minutesPart = $filter('date')(combinedDate, 'mm');
+        let timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
         return $filter('date')(combinedDate, timeFormat);
       };
 
       self.updateNextAirDate = function(series, episode) {
         series.nextAirDate = episode.air_time === null ? new Date(episode.air_date) : new Date(episode.air_time);
-        var combinedDate = self.getAirTime(episode);
+        let combinedDate = self.getAirTime(episode);
         series.nextAirDateFormatted = self.formatAirTime(combinedDate);
       };
 
@@ -257,7 +237,7 @@ angular.module('mediaMogulApp')
       };
 
       function findAndUpdateSeries(resultObj) {
-        var series_id = resultObj.series_id;
+        let series_id = resultObj.series_id;
         shows.forEach(function (series) {
           if (series.id === series_id && series.nextAirDate === undefined) {
             self.updateNextAirDate(series, resultObj);
@@ -266,45 +246,20 @@ angular.module('mediaMogulApp')
         });
       }
 
-      self.updateEpisodeListForRating = function(episodeRatingGroup) {
-        return $http.get('/episodeListForRating', {params: {
-            SeriesId: episodeRatingGroup.series_id,
-            PersonId: LockService.person_id,
-            Year: episodeRatingGroup.year
-          }}).then(function(episodeResponse) {
-          episodes = [];
-          const tempEpisodes = episodeResponse.data;
-          tempEpisodes.forEach(function(episode) {
-            const existing = self.findEpisodeWithId(episode.id);
-            if (existing) {
-              removeFromArray(episodes, existing);
-            }
-            episodes.push(episode);
-          });
-
-          $log.debug(episodes.length + " episodes found for series " + episodeRatingGroup.title);
-
-          episodes.forEach( function(episode) {
-            episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/' + episode.tvdb_filename : 'images/GenericEpisode.gif';
-            self.updateRatingFields(episode);
-          });
-        });
-      };
-
       self.updateEpisodeList = function(series) {
-        var deferred = $q.defer();
-        var urlCalls = [];
+        let deferred = $q.defer();
+        let urlCalls = [];
         urlCalls.push($http.get('/episodeList', {params: {SeriesId: series.id}}));
         urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
 
         $q.all(urlCalls).then(
           function(results) {
             episodes = [];
-            var tempEpisodes = results[0].data;
+            let tempEpisodes = results[0].data;
             tempEpisodes.forEach(function(episode) {
-              var existing = self.findEpisodeWithId(episode.id);
+              let existing = self.findEpisodeWithId(episode.id);
               if (existing) {
-                removeFromArray(episodes, existing);
+                ArrayService.removeFromArray(episodes, existing);
               }
               episodes.push(episode);
             });
@@ -320,8 +275,8 @@ angular.module('mediaMogulApp')
                 if (episode.watched !== true) {
                   return {};
                 } else {
-                  var hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
-                  var saturation = episode.rating_value === null ? "0%" : "50%";
+                  let hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
+                  let saturation = episode.rating_value === null ? "0%" : "50%";
                   return {
                     'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)',
                     'font-size': '1.6em',
@@ -342,19 +297,19 @@ angular.module('mediaMogulApp')
       };
 
       self.updateMyEpisodeList = function(series) {
-        var deferred = $q.defer();
-        var urlCalls = [];
+        let deferred = $q.defer();
+        let urlCalls = [];
         urlCalls.push($http.get('/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
         urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
 
         $q.all(urlCalls).then(
           function(results) {
             episodes = [];
-            var tempEpisodes = results[0].data;
+            let tempEpisodes = results[0].data;
             tempEpisodes.forEach(function(episode) {
-              var existing = self.findEpisodeWithId(episode.id);
+              let existing = self.findEpisodeWithId(episode.id);
               if (existing) {
-                removeFromArray(episodes, existing);
+                ArrayService.removeFromArray(episodes, existing);
               }
               episodes.push(episode);
             });
@@ -370,8 +325,8 @@ angular.module('mediaMogulApp')
                 if (episode.watched !== true) {
                   return {};
                 } else {
-                  var hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
-                  var saturation = episode.rating_value === null ? "0%" : "50%";
+                  let hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
+                  let saturation = episode.rating_value === null ? "0%" : "50%";
                   return {
                     'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)',
                     'font-size': '1.6em',
@@ -392,7 +347,7 @@ angular.module('mediaMogulApp')
       };
 
       self.findEpisodeWithId = function(id) {
-        var matching = episodes.filter(function(episode) {
+        let matching = episodes.filter(function(episode) {
           return episode.id === id;
         });
         if (matching.length > 0) {
@@ -402,7 +357,7 @@ angular.module('mediaMogulApp')
       };
 
       self.updateRatingFields = function(episode) {
-        var optionalFields = [
+        let optionalFields = [
           "rating_value",
           "rating_funny",
           "rating_character",
@@ -429,6 +384,9 @@ angular.module('mediaMogulApp')
         }
         if (_.isString(episode.rating_value)) {
           episode.rating_value = parseInt(episode.rating_value);
+        }
+        if (episode.absolute_number !== null) {
+          episode.absolute_number = parseInt(episode.absolute_number);
         }
         if (episode.watched === null) {
           episode.watched = false;
@@ -512,7 +470,7 @@ angular.module('mediaMogulApp')
 
       self.isStreaming = function(series) {
         $log.debug("Series.ViewingLocations: " + JSON.stringify(series.viewingLocations));
-        var streamingPlatform = series.viewingLocations.find(function(viewingLocation) {
+        let streamingPlatform = series.viewingLocations.find(function(viewingLocation) {
           return viewingLocation.streaming;
         });
         $log.debug("Streaming Platform: " + streamingPlatform);
@@ -527,7 +485,7 @@ angular.module('mediaMogulApp')
         // todo: add some error handling.
       };
       self.changeMyTier = function(SeriesId, Tier) {
-        var changedFields = {
+        let changedFields = {
           tier: Tier
         };
         return $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
@@ -565,8 +523,8 @@ angular.module('mediaMogulApp')
       };
 
       self.addViewingLocation = function(series, episodes, viewingLocation) {
-        var wasStreamingBefore = self.isStreaming(series);
-        var changedToStreaming = !wasStreamingBefore && viewingLocation.streaming;
+        let wasStreamingBefore = self.isStreaming(series);
+        let changedToStreaming = !wasStreamingBefore && viewingLocation.streaming;
         series.viewingLocations.push(viewingLocation);
 
         $log.debug("Adding viewing location '" + viewingLocation.name + "' to existing series: " + series.title);
@@ -582,14 +540,14 @@ angular.module('mediaMogulApp')
 
       self.removeFromMyShows = function(show) {
         return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
-          removeFromArray(myShows, show);
+          ArrayService.removeFromArray(myShows, show);
         });
       };
 
       self.removeViewingLocation = function(series, episodes, viewingLocation) {
-        var wasStreamingBefore = self.isStreaming(series);
+        let wasStreamingBefore = self.isStreaming(series);
 
-        var indexOf = series.viewingLocations.findIndex(function(location) {
+        let indexOf = series.viewingLocations.findIndex(function(location) {
           return location.id === viewingLocation.id;
         });
         $log.debug("Viewing Location: " + JSON.stringify(viewingLocation) + ", indexOf: " + indexOf);
@@ -600,7 +558,7 @@ angular.module('mediaMogulApp')
         }
 
         series.viewingLocations.splice(indexOf, 1);
-        var changedToNotStreaming = wasStreamingBefore && !self.isStreaming(series);
+        let changedToNotStreaming = wasStreamingBefore && !self.isStreaming(series);
 
         $log.debug("Removing viewing location '" + viewingLocation.name + "' from series: " + series.title);
         $http.post('/removeViewingLocation', {
@@ -616,15 +574,6 @@ angular.module('mediaMogulApp')
           $log.debug("Error removing viewing location: " + errResponse);
         });
       };
-
-      function removeFromArray(arr, element) {
-        var indexOf = arr.indexOf(element);
-        if (indexOf < 0) {
-          $log.debug("No element found!");
-          return;
-        }
-        arr.splice(indexOf, 1);
-      }
 
       function changeStreamingOnEpisodes(series, episodes, streaming) {
         $http.post('/changeEpisodesStreaming', {SeriesId: series.id, Streaming: streaming}).then(function () {
@@ -683,32 +632,32 @@ angular.module('mediaMogulApp')
 
 
       self.updateDenorms = function(series, episodes) {
-        var activeEpisodes = 0;
-        var deletedEpisodes = 0;
-        var suggestionEpisodes = 0;
-        var watchedEpisodes = 0;
-        var unwatchedEpisodes = 0;
-        var matchedEpisodes = 0;
-        var tvdbOnly = 0;
-        var unwatchedUnrecorded = 0;
-        var streamingEpisodes = 0;
-        var unwatchedStreaming = 0;
-        var mostRecent = null;
-        var lastUnwatched = null;
-        var firstUnwatched = null;
-        var now = new Date;
+        let activeEpisodes = 0;
+        let deletedEpisodes = 0;
+        let suggestionEpisodes = 0;
+        let watchedEpisodes = 0;
+        let unwatchedEpisodes = 0;
+        let matchedEpisodes = 0;
+        let tvdbOnly = 0;
+        let unwatchedUnrecorded = 0;
+        let streamingEpisodes = 0;
+        let unwatchedStreaming = 0;
+        let mostRecent = null;
+        let lastUnwatched = null;
+        let firstUnwatched = null;
+        let now = new Date;
 
         episodes.forEach(function(episode) {
 
           if (!episode.retired && episode.season !== 0) {
 
-            var onTiVo = episode.on_tivo;
-            var suggestion = episode.tivo_suggestion;
-            var deleted = (episode.tivo_deleted_date !== null);
-            var watched = episode.watched;
-            var streaming = episode.streaming;
-            var airTime = episode.air_time === null ? null : new Date(episode.air_time);
-            var canWatch = (onTiVo && !deleted) || (streaming && isBefore(airTime, now));
+            let onTiVo = episode.on_tivo;
+            let suggestion = episode.tivo_suggestion;
+            let deleted = (episode.tivo_deleted_date !== null);
+            let watched = episode.watched;
+            let streaming = episode.streaming;
+            let airTime = episode.air_time === null ? null : new Date(episode.air_time);
+            let canWatch = (onTiVo && !deleted) || (streaming && isBefore(airTime, now));
 
             // ACTIVE
             if (onTiVo && !suggestion && !deleted) {
@@ -792,7 +741,7 @@ angular.module('mediaMogulApp')
         series.unwatched_streaming = unwatchedStreaming;
         series.unwatched_all = unwatchedEpisodes + unwatchedStreaming;
 
-        var changedFields = {
+        let changedFields = {
           active_episodes: activeEpisodes,
           deleted_episodes: deletedEpisodes,
           suggestion_episodes: suggestionEpisodes,
@@ -824,7 +773,7 @@ angular.module('mediaMogulApp')
       };
 
       function formatDate(unformattedDate) {
-        var originalDate = (unformattedDate === '' || unformattedDate === null) ? null :
+        let originalDate = (unformattedDate === '' || unformattedDate === null) ? null :
           new Date(unformattedDate);
         if (originalDate !== null) {
           originalDate.setHours(0, 0, 0, 0);
@@ -833,13 +782,13 @@ angular.module('mediaMogulApp')
       }
 
       self.getChangedFields = function(originalObject, updatedObject) {
-        var allKeys = _.keys(updatedObject);
-        var changedFields = {};
+        let allKeys = _.keys(updatedObject);
+        let changedFields = {};
         allKeys.forEach(function(itsaIndex) {
           if (updatedObject.hasOwnProperty(itsaIndex)) {
-            var updatedValue = updatedObject[itsaIndex];
+            let updatedValue = updatedObject[itsaIndex];
 
-            var originalValue = originalObject[itsaIndex];
+            let originalValue = originalObject[itsaIndex];
 
             if (updatedValue instanceof Date || originalValue instanceof Date) {
               if (self.dateHasChanged(originalValue, updatedValue)) {
@@ -856,12 +805,12 @@ angular.module('mediaMogulApp')
       };
 
       self.updateMySeriesDenorms = function(series, episodes, databaseCallback) {
-        var unwatchedEpisodes = 0;
-        var lastUnwatched = null;
-        var firstUnwatched = null;
-        var now = new Date;
+        let unwatchedEpisodes = 0;
+        let lastUnwatched = null;
+        let firstUnwatched = null;
+        let now = new Date;
 
-        var eligibleEpisodes = _.filter(episodes, function(episode) {
+        let eligibleEpisodes = _.filter(episodes, function(episode) {
           return episode.season !== 0;
         });
 
@@ -869,12 +818,12 @@ angular.module('mediaMogulApp')
           if (episode.air_time === null) {
             return false;
           }
-          var airTime = new Date(episode.air_time);
+          let airTime = new Date(episode.air_time);
           episode.air_time = airTime;
           return isBefore(airTime, now);
         };
 
-        var airedEpisodes = _.sortBy(_.filter(eligibleEpisodes, self.hasAired), function(episode) {
+        let airedEpisodes = _.sortBy(_.filter(eligibleEpisodes, self.hasAired), function(episode) {
           return episode.absolute_number;
         });
 
@@ -882,10 +831,10 @@ angular.module('mediaMogulApp')
 
         $log.debug("There are " + airedEpisodes.length + " aired episodes.");
 
-        var unwatchedEpisodesList = _.filter(airedEpisodes, function(episode) {
+        let unwatchedEpisodesList = _.filter(airedEpisodes, function(episode) {
           return !episode.watched && !isTrue(episode.skipped);
         });
-        var watchedEpisodesWithDates = _.filter(airedEpisodes, function(episode) {
+        let watchedEpisodesWithDates = _.filter(airedEpisodes, function(episode) {
           return episode.watched && ArrayService.exists(episode.watched_date);
         });
 
@@ -899,27 +848,27 @@ angular.module('mediaMogulApp')
         firstUnwatched = unwatchedEpisodes === 0 ? null : _.first(unwatchedEpisodesList).air_time;
         lastUnwatched = unwatchedEpisodes === 0 ? null : _.last(unwatchedEpisodesList).air_time;
 
-        var originalFields = {
+        let originalFields = {
           unwatched_episodes: series.unwatched_episodes,
           last_unwatched: series.last_unwatched,
           first_unwatched: series.first_unwatched,
           unwatched_streaming: series.unwatched_streaming
         };
 
-        var updatedFields = {
+        let updatedFields = {
           unwatched_episodes: unwatchedEpisodes,
           last_unwatched: lastUnwatched,
           first_unwatched: firstUnwatched,
           unwatched_streaming: 0
         };
 
-        var changedFields = self.getChangedFields(originalFields, updatedFields);
+        let changedFields = self.getChangedFields(originalFields, updatedFields);
 
         return databaseCallback(changedFields).then(function() {
           $log.debug("Updating my series denorms: " + _.keys(changedFields));
           series.unwatched_episodes = unwatchedEpisodes;
 
-          var lastWatchedEpisode = _.last(watchedEpisodesWithDates);
+          let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
           series.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
           series.last_unwatched = lastUnwatched;
@@ -938,6 +887,7 @@ angular.module('mediaMogulApp')
         return _.isBoolean(field) && field === true;
       }
 
+      // noinspection JSUnusedLocalSymbols
       function isFalse(field) {
         return _.isBoolean(field) && field === false;
       }
