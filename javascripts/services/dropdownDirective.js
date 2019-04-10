@@ -7,7 +7,7 @@
   function dropDown() {
     return {
       templateUrl: 'views/dropDown.html',
-      controller: ['$scope', dropDownController],
+      controller: ['$scope', 'ArrayService', dropDownController],
       controllerAs: 'ctrl',
       scope: {
         initialValue: '=',
@@ -19,7 +19,7 @@
     }
   }
 
-  function dropDownController($scope) {
+  function dropDownController($scope, ArrayService) {
     const self = this;
 
     self.initialValue = $scope.initialValue;
@@ -30,6 +30,10 @@
 
     self.isOpen = false;
     self.selectedValue = self.initialValue;
+
+    self.showEntireThing = function() {
+      return ArrayService.exists(self.selectedValue) && ArrayService.exists(self.selectedValue.label);
+    };
 
     self.selectValue = function(value) {
       self.selectedValue = value;

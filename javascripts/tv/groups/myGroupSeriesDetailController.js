@@ -14,8 +14,10 @@ angular.module('mediaMogulApp')
 
     self.episodes = [];
 
-    self.seasonLabels = [];
-    self.selectedSeason = null;
+    self.possibleSeasons = [];
+    self.selectedSeason = {
+      label: null
+    };
 
     self.pageSize = 15;
     self.currentPage = 1;
@@ -56,8 +58,19 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.selectSeason = function(season) {
+      self.selectedSeason.label = season.label;
+      self.onSeasonSelect();
+    };
+
     self.getSeasonLabel = function(season) {
-      return season === 0 ? 'Specials' : 'Season ' + season;
+      if (!season) {
+        return '';
+      } else if (season.label === 0) {
+        return 'Specials';
+      } else {
+        return 'Season ' + season.label;
+      }
     };
 
     function isUnwatchedEpisode(episode) {
@@ -121,11 +134,23 @@ angular.module('mediaMogulApp')
       return EpisodeService.constructFullPosterLocation(self.series);
     };
 
+    self.shouldDisplaySeasonList = function() {
+      return self.possibleSeasons.length > 1;
+    };
+
+    function seasonDoesNotExist(seasonNumber) {
+      const match = _.findWhere(self.possibleSeasons, {label: seasonNumber});
+      return _.isUndefined(match);
+    }
+
     function updateSeasonLabels() {
       self.episodes.forEach(function (episode) {
-        var season = episode.season;
-        if (season !== null && !(self.seasonLabels.indexOf(season) > -1) && !self.shouldHide(episode)) {
-          self.seasonLabels.push(season);
+        const season = episode.season;
+        let seasonObj = {
+          label: season
+        };
+        if (season !== null && seasonDoesNotExist(season) && !self.shouldHide(episode)) {
+          self.possibleSeasons.push(seasonObj);
         }
         if (isUnaired(episode)) {
           episode.unaired = true;
@@ -144,7 +169,7 @@ angular.module('mediaMogulApp')
 
       if (unwatchedEpisodes.length > 0) {
         var firstUnwatched = unwatchedEpisodes[0];
-        self.selectedSeason = firstUnwatched.season;
+        self.selectedSeason.label = firstUnwatched.season;
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
           firstUnwatched.nextUp = true;
@@ -157,9 +182,9 @@ angular.module('mediaMogulApp')
         });
 
         if (allEpisodes.length > 0) {
-          self.selectedSeason = allEpisodes[0].season;
+          self.selectedSeason.label = allEpisodes[0].season;
         } else {
-          self.selectedSeason = 0;
+          self.selectedSeason.label = 0;
         }
       }
     }
@@ -291,12 +316,12 @@ angular.module('mediaMogulApp')
     }
 
     self.episodeFilter = function(episode) {
-      return episode.season === self.selectedSeason && !self.shouldHide(episode);
+      return episode.season === self.selectedSeason.label && !self.shouldHide(episode);
     };
 
 
     self.getSeasonButtonClass = function(season) {
-      return self.selectedSeason === season ? "btn btn-success" : "btn btn-primary";
+      return self.selectedSeason.label === season ? "btn btn-success" : "btn btn-primary";
     };
 
     self.getDateFormat = function(date) {
