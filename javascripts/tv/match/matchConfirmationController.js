@@ -1,6 +1,7 @@
 angular.module('mediaMogulApp')
-  .controller('matchConfirmationController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'LockService',
-    function($log, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService) {
+  .controller('matchConfirmationController', ['$log', '$http', 'EpisodeService', '$uibModalInstance', 'series',
+    '$uibModal', '$filter', 'LockService', 'ArrayService',
+    function($log, $http, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService, ArrayService) {
       var self = this;
 
       self.LockService = LockService;
@@ -10,17 +11,26 @@ angular.module('mediaMogulApp')
 
       self.selectedMatch = null;
 
-      EpisodeService.updatePossibleMatches(self.series).then(function() {
-        self.possibleMatches = EpisodeService.getPossibleMatches();
-        $log.debug("Updated " + self.possibleMatches.length + " possible matches.");
+      function amendPosterLocation(posterPath) {
+        return posterPath ? 'https://res.cloudinary.com/media-mogul/image/upload/' + posterPath : 'images/GenericSeries.gif';
+      }
 
-        self.possibleMatches.forEach(function (match) {
-          if (series.tvdb_match_id === match.tvdb_series_ext_id) {
+      $http.get('/possibleMatches', {params: {SeriesId: self.series.id}}).then(function(response) {
+        $log.debug("Possible matches returned " + response.data.length + " items.");
+        const possibleMatches = response.data;
+
+        possibleMatches.forEach(function (match) {
+          match.posterResolved = amendPosterLocation(match.poster);
+          if (self.series.tvdb_match_id === match.tvdb_series_ext_id) {
             self.selectedMatch = match;
           }
         });
-      });
 
+        ArrayService.refreshArray(self.possibleMatches, possibleMatches);
+
+      }, function(errResponse) {
+        console.error('Error while fetching possible match list: ' + errResponse);
+      });
 
       self.posterStyle = function(match) {
         if (match === self.selectedMatch) {
