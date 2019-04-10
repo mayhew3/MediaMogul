@@ -5,7 +5,6 @@ angular.module('mediaMogulApp')
       let myPendingShows = [];
       let notMyShows = [];
       let episodes = [];
-      let unmatchedEpisodes = [];
       let possibleMatches = [];
       let viewingLocations = [];
       const self = this;
@@ -300,25 +299,12 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.updateUnmatchedList = function(series) {
-        return $http.get('/unmatchedEpisodes', {params: {TiVoSeriesId: series.tivo_series_v2_ext_id}}).then(function(episodeResponse) {
-          $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
-          unmatchedEpisodes = episodeResponse.data;
-        }, function(errResponse) {
-          console.error('Error while fetching episode list: ' + errResponse);
-        });
-      };
-
       self.getEpisodes = function() {
         return episodes;
       };
 
       self.getPossibleMatches = function() {
         return possibleMatches;
-      };
-
-      self.getUnmatchedEpisodes = function() {
-        return unmatchedEpisodes;
       };
 
       self.getPendingShowsList = function() {
