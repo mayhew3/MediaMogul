@@ -118,57 +118,6 @@ angular.module('mediaMogulApp')
         };
       };
 
-      self.updateEpisodeList = function(series) {
-        let deferred = $q.defer();
-        let urlCalls = [];
-        urlCalls.push($http.get('/episodeList', {params: {SeriesId: series.id}}));
-        urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
-
-        const episodes = [];
-
-        $q.all(urlCalls).then(
-          function(results) {
-            let tempEpisodes = results[0].data;
-            tempEpisodes.forEach(function(episode) {
-              let existing = self.findEpisodeWithId(episodes, episode.id);
-              if (existing) {
-                ArrayService.removeFromArray(episodes, existing);
-              }
-              episodes.push(episode);
-            });
-
-            series.viewingLocations = results[1].data;
-            $log.debug("Episodes has " + episodes.length + " rows.");
-            $log.debug("Locations has " + series.viewingLocations.length + " rows.");
-
-            episodes.forEach( function(episode) {
-              episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/'+episode.tvdb_filename : 'images/GenericEpisode.gif';
-
-              episode.colorStyle = function() {
-                if (episode.watched !== true) {
-                  return {};
-                } else {
-                  let hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
-                  let saturation = episode.rating_value === null ? "0%" : "50%";
-                  return {
-                    'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)',
-                    'font-size': '1.6em',
-                    'text-align': 'center',
-                    'font-weight': '800',
-                    'color': 'white'
-                  }
-                }
-              };
-              self.updateRatingFields(episode);
-            });
-            return deferred.resolve(episodes);
-          },
-          function(errors) {
-            deferred.reject(errors);
-          });
-        return deferred.promise;
-      };
-
       self.updateMyEpisodeList = function(series) {
         let deferred = $q.defer();
         let urlCalls = [];
