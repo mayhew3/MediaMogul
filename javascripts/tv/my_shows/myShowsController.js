@@ -59,10 +59,6 @@ angular.module('mediaMogulApp')
          && hasUnwatchedEpisodes(series);
     };
 
-    self.getFilterFormatted = function(filterInfo) {
-      return filterInfo.label;
-    };
-
     self.secondTier = function(series) {
       return series.my_tier === 2
          && hasUnwatchedEpisodes(series)

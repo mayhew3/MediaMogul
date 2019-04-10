@@ -31,10 +31,6 @@ angular.module('mediaMogulApp')
       $state.go('tv.groups.detail', {group_id: selectedGroup.id});
     };
 
-    self.getGroupFormatted = function(groupInfo) {
-      return groupInfo.label;
-    };
-
     self.fetchGroups = function() {
       $http.get('/api/myGroups', {params: {person_id: LockService.person_id}}).then(function(results) {
         ArrayService.refreshArray(self.groups, results.data);

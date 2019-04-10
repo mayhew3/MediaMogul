@@ -36,6 +36,14 @@
       self.onChangeCallback(value);
     };
 
+    self.getFormattedLabel = function(value) {
+      if (self.formatFunction) {
+        return self.formatFunction(value);
+      } else {
+        return value.label;
+      }
+    };
+
     self.rowClass = function(value) {
       return value.label === self.selectedValue.label ? 'highlightedEntry' : '';
     };

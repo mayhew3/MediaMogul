@@ -11,7 +11,7 @@
           uib-dropdown-toggle
           style="width: 100%; display:inline-block;"
           ng-disabled="disabled">
-    {{ctrl.formatFunction(ctrl.selectedValue)}} <span class="caret"></span>
+    {{ctrl.getFormattedLabel(ctrl.selectedValue)}} <span class="caret"></span>
   </button>
   <ul class="dropdown-menu"
       uib-dropdown-menu
@@ -23,7 +23,7 @@
         style="font-size: 13pt">
       <a ng-click="ctrl.selectValue(value)"
       style="padding-top: 7px; padding-bottom: 7px; cursor: pointer;">
-        {{ctrl.formatFunction(value)}}
+        {{ctrl.getFormattedLabel(value)}}
         <span class="badge pillTabGreen"
               ng-hide="ctrl.hideBadge(value)">
           {{ctrl.badgeValueFunction(value)}}
