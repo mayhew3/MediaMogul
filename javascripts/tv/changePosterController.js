@@ -1,7 +1,8 @@
 angular.module('mediaMogulApp')
-  .controller('changePosterController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal', '$filter', 'LockService',
-    function($log, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService) {
-      var self = this;
+  .controller('changePosterController', ['$log', '$http', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal',
+    '$filter', 'LockService', 'ArrayService',
+    function($log, $http, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService, ArrayService) {
+      const self = this;
 
       self.LockService = LockService;
 
@@ -10,15 +11,24 @@ angular.module('mediaMogulApp')
 
       self.selectedPoster = null;
 
-      EpisodeService.updateAllPosters(self.series).then(function() {
-        self.allPosters = EpisodeService.getAllPosters();
-        $log.debug("Updated " + self.allPosters.length + " posters.");
+      function amendPosterLocation(posterPath) {
+        return posterPath ? 'https://res.cloudinary.com/media-mogul/image/upload/' + posterPath : 'images/GenericSeries.gif';
+      }
 
-        self.allPosters.forEach(function (poster) {
+      $http.get('/allPosters', {params: {tvdb_series_id: series.tvdb_series_id}}).then(function(response) {
+        $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
+        const allPosters = response.data;
+        allPosters.forEach(function (poster) {
+          poster.posterResolved = amendPosterLocation(poster.cloud_poster);
+        });
+
+        allPosters.forEach(function (poster) {
           if (series.poster === poster.poster_path) {
             self.selectedPoster = poster;
           }
         });
+
+        ArrayService.refreshArray(self.allPosters, allPosters);
       });
 
 
