@@ -39,7 +39,6 @@ module.exports = function(app) {
   app.get('/viewingLocations', authCheck, series.getViewingLocations);
   app.get('/allPosters', authCheck, series.getAllPosters);
   app.get('/seriesViewingLocations', authCheck, series.getSeriesViewingLocations);
-  app.get('/unmatchedEpisodes', authCheck, series.getUnmatchedEpisodes);
   app.get('/upcomingEpisodes', authCheck, series.getUpcomingEpisodes);
   app.get('/ratingYears', authCheck, series.getAllRatingYears);
   app.get('/episodeListForRating', authCheck, series.getEpisodesForRating);

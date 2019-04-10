@@ -51,10 +51,6 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/toStart',
           templateUrl: 'views/tv/shows/toStart.html'
         })
-        .state('tv.shows.unmatched', {
-          url: '/unmatched',
-          templateUrl: 'views/tv/shows/unmatched.html'
-        })
         .state('tv.groups', {
           url: '/groups',
           controller: 'myGroupsController',

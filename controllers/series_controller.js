@@ -267,19 +267,6 @@ exports.getAllPosters = function(req, response) {
   return db.executeQueryWithResults(response, sql, [tvdbSeriesId, 0]);
 };
 
-exports.getUnmatchedEpisodes = function(req, response) {
-  console.log("Unmatched Episode call received. Params: " + req.query.TiVoSeriesId);
-
-  var sql = 'SELECT te.* ' +
-      'FROM tivo_episode te ' +
-      'WHERE te.tivo_series_v2_ext_id = $1 ' +
-      'AND te.retired = $2 ' +
-      'AND te.ignore_matching = $3 ' +
-      'AND id not in (select ete.tivo_episode_id from edge_tivo_episode ete)';
-
-  return db.executeQueryWithResults(response, sql, [req.query.TiVoSeriesId, 0, false]);
-};
-
 exports.getPrimeTV = function(req, response) {
   console.log("PrimeTV endpoint called.");
 

@@ -554,20 +554,6 @@ angular.module('mediaMogulApp')
       });
     };
 
-    self.tryToMatch = function(series) {
-      $log.debug("Executing!");
-      $uibModal.open({
-        templateUrl: 'views/tv/episodeMatcher.html',
-        controller: 'episodeMatcherController as ctrl',
-        size: 'lg',
-        resolve: {
-          series: function() {
-            return series;
-          }
-        }
-      });
-    };
-
     self.addSeries = function() {
       $log.debug("Adding window.");
       $uibModal.open({
