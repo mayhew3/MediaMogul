@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('matchController', ['$log', '$uibModal', 'EpisodeService', 'LockService',
-    function($log, $uibModal, EpisodeService, LockService) {
+  .controller('matchController', ['$log', '$uibModal', 'EpisodeService', 'LockService', 'ArrayService',
+    function($log, $uibModal, EpisodeService, LockService, ArrayService) {
       var self = this;
 
       self.series = [];
@@ -60,10 +60,20 @@ angular.module('mediaMogulApp')
       };
 
       self.refreshSeriesList = function() {
-        EpisodeService.updateSeriesMatchList().then(function () {
-          self.series = EpisodeService.getSeriesList();
+        return $http.get('/seriesMatchList').then(function (showResponse) {
+          $log.debug("Shows returned " + showResponse.data.length + " items.");
+          let tempShows = showResponse.data;
+          tempShows.forEach(function (show) {
+            EpisodeService.updatePosterLocation(show);
+          });
+          $log.debug("Finished updating.");
+          ArrayService.refreshArray(self.series, tempShows);
+
           $log.debug("Controller has " + self.series.length + " shows.");
+        }, function (errResponse) {
+          console.error('Error while fetching series list: ' + errResponse);
         });
+
       };
       self.refreshSeriesList();
 
