@@ -1,59 +1,28 @@
+angular.module('mediaMogulApp')
+  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService', EpisodeService]);
+
 function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   var shows = [];
   var myShows = [];
   var myPendingShows = [];
   var notMyShows = [];
   var episodes = [];
-  var episodeGroupRatings = [];
   var unmatchedEpisodes = [];
   var possibleMatches = [];
   var viewingLocations = [];
   var allPosters = [];
   var tvdbErrors = [];
-  var numberOfShowsToRate = 0;
   var pendingMatches = 0;
-  var ratingYear;
-  var ratingEndDate;
-  var allRatingYears = [];
-  var self = this;
+  const self = this;
 
-  this.getSeriesWithTitle = function(SeriesTitle) {
+  self.getSeriesWithTitle = function(SeriesTitle) {
     var filtered = shows.filter(function(seriesElement) {
       return seriesElement.title === SeriesTitle;
     });
     return filtered[0];
   };
 
-  this.updateSystemVars = function() {
-    if (_.isUndefined(ratingYear)) {
-      return $http.get('/systemVars').then(function (response) {
-        var numberOfRows = response.data.length;
-        if (numberOfRows !== 1) {
-          $log.debug(numberOfRows + " rows found in system_vars.");
-          return;
-        }
-
-        var systemVars = response.data[0];
-        ratingYear = systemVars.rating_year;
-        ratingEndDate = systemVars.rating_end_date === null ? null : new Date(systemVars.rating_end_date);
-        console.log("System vars: Year " + ratingYear + ", End Date " + ratingEndDate);
-      });
-    } else {
-      return $q.when();
-    }
-  };
-
-  this.updateRatingYears = function() {
-    return $http.get('/ratingYears').then(function (response) {
-      response.data.forEach(function(row) {
-        if (!_.contains(allRatingYears, row.year)) {
-          allRatingYears.push(row.year);
-        }
-      });
-    })
-  };
-
-  this.updateMyShowsList = function() {
+  self.updateMyShowsList = function() {
     return new Promise((resolve, reject) => {
       $http.get('/myShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
         $log.debug("Shows returned " + response.data.length + " items.");
@@ -81,7 +50,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.updateMyPendingShowsList = function() {
+  self.updateMyPendingShowsList = function() {
     return $http.get('/myPendingShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
       $log.debug("Shows returned " + response.data.length + " items.");
       myPendingShows = response.data;
@@ -91,7 +60,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.updateNotMyShowsList = function() {
+  self.updateNotMyShowsList = function() {
     return $http.get('/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
       $log.debug("Shows returned " + response.data.length + " items.");
       var tempShows = response.data;
@@ -113,7 +82,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.updateSeriesMatchList = function() {
+  self.updateSeriesMatchList = function() {
     return $http.get('/seriesMatchList').then(function (showresponse) {
       $log.debug("Shows returned " + showresponse.data.length + " items.");
       var tempShows = showresponse.data;
@@ -137,56 +106,37 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.updateNumberOfShowsToRate = function(year) {
-    return $http.get('/numShowsToRate', {params: {Year: year}}).then(function (response) {
-      numberOfShowsToRate = response.data[0].num_shows;
-      console.log('Number of shows to rate: ' + numberOfShowsToRate);
-    });
-  };
-
-  this.updateNumberOfPendingMatches = function() {
+  self.updateNumberOfPendingMatches = function() {
     return $http.get('/numPendingMatches').then(function (response) {
       pendingMatches = response.data[0].num_matches;
     });
   };
 
-  this.getNumberOfShowsToRate = function() {
-    return numberOfShowsToRate;
-  };
-
-  this.incrementNumberOfShowsToRate = function() {
-    numberOfShowsToRate++;
-  };
-
-  this.decrementNumberOfShowsToRate = function() {
-    numberOfShowsToRate--;
-  };
-
-  this.getNumberOfPendingMatches = function() {
+  self.getNumberOfPendingMatches = function() {
     return pendingMatches;
   };
 
-  this.incrementPendingMatches = function() {
+  self.incrementPendingMatches = function() {
     pendingMatches++;
   };
 
-  this.decrementPendingMatches = function() {
+  self.decrementPendingMatches = function() {
     pendingMatches--;
   };
 
-  this.getRatingYear = function() {
+  self.getRatingYear = function() {
     return ratingYear;
   };
 
-  this.getRatingEndDate = function() {
+  self.getRatingEndDate = function() {
     return ratingEndDate;
   };
 
-  this.getAllRatingYears = function() {
+  self.getAllRatingYears = function() {
     return allRatingYears;
   };
 
-  this.updateEpisodeGroupRatings = function(year) {
+  self.updateEpisodeGroupRatings = function(year) {
     return $http.get('/episodeGroupRatings', {params: {Year: year}}).then(function (groupResponse) {
       var tempShows = groupResponse.data;
       $log.debug("Series returned for year " + year + ": " + tempShows.length);
@@ -212,7 +162,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     return posterPath ? 'https://res.cloudinary.com/media-mogul/image/upload/' + posterPath : 'images/GenericSeries.gif';
   }
 
-  this.updateNumericFields = function(show) {
+  self.updateNumericFields = function(show) {
     if (show.tier !== null) {
       show.tier = parseInt(show.tier);
     }
@@ -232,7 +182,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     }
   };
 
-  this.updateNextUp = function() {
+  self.updateNextUp = function() {
     return $http.get('/upcomingEpisodes').then(function (upcomingResults) {
       // $log.debug(JSON.stringify(upcomingResults));
       upcomingResults.data.forEach(function(episode) {
@@ -241,7 +191,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.updateTVDBErrors = function() {
+  self.updateTVDBErrors = function() {
     return $http.get('/tvdbErrors').then(function (payload) {
       tvdbErrors = payload.data;
       tvdbErrors.forEach(function(tvdb_error) {
@@ -252,7 +202,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.updateRecordingNow = function() {
+  self.updateRecordingNow = function() {
     // $log.debug("Updating Recording Now.");
     return $http.get('recordingNow').then(function(recordingNowResults) {
       recordingNowResults.data.forEach(function (episode) {
@@ -274,12 +224,12 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     })
   }
 
-  this.combineDateAndTime = function(date, time) {
+  self.combineDateAndTime = function(date, time) {
     var combinedStr = $filter('date')(date, 'shortDate', '+0000') + " " + time;
     return new Date(combinedStr);
   };
 
-  this.getAirTime = function(episode) {
+  self.getAirTime = function(episode) {
     if (episode.air_time === null) {
       return self.combineDateAndTime(episode.air_date, episode.seriesAirTime);
     } else {
@@ -287,19 +237,19 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     }
   };
 
-  this.formatAirTime = function(combinedDate) {
+  self.formatAirTime = function(combinedDate) {
     var minutesPart = $filter('date')(combinedDate, 'mm');
     var timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
     return $filter('date')(combinedDate, timeFormat);
   };
 
-  this.updateNextAirDate = function(series, episode) {
+  self.updateNextAirDate = function(series, episode) {
     series.nextAirDate = episode.air_time === null ? new Date(episode.air_date) : new Date(episode.air_time);
     var combinedDate = self.getAirTime(episode);
     series.nextAirDateFormatted = self.formatAirTime(combinedDate);
   };
 
-  this.updateNextEpisode = function(series, episode) {
+  self.updateNextEpisode = function(series, episode) {
     series.nextEpisode = {
       title: episode.title,
       season: episode.season,
@@ -317,7 +267,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   }
 
-  this.updateEpisodeListForRating = function(episodeRatingGroup) {
+  self.updateEpisodeListForRating = function(episodeRatingGroup) {
     return $http.get('/episodeListForRating', {params: {
         SeriesId: episodeRatingGroup.series_id,
         PersonId: LockService.person_id,
@@ -342,7 +292,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.updateEpisodeList = function(series) {
+  self.updateEpisodeList = function(series) {
     var deferred = $q.defer();
     var urlCalls = [];
     urlCalls.push($http.get('/episodeList', {params: {SeriesId: series.id}}));
@@ -392,7 +342,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     return deferred.promise;
   };
 
-  this.updateMyEpisodeList = function(series) {
+  self.updateMyEpisodeList = function(series) {
     var deferred = $q.defer();
     var urlCalls = [];
     urlCalls.push($http.get('/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
@@ -442,7 +392,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     return deferred.promise;
   };
 
-  this.findEpisodeWithId = function(id) {
+  self.findEpisodeWithId = function(id) {
     var matching = episodes.filter(function(episode) {
       return episode.id === id;
     });
@@ -452,7 +402,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     return null;
   };
 
-  this.updateRatingFields = function(episode) {
+  self.updateRatingFields = function(episode) {
     var optionalFields = [
       "rating_value",
       "rating_funny",
@@ -486,7 +436,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     }
   };
 
-  this.updatePossibleMatches = function(series) {
+  self.updatePossibleMatches = function(series) {
     return $http.get('/possibleMatches', {params: {SeriesId: series.id}}).then(function(response) {
       $log.debug("Possible matches returned " + response.data.length + " items.");
       possibleMatches = response.data;
@@ -498,7 +448,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.updateAllPosters = function(series) {
+  self.updateAllPosters = function(series) {
     return $http.get('/allPosters', {params: {tvdb_series_id: series.tvdb_series_id}}).then(function(response) {
       $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
       allPosters = response.data;
@@ -508,11 +458,11 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.getAllPosters = function() {
+  self.getAllPosters = function() {
     return allPosters;
   };
 
-  this.updateUnmatchedList = function(series) {
+  self.updateUnmatchedList = function(series) {
     return $http.get('/unmatchedEpisodes', {params: {TiVoSeriesId: series.tivo_series_v2_ext_id}}).then(function(episodeResponse) {
       $log.debug("Episodes returned " + episodeResponse.data.length + " items.");
       unmatchedEpisodes = episodeResponse.data;
@@ -521,51 +471,47 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.getEpisodes = function() {
+  self.getEpisodes = function() {
     return episodes;
   };
 
-  this.getPossibleMatches = function() {
+  self.getPossibleMatches = function() {
     return possibleMatches;
   };
 
-  this.getUnmatchedEpisodes = function() {
+  self.getUnmatchedEpisodes = function() {
     return unmatchedEpisodes;
   };
 
-  this.getSeriesList = function() {
+  self.getSeriesList = function() {
     return shows;
   };
 
-  this.getPendingShowsList = function() {
+  self.getPendingShowsList = function() {
     return myPendingShows;
   };
 
-  this.addToPendingShows = function(series) {
+  self.addToPendingShows = function(series) {
     myPendingShows.push(series);
   };
 
-  this.getMyShows = function() {
+  self.getMyShows = function() {
     return myShows;
   };
 
-  this.getNotMyShows = function() {
+  self.getNotMyShows = function() {
     return notMyShows;
   };
 
-  this.getEpisodeGroupRatings = function() {
-    return episodeGroupRatings;
-  };
-
-  this.getViewingLocations = function() {
+  self.getViewingLocations = function() {
     return viewingLocations;
   };
 
-  this.getTVDBErrors = function() {
+  self.getTVDBErrors = function() {
     return tvdbErrors;
   };
 
-  this.isStreaming = function(series) {
+  self.isStreaming = function(series) {
     $log.debug("Series.ViewingLocations: " + JSON.stringify(series.viewingLocations));
     var streamingPlatform = series.viewingLocations.find(function(viewingLocation) {
       return viewingLocation.streaming;
@@ -574,29 +520,29 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     return !(streamingPlatform === undefined);
   };
 
-  this.updateEpisode = function(episodeId, changedFields) {
+  self.updateEpisode = function(episodeId, changedFields) {
     return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
   };
-  this.changeTier = function(SeriesId, Tier) {
+  self.changeTier = function(SeriesId, Tier) {
     $http.post('/changeTier', {SeriesId: SeriesId, tier: Tier});
     // todo: add some error handling.
   };
-  this.changeMyTier = function(SeriesId, Tier) {
+  self.changeMyTier = function(SeriesId, Tier) {
     var changedFields = {
       tier: Tier
     };
     return $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
   };
-  this.updateSeries = function(SeriesId, ChangedFields) {
+  self.updateSeries = function(SeriesId, ChangedFields) {
     $log.debug('Received update for Series ' + SeriesId + " with data " + JSON.stringify(ChangedFields));
     return $http.post('/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
   };
-  this.addSeries = function(series) {
+  self.addSeries = function(series) {
     $log.debug("Adding series " + JSON.stringify(series));
     return $http.post('/addSeries', {series: series});
   };
 
-  this.addToMyShows = function(show) {
+  self.addToMyShows = function(show) {
     $log.debug("Adding show " + JSON.stringify(show));
     return $http.post('/addToMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function () {
       show.addedSuccessfully = true;
@@ -605,31 +551,21 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.addMyEpisodeRating = function(episodeRating, seriesId) {
+  self.addMyEpisodeRating = function(episodeRating, seriesId) {
     $log.debug("Adding new episode rating.");
     return $http.post('/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});
   };
 
-  this.updateMyEpisodeRating = function(changedFields, rating_id, seriesId) {
+  self.updateMyEpisodeRating = function(changedFields, rating_id, seriesId) {
     $log.debug("Updating existing episode rating with id: " + rating_id + ", Changed: " + JSON.stringify(changedFields));
     return $http.post('/rateMyEpisode', {IsNew: false, ChangedFields: changedFields, RatingId: rating_id, SeriesId: seriesId, PersonId: LockService.person_id});
   };
 
-  this.updateEpisodeGroupRating = function(episodeGroupRatingId, changedFields) {
-    $log.debug('Received update for EpisodeGroupRating ' + episodeGroupRatingId + " with data " + JSON.stringify(changedFields));
-    return $http.post('/updateEpisodeGroupRating', {EpisodeGroupRatingId: episodeGroupRatingId, ChangedFields: changedFields});
-  };
-
-  this.addEpisodeGroupRating = function(episodeGroupRating) {
-    $log.debug('Received add for EpisodeGroupRating ' + JSON.stringify(episodeGroupRating));
-    return $http.post('/addEpisodeGroupRating', {EpisodeGroupRating: episodeGroupRating});
-  };
-
-  this.rateMyShow = function(series, rating) {
+  self.rateMyShow = function(series, rating) {
     return $http.post('/rateMyShow', {PersonId: LockService.person_id, SeriesId: series.id, Rating: rating});
   };
 
-  this.addViewingLocation = function(series, episodes, viewingLocation) {
+  self.addViewingLocation = function(series, episodes, viewingLocation) {
     var wasStreamingBefore = self.isStreaming(series);
     var changedToStreaming = !wasStreamingBefore && viewingLocation.streaming;
     series.viewingLocations.push(viewingLocation);
@@ -645,13 +581,13 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.removeFromMyShows = function(show) {
+  self.removeFromMyShows = function(show) {
     return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
       removeFromArray(myShows, show);
     });
   };
 
-  this.removeViewingLocation = function(series, episodes, viewingLocation) {
+  self.removeViewingLocation = function(series, episodes, viewingLocation) {
     var wasStreamingBefore = self.isStreaming(series);
 
     var indexOf = series.viewingLocations.findIndex(function(location) {
@@ -707,7 +643,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   }
 
-  this.markMyPastWatched = function(series, episodes, lastWatched) {
+  self.markMyPastWatched = function(series, episodes, lastWatched) {
     return new Promise((resolve, reject) => {
       $http.post('/markMyPastWatched', {SeriesId: series.id, LastWatched: lastWatched, PersonId: LockService.person_id}).then(function() {
         $log.debug("Past watched API call complete.");
@@ -725,29 +661,29 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     });
   };
 
-  this.matchTiVoEpisodes = function (tivoID, tvdbIDs) {
+  self.matchTiVoEpisodes = function (tivoID, tvdbIDs) {
     return $http.post('/matchTiVoEpisodes', {TiVoID: tivoID, TVDBEpisodeIds: tvdbIDs}).then(function () {
       $log.debug("Success?")
     }, function (errResponse) {
       $log.debug("Error calling the method: " + errResponse);
     });
   };
-  this.unlinkEpisode = function (episodeId) {
+  self.unlinkEpisode = function (episodeId) {
     return $http.post('/unlinkEpisode', {EpisodeId: episodeId}).then(function () {
       $log.debug("Success?")
     }, function (errResponse) {
       $log.debug("Error calling the method: " + errResponse);
     });
   };
-  this.retireUnmatchedEpisode = function (episodeId) {
+  self.retireUnmatchedEpisode = function (episodeId) {
     return $http.post('/retireTiVoEpisode', {TiVoEpisodeId: episodeId});
   };
-  this.ignoreUnmatchedEpisode = function (episodeId) {
+  self.ignoreUnmatchedEpisode = function (episodeId) {
     return $http.post('/ignoreTiVoEpisode', {TiVoEpisodeId: episodeId});
   };
 
 
-  this.updateDenorms = function(series, episodes) {
+  self.updateDenorms = function(series, episodes) {
     var activeEpisodes = 0;
     var deletedEpisodes = 0;
     var suggestionEpisodes = 0;
@@ -920,180 +856,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
     return changedFields;
   };
 
-  self.increaseYear = function() {
-    return $http.post('/increaseYear').then(function () {
-      ratingYear++;
-      ratingEndDate = null;
-    });
-  };
-
-  self.revertYear = function(endDate) {
-    return $http.post('/revertYear', {EndDate: endDate}).then(function () {
-      ratingYear--;
-      ratingEndDate = endDate;
-    });
-  };
-
-  self.lockRatings = function() {
-    var todaysDate = new Date;
-    $http.post('setRatingEndDate', {RatingEndDate: todaysDate}).then(function () {
-      ratingEndDate = todaysDate;
-    });
-  };
-
-  self.unlockRatings = function() {
-    $http.post('setRatingEndDate', {RatingEndDate: null}).then(function () {
-      ratingEndDate = null;
-    });
-  };
-
-  this.averageFromNumbers = function(numberArray) {
-    if (!numberArray.length) {
-      return null;
-    }
-
-    var sum = _.reduce(numberArray, function(a, b) {
-      return a + b;
-    });
-    return sum / numberArray.length;
-  };
-
-  this.watchedInTime = function(episode) {
-    return ratingEndDate === null ||
-      (episode.watched_date !== null && new Date(episode.watched_date) < ratingEndDate);
-  };
-
-  // NOTE: This logic is duplicated by EpisodeGroupUpdater. At some point I might want to migrate them both to some shared
-  //       server call. Until then, just be sure to make any changes here in that method as well.
-
-  this.updateEpisodeGroupRatingWithNewRating = function(series, episodes) {
-    self.updateSystemVars().then(function() {
-      $http.get('/episodeGroupRating', {params: {Year: ratingYear, SeriesId: series.id}}).then(function (response) {
-        var episodeGroupRating = response.data[0];
-        var insertingNewRating = false;
-        console.log("Got episode group rating: " + JSON.stringify(episodeGroupRating));
-
-        if (_.isUndefined(episodeGroupRating)) {
-          insertingNewRating = true;
-          episodeGroupRating = {
-            series_id: series.id,
-            year: ratingYear,
-            start_date: new Date(ratingYear, 0, 1),
-            end_date: new Date(ratingYear, 11, 31),
-            aired: 0
-          };
-        }
-
-        var startDate = new Date(episodeGroupRating.start_date);
-        var endDate = new Date(episodeGroupRating.end_date);
-
-        var eligibleEpisodes = _.sortBy(_.filter(episodes, function(episode) {
-          return episode.season !== 0 && episode.air_date !== null &&
-            new Date(episode.air_date) > startDate && new Date(episode.air_date) < endDate;
-        }), function(episode) {
-          return episode.absolute_number;
-        });
-
-        if (eligibleEpisodes.length === 0) {
-          if (!insertingNewRating) {
-            // todo: delete rating because there are now no eligible episodes.
-          }
-        } else {
-
-          var watchedEpisodes = _.filter(eligibleEpisodes, function(episode) {
-            return episode.watched && self.watchedInTime(episode);
-          });
-
-          var ratedEpisodes = _.filter(watchedEpisodes, function(episode) {
-            return episode.rating_value !== null;
-          });
-          var rating_values = _.map(ratedEpisodes, function(episode) {
-            return episode.rating_value;
-          });
-
-          var avg_rating = _.isEmpty(rating_values) ? null : self.averageFromNumbers(rating_values);
-          var last_rating = _.isEmpty(rating_values) ? null : _.last(rating_values);
-          var max_rating = _.isEmpty(rating_values) ? null : _.max(rating_values);
-
-          var suggested_rating = _.isEmpty(rating_values) ? null :
-            ((avg_rating * 5) + (max_rating * 3) + (last_rating * 1)) / 9;
-
-          var unwatchedEpisodes = _.filter(eligibleEpisodes, function(episode) {
-            return !episode.watched || !self.watchedInTime(episode);
-          });
-          var nextUnwatched = _.first(unwatchedEpisodes);
-
-          var aired = LockService.isAdmin() ?
-            _.filter(eligibleEpisodes, function(episode) {
-              return episode.air_time !== null && episode.air_time < new Date;
-            }).length :
-            episodeGroupRating.aired;
-
-          var post_update_episodes = 0;
-          if (episodeGroupRating.review_update_date) {
-            var eparray = _.filter(watchedEpisodes, function(episode) {
-              return new Date(episode.watched_date) > new Date(episodeGroupRating.review_update_date);
-            });
-            post_update_episodes = eparray.length;
-          }
-
-          if (insertingNewRating) {
-
-            episodeGroupRating.avg_rating = avg_rating === null ? null : parseFloat(avg_rating.toFixed(1));
-            episodeGroupRating.last_rating = last_rating;
-            episodeGroupRating.max_rating = max_rating;
-            episodeGroupRating.suggested_rating = suggested_rating === null ? null : parseFloat(suggested_rating.toFixed(1));
-            episodeGroupRating.watched = watchedEpisodes.length;
-            episodeGroupRating.rated = ratedEpisodes.length;
-            episodeGroupRating.next_air_date = nextUnwatched == null ? null : new Date(nextUnwatched.air_date);
-            episodeGroupRating.aired = aired;
-            episodeGroupRating.post_update_episodes = post_update_episodes;
-            episodeGroupRating.num_episodes = eligibleEpisodes.length;
-
-            return self.addEpisodeGroupRating(episodeGroupRating);
-
-          } else {
-
-            var originalFields = {
-              avg_rating: parseFloat(episodeGroupRating.avg_rating),
-              last_rating: parseInt(episodeGroupRating.last_rating),
-              max_rating: parseInt(episodeGroupRating.max_rating),
-              suggested_rating: parseFloat(episodeGroupRating.suggested_rating),
-              watched: episodeGroupRating.watched,
-              rated: episodeGroupRating.rated,
-              next_air_date: new Date(episodeGroupRating.next_air_date),
-              aired: episodeGroupRating.aired,
-              post_update_episodes: episodeGroupRating.post_update_episodes
-            };
-
-            var updatedFields = {
-              avg_rating: avg_rating ? parseFloat(avg_rating.toFixed(1)) : undefined,
-              last_rating: last_rating,
-              max_rating: max_rating,
-              suggested_rating: suggested_rating ? parseFloat(suggested_rating.toFixed(1)) : undefined,
-              watched: watchedEpisodes.length,
-              rated: ratedEpisodes.length,
-              next_air_date: nextUnwatched == null ? null : new Date(nextUnwatched.air_date),
-              aired: aired,
-              post_update_episodes: post_update_episodes
-            };
-
-            var changedFields = self.getChangedFields(originalFields, updatedFields);
-
-            if (Object.keys(changedFields).length > 0) {
-              return self.updateEpisodeGroupRating(episodeGroupRating.id, changedFields);
-            }
-
-          }
-        }
-
-      }, function(errResponse) {
-        console.error(errResponse);
-      });
-    });
-  };
-
-  this.updateMySeriesDenorms = function(series, episodes, databaseCallback) {
+  self.updateMySeriesDenorms = function(series, episodes, databaseCallback) {
     var unwatchedEpisodes = 0;
     var lastUnwatched = null;
     var firstUnwatched = null;
@@ -1103,7 +866,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
       return episode.season !== 0;
     });
 
-    this.hasAired = function(episode) {
+    self.hasAired = function(episode) {
       if (episode.air_time === null) {
         return false;
       }
@@ -1112,7 +875,7 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
       return isBefore(airTime, now);
     };
 
-    var airedEpisodes = _.sortBy(_.filter(eligibleEpisodes, this.hasAired), function(episode) {
+    var airedEpisodes = _.sortBy(_.filter(eligibleEpisodes, self.hasAired), function(episode) {
       return episode.absolute_number;
     });
 
@@ -1196,6 +959,3 @@ function EpisodeService($log, $http, $q, $filter, LockService, ArrayService) {
   }
 
 }
-
-angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService', EpisodeService]);

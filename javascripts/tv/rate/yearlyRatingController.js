@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('yearlyRatingController', ['$log', '$uibModal', 'EpisodeService', 'LockService',
-  function($log, $uibModal, EpisodeService, LockService) {
+  .controller('yearlyRatingController', ['$log', '$uibModal', 'EpisodeService', 'LockService', 'YearlyRatingService',
+  function($log, $uibModal, EpisodeService, LockService, YearlyRatingService) {
     var self = this;
 
     self.LockService = LockService;
@@ -29,18 +29,18 @@ angular.module('mediaMogulApp')
     };
 
     function updateGroupRatings(year) {
-      EpisodeService.updateEpisodeGroupRatings(year).then(function () {
-        self.episodeGroups = EpisodeService.getEpisodeGroupRatings();
+      YearlyRatingService.updateEpisodeGroupRatings(year).then(function () {
+        self.episodeGroups = YearlyRatingService.getEpisodeGroupRatings();
         $log.debug("Controller has " + self.episodeGroups.length + " shows.");
       });
     }
 
     self.initializeEpisodeGroupList = function() {
-      EpisodeService.updateSystemVars().then(function () {
-        EpisodeService.updateRatingYears().then(function () {
-          self.year = EpisodeService.getRatingYear();
+      YearlyRatingService.updateSystemVars().then(function () {
+        YearlyRatingService.updateRatingYears().then(function () {
+          self.year = YearlyRatingService.getRatingYear();
           self.viewedYear.label = self.year;
-          const possibleYears = EpisodeService.getAllRatingYears();
+          const possibleYears = YearlyRatingService.getAllRatingYears();
           _.forEach(possibleYears, possibleYear => {
             self.possibleYears.push({
               label: possibleYear
@@ -54,16 +54,16 @@ angular.module('mediaMogulApp')
     self.initializeEpisodeGroupList();
 
     self.increaseYear = function() {
-      self.endDateToRevert = EpisodeService.getRatingEndDate();
+      self.endDateToRevert = YearlyRatingService.getRatingEndDate();
       self.initialYear = self.year;
-      EpisodeService.increaseYear().then(function () {
+      YearlyRatingService.increaseYear().then(function () {
         self.year++;
         self.initializeEpisodeGroupList();
       });
     };
 
     self.revertYear = function() {
-      EpisodeService.revertYear(self.endDateToRevert).then(function() {
+      YearlyRatingService.revertYear(self.endDateToRevert).then(function() {
         self.endDateToRevert = null;
         self.year--;
         self.initializeEpisodeGroupList();
@@ -75,15 +75,15 @@ angular.module('mediaMogulApp')
     };
 
     self.lockRatings = function() {
-      EpisodeService.lockRatings();
+      YearlyRatingService.lockRatings();
     };
 
     self.unlockRatings = function() {
-      EpisodeService.unlockRatings();
+      YearlyRatingService.unlockRatings();
     };
 
     self.isRatingLocked = function() {
-      return EpisodeService.getRatingEndDate() !== null;
+      return YearlyRatingService.getRatingEndDate() !== null;
     };
 
     self.readyToChangeYear = function() {
