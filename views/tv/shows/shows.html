@@ -4,14 +4,10 @@
   <div class="row" style="margin-bottom: 10px;">
     <div class="col-sm-3 col-xs-6" style="padding-right: 2px">
 
-      <select class="form-control input-lg darkInput"
-              ng-model="ctrl.selectedPill"
-              ng-change="ctrl.onCategoryChange()">
-        <option ng-repeat="category in ctrl.categories"
-                ng-value="category.sref">
-          {{category.label}}
-        </option>
-      </select>
+      <drop-down initial-value="ctrl.selectedFilterInfo"
+                 possible-values="ctrl.categories"
+                 format-function="ctrl.getFilterFormatted"
+                 on-change-callback="ctrl.onCategoryChange"></drop-down>
 
     </div>
     <div class="col-sm-3 col-xs-6" style="padding-left: 2px; padding-right: 0">

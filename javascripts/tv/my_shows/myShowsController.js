@@ -14,7 +14,10 @@ angular.module('mediaMogulApp')
 
     self.series_requests = [];
 
-    self.selectedPill = "main";
+    self.selectedFilterInfo = {
+      label: 'Main',
+      sref: 'main'
+    };
 
     self.quickFindResult = undefined;
 
@@ -45,17 +48,19 @@ angular.module('mediaMogulApp')
       }
     ];
 
-    self.onCategoryChange = function() {
-      $state.go('tv.shows.' + self.selectedPill);
-    };
-
-    self.isActive = function(pillName) {
-      return (pillName === self.selectedPill) ? "active" : null;
+    self.onCategoryChange = function(category) {
+      self.selectedFilterInfo.label = category.label;
+      self.selectedFilterInfo.sref = category.sref;
+      $state.go('tv.shows.' + category.sref);
     };
 
     self.firstTier = function(series) {
       return series.my_tier === 1
          && hasUnwatchedEpisodes(series);
+    };
+
+    self.getFilterFormatted = function(filterInfo) {
+      return filterInfo.label;
     };
 
     self.secondTier = function(series) {
