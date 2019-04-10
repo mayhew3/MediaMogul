@@ -27,8 +27,6 @@ angular.module('mediaMogulApp')
     self.selectedAddingEpisodes = 'None';
     self.selectedLastWatchedEpisode = null;
 
-    self.viewingLocations = EpisodeService.getViewingLocations();
-
     self.lastUpdate = self.series.last_tvdb_update === null ?
       self.series.last_tvdb_error :
       self.series.last_tvdb_update;

@@ -20,8 +20,6 @@ angular.module('mediaMogulApp')
     self.seasonLabels = [];
     self.selectedSeason = null;
 
-    self.viewingLocations = EpisodeService.getViewingLocations();
-
     self.inputViewingLocations = [];
 
     self.showDetail = false;
