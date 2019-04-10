@@ -130,7 +130,7 @@ angular.module('mediaMogulApp')
           function(results) {
             let tempEpisodes = results[0].data;
             tempEpisodes.forEach(function(episode) {
-              let existing = self.findEpisodeWithId(episodes, episode.id);
+              let existing = findEpisodeWithId(episodes, episode.id);
               if (existing) {
                 ArrayService.removeFromArray(episodes, existing);
               }
@@ -169,7 +169,7 @@ angular.module('mediaMogulApp')
         return deferred.promise;
       };
 
-      self.findEpisodeWithId = function(episodes, id) {
+      function findEpisodeWithId (episodes, id) {
         let matching = episodes.filter(function(episode) {
           return episode.id === id;
         });
@@ -177,7 +177,7 @@ angular.module('mediaMogulApp')
           return matching[0];
         }
         return null;
-      };
+      }
 
       self.updateRatingFields = function(episode) {
         let optionalFields = [
@@ -244,20 +244,24 @@ angular.module('mediaMogulApp')
       self.updateEpisode = function(episodeId, changedFields) {
         return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
       };
+
       self.changeTier = function(SeriesId, Tier) {
         $http.post('/changeTier', {SeriesId: SeriesId, tier: Tier});
         // todo: add some error handling.
       };
+
       self.changeMyTier = function(SeriesId, Tier) {
         let changedFields = {
           tier: Tier
         };
         return $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
       };
+
       self.updateSeries = function(SeriesId, ChangedFields) {
         $log.debug('Received update for Series ' + SeriesId + " with data " + JSON.stringify(ChangedFields));
         return $http.post('/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
       };
+
       self.addSeries = function(series) {
         $log.debug("Adding series " + JSON.stringify(series));
         return $http.post('/addSeries', {series: series});
@@ -380,6 +384,7 @@ angular.module('mediaMogulApp')
           $log.debug("Error calling the method: " + errResponse);
         });
       };
+
       self.unlinkEpisode = function (episodeId) {
         return $http.post('/unlinkEpisode', {EpisodeId: episodeId}).then(function () {
           $log.debug("Success?")
@@ -387,9 +392,11 @@ angular.module('mediaMogulApp')
           $log.debug("Error calling the method: " + errResponse);
         });
       };
+
       self.retireUnmatchedEpisode = function (episodeId) {
         return $http.post('/retireTiVoEpisode', {TiVoEpisodeId: episodeId});
       };
+      
       self.ignoreUnmatchedEpisode = function (episodeId) {
         return $http.post('/ignoreTiVoEpisode', {TiVoEpisodeId: episodeId});
       };
