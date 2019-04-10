@@ -268,6 +268,11 @@ h1 {
   font-size: 9px;
 }
 
+.dropDownSubtitle {
+  color: lightblue;
+  font-size: 9px;
+}
+
 /* SERIES REQUEST */
 
 .alreadyExistsOverlay {

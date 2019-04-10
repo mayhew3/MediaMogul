@@ -4,14 +4,11 @@
   <div class="row" style="margin-bottom: 10px">
     <div class="col-sm-4 col-xs-10" style="padding-right: 2px">
 
-      <select class="form-control input-lg darkInput"
-              ng-model="ctrl.selectedPill"
-              ng-change="ctrl.updateGroupToSelected()">
-        <option ng-repeat="group in ctrl.groups"
-                ng-value="group.id">
-          {{group.name}}
-        </option>
-      </select>
+
+      <drop-down initial-value="ctrl.selectedGroupInfo"
+                 possible-values="ctrl.possibleGroupInfos"
+                 format-function="ctrl.getGroupFormatted"
+                 on-change-callback="ctrl.changeSelectedGroupForInfo"></drop-down>
 
     </div>
 

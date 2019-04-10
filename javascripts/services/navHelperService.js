@@ -18,14 +18,14 @@ function NavHelperService() {
 
   /* TV GROUPS */
 
-  self.selectedTVGroup = null;
+  self.selectedTVGroupID = null;
 
-  self.getSelectedTVGroup = function() {
-    return self.selectedTVGroup;
+  self.getSelectedTVGroupID = function() {
+    return self.selectedTVGroupID;
   };
 
   self.changeSelectedTVGroup = function(tv_group_id) {
-    self.selectedTVGroup = parseInt(tv_group_id);
+    self.selectedTVGroupID = parseInt(tv_group_id);
   };
 }
 

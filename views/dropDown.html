@@ -1,7 +1,9 @@
 
 <!-- Single button -->
 <div class="btn-group"
+     style="width: 100%; display:inline-block;"
      uib-dropdown
+     ng-show="ctrl.initialValue.label"
      is-open="ctrl.isOpen">
   <button id="single-button"
           type="button"
@@ -18,15 +20,19 @@
     <li role="menuitem"
         ng-repeat="value in ctrl.possibleValues"
         ng-class="ctrl.rowClass(value)"
-        style="font-size: 16pt">
-      <a ng-click="ctrl.selectValue(value)">
+        style="font-size: 13pt">
+      <a ng-click="ctrl.selectValue(value)"
+      style="padding-top: 7px; padding-bottom: 7px; cursor: pointer;">
         {{ctrl.formatFunction(value)}}
         <span class="badge pillTabGreen"
               ng-hide="ctrl.hideBadge(value)">
           {{ctrl.badgeValueFunction(value)}}
         </span>
 
-<!--        <span ng-bind="ctrl.getGroupList(group)" class="groupPillMembers"></span>-->
+        <div ng-show="value.subtitle" style="line-height: 3pt; padding-bottom: 13px; ">
+          <span ng-bind="value.subtitle" class="dropDownSubtitle"></span>
+        </div>
+
       </a>
     </li>
   </ul>

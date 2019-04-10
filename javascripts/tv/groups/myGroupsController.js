@@ -7,38 +7,70 @@ angular.module('mediaMogulApp')
 
     self.groups = [];
 
-    self.selectedPill = 0;
+    self.selectedGroupInfo = {
+      label: null,
+      subtitle: null
+    };
+    self.possibleGroupInfos = [];
 
     self.NavHelperService = NavHelperService;
 
-    self.changeSelectedGroup = function(tv_group_id) {
-      self.selectedPill = tv_group_id;
-      $state.go('tv.groups.detail', {group_id: tv_group_id});
+    self.changeSelectedGroupForInfo = function(tvGroupInfo) {
+      self.changeSelectedGroupForName(tvGroupInfo.label);
+    };
+
+    self.changeSelectedGroupForName = function(tvGroupName) {
+      const selectedGroup = getGroupFromName(tvGroupName);
+      self.selectedGroupInfo.label = selectedGroup.name;
+      self.selectedGroupInfo.subtitle = self.getGroupList(selectedGroup);
+      $state.go('tv.groups.detail', {group_id: selectedGroup.id});
     };
 
     self.updateGroupToSelected = function() {
-      const selectedGroup = _.findWhere(self.groups, {id: self.selectedPill});
+      const selectedGroup = _.findWhere(self.groups, {id: self.selectedGroupInfo.id});
       $state.go('tv.groups.detail', {group_id: selectedGroup.id});
+    };
+
+    self.getGroupFormatted = function(groupInfo) {
+      return groupInfo.label;
     };
 
     self.fetchGroups = function() {
       $http.get('/api/myGroups', {params: {person_id: LockService.person_id}}).then(function(results) {
         ArrayService.refreshArray(self.groups, results.data);
-        let navGroup = self.NavHelperService.getSelectedTVGroup();
+        _.forEach(self.groups, group => self.possibleGroupInfos.push({
+          label: group.name,
+          subtitle: self.getGroupList(group)
+        }));
 
-        if (navGroup !== null) {
-          self.changeSelectedGroup(navGroup);
+        let navGroupID = self.NavHelperService.getSelectedTVGroupID();
+
+        if (navGroupID !== null) {
+          const groupName = getGroupNameFromId(navGroupID);
+          self.changeSelectedGroupForName(groupName);
         } else if (self.groups.length > 0) {
           let initialGroup = self.groups[0];
-          self.changeSelectedGroup(initialGroup.id);
+          self.changeSelectedGroupForName(initialGroup.name);
         }
 
       });
     };
     self.fetchGroups();
 
+    function getGroupNameFromId(tvGroupId) {
+      return getGroupFromId(tvGroupId).name;
+    }
+
+    function getGroupFromId(tvGroupId) {
+      return _.findWhere(self.groups, {id: tvGroupId});
+    }
+
+    function getGroupFromName(tvGroupName) {
+      return _.findWhere(self.groups, {name: tvGroupName});
+    }
+
     self.isActive = function(pillNumber) {
-      return (pillNumber === self.selectedPill) ? "active" : null;
+      return (pillNumber === self.selectedGroupInfo.id) ? "active" : null;
     };
 
     function addNewGroupToGroups(data, tv_group_id) {

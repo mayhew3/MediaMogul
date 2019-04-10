@@ -46,8 +46,5 @@
         self.badgeValueFunction(value) === 0
     };
 
-    self.showSubtitle = function(value) {
-
-    };
   }
 })();
