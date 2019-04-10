@@ -1,7 +1,8 @@
 angular.module('mediaMogulApp')
-  .controller('editSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'episodes', 'LockService', '$q',
-  function($log, EpisodeService, $uibModalInstance, series, episodes, LockService, $q) {
-    var self = this;
+  .controller('editSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'episodes',
+    'LockService', '$q', 'ViewingLocationService', 'ArrayService',
+  function($log, EpisodeService, $uibModalInstance, series, episodes, LockService, $q, ViewingLocationService, ArrayService) {
+    const self = this;
 
     self.LockService = LockService;
 
@@ -9,19 +10,22 @@ angular.module('mediaMogulApp')
     self.episodes = episodes;
 
     self.tiers = [1, 2, 3, 4, 5];
-    self.viewingLocations = EpisodeService.getViewingLocations();
+    self.viewingLocations = [];
     self.originalViewingLocations = [];
     self.inputViewingLocations = [];
     self.addedViewingLocations = [];
     self.removedViewingLocations = [];
 
-    if (self.series.viewingLocations) {
-      updateViewingLocations();
-    }
+    ViewingLocationService.getViewingLocations().then(viewingLocations => {
+      ArrayService.refreshArray(self.viewingLocations, viewingLocations);
+      if (self.series.viewingLocations) {
+        updateViewingLocations();
+      }
+    });
 
     function updateViewingLocations() {
       self.viewingLocations.forEach(function(viewingLocation) {
-        var locationObj = {
+        const locationObj = {
           active: containsMatchingLocation(self.series.viewingLocations, viewingLocation.id),
           viewingLocation: viewingLocation
         };
@@ -36,7 +40,7 @@ angular.module('mediaMogulApp')
 
 
     function containsMatchingLocation(arr, locationId) {
-      var foundElement = arr.find(function(element) {
+      const foundElement = arr.find(function(element) {
         return element.id === locationId;
       });
       return !(foundElement === undefined);
@@ -99,7 +103,7 @@ angular.module('mediaMogulApp')
       $log.debug("Added: " + self.addedViewingLocations);
       $log.debug("Removed: " + self.removedViewingLocations);
 
-      var methods = [];
+      const methods = [];
       methods.push(self.maybeUpdateSeriesInDatabase(changedFields));
       self.addedViewingLocations.forEach(function(location) {
         methods.push(EpisodeService.addViewingLocation(self.series, self.episodes, location.viewingLocation));
@@ -126,10 +130,10 @@ angular.module('mediaMogulApp')
       self.series.metacritic_hint = self.interfaceFields.metacritic_hint;
       self.series.trailer_link = self.interfaceFields.trailer_link;
 
-      var changedFields = {};
-      for (var key in self.interfaceFields) {
+      const changedFields = {};
+      for (const key in self.interfaceFields) {
         if (self.interfaceFields.hasOwnProperty(key)) {
-          var value = self.interfaceFields[key];
+          const value = self.interfaceFields[key];
 
           $log.debug("In loop, key: " + key + ", value: " + value + ", old value: " + self.originalFields[key]);
 

@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
-  .controller('addSeriesController', ['$log', 'EpisodeService', '$uibModalInstance', 'LockService', '$http',
+  .controller('addSeriesController', ['$log', '$uibModalInstance', 'LockService', '$http',
               'addSeriesCallback', 'postAddCallback', 'ArrayService',
-  function($log, EpisodeService, $uibModalInstance, LockService, $http, addSeriesCallback, postAddCallback, ArrayService) {
-    var self = this;
+  function($log, $uibModalInstance, LockService, $http, addSeriesCallback, postAddCallback, ArrayService) {
+    const self = this;
 
     self.LockService = LockService;
 
@@ -18,8 +18,6 @@ angular.module('mediaMogulApp')
     self.alternateText = null;
 
     self.showExists = false;
-
-    self.viewingLocations = EpisodeService.getViewingLocations();
 
     self.updateTVDBIDs = function() {
       $http.get('/api/tvdbIDs').then(function(results) {

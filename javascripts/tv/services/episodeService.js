@@ -6,7 +6,6 @@ angular.module('mediaMogulApp')
       let notMyShows = [];
       let episodes = [];
       let possibleMatches = [];
-      let viewingLocations = [];
       const self = this;
 
       self.updateMyShowsList = function() {
@@ -21,15 +20,7 @@ angular.module('mediaMogulApp')
             $log.debug("Finished updating.");
             ArrayService.refreshArray(myShows, tempShows);
 
-            $http.get('/viewingLocations').then(function (viewingResponse) {
-              $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
-              viewingLocations = viewingResponse.data;
-              resolve();
-            }, function (errViewing) {
-              console.error('Error while fetching viewing location list: ' + errViewing);
-              reject();
-            });
-
+            resolve();
           }, function (errResponse) {
             console.error('Error while fetching series list: ' + errResponse);
             reject();
@@ -56,13 +47,6 @@ angular.module('mediaMogulApp')
           });
           $log.debug("Finished updating.");
           notMyShows = tempShows;
-
-          $http.get('/viewingLocations').then(function (viewingResponse) {
-            $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
-            viewingLocations = viewingResponse.data;
-          }, function (errViewing) {
-            console.error('Error while fetching viewing location list: ' + errViewing);
-          });
 
         }, function (errResponse) {
           console.error('Error while fetching series list: ' + errResponse);
@@ -321,10 +305,6 @@ angular.module('mediaMogulApp')
 
       self.getNotMyShows = function() {
         return notMyShows;
-      };
-
-      self.getViewingLocations = function() {
-        return viewingLocations;
       };
 
       self.isStreaming = function(series) {
