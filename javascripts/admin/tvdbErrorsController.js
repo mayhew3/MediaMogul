@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('tvdbErrorsController', ['$log', '$http', '$uibModal', 'EpisodeService', 'LockService', 'ArrayService',
     function($log, $http, $uibModal, EpisodeService, LockService, ArrayService) {
-      var self = this;
+      const self = this;
 
       self.LockService = LockService;
 

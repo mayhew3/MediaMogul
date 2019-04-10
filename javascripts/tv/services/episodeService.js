@@ -8,8 +8,6 @@ angular.module('mediaMogulApp')
       let unmatchedEpisodes = [];
       let possibleMatches = [];
       let viewingLocations = [];
-      let allPosters = [];
-      let tvdbErrors = [];
       let pendingMatches = 0;
       const self = this;
 
@@ -319,20 +317,6 @@ angular.module('mediaMogulApp')
         }, function(errResponse) {
           console.error('Error while fetching possible match list: ' + errResponse);
         });
-      };
-
-      self.updateAllPosters = function(series) {
-        return $http.get('/allPosters', {params: {tvdb_series_id: series.tvdb_series_id}}).then(function(response) {
-          $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
-          allPosters = response.data;
-          allPosters.forEach(function (poster) {
-            poster.posterResolved = amendPosterLocation(poster.cloud_poster);
-          });
-        });
-      };
-
-      self.getAllPosters = function() {
-        return allPosters;
       };
 
       self.updateUnmatchedList = function(series) {
