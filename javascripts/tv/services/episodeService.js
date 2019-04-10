@@ -129,17 +129,6 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.updateTVDBErrors = function() {
-        return $http.get('/tvdbErrors').then(function (payload) {
-          tvdbErrors = payload.data;
-          tvdbErrors.forEach(function(tvdb_error) {
-            let exceptionClass = tvdb_error.exception_class;
-            let exceptionParts = exceptionClass.split('.');
-            tvdb_error.shortClass = exceptionParts[exceptionParts.length -1];
-          });
-        });
-      };
-
       self.combineDateAndTime = function(date, time) {
         let combinedStr = $filter('date')(date, 'shortDate', '+0000') + " " + time;
         return new Date(combinedStr);
@@ -385,10 +374,6 @@ angular.module('mediaMogulApp')
 
       self.getViewingLocations = function() {
         return viewingLocations;
-      };
-
-      self.getTVDBErrors = function() {
-        return tvdbErrors;
       };
 
       self.isStreaming = function(series) {
