@@ -8,7 +8,6 @@ angular.module('mediaMogulApp')
       let unmatchedEpisodes = [];
       let possibleMatches = [];
       let viewingLocations = [];
-      let pendingMatches = 0;
       const self = this;
 
       self.updateMyShowsList = function() {
@@ -69,24 +68,6 @@ angular.module('mediaMogulApp')
         }, function (errResponse) {
           console.error('Error while fetching series list: ' + errResponse);
         });
-      };
-
-      self.updateNumberOfPendingMatches = function() {
-        return $http.get('/numPendingMatches').then(function (response) {
-          pendingMatches = response.data[0].num_matches;
-        });
-      };
-
-      self.getNumberOfPendingMatches = function() {
-        return pendingMatches;
-      };
-
-      self.incrementPendingMatches = function() {
-        pendingMatches++;
-      };
-
-      self.decrementPendingMatches = function() {
-        pendingMatches--;
       };
 
       self.updatePosterLocation = function(show) {

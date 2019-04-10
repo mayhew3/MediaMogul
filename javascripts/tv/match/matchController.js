@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
-  .controller('matchController', ['$log', '$uibModal', 'EpisodeService', 'LockService', 'ArrayService',
-    function($log, $uibModal, EpisodeService, LockService, ArrayService) {
-      var self = this;
+  .controller('matchController', ['$log', '$http', '$uibModal', 'EpisodeService', 'LockService', 'ArrayService', 'SeriesMatchingService',
+    function($log, $http, $uibModal, EpisodeService, LockService, ArrayService, SeriesMatchingService) {
+      const self = this;
 
       self.series = [];
 
@@ -86,7 +86,7 @@ angular.module('mediaMogulApp')
           series.temp_ignored = true;
           series.previous_status = series.tvdb_match_status;
           series.tvdb_match_status = 'Ignored';
-          EpisodeService.decrementPendingMatches();
+          SeriesMatchingService.decrementPendingMatches();
         });
       };
 
@@ -99,7 +99,7 @@ angular.module('mediaMogulApp')
           series.temp_ignored = false;
           series.tvdb_match_status = series.previous_status;
           series.previous_status = null;
-          EpisodeService.incrementPendingMatches();
+          SeriesMatchingService.incrementPendingMatches();
         });
       };
 
@@ -112,7 +112,7 @@ angular.module('mediaMogulApp')
           series.temp_confirmed = true;
           series.previous_status = series.tvdb_match_status;
           series.tvdb_match_status = 'Match Confirmed';
-          EpisodeService.decrementPendingMatches();
+          SeriesMatchingService.decrementPendingMatches();
         });
       };
 
@@ -125,7 +125,7 @@ angular.module('mediaMogulApp')
           series.temp_confirmed = false;
           series.tvdb_match_status = series.previous_status;
           series.previous_status = null;
-          EpisodeService.incrementPendingMatches();
+          SeriesMatchingService.incrementPendingMatches();
         });
       };
 
