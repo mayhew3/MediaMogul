@@ -56,8 +56,8 @@ angular.module('mediaMogulApp')
       return self.episodes.filter(self.episodeFilter).length;
     };
 
-    EpisodeService.updateMyEpisodeList(self.series).then(function() {
-      self.episodes = EpisodeService.getEpisodes();
+    EpisodeService.updateMyEpisodeList(self.series).then(function(episodes) {
+      self.episodes = episodes;
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     }).then(function() {
       updateSeasonLabels();
