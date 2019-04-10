@@ -21,12 +21,6 @@ angular.module('mediaMogulApp')
 
     self.viewingLocations = EpisodeService.getViewingLocations();
 
-
-    self.updateShowExists = function() {
-      var title = self.series.title;
-      self.showExists = !!EpisodeService.getSeriesWithTitle(title);
-    };
-
     self.updateTVDBIDs = function() {
       $http.get('/api/tvdbIDs').then(function(results) {
         ArrayService.refreshArray(self.used_tvdb_ids, results.data);

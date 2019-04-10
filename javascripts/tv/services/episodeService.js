@@ -1,7 +1,6 @@
 angular.module('mediaMogulApp')
   .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService',
     function ($log, $http, $q, $filter, LockService, ArrayService) {
-      let shows = [];
       let myShows = [];
       let myPendingShows = [];
       let notMyShows = [];
@@ -13,13 +12,6 @@ angular.module('mediaMogulApp')
       let tvdbErrors = [];
       let pendingMatches = 0;
       const self = this;
-
-      self.getSeriesWithTitle = function(SeriesTitle) {
-        let filtered = shows.filter(function(seriesElement) {
-          return seriesElement.title === SeriesTitle;
-        });
-        return filtered[0];
-      };
 
       self.updateMyShowsList = function() {
         return new Promise((resolve, reject) => {
@@ -72,30 +64,6 @@ angular.module('mediaMogulApp')
           $http.get('/viewingLocations').then(function (viewingResponse) {
             $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
             viewingLocations = viewingResponse.data;
-          }, function (errViewing) {
-            console.error('Error while fetching viewing location list: ' + errViewing);
-          });
-
-        }, function (errResponse) {
-          console.error('Error while fetching series list: ' + errResponse);
-        });
-      };
-
-      self.updateSeriesMatchList = function() {
-        return $http.get('/seriesMatchList').then(function (showResponse) {
-          $log.debug("Shows returned " + showResponse.data.length + " items.");
-          let tempShows = showResponse.data;
-          tempShows.forEach(function (show) {
-            self.updatePosterLocation(show);
-          });
-          $log.debug("Finished updating.");
-          shows = tempShows;
-
-          $http.get('/viewingLocations').then(function (viewingResponse) {
-            $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
-            viewingLocations = viewingResponse.data;
-
-            self.updateNextUp().then(self.updateRecordingNow);
           }, function (errViewing) {
             console.error('Error while fetching viewing location list: ' + errViewing);
           });
@@ -161,15 +129,6 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.updateNextUp = function() {
-        return $http.get('/upcomingEpisodes').then(function (upcomingResults) {
-          // $log.debug(JSON.stringify(upcomingResults));
-          upcomingResults.data.forEach(function(episode) {
-            findAndUpdateSeries(episode);
-          });
-        });
-      };
-
       self.updateTVDBErrors = function() {
         return $http.get('/tvdbErrors').then(function (payload) {
           tvdbErrors = payload.data;
@@ -180,28 +139,6 @@ angular.module('mediaMogulApp')
           });
         });
       };
-
-      self.updateRecordingNow = function() {
-        // $log.debug("Updating Recording Now.");
-        return $http.get('recordingNow').then(function(recordingNowResults) {
-          recordingNowResults.data.forEach(function (episode) {
-            // $log.debug("Found recording in progress for series id " + episode.series_id);
-            let series_id = episode.series_id;
-            let series = findSeriesWithId(series_id);
-            if (series === null) {
-              $log.debug("Unable to find recording now with series id '" + series_id + "'.");
-            } else {
-              series.recordingNow = true;
-            }
-          });
-        });
-      };
-
-      function findSeriesWithId(seriesId) {
-        return shows.find(function(series) {
-          return series.id === seriesId;
-        })
-      }
 
       self.combineDateAndTime = function(date, time) {
         let combinedStr = $filter('date')(date, 'shortDate', '+0000') + " " + time;
@@ -235,16 +172,6 @@ angular.module('mediaMogulApp')
           episode_number: episode.episode_number
         };
       };
-
-      function findAndUpdateSeries(resultObj) {
-        let series_id = resultObj.series_id;
-        shows.forEach(function (series) {
-          if (series.id === series_id && series.nextAirDate === undefined) {
-            self.updateNextAirDate(series, resultObj);
-            self.updateNextEpisode(series, resultObj);
-          }
-        });
-      }
 
       self.updateEpisodeList = function(series) {
         let deferred = $q.defer();
@@ -438,10 +365,6 @@ angular.module('mediaMogulApp')
 
       self.getUnmatchedEpisodes = function() {
         return unmatchedEpisodes;
-      };
-
-      self.getSeriesList = function() {
-        return shows;
       };
 
       self.getPendingShowsList = function() {
