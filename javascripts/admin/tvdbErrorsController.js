@@ -1,14 +1,20 @@
 angular.module('mediaMogulApp')
-  .controller('tvdbErrorsController', ['$log', '$uibModal', 'EpisodeService', 'LockService',
-    function($log, $uibModal, EpisodeService, LockService) {
+  .controller('tvdbErrorsController', ['$log', '$http', '$uibModal', 'EpisodeService', 'LockService', 'ArrayService',
+    function($log, $http, $uibModal, EpisodeService, LockService, ArrayService) {
       var self = this;
 
       self.LockService = LockService;
 
       self.tvdbErrors = [];
 
-      EpisodeService.updateTVDBErrors().then(function() {
-        self.tvdbErrors = EpisodeService.getTVDBErrors();
+      $http.get('/tvdbErrors').then(function (payload) {
+        const tvdbErrors = payload.data;
+        tvdbErrors.forEach(function(tvdb_error) {
+          let exceptionClass = tvdb_error.exception_class;
+          let exceptionParts = exceptionClass.split('.');
+          tvdb_error.shortClass = exceptionParts[exceptionParts.length -1];
+        });
+        ArrayService.refreshArray(self.tvdbErrors, tvdbErrors);
       });
 
     }
