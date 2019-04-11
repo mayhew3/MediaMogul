@@ -75,6 +75,7 @@ module.exports = function(app) {
 
   // MY SHOWS
   app.get('/myShows', authCheck, persons.getMyShows);
+  app.get('/myQueueShows', authCheck, persons.getMyQueueShows);
   app.get('/myPendingShows', authCheck, persons.getMyPendingShows);
   app.get('/notMyShows', authCheck, persons.getNotMyShows);
   app.get('/getMyEpisodes', authCheck, persons.getMyEpisodes);

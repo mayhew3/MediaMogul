@@ -6,6 +6,26 @@ angular.module('mediaMogulApp')
       let notMyShows = [];
       const self = this;
 
+      self.updateMyQueueShowsList = function() {
+        return new Promise((resolve, reject) => {
+          $http.get('/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
+            $log.debug("Queue Shows returned " + response.data.length + " items.");
+            let tempShows = response.data;
+            tempShows.forEach(function (show) {
+              self.updateNumericFields(show);
+              self.formatNextAirDate(show);
+            });
+            $log.debug("Finished updating Queue.");
+            ArrayService.addToArray(myShows, tempShows);
+
+            resolve(myShows);
+          }, function (errResponse) {
+            console.error('Error while fetching series list: ' + errResponse);
+            reject();
+          });
+        });
+      };
+
       self.updateMyShowsList = function() {
         return new Promise((resolve, reject) => {
           $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
@@ -16,7 +36,7 @@ angular.module('mediaMogulApp')
               self.formatNextAirDate(show);
             });
             $log.debug("Finished updating Tier 1.");
-            ArrayService.refreshArray(myShows, tempShows);
+            ArrayService.addToArray(myShows, tempShows);
 
             resolve(myShows);
           }, function (errResponse) {
