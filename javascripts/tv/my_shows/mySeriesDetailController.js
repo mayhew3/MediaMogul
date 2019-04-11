@@ -709,8 +709,12 @@ angular.module('mediaMogulApp')
     };
 
     self.submitSeriesAdded = function() {
-      EpisodeService.addToMyShows(self.series).then(function() {
-        self.markAllPastWatched();
+      let lastWatched = self.selectedLastWatchedEpisode ?
+        self.selectedLastWatchedEpisode.absolute_number :
+        0;
+
+      EpisodeService.addToMyShows(self.series, lastWatched + 1).then(function() {
+        $uibModalInstance.close();
       });
     };
 
