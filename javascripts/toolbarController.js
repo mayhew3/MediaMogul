@@ -18,11 +18,11 @@
     self.login = login;
     self.logout = logout;
 
-    self.NavHelperService = NavHelperService;
-    self.ExternalServicesService = ExternalServicesService;
-
     self.LockService = LockService;
     self.lock = LockService.lock;
+
+    self.NavHelperService = NavHelperService;
+    self.ExternalServicesService = ExternalServicesService;
 
     self.getLinkClass = function(label) {
       return (self.NavHelperService.isSelected(label)) ? 'active' : '';

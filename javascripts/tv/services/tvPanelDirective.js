@@ -20,7 +20,7 @@
   function tvPanelController($scope, ArrayService, EpisodeService) {
     const self = this;
 
-    self.shows = $scope.shows ? $scope.shows : EpisodeService.myShows;
+    self.shows = $scope.shows;
     self.open = $scope.seriesDetailOpen;
 
     self.panelInfo = $scope.panelInfo;
@@ -34,6 +34,10 @@
       EpisodeService.registerAsObserver($scope);
     }
 
+    self.getShows = function() {
+      return self.shows ? self.shows : EpisodeService.myShows;
+    };
+
     self.imageColumnClass = function() {
       return (self.panelInfo.posterSize === 'small') ? 'col-xs-4 col-sm-2 col-md-2' : 'col-xs-6 col-sm-3 col-md-2';
     };
@@ -43,8 +47,8 @@
     };
 
     self.totalItems = function() {
-      return self.shows.length === 0 ? 0 :
-        self.shows.filter(self.tvFilter).length;
+      return self.getShows().length === 0 ? 0 :
+        self.getShows().filter(self.tvFilter).length;
     };
 
     self.panelFormat = function() {

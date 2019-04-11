@@ -202,7 +202,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       // return value is a "deregistration" function that can be called to detach from the event.
       const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);
 
-      self.sendHome = function() {
+      self.sendHome = function(event) {
         event.preventDefault();
         onRouteChangeOff();
         $location.path('/');
@@ -230,7 +230,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
 
               if (!store.get('token')) {
                 console.log("ERROR: No token found even after renew()!!! Sending back to home.")
-                self.sendHome();
+                self.sendHome(event);
               }
 
               // SUCCESS!
@@ -245,12 +245,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
 
             }).catch(function(error) {
               console.log("Received error from renewal: " + error.error);
-              self.sendHome();
+              self.sendHome(event);
             });
           }
         } else {
           console.log("No auth token found. Redirecting to home page for login.");
-          self.sendHome();
+          self.sendHome(event);
         }
 
       }
