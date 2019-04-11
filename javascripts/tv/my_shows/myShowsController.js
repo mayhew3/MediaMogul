@@ -26,9 +26,6 @@ angular.module('mediaMogulApp')
     self.currentPageToStart = 1;
     self.pageSize = 12;
 
-    self.nextTimeout = undefined;
-    self.nextShowsToUpdate = [];
-
     self.categories = [
       {
         label: 'Main',
@@ -73,46 +70,6 @@ angular.module('mediaMogulApp')
 
     self.allUnaired = function(series) {
       return ArrayService.exists(series.nextAirDate) && series.nextAirDate > Date.now();
-    };
-
-    self.addTimerForNextAirDate = function() {
-      $http.get('api/nextAired', {params: {person_id: LockService.person_id}}).then(function(results) {
-        self.nextShowsToUpdate = results.data.shows;
-        if (self.nextShowsToUpdate.length > 0) {
-          if (self.nextTimeout) {
-            $timeout.cancel(self.nextTimeout);
-            self.nextTimeout = undefined;
-          }
-          
-          const nextAirDate = new Date(results.data.air_time);
-          const delay = nextAirDate - Date.now();
-
-          console.log("Adding timeout for " + self.nextShowsToUpdate.length + " shows, " + formatAirTime(nextAirDate));
-
-          self.nextTimeout = $timeout(function() {
-            console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
-            _.forEach(self.nextShowsToUpdate, function(show) {
-              const series_id = parseInt(show.series_id);
-              const series = _.findWhere(EpisodeService.myShows, {id: series_id});
-              console.log(' - Updating show ' + series.title);
-              series.unwatched_all += show.episode_count;
-              series.first_unwatched = nextAirDate;
-              series.nextAirDate = show.next_air_time ? new Date(show.next_air_time) : undefined;
-            });
-            $timeout.cancel(self.nextTimeout);
-            self.nextTimeout = undefined;
-            self.nextShowsToUpdate = [];
-            self.addTimerForNextAirDate();
-          }, delay);
-          $scope.$on('$destroy', function() {
-            console.log("Destroying timer.");
-            $timeout.cancel(self.nextTimeout);
-          });
-        } else {
-          console.log("No shows in collection found with upcoming air time!");
-        }
-      });
-
     };
 
     function airedRecently(series) {
@@ -415,34 +372,8 @@ angular.module('mediaMogulApp')
       return moment().add(days, 'day').isAfter(moment(referenceDate));
     }
 
-    function updateFullRating(series) {
-      var metacritic = series.metacritic;
-      var myRating = series.my_rating;
 
-      series.FullRating = myRating === null ?
-        (metacritic === null ? 0 : metacritic) : myRating;
-
-      series.colorStyle = function() {
-        if (series.FullRating === null || series.FullRating === 0) {
-          return {};
-        } else {
-          var hue = (series.FullRating <= 50) ? series.FullRating * 0.5 : (50 * 0.5 + (series.FullRating - 50) * 4.5);
-          return {
-            'background-color': 'hsla(' + hue + ', 50%, 42%, 1)',
-            'font-size': '1.6em',
-            'text-align': 'center',
-            'font-weight': '800',
-            'color': 'white'
-          }
-        }
-      };
-    }
-
-
-    EpisodeService.updateMyShowsListIfDoesntExist().then(() => {
-      self.addTimerForNextAirDate();
-    });
-
+    EpisodeService.updateMyShowsListIfDoesntExist();
 
     if (self.LockService.isAdmin()) {
       $http.get('/api/seriesRequest').then(function(results) {
@@ -461,16 +392,9 @@ angular.module('mediaMogulApp')
 
     function removeAllRequestsForShow(tvdb_id) {
       const matchingRequests = _.where(self.series_requests, {tvdb_series_ext_id: tvdb_id});
-      _.forEach(matchingRequests, matchingRequest => removeFromArray(self.series_requests, matchingRequest));
-    }
-
-    function removeFromArray(arr, element) {
-      var indexOf = arr.indexOf(element);
-      if (indexOf < 0) {
-        $log.debug("No element found!");
-        return;
-      }
-      arr.splice(indexOf, 1);
+      _.forEach(matchingRequests, matchingRequest => {
+        ArrayService.removeFromArray(self.series_requests, matchingRequest);
+      });
     }
 
     // $interval(self.refreshSeriesList, 60*1000*5);
@@ -481,14 +405,6 @@ angular.module('mediaMogulApp')
 
     self.changeTier = function(series) {
       EpisodeService.changeTier(series.id, series.tier);
-    };
-
-    self.posterStyle = function(series) {
-      if (series.recordingNow === true) {
-        return {"border": "solid red"};
-      } else {
-        return {};
-      }
     };
 
     self.open = function(series) {

@@ -10,12 +10,17 @@ angular.module('mediaMogulApp')
 
       const myShowObservers = [];
 
+      self.nextTimeout = undefined;
+      self.nextShowsToUpdate = [];
+
+
       self.updateMyShowsList = function() {
         self.uninitialized = false;
         return new Promise(resolve => {
           ArrayService.emptyArray(self.myShows);
           updateMyQueueShowsList().then(() => {
             updateMyShowsListTierOne().then(() => {
+              addTimerForNextAirDate();
               updateMyShowsListTierTwo().then(() =>  {
                 resolve();
               });
@@ -41,10 +46,7 @@ angular.module('mediaMogulApp')
           $http.get('/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Queue Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
-            tempShows.forEach(function (show) {
-              self.updateNumericFields(show);
-              self.formatNextAirDate(show);
-            });
+            _.forEach(tempShows, formatIncomingShow);
             $log.debug("Finished updating Queue.");
 
             mergeShowsIntoArray(tempShows);
@@ -57,15 +59,17 @@ angular.module('mediaMogulApp')
         });
       }
 
+      function formatIncomingShow(show) {
+        self.updateNumericFields(show);
+        self.formatNextAirDate(show);
+      }
+
       function updateMyShowsListTierOne() {
         return new Promise((resolve, reject) => {
           $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Tier 1 Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
-            tempShows.forEach(function (show) {
-              self.updateNumericFields(show);
-              self.formatNextAirDate(show);
-            });
+            _.forEach(tempShows, formatIncomingShow);
             $log.debug("Finished updating Tier 1.");
 
             mergeShowsIntoArray(tempShows);
@@ -83,10 +87,7 @@ angular.module('mediaMogulApp')
           $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 2}}).then(function (response) {
             $log.debug("Tier 2 Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
-            tempShows.forEach(function (show) {
-              self.updateNumericFields(show);
-              self.formatNextAirDate(show);
-            });
+            _.forEach(tempShows, formatIncomingShow);
             $log.debug("Finished updating Tier 2.");
 
             mergeShowsIntoArray(tempShows);
@@ -97,6 +98,49 @@ angular.module('mediaMogulApp')
             reject();
           });
         });
+      }
+
+      function addTimerForNextAirDate() {
+        $http.get('api/nextAired', {params: {person_id: LockService.person_id}}).then(function(results) {
+          self.nextShowsToUpdate = results.data.shows;
+          if (self.nextShowsToUpdate.length > 0) {
+            if (self.nextTimeout) {
+              $timeout.cancel(self.nextTimeout);
+              self.nextTimeout = undefined;
+            }
+
+            const nextAirDate = new Date(results.data.air_time);
+            const delay = nextAirDate - Date.now();
+
+            console.log("Adding timeout for " + self.nextShowsToUpdate.length + " shows, " + formatAirTime(nextAirDate));
+
+            self.nextTimeout = $timeout(function() {
+              console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
+              _.forEach(self.nextShowsToUpdate, function(show) {
+                const series_id = parseInt(show.series_id);
+                const series = _.findWhere(self.myShows, {id: series_id});
+                console.log(' - Updating show ' + series.title);
+                series.unwatched_all += show.episode_count;
+                series.first_unwatched = nextAirDate;
+                series.nextAirDate = show.next_air_time ? new Date(show.next_air_time) : undefined;
+              });
+              $timeout.cancel(self.nextTimeout);
+              self.nextTimeout = undefined;
+              self.nextShowsToUpdate = [];
+              addTimerForNextAirDate();
+            }, delay);
+
+          } else {
+            console.log("No shows in collection found with upcoming air time!");
+          }
+        });
+
+      }
+
+      function formatAirTime(combinedDate) {
+        const minutesPart = $filter('date')(combinedDate, 'mm');
+        const timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
+        return $filter('date')(combinedDate, timeFormat);
       }
 
       self.registerAsObserver = function(scope) {
@@ -420,7 +464,10 @@ angular.module('mediaMogulApp')
           PersonId: LockService.person_id,
           LastWatched: lastWatched
         }).then(function (resultShow) {
-          addShowToArray(resultShow.data);
+          const series = resultShow.data;
+          formatIncomingShow(series);
+          addShowToArray(series);
+          addTimerForNextAirDate();
         }, function(errResponse) {
           $log.debug("Error adding to my shows: " + errResponse);
         });
@@ -459,6 +506,7 @@ angular.module('mediaMogulApp')
       self.removeFromMyShows = function(show) {
         return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
           removeShowFromArray(show);
+          addTimerForNextAirDate();
         });
       };
 
