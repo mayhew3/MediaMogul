@@ -8,8 +8,12 @@ function ArrayService($log) {
   };
 
   self.refreshArray = function(originalArray, newArray) {
-    originalArray.length = 0;
+    self.emptyArray(originalArray);
     self.addToArray(originalArray, newArray);
+  };
+
+  self.emptyArray = function(originalArray) {
+    originalArray.length = 0;
   };
 
   self.exists = function(object) {

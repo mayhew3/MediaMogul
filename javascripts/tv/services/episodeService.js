@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService',
-    function ($log, $http, $q, $filter, LockService, ArrayService) {
+  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService', '$timeout',
+    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout) {
       let myPendingShows = [];
       let notMyShows = [];
 
@@ -13,6 +13,7 @@ angular.module('mediaMogulApp')
       self.updateMyShowsList = function() {
         self.uninitialized = false;
         return new Promise(resolve => {
+          ArrayService.emptyArray(self.myShows);
           updateMyQueueShowsList().then(() => {
             updateMyShowsListTierOne().then(() => {
               updateMyShowsListTierTwo().then(() =>  {
@@ -106,6 +107,7 @@ angular.module('mediaMogulApp')
         ArrayService.removeFromArray(myShowObservers, scope);
       };
 
+      /* Might need this later? Right now it seems to be getting updated automatically. */
       function updateAllShowObservers() {
         _.forEach(myShowObservers, scope => scope.$apply());
       }
@@ -122,19 +124,36 @@ angular.module('mediaMogulApp')
           arrayCopy.push(show);
         });
 
-        ArrayService.refreshArray(self.myShows, _.sortBy(arrayCopy, function(show) {
-          return 0 - show.dynamic_rating;
-        }));
+        sortShowArray(arrayCopy);
+        ArrayService.refreshArray(self.myShows, arrayCopy);
 
         // updateAllShowObservers();
+      }
+
+      function addShowToArray(newShow) {
+        let arrayCopy = self.myShows.slice();
+        arrayCopy.push(newShow);
+        sortShowArray(arrayCopy);
+        ArrayService.refreshArray(self.myShows, arrayCopy);
+      }
+
+      function removeShowFromArray(oldShow) {
+        ArrayService.removeFromArray(self.myShows, oldShow);
+      }
+
+      function sortShowArray(showArray) {
+        ArrayService.refreshArray(showArray, _.sortBy(showArray, function(show) {
+          return 0 - show.dynamic_rating;
+        }));
       }
 
       function updateFullRating(series) {
         const metacritic = series.metacritic;
         const myRating = series.my_rating;
 
-        series.FullRating = myRating === null ?
-          (metacritic === null ? 0 : metacritic) : myRating;
+        series.FullRating = ArrayService.exists(myRating) ?
+            myRating :
+          (ArrayService.exists(metacritic) ? metacritic : 0);
 
         series.colorStyle = function() {
           if (series.FullRating === null || series.FullRating === 0) {
@@ -395,8 +414,12 @@ angular.module('mediaMogulApp')
 
       self.addToMyShows = function(show) {
         $log.debug("Adding show " + JSON.stringify(show));
+        // TODO: get dynamic_score back from server and update it
         return $http.post('/addToMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function () {
           show.addedSuccessfully = true;
+          show.my_tier = 1;
+          show.date_added = new Date;
+          addShowToArray(show);
         }, function(errResponse) {
           $log.debug("Error adding to my shows: " + errResponse);
         });
@@ -434,7 +457,7 @@ angular.module('mediaMogulApp')
 
       self.removeFromMyShows = function(show) {
         return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
-          ArrayService.removeFromArray(self.myShows, show);
+          removeShowFromArray(show);
         });
       };
 
