@@ -93,7 +93,7 @@ angular.module('mediaMogulApp')
             console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
             _.forEach(self.nextShowsToUpdate, function(show) {
               const series_id = parseInt(show.series_id);
-              const series = _.findWhere(self.series, {id: series_id});
+              const series = _.findWhere(EpisodeService.myShows, {id: series_id});
               console.log(' - Updating show ' + series.title);
               series.unwatched_all += show.episode_count;
               series.first_unwatched = nextAirDate;
@@ -198,7 +198,7 @@ angular.module('mediaMogulApp')
     };
 
     self.countWhere = function(filter) {
-      return self.series.filter(filter).length;
+      return EpisodeService.myShows.filter(filter).length;
     };
 
     self.orderByRating = function(series) {
@@ -439,41 +439,29 @@ angular.module('mediaMogulApp')
     }
 
 
-    self.refreshSeriesList = function() {
-      EpisodeService.updateMyShowsList().then(function (queueShows) {
-        ArrayService.addToArray(self.series, queueShows);
+    EpisodeService.updateMyShowsListIfDoesntExist().then(() => {
+      self.addTimerForNextAirDate();
+    });
 
-        if (self.LockService.isAdmin()) {
-          $http.get('/api/seriesRequest').then(function(results) {
-            ArrayService.refreshArray(self.series_requests, results.data);
-          });
-        }
-        self.addTimerForNextAirDate();
-      }).catch(err => {
-        throw new Error(err);
-      });
-      EpisodeService.updateMyPendingShowsList().then(function() {
-        ArrayService.refreshArray(self.pendingShows, EpisodeService.getPendingShowsList());
-      })
-    };
-    self.refreshSeriesList();
 
-    function postProcessing(seriesList) {
-      $log.debug("Controller has " + seriesList.length + " shows.");
-      seriesList.forEach(function (series) {
-        updateFullRating(series);
+    if (self.LockService.isAdmin()) {
+      $http.get('/api/seriesRequest').then(function(results) {
+        ArrayService.refreshArray(self.series_requests, results.data);
       });
-      ArrayService.refreshArray(seriesList, _.sortBy(seriesList, function(show) {
-        return 0 - show.dynamic_rating;
-      }));
     }
 
+    EpisodeService.updateMyPendingShowsList().then(function() {
+      ArrayService.refreshArray(self.pendingShows, EpisodeService.getPendingShowsList());
+    });
+
     function addToMyShows(show) {
-      self.series.push(show);
+      console.log("Unnecessary call to addToMyShows");
+      // self.series.push(show);
     }
 
     function removeFromMyShows(show) {
-      removeFromArray(self.series, show);
+      console.log("Unnecessary call to removeFromMyShows");
+      // removeFromArray(self.series, show);
     }
 
     function removeFromRequests(seriesRequest) {

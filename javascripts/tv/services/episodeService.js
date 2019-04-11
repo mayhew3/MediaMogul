@@ -1,20 +1,41 @@
 angular.module('mediaMogulApp')
   .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService',
     function ($log, $http, $q, $filter, LockService, ArrayService) {
-      let myShows = [];
       let myPendingShows = [];
       let notMyShows = [];
+
       const self = this;
+      self.myShows = [];
+      self.uninitialized = true;
+
+      const myShowObservers = [];
 
       self.updateMyShowsList = function() {
-        self.updateMyQueueShowsList().then(() => {
-          self.updateMyShowsListTierOne().then(() => {
-            self.updateMyShowsListTierTwo();
+        self.uninitialized = false;
+        return new Promise(resolve => {
+          updateMyQueueShowsList().then(() => {
+            updateMyShowsListTierOne().then(() => {
+              updateMyShowsListTierTwo().then(() =>  {
+                resolve();
+              });
+            });
           });
         });
       };
 
-      self.updateMyQueueShowsList = function() {
+      self.updateMyShowsListIfDoesntExist = function() {
+        return new Promise(resolve => {
+          if (self.uninitialized) {
+            self.updateMyShowsList().then(() => resolve());
+          } else {
+            resolve();
+          }
+        });
+      };
+
+      self.updateMyShowsList();
+
+      function updateMyQueueShowsList() {
         return new Promise((resolve, reject) => {
           $http.get('/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Queue Shows returned " + response.data.length + " items.");
@@ -27,15 +48,15 @@ angular.module('mediaMogulApp')
 
             mergeShowsIntoArray(tempShows);
 
-            resolve(myShows);
+            resolve(self.myShows);
           }, function (errResponse) {
             console.error('Error while fetching series list: ' + errResponse);
             reject();
           });
         });
-      };
+      }
 
-      self.updateMyShowsListTierOne = function() {
+      function updateMyShowsListTierOne() {
         return new Promise((resolve, reject) => {
           $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Tier 1 Shows returned " + response.data.length + " items.");
@@ -48,15 +69,15 @@ angular.module('mediaMogulApp')
 
             mergeShowsIntoArray(tempShows);
 
-            resolve(myShows);
+            resolve(self.myShows);
           }, function (errResponse) {
             console.error('Error while fetching series list: ' + errResponse);
             reject();
           });
         });
-      };
+      }
 
-      self.updateMyShowsListTierTwo = function() {
+      function updateMyShowsListTierTwo() {
         return new Promise((resolve, reject) => {
           $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 2}}).then(function (response) {
             $log.debug("Tier 2 Shows returned " + response.data.length + " items.");
@@ -75,10 +96,22 @@ angular.module('mediaMogulApp')
             reject();
           });
         });
+      }
+
+      self.registerAsObserver = function(scope) {
+        myShowObservers.push(scope);
       };
 
+      self.deregisterObserver = function(scope) {
+        ArrayService.removeFromArray(myShowObservers, scope);
+      };
+
+      function updateAllShowObservers() {
+        _.forEach(myShowObservers, scope => scope.$apply());
+      }
+
       function mergeShowsIntoArray(newShowList) {
-        const arrayCopy = myShows.slice();
+        const arrayCopy = self.myShows.slice();
 
         _.forEach(newShowList, show => {
           updateFullRating(show);
@@ -89,9 +122,11 @@ angular.module('mediaMogulApp')
           arrayCopy.push(show);
         });
 
-        ArrayService.refreshArray(myShows, _.sortBy(arrayCopy, function(show) {
+        ArrayService.refreshArray(self.myShows, _.sortBy(arrayCopy, function(show) {
           return 0 - show.dynamic_rating;
         }));
+
+        // updateAllShowObservers();
       }
 
       function updateFullRating(series) {
@@ -316,7 +351,7 @@ angular.module('mediaMogulApp')
       };
 
       self.getMyShows = function() {
-        return myShows;
+        return self.myShows;
       };
 
       self.getNotMyShows = function() {
@@ -399,7 +434,7 @@ angular.module('mediaMogulApp')
 
       self.removeFromMyShows = function(show) {
         return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
-          ArrayService.removeFromArray(myShows, show);
+          ArrayService.removeFromArray(self.myShows, show);
         });
       };
 

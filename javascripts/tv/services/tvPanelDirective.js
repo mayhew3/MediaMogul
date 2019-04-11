@@ -7,7 +7,7 @@
   function tvPanel() {
     return {
       templateUrl: 'views/tv/tvPanel.html',
-      controller: ['$scope', 'ArrayService', tvPanelController],
+      controller: ['$scope', 'ArrayService', 'EpisodeService', tvPanelController],
       controllerAs: 'ctrl',
       scope: {
         shows: '=',
@@ -17,10 +17,10 @@
     }
   }
 
-  function tvPanelController($scope, ArrayService) {
+  function tvPanelController($scope, ArrayService, EpisodeService) {
     const self = this;
 
-    self.shows = $scope.shows;
+    self.shows = $scope.shows ? $scope.shows : EpisodeService.myShows;
     self.open = $scope.seriesDetailOpen;
 
     self.panelInfo = $scope.panelInfo;
@@ -30,6 +30,9 @@
 
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
+    if (!$scope.shows) {
+      EpisodeService.registerAsObserver($scope);
+    }
 
     self.imageColumnClass = function() {
       return (self.panelInfo.posterSize === 'small') ? 'col-xs-4 col-sm-2 col-md-2' : 'col-xs-6 col-sm-3 col-md-2';
