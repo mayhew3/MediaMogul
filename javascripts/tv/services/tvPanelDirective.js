@@ -20,6 +20,8 @@
   function tvPanelController($scope, ArrayService, EpisodeService) {
     const self = this;
 
+    self.EpisodeService = EpisodeService;
+
     self.shows = $scope.shows;
     self.open = $scope.seriesDetailOpen;
 
@@ -31,11 +33,11 @@
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
     if (!$scope.shows) {
-      EpisodeService.registerAsObserver($scope);
+      self.EpisodeService.registerAsObserver($scope);
     }
 
     self.getShows = function() {
-      return self.shows ? self.shows : EpisodeService.myShows;
+      return self.shows ? self.shows : self.EpisodeService.myShows;
     };
 
     self.imageColumnClass = function() {

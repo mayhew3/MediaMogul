@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'addSeriesCallback', 'removeSeriesCallback', 'adding', 'YearlyRatingService',
+    '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           addSeriesCallback, removeSeriesCallback, adding, YearlyRatingService) {
+           adding, YearlyRatingService) {
     const self = this;
 
     self.LockService = LockService;
@@ -500,7 +500,6 @@ angular.module('mediaMogulApp')
       return new Promise(resolve => {
         if (self.removed) {
           EpisodeService.addToMyShows(self.series).then(() => {
-            addSeriesCallback(self.series);
             self.removed = false;
             resolve();
           });
@@ -514,7 +513,6 @@ angular.module('mediaMogulApp')
       if (!self.removed) {
         EpisodeService.removeFromMyShows(self.series).then(function () {
           $log.debug("Returned from removal.");
-          removeSeriesCallback(self.series);
           self.removed = true;
           self.series.my_tier = null;
         });
@@ -525,20 +523,24 @@ angular.module('mediaMogulApp')
 
       if (self.selectedLastWatchedEpisode === null) {
         $log.debug('Mark Past Watched called with no selected episode.');
-        $uibModalInstance.close();
-      }
-
-      let lastWatched = self.selectedLastWatchedEpisode.absolute_number;
-
-      $log.debug("Last Watched: Episode " + lastWatched);
-
-      EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched+1).then(function() {
-        $log.debug("Finished update, adjusting denorms.");
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function() {
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
           updateNextUp();
           $uibModalInstance.close();
         });
-      });
+      } else {
+
+        let lastWatched = self.selectedLastWatchedEpisode.absolute_number;
+
+        $log.debug("Last Watched: Episode " + lastWatched);
+
+        EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched + 1).then(function () {
+          $log.debug("Finished update, adjusting denorms.");
+          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
+            updateNextUp();
+            $uibModalInstance.close();
+          });
+        });
+      }
 
       $log.debug("Series '" + self.series.title + "' " + self.series.id);
     };

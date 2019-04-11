@@ -695,6 +695,7 @@ exports.getMyUpcomingEpisodes = function(request, response) {
   return db.executeQueryWithResults(response, sql, [personId, 0, 0, 1]);
 };
 
+// TODO: calculate dynamic rating and respond with it. (see rateMyShow())
 exports.addToMyShows = function(request, response) {
   var personId = request.body.PersonId;
   var seriesId = request.body.SeriesId;

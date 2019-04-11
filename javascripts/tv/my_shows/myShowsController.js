@@ -5,6 +5,7 @@ angular.module('mediaMogulApp')
     const self = this;
 
     self.LockService = LockService;
+    self.EpisodeService = EpisodeService;
 
     self.pendingShows = [];
 
@@ -501,12 +502,6 @@ angular.module('mediaMogulApp')
           },
           owned: function() {
             return true;
-          },
-          addSeriesCallback: function() {
-            return addToMyShows;
-          },
-          removeSeriesCallback: function() {
-            return removeFromMyShows;
           },
           adding: function() {
             return false;
