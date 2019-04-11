@@ -387,6 +387,132 @@ exports.getMyQueueShows = function(request, response) {
 
 };
 
+exports.getUpdatedSingleSeries = function(series_id, person_id) {
+  return new Promise((resolve, reject) => {
+
+    const sql = "SELECT s.id, " +
+      "s.title, " +
+      "ps.tier, " +
+      "s.metacritic, " +
+      "s.streaming_episodes, " +
+      "s.matched_episodes, " +
+      "s.unmatched_episodes, " +
+      "(SELECT COUNT(1) " +
+      "    from episode e " +
+      "    where e.series_id = s.id " +
+      "    and e.retired = $3" +
+      "    and e.season <> $4 " +
+      "    and e.air_date IS NOT NULL" +
+      "    and e.air_date < NOW()) as aired_episodes, " +
+      "(SELECT COUNT(1) " +
+      "  FROM episode_rating er " +
+      "  INNER JOIN episode e " +
+      "    ON er.episode_id = e.id" +
+      "  WHERE e.series_id = s.id " +
+      "  AND e.retired = $3 " +
+      "  AND er.retired = $3 " +
+      "  AND er.rating_pending = $5 " +
+      "  AND er.person_id = $1) as rating_pending_episodes, " +
+      "s.tvdb_series_id, " +
+      "s.tvdb_manual_queue, " +
+      "s.last_tvdb_update, " +
+      "s.last_tvdb_error, " +
+      "s.poster, " +
+      "s.cloud_poster, " +
+      "s.air_time, " +
+      "s.trailer_link, " +
+      "s.tivo_series_v2_ext_id, " +
+      "ps.rating as my_rating, " +
+      "ps.unwatched_episodes, " +
+      "ps.unwatched_streaming, " +
+      "ps.last_unwatched, " +
+      "ps.first_unwatched, " +
+      "ps.tier AS my_tier, " +
+      "ps.date_added, " +
+      "COALESCE(ps.rating, metacritic) AS dynamic_rating, " +
+      "(SELECT MAX(er.watched_date) " +
+      "  from episode_rating er " +
+      "  inner join episode e " +
+      "   on er.episode_id = e.id " +
+      "  where e.series_id = s.id " +
+      "  and er.retired = $3 " +
+      "  and e.retired = $3) as last_watched " +
+      "FROM series s " +
+      "INNER JOIN person_series ps " +
+      "  ON ps.series_id = s.id " +
+      "WHERE ps.person_id = $1 " +
+      "AND s.id = $2 " +
+      "AND ps.retired = $3 " +
+      "AND s.retired = $3 ";
+    const values = [
+      person_id, series_id, 0, 0, true
+    ];
+
+    db.selectWithJSON(sql, values).then(function (seriesResults) {
+      if (seriesResults.length === 0) {
+        reject("No person_series found with series_id: " + series_id + " and person_id: " + person_id);
+        return;
+      }
+
+      const series = seriesResults[0];
+
+      const sql = "SELECT e.air_time, e.air_date, e.season, e.episode_number " +
+        "FROM episode e " +
+        "WHERE e.retired = $1 " +
+        "AND e.season <> $2 " +
+        "AND e.id NOT IN (SELECT er.episode_id " +
+        "                   FROM episode_rating er " +
+        "                   WHERE er.person_id = $3 " +
+        "                   AND er.watched = $4" +
+        "                   AND er.retired = $1) " +
+        "AND e.series_id = $5 " +
+        "ORDER BY e.air_time, e.season, e.episode_number ";
+
+      const values = [
+        0,
+        0,
+        person_id,
+        true,
+        series_id
+      ];
+
+      db.selectWithJSON(sql, values).then(function(episodeResults) {
+
+        exports.calculateUnwatchedDenorms(series, episodeResults);
+
+        const sql =
+          "SELECT er.episode_id, er.rating_value " +
+          "FROM episode_rating er " +
+          "INNER JOIN episode e " +
+          "  ON er.episode_id = e.id " +
+          "WHERE er.watched = $1 " +
+          "AND er.retired = $2 " +
+          "AND er.person_id = $3 " +
+          "AND er.rating_value IS NOT NULL " +
+          "AND e.series_id = $4 " +
+          "ORDER BY er.watched_date DESC, e.season DESC, e.episode_number DESC ";
+
+        const values = [
+          true,
+          0,
+          person_id,
+          series_id
+        ];
+
+        db.selectWithJSON(sql, values).then(function(ratingResults) {
+
+          calculateRating(series, ratingResults);
+
+          resolve(series);
+        });
+
+      });
+    });
+
+  });
+
+};
+
 exports.getNextAiredInfo = function(request, response) {
   const sql = 'SELECT e.series_id, e.air_time ' +
     'FROM episode e ' +
@@ -695,12 +821,12 @@ exports.getMyUpcomingEpisodes = function(request, response) {
   return db.executeQueryWithResults(response, sql, [personId, 0, 0, 1]);
 };
 
-// TODO: calculate dynamic rating and respond with it. (see rateMyShow())
 exports.addToMyShows = function(request, response) {
-  var personId = request.body.PersonId;
-  var seriesId = request.body.SeriesId;
+  const personId = request.body.PersonId;
+  const seriesId = request.body.SeriesId;
+  const lastWatched = request.body.LastWatched;
 
-  var sql = "INSERT INTO person_series " +
+  const sql = "INSERT INTO person_series " +
     "(person_id, series_id, tier, unwatched_episodes) " +
     "VALUES ($1, $2, $3, (SELECT COUNT(1) " +
     "                     FROM episode e " +
@@ -712,11 +838,26 @@ exports.addToMyShows = function(request, response) {
     "                                       FROM episode_rating er " +
     "                                       WHERE er.person_id = $7" +
     "                                       AND er.watched = $8))) ";
-  var values = [
+  const values = [
     personId, seriesId, 1, 0, seriesId, 0, personId, true
   ];
 
-  return db.executeQueryNoResults(response, sql, values);
+  db.updateNoJSON(sql, values).then(() => {
+    const payload = {
+      series_id: seriesId,
+      last_watched: lastWatched,
+      person_ids: [personId]
+    };
+    exports.updateEpisodeRatingsAllPastWatched(payload, false).then(() => {
+      exports.getUpdatedSingleSeries(seriesId, personId)
+        .then(series => {
+          response.json(series);
+        })
+        .catch(err => {
+          response.error(err);
+        });
+    });
+  });
 };
 
 exports.removeFromMyShows = function(request, response) {

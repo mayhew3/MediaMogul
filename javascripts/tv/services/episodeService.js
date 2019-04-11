@@ -412,14 +412,15 @@ angular.module('mediaMogulApp')
         return $http.post('/addSeries', {series: series});
       };
 
-      self.addToMyShows = function(show) {
+      self.addToMyShows = function(show, lastWatched) {
         $log.debug("Adding show " + JSON.stringify(show));
         // TODO: get dynamic_score back from server and update it
-        return $http.post('/addToMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function () {
-          show.addedSuccessfully = true;
-          show.my_tier = 1;
-          show.date_added = new Date;
-          addShowToArray(show);
+        return $http.post('/addToMyShows', {
+          SeriesId: show.id,
+          PersonId: LockService.person_id,
+          LastWatched: lastWatched
+        }).then(function (resultShow) {
+          addShowToArray(resultShow.data);
         }, function(errResponse) {
           $log.debug("Error adding to my shows: " + errResponse);
         });
