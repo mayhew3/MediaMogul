@@ -6,7 +6,6 @@ angular.module('mediaMogulApp')
 
     self.LockService = LockService;
 
-    self.series = [];
     self.pendingShows = [];
 
     self.tiers = [1, 2, 3, 4, 5];
@@ -453,16 +452,6 @@ angular.module('mediaMogulApp')
     EpisodeService.updateMyPendingShowsList().then(function() {
       ArrayService.refreshArray(self.pendingShows, EpisodeService.getPendingShowsList());
     });
-
-    function addToMyShows(show) {
-      console.log("Unnecessary call to addToMyShows");
-      // self.series.push(show);
-    }
-
-    function removeFromMyShows(show) {
-      console.log("Unnecessary call to removeFromMyShows");
-      // removeFromArray(self.series, show);
-    }
 
     function removeFromRequests(seriesRequest) {
       removeAllRequestsForShow(seriesRequest.tvdb_series_ext_id);
