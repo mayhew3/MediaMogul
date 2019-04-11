@@ -8,17 +8,37 @@ angular.module('mediaMogulApp')
 
       self.updateMyShowsList = function() {
         return new Promise((resolve, reject) => {
-          $http.get('/myShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
-            $log.debug("Shows returned " + response.data.length + " items.");
+          $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
+            $log.debug("Tier 1 Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
             tempShows.forEach(function (show) {
               self.updateNumericFields(show);
               self.formatNextAirDate(show);
             });
-            $log.debug("Finished updating.");
+            $log.debug("Finished updating Tier 1.");
             ArrayService.refreshArray(myShows, tempShows);
 
-            resolve();
+            resolve(myShows);
+          }, function (errResponse) {
+            console.error('Error while fetching series list: ' + errResponse);
+            reject();
+          });
+        });
+      };
+
+      self.updateMyShowsListTierTwo = function() {
+        return new Promise((resolve, reject) => {
+          $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 2}}).then(function (response) {
+            $log.debug("Tier 2 Shows returned " + response.data.length + " items.");
+            let tempShows = response.data;
+            tempShows.forEach(function (show) {
+              self.updateNumericFields(show);
+              self.formatNextAirDate(show);
+            });
+            $log.debug("Finished updating Tier 2.");
+            ArrayService.addToArray(myShows, tempShows);
+
+            resolve(tempShows);
           }, function (errResponse) {
             console.error('Error while fetching series list: ' + errResponse);
             reject();

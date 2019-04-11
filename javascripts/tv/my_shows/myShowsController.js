@@ -440,18 +440,18 @@ angular.module('mediaMogulApp')
 
 
     self.refreshSeriesList = function() {
-      EpisodeService.updateMyShowsList().then(function () {
-        ArrayService.refreshArray(self.series, EpisodeService.getMyShows());
-        $log.debug("Controller has " + self.series.length + " shows.");
-        self.series.forEach(function (seri) {
-          updateFullRating(seri);
-        });
-        ArrayService.refreshArray(self.series, _.sortBy(self.series, function(show) {
-          return 0 - show.dynamic_rating;
-        }));
+      EpisodeService.updateMyShowsList().then(function (tierOneShows) {
+        postProcessing(tierOneShows);
+        ArrayService.addToArray(self.series, tierOneShows);
+
         if (self.LockService.isAdmin()) {
           $http.get('/api/seriesRequest').then(function(results) {
             ArrayService.refreshArray(self.series_requests, results.data);
+
+            EpisodeService.updateMyShowsListTierTwo().then(function (tierTwoShows) {
+              postProcessing(tierTwoShows);
+              ArrayService.addToArray(self.series, tierTwoShows);
+            });
           });
         }
         self.addTimerForNextAirDate();
@@ -463,6 +463,16 @@ angular.module('mediaMogulApp')
       })
     };
     self.refreshSeriesList();
+
+    function postProcessing(seriesList) {
+      $log.debug("Controller has " + seriesList.length + " shows.");
+      seriesList.forEach(function (series) {
+        updateFullRating(series);
+      });
+      ArrayService.refreshArray(seriesList, _.sortBy(seriesList, function(show) {
+        return 0 - show.dynamic_rating;
+      }));
+    }
 
     function addToMyShows(show) {
       self.series.push(show);
