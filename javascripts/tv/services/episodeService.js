@@ -6,6 +6,14 @@ angular.module('mediaMogulApp')
       let notMyShows = [];
       const self = this;
 
+      self.updateMyShowsList = function() {
+        self.updateMyQueueShowsList().then(() => {
+          self.updateMyShowsListTierOne().then(() => {
+            self.updateMyShowsListTierTwo();
+          });
+        });
+      };
+
       self.updateMyQueueShowsList = function() {
         return new Promise((resolve, reject) => {
           $http.get('/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
@@ -16,7 +24,8 @@ angular.module('mediaMogulApp')
               self.formatNextAirDate(show);
             });
             $log.debug("Finished updating Queue.");
-            ArrayService.addToArray(myShows, tempShows);
+
+            mergeShowsIntoArray(tempShows);
 
             resolve(myShows);
           }, function (errResponse) {
@@ -26,7 +35,7 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.updateMyShowsList = function() {
+      self.updateMyShowsListTierOne = function() {
         return new Promise((resolve, reject) => {
           $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Tier 1 Shows returned " + response.data.length + " items.");
@@ -36,7 +45,8 @@ angular.module('mediaMogulApp')
               self.formatNextAirDate(show);
             });
             $log.debug("Finished updating Tier 1.");
-            ArrayService.addToArray(myShows, tempShows);
+
+            mergeShowsIntoArray(tempShows);
 
             resolve(myShows);
           }, function (errResponse) {
@@ -56,7 +66,8 @@ angular.module('mediaMogulApp')
               self.formatNextAirDate(show);
             });
             $log.debug("Finished updating Tier 2.");
-            ArrayService.addToArray(myShows, tempShows);
+
+            mergeShowsIntoArray(tempShows);
 
             resolve(tempShows);
           }, function (errResponse) {
@@ -65,6 +76,46 @@ angular.module('mediaMogulApp')
           });
         });
       };
+
+      function mergeShowsIntoArray(newShowList) {
+        const arrayCopy = myShows.slice();
+
+        _.forEach(newShowList, show => {
+          updateFullRating(show);
+          const match = _.findWhere(arrayCopy, {id: show.id});
+          if (match) {
+            ArrayService.removeFromArray(arrayCopy, match);
+          }
+          arrayCopy.push(show);
+        });
+
+        ArrayService.refreshArray(myShows, _.sortBy(arrayCopy, function(show) {
+          return 0 - show.dynamic_rating;
+        }));
+      }
+
+      function updateFullRating(series) {
+        const metacritic = series.metacritic;
+        const myRating = series.my_rating;
+
+        series.FullRating = myRating === null ?
+          (metacritic === null ? 0 : metacritic) : myRating;
+
+        series.colorStyle = function() {
+          if (series.FullRating === null || series.FullRating === 0) {
+            return {};
+          } else {
+            const hue = (series.FullRating <= 50) ? series.FullRating * 0.5 : (50 * 0.5 + (series.FullRating - 50) * 4.5);
+            return {
+              'background-color': 'hsla(' + hue + ', 50%, 42%, 1)',
+              'font-size': '1.6em',
+              'text-align': 'center',
+              'font-weight': '800',
+              'color': 'white'
+            }
+          }
+        };
+      }
 
       self.updateMyPendingShowsList = function() {
         return $http.get('/myPendingShows', {params: {PersonId: LockService.person_id}}).then(function (response) {

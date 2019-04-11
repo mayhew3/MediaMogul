@@ -440,18 +440,12 @@ angular.module('mediaMogulApp')
 
 
     self.refreshSeriesList = function() {
-      EpisodeService.updateMyQueueShowsList().then(function (queueShows) {
-        postProcessing(queueShows);
+      EpisodeService.updateMyShowsList().then(function (queueShows) {
         ArrayService.addToArray(self.series, queueShows);
 
         if (self.LockService.isAdmin()) {
           $http.get('/api/seriesRequest').then(function(results) {
             ArrayService.refreshArray(self.series_requests, results.data);
-
-            EpisodeService.updateMyShowsList().then(function (tierOneShows) {
-              postProcessing(tierOneShows);
-              ArrayService.addToArray(self.series, tierOneShows);
-            });
           });
         }
         self.addTimerForNextAirDate();
