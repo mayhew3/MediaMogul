@@ -67,7 +67,12 @@ exports.getMyPendingShows = function(request, response) {
   db.executeQueryWithResults(response, sql, values);
 };
 
-function getAllRawMyShows(person_id) {
+exports.getMyShows = function(request, response) {
+  const personId = request.query.PersonId;
+  const tier = request.query.Tier;
+  console.log("Server call: Person " + personId);
+
+  const startTime = new Date;
 
   const sql = "SELECT s.id, " +
     "s.title, " +
@@ -122,18 +127,14 @@ function getAllRawMyShows(person_id) {
     "WHERE ps.person_id = $1 " +
     "AND s.suggestion = $2 " +
     "AND s.tvdb_match_status = $3 " +
-    "AND s.retired = $4 ";
+    "AND s.retired = $4 " +
+    "AND ps.tier = $10 ";
   const values = [
-    person_id, false, 'Match Completed', 0, 0, 0, 0, 0, true
+    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true, tier
   ];
-  return db.selectWithJSON(sql, values);
-}
 
-function getShowsUsingFunction(person_id, initialFunction, response) {
-  const startTime = new Date;
-
-  initialFunction(person_id).then(function (seriesResults) {
-    let sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
+  db.selectWithJSON(sql, values).then(function (seriesResults) {
+    const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = e.series_id " +
@@ -144,31 +145,33 @@ function getShowsUsingFunction(person_id, initialFunction, response) {
       "                   WHERE er.person_id = $3 " +
       "                   AND er.watched = $4) " +
       "AND ps.person_id = $5 " +
+      "AND ps.tier = $6" +
       "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
     const values = [
       0,
       0,
-      person_id,
+      personId,
       true,
-      person_id
+      personId,
+      tier
     ];
 
     db.selectWithJSON(sql, values).then(function(episodeResults) {
 
-      let groupedBySeries = _.groupBy(episodeResults, "series_id");
-      for (let seriesId in groupedBySeries) {
+      const groupedBySeries = _.groupBy(episodeResults, "series_id");
+      for (const seriesId in groupedBySeries) {
         if (groupedBySeries.hasOwnProperty(seriesId)) {
-          let unwatchedEpisodes = groupedBySeries[seriesId];
+          const unwatchedEpisodes = groupedBySeries[seriesId];
 
-          let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+          const series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
           debug("Series: " + series.title);
 
           exports.calculateUnwatchedDenorms(series, unwatchedEpisodes);
         }
       }
 
-      let sql =
+      const sql =
         "SELECT e.series_id, er.episode_id, er.rating_value " +
         "FROM episode_rating er " +
         "INNER JOIN episode e " +
@@ -182,40 +185,39 @@ function getShowsUsingFunction(person_id, initialFunction, response) {
         "AND er.person_id = $3 " +
         "AND er.rating_value IS NOT NULL " +
         "AND ps.person_id = $4 " +
+        "AND ps.tier = $5" +
         "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
 
-      let values = [
+      const values = [
         true,
         0,
-        person_id,
-        person_id
+        personId,
+        personId,
+        tier
       ];
 
       db.selectWithJSON(sql, values).then(function(ratingResults) {
 
-        let groupedBySeries = _.groupBy(ratingResults, "series_id");
-        for (let seriesId in groupedBySeries) {
+        const groupedBySeries = _.groupBy(ratingResults, "series_id");
+        for (const seriesId in groupedBySeries) {
           if (groupedBySeries.hasOwnProperty(seriesId)) {
-            let seriesRatings = groupedBySeries[seriesId];
+            const seriesRatings = groupedBySeries[seriesId];
 
-            let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+            const series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
             debug("Series: " + series.title);
 
             calculateRating(series, seriesRatings);
           }
         }
 
-        let timeElapsed = new Date - startTime;
+        const timeElapsed = new Date - startTime;
         console.log("Time elapsed: " + timeElapsed);
         return response.json(seriesResults);
       });
 
     });
   });
-}
 
-exports.getMyShows = function(request, response) {
-  getShowsUsingFunction(request.query.PersonId, getAllRawMyShows, response);
 };
 
 exports.getNextAiredInfo = function(request, response) {
