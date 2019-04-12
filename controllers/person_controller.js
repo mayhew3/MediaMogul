@@ -120,7 +120,9 @@ exports.getMyShows = function(request, response) {
     "   on er.episode_id = e.id " +
     "  where e.series_id = s.id " +
     "  and er.retired = $5 " +
-    "  and e.retired = $6) as last_watched " +
+    "  and e.retired = $6 " +
+    "  and er.person_id = $1 " +
+      "and er.watched = $11) as last_watched " +
     "FROM series s " +
     "INNER JOIN person_series ps " +
     "  ON ps.series_id = s.id " +
@@ -130,7 +132,7 @@ exports.getMyShows = function(request, response) {
     "AND s.retired = $4 " +
     "AND ps.tier = $10 ";
   const values = [
-    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true, tier
+    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true, tier, true
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
@@ -273,6 +275,8 @@ exports.getMyQueueShows = function(request, response) {
     "   on er.episode_id = e.id " +
     "  where e.series_id = s.id " +
     "  and er.retired = $5 " +
+      "and er.watched = $11 " +
+      "  and er.person_id = $1 " +
     "  and e.retired = $6) as last_watched " +
     "FROM series s " +
     "INNER JOIN person_series ps " +
@@ -447,6 +451,8 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
       "   on er.episode_id = e.id " +
       "  where e.series_id = s.id " +
       "  and er.retired = $3 " +
+        "and er.watched = $6 " +
+        "  and er.person_id = $1 " +
       "  and e.retired = $3) as last_watched " +
       "FROM series s " +
       "INNER JOIN person_series ps " +
@@ -456,7 +462,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
       "AND ps.retired = $3 " +
       "AND s.retired = $3 ";
     const values = [
-      person_id, series_id, 0, 0, true
+      person_id, series_id, 0, 0, true, true
     ];
 
     db.selectWithJSON(sql, values).then(function (seriesResults) {
