@@ -281,44 +281,60 @@ exports.getMyQueueShows = function(request, response) {
     "AND s.suggestion = $2 " +
     "AND s.tvdb_match_status = $3 " +
     "AND s.retired = $4 " +
+    "AND ps.retired = $4 " +
     "AND ps.tier = $10 " +
-    "AND s.id in (select e.series_id " +
-    "             from episode e  " +
-    "             where e.retired = $5  " +
-    "             and e.season <> $8 " +
-    "             and e.air_time < now() " +
-    "             and e.id not in (select er.episode_id  " +
-    "                              from episode_rating er " +
-    "                              where er.person_id = $1  " +
-    "                              and er.watched = $9 " +
-    "                              and er.retired = $5)) ";
+    "AND ( " +
+      "     (SELECT MAX(er.watched_date) " +
+      "     FROM episode_rating er  " +
+      "     INNER JOIN episode e  " +
+      "       ON er.episode_id = e.id " +
+      "     WHERE e.series_id = s.id " +
+      "     AND er.person_id = $1 " +
+      "     AND er.watched = $11 " +
+      "     AND e.season <> $8 " +
+      "     AND e.retired = $4 " +
+      "     AND er.retired = $4) > (now() - INTERVAL '8 days') " +
+      "    OR " +
+      "    (ps.date_added > (now() - INTERVAL '8 days') ) " +
+      "    OR " +
+      "    (SELECT MIN(e.air_time) " +
+      "     FROM episode e " +
+      "     WHERE e.retired = $4 " +
+      "     AND e.series_id = s.id " +
+      "     AND e.season <> $8 " +
+      "     AND e.id NOT IN (SELECT episode_id  " +
+      "                        FROM episode_rating " +
+      "                        WHERE watched = $11 " +
+      "                        AND person_id = $1 " +
+      "                        AND retired = $4)) BETWEEN (now() - INTERVAL '8 days') AND (now() + INTERVAL '8 days') " +
+      "     ) ";
   const values = [
-    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true, tier
+    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true, tier, true
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
+
+    const series_ids = _.pluck(seriesResults, 'id');
+
     const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
-      "INNER JOIN person_series ps " +
-      "  ON ps.series_id = e.series_id " +
       "WHERE e.retired = $1 " +
       "AND e.season <> $2 " +
       "AND e.id NOT IN (SELECT er.episode_id " +
       "                   FROM episode_rating er " +
       "                   WHERE er.person_id = $3 " +
       "                   AND er.watched = $4) " +
-      "AND ps.person_id = $5 " +
-      "AND ps.tier = $6" +
+      "AND e.series_id IN (" + db.createInlineVariableList(series_ids.length, 5) + ') ' +
       "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
     const values = [
       0,
       0,
       personId,
-      true,
-      personId,
-      tier
+      true
     ];
+
+    ArrayService.addToArray(values, series_ids);
 
     db.selectWithJSON(sql, values).then(function(episodeResults) {
 
@@ -341,25 +357,20 @@ exports.getMyQueueShows = function(request, response) {
         "FROM episode_rating er " +
         "INNER JOIN episode e " +
         "  ON er.episode_id = e.id " +
-        "INNER JOIN series s " +
-        "  ON e.series_id = s.id " +
-        "INNER JOIN person_series ps " +
-        "  ON ps.series_id = s.id " +
         "WHERE er.watched = $1 " +
         "AND er.retired = $2 " +
         "AND er.person_id = $3 " +
         "AND er.rating_value IS NOT NULL " +
-        "AND ps.person_id = $4 " +
-        "AND ps.tier = $5" +
+        "AND e.series_id IN (" + db.createInlineVariableList(series_ids.length, 4) + ') ' +
         "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
 
       const values = [
         true,
         0,
-        personId,
-        personId,
-        tier
+        personId
       ];
+
+      ArrayService.addToArray(values, series_ids);
 
       db.selectWithJSON(sql, values).then(function(ratingResults) {
 
