@@ -41,10 +41,6 @@ angular.module('mediaMogulApp')
 
       self.updateMyShowsList();
 
-      self.findSeriesWithId = function(series_id) {
-        return _.findWhere(self.myShows, {id: series_id});
-      };
-
       function updateMyQueueShowsList() {
         return new Promise((resolve, reject) => {
           $http.get('/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
@@ -775,21 +771,6 @@ angular.module('mediaMogulApp')
         });
 
         return changedFields;
-      };
-
-      self.updateExistingSeriesDenorms = function(series_id, episodes) {
-        const series = self.findSeriesWithId(series_id);
-        self.updateMySeriesDenormsNoDBUpdate(series, episodes);
-      };
-
-      function doNothing() {
-        return new Promise(function(resolve) {
-          return resolve();
-        });
-      }
-
-      self.updateMySeriesDenormsNoDBUpdate = function(series, episodes) {
-        self.updateMySeriesDenorms(series, episodes, doNothing);
       };
 
       self.updateMySeriesDenorms = function(series, episodes, databaseCallback) {
