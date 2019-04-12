@@ -421,16 +421,11 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function() {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing);
+        EpisodeService.updateMySeriesDenormsNoDBUpdate(self.series, self.episodes);
+        EpisodeService.updateExistingSeriesDenorms(self.series.id, self.episodes);
         updateNextUp();
       });
     };
-
-    function doNothing() {
-      return new Promise(function(resolve) {
-        return resolve();
-      });
-    }
 
     function addBallot(ballot) {
       if (!_.isArray(self.series.ballots)) {
