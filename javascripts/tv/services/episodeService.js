@@ -7,6 +7,8 @@ angular.module('mediaMogulApp')
       const self = this;
       self.myShows = [];
       self.uninitialized = true;
+      self.loadingQueue = true;
+      self.loadingTierOne = true;
 
       const myShowObservers = [];
 
@@ -16,10 +18,14 @@ angular.module('mediaMogulApp')
 
       self.updateMyShowsList = function() {
         self.uninitialized = false;
+        self.loadingQueue = true;
+        self.loadingTierOne = true;
         return new Promise(resolve => {
           ArrayService.emptyArray(self.myShows);
           updateMyQueueShowsList().then(() => {
+            self.loadingQueue = false;
             updateMyShowsListTierOne().then(() => {
+              self.loadingTierOne = false;
               addTimerForNextAirDate();
               updateMyShowsListTierTwo().then(() =>  {
                 resolve();

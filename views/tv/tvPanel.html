@@ -1,4 +1,4 @@
-<div class="panel" ng-class="ctrl.panelFormat()" ng-hide="!ctrl.showEmpty() && ctrl.totalItems() === 0">
+<div class="panel" ng-class="ctrl.panelFormat()" ng-show="ctrl.showPanel()">
 
   <!-- GROUP HEADER -->
   <div class="panel-heading">
@@ -7,7 +7,13 @@
 
   <div class="panel-body" style="padding-bottom: 0">
 
-    <div class="row">
+    <div class="row" ng-show="ctrl.showLoading()">
+      <div class="col-xs-9 col-lg-6" style="text-align: center; padding-bottom: 20px">
+        <h2>Loading...</h2>
+      </div>
+    </div>
+
+    <div class="row" ng-hide="ctrl.showLoading()">
       <div class="fade-repeat posterRow" ng-class="ctrl.imageColumnClass()" ng-repeat="show in ctrl.getShows() |
                     orderBy: ctrl.orderBy() |
                     filter: ctrl.tvFilter |

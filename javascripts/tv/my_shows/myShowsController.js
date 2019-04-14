@@ -62,6 +62,14 @@ angular.module('mediaMogulApp')
         ;
     };
 
+    self.showLoadingQueue = function() {
+      return self.EpisodeService.loadingQueue;
+    };
+
+    self.showLoadingTierOne = function() {
+      return self.EpisodeService.loadingTierOne;
+    };
+
     self.upcomingSoon = function(series) {
       return dateIsInNextDays(series.nextAirDate, 7) &&
         (!hasUnwatchedEpisodes(series) ||
@@ -196,7 +204,8 @@ angular.module('mediaMogulApp')
         },
         showEmpty: true,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        showLoading: self.showLoadingQueue
       },
       {
         headerText: "Upcoming",
@@ -206,7 +215,8 @@ angular.module('mediaMogulApp')
           field: 'nextAirDate',
           direction: 'asc'
         },
-        subtitle: nextAirDate
+        subtitle: nextAirDate,
+        showLoading: self.showLoadingQueue
       },
       {
         headerText: 'Mid-Season',
@@ -217,7 +227,8 @@ angular.module('mediaMogulApp')
         tvFilter: self.continuePinned,
         posterSize: 'large',
         badgeField: 'unwatched_all',
-        pageLimit: 12
+        pageLimit: 12,
+        showLoading: self.showLoadingTierOne
       },
       {
         headerText: 'New Season',
@@ -228,7 +239,8 @@ angular.module('mediaMogulApp')
         tvFilter: self.newSeasonPinned,
         posterSize: 'large',
         badgeField: 'unwatched_all',
-        pageLimit: 6
+        pageLimit: 6,
+        showLoading: self.showLoadingTierOne
       },
       {
         headerText: 'To Start',
@@ -239,7 +251,8 @@ angular.module('mediaMogulApp')
         tvFilter: self.toStartPinned,
         posterSize: 'large',
         badgeField: 'unwatched_all',
-        pageLimit: 6
+        pageLimit: 6,
+        showLoading: self.showLoadingTierOne
       }
 
     ];
@@ -253,7 +266,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.continuePinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        showLoading: self.showLoadingTierOne
       },
       {
         headerText: 'Backlog',
@@ -277,7 +291,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.newSeasonPinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        showLoading: self.showLoadingTierOne
       },
       {
         headerText: 'Backlog',
@@ -301,7 +316,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.toStartPinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeField: 'unwatched_all',
+        showLoading: self.showLoadingTierOne
       },
       {
         headerText: 'Backlog',
