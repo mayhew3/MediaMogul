@@ -57,11 +57,10 @@ exports.getMyPendingShows = function(request, response) {
       "s.cloud_poster, " +
       "s.person_id " +
       "FROM series s " +
-      "WHERE s.suggestion = $1 " +
-      "AND s.tvdb_match_status = $2 " +
-      "AND s.retired = $3 ";
+      "WHERE s.tvdb_match_status = $1 " +
+      "AND s.retired = $2 ";
   var values = [
-    false, 'Match Confirmed', 0
+    'Match Confirmed', 0
   ];
 
   db.executeQueryWithResults(response, sql, values);
@@ -116,17 +115,16 @@ exports.getMyShows = function(request, response) {
     "  and er.retired = $5 " +
     "  and e.retired = $6 " +
     "  and er.person_id = $1 " +
-      "and er.watched = $11) as last_watched " +
+      "and er.watched = $2) as last_watched " +
     "FROM series s " +
     "INNER JOIN person_series ps " +
     "  ON ps.series_id = s.id " +
     "WHERE ps.person_id = $1 " +
-    "AND s.suggestion = $2 " +
     "AND s.tvdb_match_status = $3 " +
     "AND s.retired = $4 " +
     "AND ps.tier = $10 ";
   const values = [
-    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true, tier, true
+    personId, true, 'Match Completed', 0, 0, 0, 0, 0, true, tier
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
@@ -263,175 +261,13 @@ exports.getMyQueueShows = function(request, response) {
     "   on er.episode_id = e.id " +
     "  where e.series_id = s.id " +
     "  and er.retired = $5 " +
-    "  and e.retired = $6) as last_watched " +
-    "FROM series s " +
-    "INNER JOIN person_series ps " +
-    "  ON ps.series_id = s.id " +
-    "WHERE ps.person_id = $1 " +
-    "AND s.suggestion = $2 " +
-    "AND s.tvdb_match_status = $3 " +
-    "AND s.retired = $4 " +
-    "AND ps.tier = $10 " +
-    "AND s.id in (select e.series_id " +
-    "             from episode e  " +
-    "             where e.retired = $5  " +
-    "             and e.season <> $8 " +
-    "             and e.air_time < now() " +
-    "             and e.id not in (select er.episode_id  " +
-    "                              from episode_rating er " +
-    "                              where er.person_id = $1  " +
-    "                              and er.watched = $9 " +
-    "                              and er.retired = $5)) ";
-  const values = [
-    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true, tier
-  ];
-
-  db.selectWithJSON(sql, values).then(function (seriesResults) {
-    const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
-      "FROM episode e " +
-      "INNER JOIN person_series ps " +
-      "  ON ps.series_id = e.series_id " +
-      "WHERE e.retired = $1 " +
-      "AND e.season <> $2 " +
-      "AND e.id NOT IN (SELECT er.episode_id " +
-      "                   FROM episode_rating er " +
-      "                   WHERE er.person_id = $3 " +
-      "                   AND er.watched = $4) " +
-      "AND ps.person_id = $5 " +
-      "AND ps.tier = $6" +
-      "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
-
-    const values = [
-      0,
-      0,
-      personId,
-      true,
-      personId,
-      tier
-    ];
-
-    db.selectWithJSON(sql, values).then(function(episodeResults) {
-
-      const groupedBySeries = _.groupBy(episodeResults, "series_id");
-      for (const seriesId in groupedBySeries) {
-        if (groupedBySeries.hasOwnProperty(seriesId)) {
-          const unwatchedEpisodes = groupedBySeries[seriesId];
-
-          const series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
-          if (series) {
-            debug("Series: " + series.title);
-
-            exports.calculateUnwatchedDenorms(series, unwatchedEpisodes);
-          }
-        }
-      }
-
-      const sql =
-        "SELECT e.series_id, er.episode_id, er.rating_value " +
-        "FROM episode_rating er " +
-        "INNER JOIN episode e " +
-        "  ON er.episode_id = e.id " +
-        "INNER JOIN series s " +
-        "  ON e.series_id = s.id " +
-        "INNER JOIN person_series ps " +
-        "  ON ps.series_id = s.id " +
-        "WHERE er.watched = $1 " +
-        "AND er.retired = $2 " +
-        "AND er.person_id = $3 " +
-        "AND er.rating_value IS NOT NULL " +
-        "AND ps.person_id = $4 " +
-        "AND ps.tier = $5" +
-        "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
-
-      const values = [
-        true,
-        0,
-        personId,
-        personId,
-        tier
-      ];
-
-      db.selectWithJSON(sql, values).then(function(ratingResults) {
-
-        const groupedBySeries = _.groupBy(ratingResults, "series_id");
-        for (const seriesId in groupedBySeries) {
-          if (groupedBySeries.hasOwnProperty(seriesId)) {
-            const seriesRatings = groupedBySeries[seriesId];
-
-            const series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
-            if (series) {
-              debug("Series: " + series.title);
-
-              calculateRating(series, seriesRatings);
-            }
-          }
-        }
-
-        const timeElapsed = new Date - startTime;
-        console.log("Time elapsed: " + timeElapsed);
-        return response.json(seriesResults);
-      });
-
-    });
-  });
-
-};
-
-exports.getMyQueueShows = function(request, response) {
-  const personId = request.query.PersonId;
-  const tier = request.query.Tier;
-  console.log("Server call: Person " + personId);
-
-  const startTime = new Date;
-
-  const sql = "SELECT s.id, " +
-    "s.title, " +
-    "ps.tier, " +
-    "s.metacritic, " +
-    "s.unmatched_episodes, " +
-    "(SELECT COUNT(1) " +
-    "    from episode e " +
-    "    where e.series_id = s.id " +
-    "    and e.retired = $7" +
-    "    and e.season <> $8 " +
-    "    and e.air_date IS NOT NULL" +
-    "    and e.air_date < NOW()) as aired_episodes, " +
-    "(SELECT COUNT(1) " +
-    "  FROM episode_rating er " +
-    "  INNER JOIN episode e " +
-    "    ON er.episode_id = e.id" +
-    "  WHERE e.series_id = s.id " +
-    "  AND e.retired = $7 " +
-    "  AND er.retired = $7 " +
-    "  AND er.rating_pending = $9" +
-    "  AND er.person_id = $1) as rating_pending_episodes, " +
-    "s.tvdb_series_id, " +
-    "s.tvdb_manual_queue, " +
-    "s.last_tvdb_update, " +
-    "s.last_tvdb_error, " +
-    "s.poster, " +
-    "s.cloud_poster, " +
-    "s.air_time, " +
-    "s.trailer_link, " +
-    "ps.rating as my_rating, " +
-    "ps.first_unwatched, " +
-    "ps.tier AS my_tier, " +
-    "ps.date_added, " +
-    "COALESCE(ps.rating, metacritic) AS dynamic_rating, " +
-    "(SELECT MAX(er.watched_date) " +
-    "  from episode_rating er " +
-    "  inner join episode e " +
-    "   on er.episode_id = e.id " +
-    "  where e.series_id = s.id " +
-    "  and er.retired = $5 " +
-      "and er.watched = $11 " +
+      "and er.watched = $2 " +
       "  and er.person_id = $1 " +
     "  and e.retired = $6) as last_watched " +
     "FROM series s " +
     "INNER JOIN person_series ps " +
     "  ON ps.series_id = s.id " +
     "WHERE ps.person_id = $1 " +
-    "AND s.suggestion = $2 " +
     "AND s.tvdb_match_status = $3 " +
     "AND s.retired = $4 " +
     "AND ps.retired = $4 " +
@@ -443,7 +279,7 @@ exports.getMyQueueShows = function(request, response) {
       "       ON er.episode_id = e.id " +
       "     WHERE e.series_id = s.id " +
       "     AND er.person_id = $1 " +
-      "     AND er.watched = $11 " +
+      "     AND er.watched = $2 " +
       "     AND e.season <> $8 " +
       "     AND e.retired = $4 " +
       "     AND er.retired = $4) > (now() - INTERVAL '8 days') " +
@@ -457,12 +293,12 @@ exports.getMyQueueShows = function(request, response) {
       "     AND e.season <> $8 " +
       "     AND e.id NOT IN (SELECT episode_id  " +
       "                        FROM episode_rating " +
-      "                        WHERE watched = $11 " +
+      "                        WHERE watched = $2 " +
       "                        AND person_id = $1 " +
       "                        AND retired = $4)) BETWEEN (now() - INTERVAL '8 days') AND (now() + INTERVAL '8 days') " +
       "     ) ";
   const values = [
-    personId, false, 'Match Completed', 0, 0, 0, 0, 0, true, tier, true
+    personId, true, 'Match Completed', 0, 0, 0, 0, 0, true, tier
   ];
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
@@ -738,13 +574,11 @@ exports.myShowsForAdd = function(request, response) {
     'INNER JOIN person_series ps ' +
     '  ON ps.series_id = s.id ' +
     'WHERE ps.person_id = $1 ' +
-    'AND s.suggestion = $2 ' +
-    'AND s.retired = $3 ' +
-    'AND ps.retired = $3 ';
+    'AND s.retired = $2 ' +
+    'AND ps.retired = $2 ';
 
   const values = [
     personId,
-    false,
     0
   ];
 
@@ -1046,10 +880,9 @@ exports.getNotMyShows = function(request, response) {
     "                 FROM person_series ps " +
     "                 WHERE person_id = $1) " +
     "AND s.retired = $2 " +
-    "AND s.suggestion = $3 " +
-    "AND s.tvdb_match_status = $4 ";
+    "AND s.tvdb_match_status = $3 ";
   var values = [
-    personId, 0, false, 'Match Completed'
+    personId, 0, 'Match Completed'
   ];
 
   return db.executeQueryWithResults(response, sql, values);
