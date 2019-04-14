@@ -78,8 +78,6 @@ exports.getMyShows = function(request, response) {
     "s.title, " +
     "ps.tier, " +
     "s.metacritic, " +
-    "s.streaming_episodes, " +
-    "s.matched_episodes, " +
     "s.unmatched_episodes, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
@@ -105,9 +103,7 @@ exports.getMyShows = function(request, response) {
     "s.cloud_poster, " +
     "s.air_time, " +
     "s.trailer_link, " +
-    "s.tivo_series_v2_ext_id, " +
     "ps.rating as my_rating, " +
-    "ps.unwatched_episodes, " +
     "ps.unwatched_streaming, " +
     "ps.last_unwatched, " +
     "ps.first_unwatched, " +
@@ -233,8 +229,6 @@ exports.getMyQueueShows = function(request, response) {
     "s.title, " +
     "ps.tier, " +
     "s.metacritic, " +
-    "s.streaming_episodes, " +
-    "s.matched_episodes, " +
     "s.unmatched_episodes, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
@@ -260,9 +254,7 @@ exports.getMyQueueShows = function(request, response) {
     "s.cloud_poster, " +
     "s.air_time, " +
     "s.trailer_link, " +
-    "s.tivo_series_v2_ext_id, " +
     "ps.rating as my_rating, " +
-    "ps.unwatched_episodes, " +
     "ps.unwatched_streaming, " +
     "ps.last_unwatched, " +
     "ps.first_unwatched, " +
@@ -400,8 +392,6 @@ exports.getMyQueueShows = function(request, response) {
     "s.title, " +
     "ps.tier, " +
     "s.metacritic, " +
-    "s.streaming_episodes, " +
-    "s.matched_episodes, " +
     "s.unmatched_episodes, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
@@ -427,9 +417,7 @@ exports.getMyQueueShows = function(request, response) {
     "s.cloud_poster, " +
     "s.air_time, " +
     "s.trailer_link, " +
-    "s.tivo_series_v2_ext_id, " +
     "ps.rating as my_rating, " +
-    "ps.unwatched_episodes, " +
     "ps.unwatched_streaming, " +
     "ps.last_unwatched, " +
     "ps.first_unwatched, " +
@@ -576,8 +564,6 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
       "s.title, " +
       "ps.tier, " +
       "s.metacritic, " +
-      "s.streaming_episodes, " +
-      "s.matched_episodes, " +
       "s.unmatched_episodes, " +
       "(SELECT COUNT(1) " +
       "    from episode e " +
@@ -603,9 +589,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
       "s.cloud_poster, " +
       "s.air_time, " +
       "s.trailer_link, " +
-      "s.tivo_series_v2_ext_id, " +
       "ps.rating as my_rating, " +
-      "ps.unwatched_episodes, " +
       "ps.unwatched_streaming, " +
       "ps.last_unwatched, " +
       "ps.first_unwatched, " +

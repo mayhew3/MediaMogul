@@ -705,14 +705,11 @@ angular.module('mediaMogulApp')
         series.deleted_episodes = deletedEpisodes;
         series.suggestion_episodes = suggestionEpisodes;
         series.watched_episodes = watchedEpisodes;
-        series.unwatched_episodes = unwatchedEpisodes;
         series.tvdb_only_episodes = tvdbOnly;
         series.unwatched_unrecorded = unwatchedUnrecorded;
         series.most_recent = mostRecent;
         series.last_unwatched = lastUnwatched;
         series.first_unwatched = firstUnwatched;
-        series.matched_episodes = matchedEpisodes;
-        series.streaming_episodes = streamingEpisodes;
         series.unwatched_streaming = unwatchedStreaming;
         series.unwatched_all = unwatchedEpisodes + unwatchedStreaming;
 
@@ -721,14 +718,11 @@ angular.module('mediaMogulApp')
           deleted_episodes: deletedEpisodes,
           suggestion_episodes: suggestionEpisodes,
           watched_episodes: watchedEpisodes,
-          unwatched_episodes: unwatchedEpisodes,
           tvdb_only_episodes: tvdbOnly,
           unwatched_unrecorded: unwatchedUnrecorded,
           most_recent: mostRecent,
           last_unwatched: lastUnwatched,
           first_unwatched: firstUnwatched,
-          matched_episodes: matchedEpisodes,
-          streaming_episodes: streamingEpisodes,
           unwatched_streaming: unwatchedStreaming
         };
 
@@ -824,14 +818,12 @@ angular.module('mediaMogulApp')
         lastUnwatched = unwatchedEpisodes === 0 ? null : _.last(unwatchedEpisodesList).air_time;
 
         let originalFields = {
-          unwatched_episodes: series.unwatched_episodes,
           last_unwatched: series.last_unwatched,
           first_unwatched: series.first_unwatched,
           unwatched_streaming: series.unwatched_streaming
         };
 
         let updatedFields = {
-          unwatched_episodes: unwatchedEpisodes,
           last_unwatched: lastUnwatched,
           first_unwatched: firstUnwatched,
           unwatched_streaming: 0
@@ -841,7 +833,6 @@ angular.module('mediaMogulApp')
 
         return databaseCallback(changedFields).then(function() {
           $log.debug("Updating my series denorms: " + _.keys(changedFields));
-          series.unwatched_episodes = unwatchedEpisodes;
 
           let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
