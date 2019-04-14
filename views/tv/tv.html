@@ -26,6 +26,15 @@
     <li ui-sref="tv.groups" ui-sref-active="active" ng-show="ctrl.LockService.isUser()">
       <a>My Groups</a>
     </li>
+    <li ui-sref="tv.match.seriesmatching" ui-sref-active="active" ng-show="ctrl.LockService.isAdmin()">
+      <a>
+        Match
+        <span class="badge pillTabRed"
+              ng-show="ctrl.getNumberOfPendingMatches() > 0"
+              ng-bind="ctrl.getNumberOfPendingMatches()"></span>
+      </a>
+
+    </li>
   </ul>
 
   <div ui-view></div>
