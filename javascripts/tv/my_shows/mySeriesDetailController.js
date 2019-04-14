@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService',
+    '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService', 'addSeriesCallback',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           adding, YearlyRatingService) {
+           adding, YearlyRatingService, addSeriesCallback) {
     const self = this;
 
     self.LockService = LockService;
@@ -710,6 +710,7 @@ angular.module('mediaMogulApp')
         0;
 
       EpisodeService.addToMyShows(self.series, lastWatched + 1).then(function() {
+        addSeriesCallback(self.series);
         $uibModalInstance.close();
       });
     };
