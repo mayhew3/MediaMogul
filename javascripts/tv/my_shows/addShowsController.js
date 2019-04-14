@@ -7,6 +7,7 @@ angular.module('mediaMogulApp')
       self.LockService = LockService;
 
       self.series = [];
+      self.added = [];
 
       self.tiers = [1, 2, 3, 4, 5];
       self.unwatchedOnly = true;
@@ -90,13 +91,19 @@ angular.module('mediaMogulApp')
 
 
       self.posterStyle = function(series) {
-        if (series.recordingNow === true) {
-          return {"border": "solid red"};
-        } else if (series.addedSuccessfully) {
+        if (self.addedRecently(series)) {
           return {"opacity": "0.5"}
         } else {
           return {};
         }
+      };
+
+      self.addSeriesCallback = function(show) {
+        self.added.push(show);
+      };
+
+      self.addedRecently = function(series) {
+        return _.findWhere(self.added, {id: series.id});
       };
 
       self.open = function(series) {

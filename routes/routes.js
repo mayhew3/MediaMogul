@@ -32,7 +32,6 @@ module.exports = function(app) {
   app.get('/episodeGroupRating', authCheck, series.getEpisodeGroupRating);
   app.get('/episodeGroupRatings', authCheck, series.getEpisodeGroupRatings);
   app.get('/episodeList', authCheck, series.getEpisodes);
-  app.get('/recordingNow', authCheck, series.getRecordingNow);
   app.get('/possibleMatches', authCheck, series.getPossibleMatches);
   app.get('/numShowsToRate', authCheck, series.getNumberOfShowsToRate);
   app.get('/numPendingMatches', authCheck, series.getNumberOfPendingMatches);
