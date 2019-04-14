@@ -1,11 +1,11 @@
 angular.module('mediaMogulApp')
   .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService', '$timeout',
     function ($log, $http, $q, $filter, LockService, ArrayService, $timeout) {
+      const myShows = [];
       let myPendingShows = [];
       let notMyShows = [];
 
       const self = this;
-      self.myShows = [];
       self.uninitialized = true;
       self.loadingQueue = true;
       self.loadingTierOne = true;
@@ -21,7 +21,7 @@ angular.module('mediaMogulApp')
         self.loadingQueue = true;
         self.loadingTierOne = true;
         return new Promise(resolve => {
-          ArrayService.emptyArray(self.myShows);
+          ArrayService.emptyArray(myShows);
           updateMyQueueShowsList().then(() => {
             self.loadingQueue = false;
             updateMyShowsListTierOne().then(() => {
@@ -57,7 +57,7 @@ angular.module('mediaMogulApp')
 
             mergeShowsIntoArray(tempShows);
 
-            resolve(self.myShows);
+            resolve(myShows);
           }, function (errResponse) {
             console.error('Error while fetching series list: ' + errResponse);
             reject();
@@ -80,7 +80,7 @@ angular.module('mediaMogulApp')
 
             mergeShowsIntoArray(tempShows);
 
-            resolve(self.myShows);
+            resolve(myShows);
           }, function (errResponse) {
             console.error('Error while fetching series list: ' + errResponse);
             reject();
@@ -124,7 +124,7 @@ angular.module('mediaMogulApp')
               console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
               _.forEach(self.nextShowsToUpdate, function(show) {
                 const series_id = parseInt(show.series_id);
-                const series = _.findWhere(self.myShows, {id: series_id});
+                const series = _.findWhere(myShows, {id: series_id});
                 console.log(' - Updating show ' + series.title);
                 series.unwatched_all += show.episode_count;
                 series.first_unwatched = nextAirDate;
@@ -163,7 +163,7 @@ angular.module('mediaMogulApp')
       }
 
       function mergeShowsIntoArray(newShowList) {
-        const arrayCopy = self.myShows.slice();
+        const arrayCopy = myShows.slice();
 
         _.forEach(newShowList, show => {
           updateFullRating(show);
@@ -175,20 +175,20 @@ angular.module('mediaMogulApp')
         });
 
         sortShowArray(arrayCopy);
-        ArrayService.refreshArray(self.myShows, arrayCopy);
+        ArrayService.refreshArray(myShows, arrayCopy);
 
         // updateAllShowObservers();
       }
 
       function addShowToArray(newShow) {
-        let arrayCopy = self.myShows.slice();
+        let arrayCopy = myShows.slice();
         arrayCopy.push(newShow);
         sortShowArray(arrayCopy);
-        ArrayService.refreshArray(self.myShows, arrayCopy);
+        ArrayService.refreshArray(myShows, arrayCopy);
       }
 
       function removeShowFromArray(oldShow) {
-        ArrayService.removeFromArray(self.myShows, oldShow);
+        ArrayService.removeFromArray(myShows, oldShow);
       }
 
       function sortShowArray(showArray) {
@@ -420,7 +420,7 @@ angular.module('mediaMogulApp')
       };
 
       self.getMyShows = function() {
-        return self.myShows;
+        return myShows;
       };
 
       self.getNotMyShows = function() {

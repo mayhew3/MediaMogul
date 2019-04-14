@@ -30,7 +30,7 @@
       <input type="text"
              placeholder="Quick Find..."
              ng-model="ctrl.quickFindResult"
-             uib-typeahead="show as show.title for show in ctrl.EpisodeService.myShows | filter:{title:$viewValue} | limitTo:5"
+             uib-typeahead="show as show.title for show in ctrl.EpisodeService.getMyShows() | filter:{title:$viewValue} | limitTo:5"
              typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
              class="darkInput form-control input-lg">
     </div>
