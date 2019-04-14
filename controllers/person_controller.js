@@ -104,8 +104,6 @@ exports.getMyShows = function(request, response) {
     "s.air_time, " +
     "s.trailer_link, " +
     "ps.rating as my_rating, " +
-    "ps.unwatched_streaming, " +
-    "ps.last_unwatched, " +
     "ps.first_unwatched, " +
     "ps.tier AS my_tier, " +
     "ps.date_added, " +
@@ -255,8 +253,6 @@ exports.getMyQueueShows = function(request, response) {
     "s.air_time, " +
     "s.trailer_link, " +
     "ps.rating as my_rating, " +
-    "ps.unwatched_streaming, " +
-    "ps.last_unwatched, " +
     "ps.first_unwatched, " +
     "ps.tier AS my_tier, " +
     "ps.date_added, " +
@@ -418,8 +414,6 @@ exports.getMyQueueShows = function(request, response) {
     "s.air_time, " +
     "s.trailer_link, " +
     "ps.rating as my_rating, " +
-    "ps.unwatched_streaming, " +
-    "ps.last_unwatched, " +
     "ps.first_unwatched, " +
     "ps.tier AS my_tier, " +
     "ps.date_added, " +
@@ -590,8 +584,6 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
       "s.air_time, " +
       "s.trailer_link, " +
       "ps.rating as my_rating, " +
-      "ps.unwatched_streaming, " +
-      "ps.last_unwatched, " +
       "ps.first_unwatched, " +
       "ps.tier AS my_tier, " +
       "ps.date_added, " +
@@ -769,7 +761,7 @@ exports.seriesRequest = function(request, response) {
   var values = [
     series_request.title,
     series_request.person_id,
-    series_request.tvdb_id,
+    series_request.tvdb_series_ext_id,
     series_request.poster
   ];
 

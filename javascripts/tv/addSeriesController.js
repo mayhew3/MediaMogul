@@ -42,7 +42,7 @@ angular.module('mediaMogulApp')
     };
 
     function TVDBIDAlreadyExists(show) {
-      const existingMatch = _.findWhere(self.used_tvdb_ids, {tvdb_series_ext_id: show.tvdb_id});
+      const existingMatch = _.findWhere(self.used_tvdb_ids, {tvdb_series_ext_id: show.tvdb_series_ext_id});
       return ArrayService.exists(existingMatch);
     }
 
@@ -74,10 +74,6 @@ angular.module('mediaMogulApp')
       }
     }
 
-    self.getButtonClass = function(tier) {
-      return self.series.tier === tier ? "btn btn-success" : "btn btn-primary";
-    };
-
     self.getLocButtonClass = function(location) {
       if (self.selectedLocation === null) {
         return "btn btn-primary";
@@ -89,7 +85,7 @@ angular.module('mediaMogulApp')
     self.ok = function() {
       self.series.date_added = new Date;
       self.series.person_id = LockService.person_id;
-      self.series.tvdb_id = self.selectedShow.tvdb_id;
+      self.series.tvdb_series_ext_id = self.selectedShow.tvdb_series_ext_id;
       self.series.poster = self.selectedShow.poster;
       self.series.title = self.selectedShow.title;
 

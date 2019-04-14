@@ -708,9 +708,7 @@ angular.module('mediaMogulApp')
         series.tvdb_only_episodes = tvdbOnly;
         series.unwatched_unrecorded = unwatchedUnrecorded;
         series.most_recent = mostRecent;
-        series.last_unwatched = lastUnwatched;
         series.first_unwatched = firstUnwatched;
-        series.unwatched_streaming = unwatchedStreaming;
         series.unwatched_all = unwatchedEpisodes + unwatchedStreaming;
 
         let changedFields = {
@@ -721,9 +719,7 @@ angular.module('mediaMogulApp')
           tvdb_only_episodes: tvdbOnly,
           unwatched_unrecorded: unwatchedUnrecorded,
           most_recent: mostRecent,
-          last_unwatched: lastUnwatched,
           first_unwatched: firstUnwatched,
-          unwatched_streaming: unwatchedStreaming
         };
 
         return $http.post('/updateSeries', {SeriesId: series.id, ChangedFields: changedFields});
@@ -775,7 +771,6 @@ angular.module('mediaMogulApp')
 
       self.updateMySeriesDenorms = function(series, episodes, databaseCallback) {
         let unwatchedEpisodes = 0;
-        let lastUnwatched = null;
         let firstUnwatched = null;
         let now = new Date;
 
@@ -815,18 +810,13 @@ angular.module('mediaMogulApp')
 
         unwatchedEpisodes = unwatchedEpisodesList.length;
         firstUnwatched = unwatchedEpisodes === 0 ? null : _.first(unwatchedEpisodesList).air_time;
-        lastUnwatched = unwatchedEpisodes === 0 ? null : _.last(unwatchedEpisodesList).air_time;
 
         let originalFields = {
-          last_unwatched: series.last_unwatched,
           first_unwatched: series.first_unwatched,
-          unwatched_streaming: series.unwatched_streaming
         };
 
         let updatedFields = {
-          last_unwatched: lastUnwatched,
-          first_unwatched: firstUnwatched,
-          unwatched_streaming: 0
+          first_unwatched: firstUnwatched
         };
 
         let changedFields = self.getChangedFields(originalFields, updatedFields);
@@ -837,9 +827,7 @@ angular.module('mediaMogulApp')
           let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
           series.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
-          series.last_unwatched = lastUnwatched;
           series.first_unwatched = firstUnwatched;
-          series.unwatched_streaming = 0;
           series.unwatched_all = unwatchedEpisodes;
           series.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
             return ArrayService.exists(episode.rating_pending) && episode.rating_pending === true;
