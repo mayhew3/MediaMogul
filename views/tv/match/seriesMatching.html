@@ -1,0 +1,160 @@
+<div class="panel panel-default">
+
+
+  <!-- Match First Pass -->
+  <div class="panel-heading">
+    <h4>Match First Pass</h4>
+  </div>
+
+  <div class="panel-body">
+    <table class="table table-striped table-hover">
+      <tr data-ng-repeat="series in ctrl.series |
+                filter:ctrl.matchFirstPassFilter">
+        <td ng-bind="series.title" ng-class="ctrl.getSeriesNameClass(series)"></td>
+        <td width="70px" align="right">
+          <input type="button"
+                 class="btn btn-sm btn-danger"
+                 ng-show="!series.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-disabled="series.temp_confirmed"
+                 ng-click="ctrl.ignoreSeries(series)"
+                 value="Ignore">
+          <input type="button"
+                 class="btn btn-sm btn-warning"
+                 ng-show="series.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-click="ctrl.unIgnoreSeries(series)"
+                 value="Un-ignore">
+        </td>
+      </tr>
+    </table>
+  </div>
+
+
+  <!-- Needs Hint -->
+  <div class="panel-heading">
+    <h4>Needs Hint</h4>
+  </div>
+
+  <div class="panel-body">
+    <table class="table table-striped table-hover">
+      <tr data-ng-repeat="series in ctrl.series |
+                filter:ctrl.needsHintFilter">
+        <td ng-bind="series.title" ng-class="ctrl.getSeriesNameClass(series)"></td>
+        <td width="70px" align="right">
+          <input type="button"
+                 class="btn btn-sm btn-danger"
+                 ng-show="!series.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-disabled="series.temp_confirmed"
+                 ng-click="ctrl.ignoreSeries(series)"
+                 value="Ignore">
+          <input type="button"
+                 class="btn btn-sm btn-warning"
+                 ng-show="series.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-click="ctrl.unIgnoreSeries(series)"
+                 value="Un-ignore">
+        </td>
+      </tr>
+    </table>
+  </div>
+
+
+
+  <!-- Needs Confirmation -->
+  <div class="panel-heading">
+    <h4>Needs Confirmation</h4>
+  </div>
+
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-12 col-md-6 posterRow" ng-repeat="series in ctrl.series |
+                filter:ctrl.needsConfirmationFilter">
+        <div class="col-xs-12 col-md-6">
+          <a ng-click="ctrl.open(series)" href="">
+            <img class="img-rounded"
+                 ng-src="{{series.posterResolved}}"
+                 width="100%"/>
+          </a>
+        </div>
+        <div class="col-xs-12 col-md-6">
+          Input: <span ng-class="ctrl.getSeriesNameClass(series)" ng-bind="series.title"></span><br/>
+          TVDB: <span ng-class="ctrl.getSeriesNameClass(series)" ng-bind="series.tvdb_series_title"></span><br/>
+        </div>
+        <div class="col-xs-12 col-md-6" align="center">
+          <br/>
+          <br/>
+          <input type="button"
+                 ng-show="!series.temp_confirmed && ctrl.LockService.isAdmin()"
+                 class="btn btn-sm btn-success"
+                 ng-disabled="series.temp_ignored"
+                 ng-click="ctrl.confirmMatch(series)"
+                 value="Confirm">
+          <input type="button"
+                 ng-show="series.temp_confirmed && ctrl.LockService.isAdmin()"
+                 class="btn btn-sm btn-warning"
+                 ng-click="ctrl.unConfirmMatch(series)"
+                 value="Un-Confirm">
+          <input type="button"
+                 class="btn btn-sm btn-danger"
+                 ng-show="!series.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-disabled="series.temp_confirmed"
+                 ng-click="ctrl.ignoreSeries(series)"
+                 value="Ignore">
+          <input type="button"
+                 class="btn btn-sm btn-warning"
+                 ng-show="series.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-click="ctrl.unIgnoreSeries(series)"
+                 value="Un-ignore">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duplicates -->
+  <div class="panel-heading">
+    <h4>Duplicates</h4>
+  </div>
+
+  <div class="panel-body">
+    <div class="row">
+      <div class="fade-repeat col-xs-12 col-md-6 posterRow" ng-repeat="series in ctrl.series |
+                filter:ctrl.duplicateFilter">
+        <div class="col-xs-12 col-md-6">
+          <a ng-click="ctrl.open(series)" href="">
+            <img class="img-rounded"
+                 ng-src="{{series.posterResolved}}"
+                 width="100%"/>
+          </a>
+        </div>
+        <div class="col-xs-12 col-md-6">
+          Input: <span ng-class="ctrl.getSeriesNameClass(series)" ng-bind="series.title"></span><br/>
+          TVDB: <span ng-class="ctrl.getSeriesNameClass(series)" ng-bind="series.tvdb_series_title"></span><br/>
+        </div>
+        <div class="col-xs-12 col-md-6" align="center">
+          <br/>
+          <br/>
+          <input type="button"
+                 ng-show="!series.temp_confirmed && ctrl.LockService.isAdmin()"
+                 class="btn btn-sm btn-success"
+                 ng-disabled="series.temp_ignored"
+                 ng-click="ctrl.confirmMatch(series)"
+                 value="Confirm">
+          <input type="button"
+                 ng-show="series.temp_confirmed && ctrl.LockService.isAdmin()"
+                 class="btn btn-sm btn-warning"
+                 ng-click="ctrl.unConfirmMatch(series)"
+                 value="Un-Confirm">
+          <input type="button"
+                 class="btn btn-sm btn-danger"
+                 ng-show="!series.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-disabled="series.temp_confirmed"
+                 ng-click="ctrl.ignoreSeries(series)"
+                 value="Ignore">
+          <input type="button"
+                 class="btn btn-sm btn-warning"
+                 ng-show="series.temp_ignored && ctrl.LockService.isAdmin()"
+                 ng-click="ctrl.unIgnoreSeries(series)"
+                 value="Un-ignore">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
