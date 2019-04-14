@@ -10,6 +10,7 @@ angular.module('mediaMogulApp')
       self.group = group;
 
       self.series = [];
+      self.added = [];
 
       self.tiers = [1, 2, 3, 4, 5];
       self.unwatchedOnly = true;
@@ -41,7 +42,7 @@ angular.module('mediaMogulApp')
 
       self.addToMyShows = function(show) {
         $http.post('/api/addGroupShow', {series_id: show.id, tv_group_id: self.group.id}).then(function() {
-          show.addedSuccessfully = true;
+          self.added.push(show);
           show.unwatched_all = show.aired_episodes;
           show.date_added = new Date;
           addShowCallback(show);
@@ -78,13 +79,15 @@ angular.module('mediaMogulApp')
       }
 
       self.posterStyle = function(series) {
-        if (series.recordingNow === true) {
-          return {"border": "solid red"};
-        } else if (series.addedSuccessfully) {
+        if (self.addedRecently(series)) {
           return {"opacity": "0.5"}
         } else {
           return {};
         }
+      };
+
+      self.addedRecently = function(series) {
+        return _.findWhere(self.added, {id: series.id});
       };
 
       self.open = function(series) {
