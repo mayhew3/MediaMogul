@@ -45,7 +45,7 @@
     };
 
     self.getShows = function() {
-      return self.shows ? self.shows : self.EpisodeService.myShows;
+      return self.shows ? self.shows : self.EpisodeService.getMyShows();
     };
 
     self.imageColumnClass = function() {

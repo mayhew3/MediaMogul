@@ -163,7 +163,7 @@ angular.module('mediaMogulApp')
     };
 
     self.countWhere = function(filter) {
-      return EpisodeService.myShows.filter(filter).length;
+      return EpisodeService.getMyShows().filter(filter).length;
     };
 
     self.orderByRating = function(series) {
