@@ -123,6 +123,9 @@ angular.module('mediaMogulApp')
             },
             adding: function() {
               return false;
+            },
+            addSeriesCallback: function() {
+              return undefined;
             }
           }
         });
