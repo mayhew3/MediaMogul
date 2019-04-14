@@ -1,0 +1,20 @@
+
+<div class="container" style="margin-top: 10px">
+
+  <div class="container col-lg-2">
+
+    <ul class="nav nav-pills nav-stacked btn-sm">
+      <li ng-class="ctrl.isActive('Series')">
+        <a href ng-click="ctrl.changeToSeries()">
+          Series
+        </a>
+      </li>
+
+    </ul>
+
+  </div>
+
+  <div class="container col-lg-10">
+    <div ui-view></div>
+  </div>
+</div>
