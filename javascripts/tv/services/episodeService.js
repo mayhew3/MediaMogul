@@ -166,7 +166,6 @@ angular.module('mediaMogulApp')
         const arrayCopy = myShows.slice();
 
         _.forEach(newShowList, show => {
-          updateFullRating(show);
           const match = _.findWhere(arrayCopy, {id: show.id});
           if (match) {
             ArrayService.removeFromArray(arrayCopy, match);
@@ -195,30 +194,6 @@ angular.module('mediaMogulApp')
         ArrayService.refreshArray(showArray, _.sortBy(showArray, function(show) {
           return 0 - show.dynamic_rating;
         }));
-      }
-
-      function updateFullRating(series) {
-        const metacritic = series.metacritic;
-        const myRating = series.my_rating;
-
-        series.FullRating = ArrayService.exists(myRating) ?
-            myRating :
-          (ArrayService.exists(metacritic) ? metacritic : 0);
-
-        series.colorStyle = function() {
-          if (series.FullRating === null || series.FullRating === 0) {
-            return {};
-          } else {
-            const hue = (series.FullRating <= 50) ? series.FullRating * 0.5 : (50 * 0.5 + (series.FullRating - 50) * 4.5);
-            return {
-              'background-color': 'hsla(' + hue + ', 50%, 42%, 1)',
-              'font-size': '1.6em',
-              'text-align': 'center',
-              'font-weight': '800',
-              'color': 'white'
-            }
-          }
-        };
       }
 
       self.updateMyPendingShowsList = function() {
@@ -276,7 +251,6 @@ angular.module('mediaMogulApp')
       self.formatNextAirDate = function(show) {
         if (!_.isUndefined(show.nextAirDate) && !_.isNull(show.nextAirDate)) {
           show.nextAirDate = new Date(show.nextAirDate);
-          show.nextAirDateFormatted = self.formatAirTime(show.nextAirDate);
         }
       };
 
@@ -297,20 +271,6 @@ angular.module('mediaMogulApp')
         let minutesPart = $filter('date')(combinedDate, 'mm');
         let timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
         return $filter('date')(combinedDate, timeFormat);
-      };
-
-      self.updateNextAirDate = function(series, episode) {
-        series.nextAirDate = episode.air_time === null ? new Date(episode.air_date) : new Date(episode.air_time);
-        let combinedDate = self.getAirTime(episode);
-        series.nextAirDateFormatted = self.formatAirTime(combinedDate);
-      };
-
-      self.updateNextEpisode = function(series, episode) {
-        series.nextEpisode = {
-          title: episode.title,
-          season: episode.season,
-          episode_number: episode.episode_number
-        };
       };
 
       self.updateMyEpisodeList = function(series) {
@@ -701,25 +661,11 @@ angular.module('mediaMogulApp')
           }
         });
 
-        series.active_episodes = activeEpisodes;
-        series.deleted_episodes = deletedEpisodes;
-        series.suggestion_episodes = suggestionEpisodes;
-        series.watched_episodes = watchedEpisodes;
-        series.tvdb_only_episodes = tvdbOnly;
-        series.unwatched_unrecorded = unwatchedUnrecorded;
-        series.most_recent = mostRecent;
         series.first_unwatched = firstUnwatched;
         series.unwatched_all = unwatchedEpisodes + unwatchedStreaming;
 
         let changedFields = {
-          active_episodes: activeEpisodes,
-          deleted_episodes: deletedEpisodes,
-          suggestion_episodes: suggestionEpisodes,
-          watched_episodes: watchedEpisodes,
-          tvdb_only_episodes: tvdbOnly,
-          unwatched_unrecorded: unwatchedUnrecorded,
-          most_recent: mostRecent,
-          first_unwatched: firstUnwatched,
+          first_unwatched: firstUnwatched
         };
 
         return $http.post('/updateSeries', {SeriesId: series.id, ChangedFields: changedFields});
