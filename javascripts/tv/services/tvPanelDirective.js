@@ -28,6 +28,8 @@
     self.panelInfo = $scope.panelInfo;
     self.ArrayService = ArrayService;
 
+    self.showLoading = self.panelInfo.showLoading ? self.panelInfo.showLoading : () => false;
+
     self.currentPageUpNext = 1;
 
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
@@ -35,6 +37,12 @@
     if (!$scope.shows) {
       self.EpisodeService.registerAsObserver($scope);
     }
+
+    self.showPanel = function() {
+      return self.showLoading() ||
+          (self.showEmpty() && self.totalItems() === 0) ||
+          self.totalItems() > 0;
+    };
 
     self.getShows = function() {
       return self.shows ? self.shows : self.EpisodeService.myShows;
