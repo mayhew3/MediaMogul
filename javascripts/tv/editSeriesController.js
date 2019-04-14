@@ -86,17 +86,8 @@ angular.module('mediaMogulApp')
       trailer_link: self.series.trailer_link
     };
 
-    self.getTierButtonClass = function(tier) {
-      return self.series.tier === tier ? "btn btn-success" : "btn btn-primary";
-    };
-
     self.getLocButtonClass = function(location) {
       return location.active ? "btn btn-success" : "btn btn-primary";
-    };
-
-
-    self.changeTier = function() {
-      EpisodeService.changeTier(self.series.id, self.series.tier);
     };
 
     self.executeDatabaseUpdates = function(changedFields) {

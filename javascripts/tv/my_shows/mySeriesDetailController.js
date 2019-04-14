@@ -184,10 +184,6 @@ angular.module('mediaMogulApp')
           episode.absolute_number <= self.selectedLastWatchedEpisode.absolute_number);
     };
 
-    self.getTierButtonClass = function(tier) {
-      return self.series.my_tier === tier ? "btn btn-success" : "btn btn-primary";
-    };
-
     self.rowClass = function(episode) {
       if (self.watchMultiple || self.adding) {
         if (episode.unaired) {

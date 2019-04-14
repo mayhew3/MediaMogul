@@ -390,8 +390,8 @@ angular.module('mediaMogulApp')
       self.pendingShows.push(seriesRequest);
     }
 
-    function removeAllRequestsForShow(tvdb_id) {
-      const matchingRequests = _.where(self.series_requests, {tvdb_series_ext_id: tvdb_id});
+    function removeAllRequestsForShow(tvdb_series_ext_id) {
+      const matchingRequests = _.where(self.series_requests, {tvdb_series_ext_id: tvdb_series_ext_id});
       _.forEach(matchingRequests, matchingRequest => {
         ArrayService.removeFromArray(self.series_requests, matchingRequest);
       });
@@ -401,10 +401,6 @@ angular.module('mediaMogulApp')
 
     self.getButtonClass = function(tier, series) {
       return series.my_tier === tier ? "btn btn-success" : "btn btn-primary";
-    };
-
-    self.changeTier = function(series) {
-      EpisodeService.changeTier(series.id, series.tier);
     };
 
     self.open = function(series) {

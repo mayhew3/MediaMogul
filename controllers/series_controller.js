@@ -385,7 +385,7 @@ exports.getTVDBMatches = function(request, response) {
           // noinspection JSUnresolvedVariable
           return {
             title: seriesObj.seriesName,
-            tvdb_id: seriesObj.id,
+            tvdb_series_ext_id: seriesObj.id,
             poster: null
           };
         });
@@ -408,7 +408,7 @@ exports.getTVDBMatches = function(request, response) {
 
 function getTopPoster(seriesObj) {
   return new Promise(function(resolve) {
-    const posterUrl = 'https://api.thetvdb.com/series/' + seriesObj.tvdb_id + '/images/query';
+    const posterUrl = 'https://api.thetvdb.com/series/' + seriesObj.tvdb_series_ext_id + '/images/query';
     const options = {
       url: posterUrl,
       headers: {
@@ -460,22 +460,22 @@ exports.getMatchedTVDBIDs = function(request, response) {
 };
 
 exports.handleSeriesRequest = function(request, response) {
-  const tvdb_id = request.body.tvdb_id;
+  const tvdb_series_ext_id = request.body.tvdb_series_ext_id;
   const handling = request.body.handling;
 
-  doPreUpdateWork(handling, tvdb_id).then(function() {
-    updateSeriesRequest(handling, tvdb_id, response);
+  doPreUpdateWork(handling, tvdb_series_ext_id).then(function() {
+    updateSeriesRequest(handling, tvdb_series_ext_id, response);
   }).catch(function(error) {
     response.status(500).send(error);
   });
 };
 
-function doPreUpdateWork(handling, tvdb_id) {
+function doPreUpdateWork(handling, tvdb_series_ext_id) {
   return new Promise(function(resolve, reject) {
     if (handling === 'rejected') {
       resolve();
     } else if (handling === 'approved') {
-      maybeAddSeries(tvdb_id).then(function() {
+      maybeAddSeries(tvdb_series_ext_id).then(function() {
         resolve();
       })
     } else {
@@ -485,7 +485,7 @@ function doPreUpdateWork(handling, tvdb_id) {
   });
 }
 
-function maybeAddSeries(tvdb_id) {
+function maybeAddSeries(tvdb_series_ext_id) {
   return new Promise(resolve => {
 
     const sql = 'SELECT sr.* ' +
@@ -494,7 +494,7 @@ function maybeAddSeries(tvdb_id) {
       'AND sr.retired = $2 ';
 
     const values = [
-      tvdb_id,
+      tvdb_series_ext_id,
       0
     ];
 
@@ -502,7 +502,7 @@ function maybeAddSeries(tvdb_id) {
       const person_ids = _.pluck(requestResults, 'person_id');
       const seriesRequest = requestResults[0];
 
-      getOrInsertNewSeries(tvdb_id, seriesRequest, person_ids[0]).then(function (series_id) {
+      getOrInsertNewSeries(tvdb_series_ext_id, seriesRequest, person_ids[0]).then(function (series_id) {
 
         const sql = "INSERT INTO person_series " +
           "(person_id, series_id, tier) " +
@@ -522,7 +522,7 @@ function maybeAddSeries(tvdb_id) {
 
 }
 
-function getOrInsertNewSeries(tvdb_id, seriesRequest, person_id) {
+function getOrInsertNewSeries(tvdb_series_ext_id, seriesRequest, person_id) {
   return new Promise(resolve => {
 
     const sql = 'SELECT id ' +
@@ -531,7 +531,7 @@ function getOrInsertNewSeries(tvdb_id, seriesRequest, person_id) {
       'AND retired = $2 ';
 
     const values = [
-      tvdb_id,
+      tvdb_series_ext_id,
       0
     ];
 
@@ -553,7 +553,7 @@ function getOrInsertNewSeries(tvdb_id, seriesRequest, person_id) {
           true,
           'Match Confirmed',
           person_id,
-          tvdb_id,
+          tvdb_series_ext_id,
           new Date,
           seriesRequest.poster
         ];
@@ -568,7 +568,7 @@ function getOrInsertNewSeries(tvdb_id, seriesRequest, person_id) {
 
 }
 
-function updateSeriesRequest(handling, tvdb_id, response) {
+function updateSeriesRequest(handling, tvdb_series_ext_id, response) {
   const sql = 'UPDATE series_request ' +
     'SET ' + handling + ' = $1 ' +
     'WHERE tvdb_series_ext_id = $2 ' +
@@ -577,7 +577,7 @@ function updateSeriesRequest(handling, tvdb_id, response) {
 
   const values = [
     new Date,
-    tvdb_id
+    tvdb_series_ext_id
   ];
 
   db.executeQueryNoResults(response, sql, values);
@@ -606,7 +606,7 @@ var insertSeries = function(series, response) {
     true,
     'Match Confirmed',
     series.person_id,
-    series.tvdb_id,
+    series.tvdb_series_ext_id,
     new Date,
     series.poster
   ];
