@@ -242,7 +242,7 @@ angular.module('mediaMogulApp')
       return dateIsWithinLastDays(series.date_added, 15);
     }
 
-    function hasUnwatchedEpisodes(series) {
+      function hasUnwatchedEpisodes(series) {
       return series.unwatched_all > 0;
     }
 

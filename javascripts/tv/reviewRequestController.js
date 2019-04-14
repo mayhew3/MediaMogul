@@ -22,7 +22,7 @@ angular.module('mediaMogulApp')
         if (isValidHandling()) {
           $http.post('/api/handleSeriesRequest', {
             handling: self.handling,
-            tvdb_id: self.seriesRequest.tvdb_series_ext_id
+            tvdb_series_ext_id: self.seriesRequest.tvdb_series_ext_id
           }).then(function() {
             postAddCallback(self.seriesRequest, self.handling);
             $uibModalInstance.close();
