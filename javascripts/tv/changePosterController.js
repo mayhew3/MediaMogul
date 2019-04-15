@@ -11,16 +11,9 @@ angular.module('mediaMogulApp')
 
       self.selectedPoster = null;
 
-      function amendPosterLocation(posterPath) {
-        return posterPath ? 'https://res.cloudinary.com/media-mogul/image/upload/' + posterPath : 'images/GenericSeries.gif';
-      }
-
       $http.get('/allPosters', {params: {tvdb_series_id: series.tvdb_series_id}}).then(function(response) {
         $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
         const allPosters = response.data;
-        allPosters.forEach(function (poster) {
-          poster.posterResolved = amendPosterLocation(poster.cloud_poster);
-        });
 
         allPosters.forEach(function (poster) {
           if (series.poster === poster.poster_path) {
@@ -40,14 +33,8 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.tvdbPosterPath = function(poster) {
-        if (poster.cloud_poster) {
-          return 'https://res.cloudinary.com/media-mogul/image/upload/' + poster.cloud_poster;
-        } else if (poster.poster_path) {
-          return 'https://thetvdb.com/banners/' + poster.poster_path;
-        } else {
-          return 'images/GenericSeries.gif';
-        }
+      self.posterInfo = {
+        extraStyles: self.posterStyle
       };
 
       self.selectPoster = function(poster) {
