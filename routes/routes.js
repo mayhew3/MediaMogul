@@ -31,9 +31,7 @@ module.exports = function(app) {
   app.get('/episodeGroupRating', authCheck, series.getEpisodeGroupRating);
   app.get('/episodeGroupRatings', authCheck, series.getEpisodeGroupRatings);
   app.get('/episodeList', authCheck, series.getEpisodes);
-  app.get('/possibleMatches', authCheck, series.getPossibleMatches);
   app.get('/numShowsToRate', authCheck, series.getNumberOfShowsToRate);
-  app.get('/numPendingMatches', authCheck, series.getNumberOfPendingMatches);
   app.get('/viewingLocations', authCheck, series.getViewingLocations);
   app.get('/allPosters', authCheck, series.getAllPosters);
   app.get('/seriesViewingLocations', authCheck, series.getSeriesViewingLocations);
@@ -52,10 +50,6 @@ module.exports = function(app) {
   app.get('/primeSeriesInfo', authCheck, series.getPrimeSeriesInfo);
 
   app.post('/updateEpisode', authCheck, series.updateEpisode);
-  app.post('/matchTiVoEpisodes', authCheck, series.matchTiVoEpisodes);
-  app.post('/unlinkEpisode', authCheck, series.unlinkEpisode);
-  app.post('/retireTiVoEpisode', authCheck, series.retireTiVoEpisode);
-  app.post('/ignoreTiVoEpisode', authCheck, series.ignoreTiVoEpisode);
   app.post('/changeTier', authCheck, series.changeTier);
   app.post('/addSeries', authCheck, series.addSeries);
   app.post('/updateSeries', authCheck, series.updateSeries);

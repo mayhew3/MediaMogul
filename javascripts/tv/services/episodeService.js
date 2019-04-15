@@ -541,31 +541,6 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.matchTiVoEpisodes = function (tivoID, tvdbIDs) {
-        return $http.post('/matchTiVoEpisodes', {TiVoID: tivoID, TVDBEpisodeIds: tvdbIDs}).then(function () {
-          $log.debug("Success?")
-        }, function (errResponse) {
-          $log.debug("Error calling the method: " + errResponse);
-        });
-      };
-
-      self.unlinkEpisode = function (episodeId) {
-        return $http.post('/unlinkEpisode', {EpisodeId: episodeId}).then(function () {
-          $log.debug("Success?")
-        }, function (errResponse) {
-          $log.debug("Error calling the method: " + errResponse);
-        });
-      };
-
-      self.retireUnmatchedEpisode = function (episodeId) {
-        return $http.post('/retireTiVoEpisode', {TiVoEpisodeId: episodeId});
-      };
-      
-      self.ignoreUnmatchedEpisode = function (episodeId) {
-        return $http.post('/ignoreTiVoEpisode', {TiVoEpisodeId: episodeId});
-      };
-
-
       self.updateDenorms = function(series, episodes) {
         let activeEpisodes = 0;
         let deletedEpisodes = 0;
