@@ -241,10 +241,10 @@ angular.module('mediaMogulApp')
         self.updateOrAddRating()
           .then(function (response) {
             episode.tv_group_episode_id = response.data.tv_group_episode_id;
-            updateEpisodeFields();
             return updateWatchedStatus();
           })
           .then(function () {
+            updateEpisodeFields();
             maybeUpdateAllPastEpisodes().then(function () {
               $uibModalInstance.close();
             });
