@@ -221,31 +221,13 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.updatePosterLocation = function(show) {
-        show.posterResolved = self.constructFullPosterLocation(show);
-      };
-
-      self.constructFullPosterLocation = function(show) {
-        if (show.cloud_poster) {
-          return 'https://res.cloudinary.com/media-mogul/image/upload/' + show.cloud_poster;
-        } else if (show.poster) {
-          return 'https://thetvdb.com/banners/' + show.poster;
-        } else {
-          return 'images/GenericSeries.gif';
-        }
-      };
-
       self.updateNumericFields = function(show) {
-        if (show.tier !== null) {
-          show.tier = parseInt(show.tier);
-        }
         if (show.my_tier !== null) {
           show.my_tier = parseInt(show.my_tier);
         }
         if (show.metacritic !== null) {
           show.metacritic = parseInt(show.metacritic);
         }
-        self.updatePosterLocation(show);
       };
 
       self.formatNextAirDate = function(show) {
@@ -541,44 +523,9 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.matchTiVoEpisodes = function (tivoID, tvdbIDs) {
-        return $http.post('/matchTiVoEpisodes', {TiVoID: tivoID, TVDBEpisodeIds: tvdbIDs}).then(function () {
-          $log.debug("Success?")
-        }, function (errResponse) {
-          $log.debug("Error calling the method: " + errResponse);
-        });
-      };
-
-      self.unlinkEpisode = function (episodeId) {
-        return $http.post('/unlinkEpisode', {EpisodeId: episodeId}).then(function () {
-          $log.debug("Success?")
-        }, function (errResponse) {
-          $log.debug("Error calling the method: " + errResponse);
-        });
-      };
-
-      self.retireUnmatchedEpisode = function (episodeId) {
-        return $http.post('/retireTiVoEpisode', {TiVoEpisodeId: episodeId});
-      };
-      
-      self.ignoreUnmatchedEpisode = function (episodeId) {
-        return $http.post('/ignoreTiVoEpisode', {TiVoEpisodeId: episodeId});
-      };
-
-
       self.updateDenorms = function(series, episodes) {
-        let activeEpisodes = 0;
-        let deletedEpisodes = 0;
-        let suggestionEpisodes = 0;
-        let watchedEpisodes = 0;
         let unwatchedEpisodes = 0;
-        let matchedEpisodes = 0;
-        let tvdbOnly = 0;
-        let unwatchedUnrecorded = 0;
-        let streamingEpisodes = 0;
         let unwatchedStreaming = 0;
-        let mostRecent = null;
-        let lastUnwatched = null;
         let firstUnwatched = null;
         let now = new Date;
 
@@ -594,64 +541,16 @@ angular.module('mediaMogulApp')
             let airTime = episode.air_time === null ? null : new Date(episode.air_time);
             let canWatch = (onTiVo && !deleted) || (streaming && isBefore(airTime, now));
 
-            // ACTIVE
-            if (onTiVo && !suggestion && !deleted) {
-              activeEpisodes++;
-            }
-
-            // DELETED
-            if (onTiVo && deleted) {
-              deletedEpisodes++;
-            }
-
-            // SUGGESTIONS
-            if (onTiVo && suggestion && !deleted) {
-              suggestionEpisodes++;
-            }
-
-            // WATCHED
-            if (watched) {
-              watchedEpisodes++;
-            }
+            // STILL USED
 
             // UNWATCHED
             if (onTiVo && !suggestion && !deleted && !watched) {
               unwatchedEpisodes++;
             }
 
-            // MATCHED
-            if (onTiVo) {
-              matchedEpisodes++;
-            }
-
-            // TVDB ONLY
-            if (!onTiVo) {
-              tvdbOnly++;
-            }
-
-            // UNWATCHED, UNRECORDED
-            if (!onTiVo && !watched) {
-              unwatchedUnrecorded++;
-            }
-
-            // LAST EPISODE
-            if (onTiVo && isAfter(airTime, mostRecent) && !deleted) {
-              mostRecent = airTime;
-            }
-
             // FIRST UNWATCHED EPISODE
             if (canWatch && isBefore(airTime, firstUnwatched) && !suggestion && !watched) {
               firstUnwatched = airTime;
-            }
-
-            // LAST UNWATCHED EPISODE
-            if (canWatch && isAfter(airTime, lastUnwatched) && !suggestion && !watched) {
-              lastUnwatched = airTime;
-            }
-
-            // STREAMING
-            if ((!onTiVo || deleted) && canWatch) {
-              streamingEpisodes++;
             }
 
             // UNWATCHED STREAMING
@@ -664,11 +563,7 @@ angular.module('mediaMogulApp')
         series.first_unwatched = firstUnwatched;
         series.unwatched_all = unwatchedEpisodes + unwatchedStreaming;
 
-        let changedFields = {
-          first_unwatched: firstUnwatched
-        };
-
-        return $http.post('/updateSeries', {SeriesId: series.id, ChangedFields: changedFields});
+        // Don't need to update series table with watched information.
       };
 
       self.dateHasChanged = function(originalDate, updatedDate) {

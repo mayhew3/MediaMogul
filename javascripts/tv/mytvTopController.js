@@ -1,7 +1,6 @@
 angular.module('mediaMogulApp')
   .controller('mytvTopController', ['LockService', 'NavHelperService', 'YearlyRatingService',
-    'SeriesMatchingService',
-    function (LockService, NavHelperService, YearlyRatingService, SeriesMatchingService) {
+    function (LockService, NavHelperService, YearlyRatingService) {
       const self = this;
 
       self.LockService = LockService;
@@ -11,15 +10,10 @@ angular.module('mediaMogulApp')
 
       if (LockService.isAdmin()) {
         YearlyRatingService.updateNumberOfShowsToRate(self.year);
-        SeriesMatchingService.updateNumberOfPendingMatches();
       }
 
       self.getNumberOfShowsToRate = function() {
         return YearlyRatingService.getNumberOfShowsToRate();
-      };
-
-      self.getNumberOfPendingMatches = function() {
-        return SeriesMatchingService.getNumberOfPendingMatches();
       };
 
     }
