@@ -48,14 +48,9 @@ angular.module('mediaMogulApp')
 
     self.onSeasonSelect = function() {
       self.currentPage = 1;
-      const nextUp = _.filter(self.episodes, episode => {
-        return self.episodeFilter(episode) && episode.nextUp;
-      });
-      if (nextUp.length > 0) {
-        const nextEpisode = nextUp[0];
-        const nextEpisodeNumber = nextEpisode.episode_number;
-        self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
-      }
+      const nextEpisode = self.nextUp;
+      const nextEpisodeNumber = nextEpisode.episode_number;
+      self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
     };
 
     self.selectSeason = function(season) {
@@ -82,25 +77,25 @@ angular.module('mediaMogulApp')
 
     function updateNextUp() {
 
-      self.episodes.forEach(function(episode) {
-        episode.nextUp = false;
-      });
-
-      var unwatchedEpisodes = self.episodes.filter(function (episode) {
+      const unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
 
       if (unwatchedEpisodes.length > 0) {
-        var firstUnwatched = unwatchedEpisodes[0];
+        const firstUnwatched = unwatchedEpisodes[0];
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
-          firstUnwatched.nextUp = true;
+          self.nextUp = firstUnwatched;
         }
       }
     }
 
+    function isNextUp(episode) {
+      return ArrayService.exists(self.nextUp) && episode.id === self.nextUp.id;
+    }
+
     self.rowClass = function(episode) {
-      if (episode.nextUp) {
+      if (isNextUp(episode)) {
         return "nextUpRow";
       } else if (episode.unaired) {
         return "unairedRow";
@@ -168,7 +163,7 @@ angular.module('mediaMogulApp')
         self.selectedSeason.label = firstUnwatched.season;
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
-          firstUnwatched.nextUp = true;
+          self.nextUp = firstUnwatched;
           self.onSeasonSelect();
         }
       } else {

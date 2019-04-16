@@ -21,6 +21,7 @@ angular.module('mediaMogulApp')
       self.air_date = formatDateString(episode.air_date);
 
       self.allPastEpisodes = false;
+      self.nextUp = null;
 
       // leave watched_date out of the interface fields because I want to use a date comparison before adding to changedFields.
       self.originalFields = {
@@ -225,10 +226,6 @@ angular.module('mediaMogulApp')
         self.episode.watched_date = self.watched_date;
         self.episode.skipped = self.interfaceFields.skipped;
 
-        if (self.episode.watched === true || self.episode.skipped === true) {
-          self.episode.nextUp = false;
-        }
-
         if (LockService.isAdmin()) {
           var originalAirDate = formatDate(self.episode.air_date);
 
@@ -244,10 +241,10 @@ angular.module('mediaMogulApp')
         self.updateOrAddRating()
           .then(function (response) {
             episode.tv_group_episode_id = response.data.tv_group_episode_id;
+            updateEpisodeFields();
             return updateWatchedStatus();
           })
           .then(function () {
-            updateEpisodeFields();
             maybeUpdateAllPastEpisodes().then(function () {
               $uibModalInstance.close();
             });
