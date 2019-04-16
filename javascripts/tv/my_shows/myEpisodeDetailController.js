@@ -208,10 +208,6 @@ angular.module('mediaMogulApp')
         self.episode.watched = self.interfaceRating.watched;
         self.episode.watched_date = self.watched_date;
 
-        if (self.episode.watched === true) {
-          self.episode.nextUp = false;
-        }
-
         if (LockService.isAdmin()) {
           let originalAirDate = formatDate(self.episode.air_date);
 

@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService', 'addSeriesCallback',
+    '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService', 'addSeriesCallback', 'ArrayService',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           adding, YearlyRatingService, addSeriesCallback) {
+           adding, YearlyRatingService, addSeriesCallback, ArrayService) {
     const self = this;
 
     self.LockService = LockService;
@@ -23,6 +23,7 @@ angular.module('mediaMogulApp')
     self.removed = false;
 
     self.firstUnwatchedNumber = null;
+    self.nextUp = null;
 
     self.selectedAddingEpisodes = 'None';
     self.selectedLastWatchedEpisode = null;
@@ -139,10 +140,6 @@ angular.module('mediaMogulApp')
 
     function updateNextUp() {
 
-      self.episodes.forEach(function(episode) {
-        episode.nextUp = false;
-      });
-
       const unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
@@ -151,16 +148,12 @@ angular.module('mediaMogulApp')
         let firstUnwatched = unwatchedEpisodes[0];
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
-          firstUnwatched.nextUp = true;
+          self.nextUp = firstUnwatched;
         }
       }
     }
 
     function updateNextUpProjected() {
-
-      self.episodes.forEach(function(episode) {
-        episode.nextUp = false;
-      });
 
       let unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
@@ -169,7 +162,7 @@ angular.module('mediaMogulApp')
       if (unwatchedEpisodes.length > 0) {
         let firstUnwatched = unwatchedEpisodes[0];
         if (!firstUnwatched.unaired) {
-          firstUnwatched.nextUp = true;
+          self.nextUp = firstUnwatched;
         }
       }
     }
@@ -179,6 +172,10 @@ angular.module('mediaMogulApp')
         (self.selectedLastWatchedEpisode !== null &&
           episode.absolute_number <= self.selectedLastWatchedEpisode.absolute_number);
     };
+
+    function isNextUp(episode) {
+      return ArrayService.exists(self.nextUp) && episode.id === self.nextUp.id;
+    }
 
     self.rowClass = function(episode) {
       if (self.watchMultiple || self.adding) {
@@ -192,7 +189,7 @@ angular.module('mediaMogulApp')
       } else {
         if (episode.rating_pending) {
           return "ratingPendingRow";
-        } else if (episode.nextUp) {
+        } else if (isNextUp(episode)) {
           return "nextUpRow";
         } else if (episode.unaired) {
           return "unairedRow";
@@ -326,7 +323,7 @@ angular.module('mediaMogulApp')
         self.selectedSeason.label = firstUnwatched.season;
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!firstUnwatched.unaired) {
-          firstUnwatched.nextUp = true;
+          self.nextUp = firstUnwatched;
           self.onSeasonSelect();
         }
       } else {
@@ -345,14 +342,9 @@ angular.module('mediaMogulApp')
 
     self.onSeasonSelect = function() {
       self.currentPage = 1;
-      const nextUp = _.filter(self.episodes, episode => {
-        return self.episodeFilter(episode) && episode.nextUp;
-      });
-      if (nextUp.length > 0) {
-        const nextEpisode = nextUp[0];
-        const nextEpisodeNumber = nextEpisode.episode_number;
-        self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
-      }
+      const nextEpisode = self.nextUp;
+      const nextEpisodeNumber = nextEpisode.episode_number;
+      self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
     };
 
     self.selectSeason = function(season) {
