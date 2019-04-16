@@ -241,6 +241,17 @@ angular.module('mediaMogulApp')
         return new Date(combinedStr);
       };
 
+      self.isUnaired = function(episode) {
+        // unaired if the air time is after now.
+
+        let isNull = episode.air_time === null;
+        let diff = (new Date(episode.air_time) - new Date);
+        let hasSufficientDiff = (diff > 0);
+
+        return isNull || hasSufficientDiff;
+      };
+
+
       self.getAirTime = function(episode) {
         if (episode.air_time === null) {
           return self.combineDateAndTime(episode.air_date, episode.seriesAirTime);

@@ -147,7 +147,7 @@ angular.module('mediaMogulApp')
       if (unwatchedEpisodes.length > 0) {
         let firstUnwatched = unwatchedEpisodes[0];
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
-        if (!firstUnwatched.unaired) {
+        if (!self.isUnaired(firstUnwatched)) {
           self.nextUp = firstUnwatched;
         }
       }
@@ -161,7 +161,7 @@ angular.module('mediaMogulApp')
 
       if (unwatchedEpisodes.length > 0) {
         let firstUnwatched = unwatchedEpisodes[0];
-        if (!firstUnwatched.unaired) {
+        if (!self.isUnaired(firstUnwatched)) {
           self.nextUp = firstUnwatched;
         }
       }
@@ -179,7 +179,7 @@ angular.module('mediaMogulApp')
 
     self.rowClass = function(episode) {
       if (self.watchMultiple || self.adding) {
-        if (episode.unaired) {
+        if (self.isUnaired(episode)) {
           return "danger";
         } else if (self.watchedOrWatchPending(episode)) {
           return "success";
@@ -191,7 +191,7 @@ angular.module('mediaMogulApp')
           return "ratingPendingRow";
         } else if (isNextUp(episode)) {
           return "nextUpRow";
-        } else if (episode.unaired) {
+        } else if (self.isUnaired(episode)) {
           return "unairedRow";
         } else if (isUnwatchedEpisode(episode)) {
           return "unwatchedRow";
@@ -307,9 +307,6 @@ angular.module('mediaMogulApp')
         if (season !== null && seasonDoesNotExist(season) && !self.shouldHide(episode)) {
           self.possibleSeasons.push(seasonObj);
         }
-        if (self.isUnaired(episode)) {
-          episode.unaired = true;
-        }
       });
 
       let unwatchedEpisodes = self.episodes.filter(function (episode) {
@@ -322,7 +319,7 @@ angular.module('mediaMogulApp')
         let firstUnwatched = unwatchedEpisodes[0];
         self.selectedSeason.label = firstUnwatched.season;
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
-        if (!firstUnwatched.unaired) {
+        if (!self.isUnaired(firstUnwatched)) {
           self.nextUp = firstUnwatched;
           self.onSeasonSelect();
         }
@@ -415,13 +412,7 @@ angular.module('mediaMogulApp')
     };
 
     self.isUnaired = function(episode) {
-      // unaired if the air time is after now.
-
-      let isNull = episode.air_time === null;
-      let diff = (new Date(episode.air_time) - new Date);
-      let hasSufficientDiff = (diff > 0);
-
-      return isNull || hasSufficientDiff;
+      return EpisodeService.isUnaired(episode);
     };
 
     self.episodeFilter = function(episode) {

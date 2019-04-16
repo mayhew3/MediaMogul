@@ -75,6 +75,8 @@ angular.module('mediaMogulApp')
         !self.shouldHide(episode);
     }
 
+
+
     function updateNextUp() {
 
       const unwatchedEpisodes = self.episodes.filter(function (episode) {
@@ -84,11 +86,15 @@ angular.module('mediaMogulApp')
       if (unwatchedEpisodes.length > 0) {
         const firstUnwatched = unwatchedEpisodes[0];
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
-        if (!firstUnwatched.unaired) {
+        if (!self.isUnaired(firstUnwatched)) {
           self.nextUp = firstUnwatched;
         }
       }
     }
+
+    self.isUnaired = function(episode) {
+      return EpisodeService.isUnaired(episode);
+    };
 
     function isNextUp(episode) {
       return ArrayService.exists(self.nextUp) && episode.id === self.nextUp.id;
@@ -97,7 +103,7 @@ angular.module('mediaMogulApp')
     self.rowClass = function(episode) {
       if (isNextUp(episode)) {
         return "nextUpRow";
-      } else if (episode.unaired) {
+      } else if (self.isUnaired(episode)) {
         return "unairedRow";
       } else if (episode.skipped) {
         return "skippedRow"
@@ -143,9 +149,6 @@ angular.module('mediaMogulApp')
         if (season !== null && seasonDoesNotExist(season) && !self.shouldHide(episode)) {
           self.possibleSeasons.push(seasonObj);
         }
-        if (isUnaired(episode)) {
-          episode.unaired = true;
-        }
 
         episode.imageResolved = episode.tvdb_filename ?
           'https://thetvdb.com/banners/' + episode.tvdb_filename :
@@ -162,7 +165,7 @@ angular.module('mediaMogulApp')
         var firstUnwatched = unwatchedEpisodes[0];
         self.selectedSeason.label = firstUnwatched.season;
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
-        if (!firstUnwatched.unaired) {
+        if (!self.isUnaired(firstUnwatched)) {
           self.nextUp = firstUnwatched;
           self.onSeasonSelect();
         }
@@ -272,16 +275,6 @@ angular.module('mediaMogulApp')
         return $filter('date')(episode.watched_date, self.getDateFormat(episode.watched_date), 'America/Los_Angeles');
       }
     };
-
-    function isUnaired(episode) {
-      // unaired if the air time is after now.
-
-      var isNull = episode.air_time === null;
-      var diff = (new Date(episode.air_time) - new Date);
-      var hasSufficientDiff = (diff > 0);
-
-      return isNull || hasSufficientDiff;
-    }
 
     self.episodeFilter = function(episode) {
       return episode.season === self.selectedSeason.label && !self.shouldHide(episode);
