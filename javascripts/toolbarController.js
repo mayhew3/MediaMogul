@@ -31,6 +31,17 @@
       return self.SystemVarsService.getVar('envName');
     };
 
+    self.getDisplayEnvName = function() {
+      const envName = self.getEnvName();
+      if (envName === null || envName === 'heroku') {
+        return '';
+      } else if (envName === 'heroku-staging') {
+        return 'Staging';
+      } else {
+        return envName;
+      }
+    };
+
     self.getNavbarClass = function() {
       const envName = self.getEnvName();
       if (envName === null || envName === 'heroku') {

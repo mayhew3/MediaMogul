@@ -26,7 +26,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-          <p class="navbar-text" style="margin-right: 20px">{{toolbar.getEnvName()}}</p>
+          <p class="navbar-text" style="margin-right: 20px">{{toolbar.getDisplayEnvName()}}</p>
         </li>
         <li class="navbar-text" ng-show="toolbar.LockService.isAuthenticated && !toolbar.LockService.isAdmin()" ng-bind="'Hi, ' + toolbar.LockService.firstName + '!'"></li>
         <li ng-class="toolbar.getLinkClass('Admin')" ng-show="toolbar.LockService.isAdmin()">
