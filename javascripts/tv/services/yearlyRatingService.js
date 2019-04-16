@@ -21,13 +21,7 @@ angular.module('mediaMogulApp')
       self.updateSystemVars = function() {
         if (_.isUndefined(ratingYear)) {
           return $http.get('/api/systemVars').then(function (response) {
-            var numberOfRows = response.data.length;
-            if (numberOfRows !== 1) {
-              $log.debug(numberOfRows + " rows found in system_vars.");
-              return;
-            }
-
-            var systemVars = response.data[0];
+            const systemVars = response.data;
             ratingYear = systemVars.rating_year;
             ratingEndDate = systemVars.rating_end_date === null ? null : new Date(systemVars.rating_end_date);
             console.log("System vars: Year " + ratingYear + ", End Date " + ratingEndDate);

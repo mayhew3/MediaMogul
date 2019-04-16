@@ -37,6 +37,14 @@ h1 {
   max-width: 300pt;
 }
 
+.stagingNavbar {
+  background-image: linear-gradient(#8a3136, #7A2228 60%, #70282d);
+}
+
+.localNavbar {
+  background-image: linear-gradient(#6a3166, #5A2258 60%, #50285d);
+}
+
 .posterRow {
   margin-bottom: 15px;
   text-align: center;

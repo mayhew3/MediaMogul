@@ -8,12 +8,14 @@
     return {
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
+        'SystemVarsService',
         toolbarController],
       controllerAs: 'toolbar'
     }
   }
 
-  function toolbarController(LockService, store, $location, NavHelperService, ExternalServicesService) {
+  function toolbarController(LockService, store, $location, NavHelperService, ExternalServicesService,
+                             SystemVarsService) {
     const self = this;
     self.login = login;
     self.logout = logout;
@@ -23,6 +25,22 @@
 
     self.NavHelperService = NavHelperService;
     self.ExternalServicesService = ExternalServicesService;
+    self.SystemVarsService = SystemVarsService;
+
+    self.getEnvName = function() {
+      return self.SystemVarsService.getVar('envName');
+    };
+
+    self.getNavbarClass = function() {
+      const envName = self.getEnvName();
+      if (envName === null || envName === 'heroku') {
+        return 'navbar-default';
+      } else if (envName === 'heroku-staging') {
+        return 'stagingNavbar';
+      } else {
+        return 'localNavbar';
+      }
+    };
 
     self.getLinkClass = function(label) {
       return (self.NavHelperService.isSelected(label)) ? 'active' : '';

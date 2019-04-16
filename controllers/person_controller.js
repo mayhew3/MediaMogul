@@ -1063,8 +1063,18 @@ exports.markEpisodesWatched = function(request, response) {
 exports.getSystemVars = function(request, response) {
   console.log("Getting system vars.");
 
-  var sql = "SELECT * FROM system_vars";
-  return db.executeQueryWithResults(response, sql, []);
+  const sql = "SELECT * FROM system_vars";
+  db.selectWithJSON(sql, []).then(results => {
+    if (results.length !== 1) {
+      response.error({msg: 'Unexpected number of system_vars.'});
+      throw new Error("Should have exactly one row in system_vars.");
+    }
+
+    const systemVars = results[0];
+    systemVars.envName = process.env.envName;
+
+    response.json(systemVars);
+  });
 };
 
 exports.increaseYear = function(request, response) {
