@@ -79,6 +79,8 @@ angular.module('mediaMogulApp')
 
     function updateNextUp() {
 
+      self.nextUp = null;
+
       const unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
