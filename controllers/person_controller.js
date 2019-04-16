@@ -922,14 +922,12 @@ exports.getMyEpisodes = function(request, response) {
   var sql = 'SELECT e.id, ' +
     'e.air_date, ' +
     'e.air_time, ' +
-    'e.series_title, ' +
     'e.title, ' +
     'e.season, ' +
     'e.episode_number, ' +
     'e.absolute_number, ' +
     'e.streaming, ' +
     'e.on_tivo, ' +
-    'te.episode_number as tvdb_episode_number, ' +
     'te.name as tvdb_episode_name, ' +
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview, ' +

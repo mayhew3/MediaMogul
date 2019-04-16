@@ -4,6 +4,7 @@ angular.module('mediaMogulApp')
     function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService, readOnly
              , allPastWatchedCallback, firstUnwatched) {
       const self = this;
+
       self.rating_id = episode.rating_id;
       self.LockService = LockService;
       self.readOnly = readOnly;
@@ -14,40 +15,41 @@ angular.module('mediaMogulApp')
         day: "2-digit", timeZone: "America/Los_Angeles"
       };
 
+      self.series = series;
       self.episode = episode;
       self.previousEpisodes = previousEpisodes;
 
       self.skipRating = false;
 
-      self.watched_date = episode.watched_date === null ? null :
-        new Date(episode.watched_date).toLocaleDateString("en-US", options);
+      self.watched_date = self.episode.watched_date === null ? null :
+        new Date(self.episode.watched_date).toLocaleDateString("en-US", options);
 
-      self.air_date = episode.air_date === null ? null :
-        new Date(episode.air_date).toLocaleDateString("en-US", options);
+      self.air_date = self.episode.air_date === null ? null :
+        new Date(self.episode.air_date).toLocaleDateString("en-US", options);
 
       // leave watched_date out of the interface fields because I want to use a date comparison before adding to changedFields.
       self.originalRating = {
-        episode_id: episode.id,
+        episode_id: self.episode.id,
         person_id: LockService.person_id,
-        watched: episode.watched,
-        rating_funny: episode.rating_funny,
-        rating_character: episode.rating_character,
-        rating_story: episode.rating_story,
-        rating_value: episode.rating_value,
-        review: episode.review,
-        rating_pending: episode.rating_pending
+        watched: self.episode.watched,
+        rating_funny: self.episode.rating_funny,
+        rating_character: self.episode.rating_character,
+        rating_story: self.episode.rating_story,
+        rating_value: self.episode.rating_value,
+        review: self.episode.review,
+        rating_pending: self.episode.rating_pending
       };
 
       self.interfaceRating = {
-        episode_id: episode.id,
+        episode_id: self.episode.id,
         person_id: LockService.person_id,
-        watched: episode.watched,
-        rating_funny: episode.rating_funny,
-        rating_character: episode.rating_character,
-        rating_story: episode.rating_story,
-        rating_value: episode.rating_value,
-        review: episode.review,
-        rating_pending: episode.rating_pending
+        watched: self.episode.watched,
+        rating_funny: self.episode.rating_funny,
+        rating_character: self.episode.rating_character,
+        rating_story: self.episode.rating_story,
+        rating_value: self.episode.rating_value,
+        review: self.episode.review,
+        rating_pending: self.episode.rating_pending
       };
 
       self.updateOrAddRating = function() {
@@ -56,11 +58,11 @@ angular.module('mediaMogulApp')
           if (Object.keys(changedFields).length > 0) {
             $log.debug("Episode fields changed: " + _.keys(changedFields));
             if (self.rating_id === null) {
-              EpisodeService.addMyEpisodeRating(self.interfaceRating, series.id).then(function (result) {
+              EpisodeService.addMyEpisodeRating(self.interfaceRating, self.series.id).then(function (result) {
                 resolve(result);
               });
             } else {
-              EpisodeService.updateMyEpisodeRating(changedFields, self.rating_id, series.id).then(function (result) {
+              EpisodeService.updateMyEpisodeRating(changedFields, self.rating_id, self.series.id).then(function (result) {
                 resolve(result);
               });
             }
@@ -169,7 +171,7 @@ angular.module('mediaMogulApp')
 
         if (dateHasChanged(originalAirDate, self.air_date)) {
           changedFields.air_date = self.air_date;
-          changedFields.air_time = EpisodeService.combineDateAndTime(self.air_date, series.air_time);
+          changedFields.air_time = EpisodeService.combineDateAndTime(self.air_date, self.series.air_time);
         }
 
         if (isNotEmpty(changedFields) && LockService.isAdmin()) {
@@ -224,7 +226,7 @@ angular.module('mediaMogulApp')
 
           if (dateHasChanged(originalAirDate, self.air_date)) {
             self.episode.air_date = self.air_date;
-            self.episode.air_time = EpisodeService.combineDateAndTime(self.air_date, series.air_time);
+            self.episode.air_time = EpisodeService.combineDateAndTime(self.air_date, self.series.air_time);
           }
         }
       }
@@ -234,8 +236,8 @@ angular.module('mediaMogulApp')
         self.updateOrAddRating()
           .then(function (response) {
             if (response) {
-              episode.rating_id = response.data.rating_id;
-              series.dynamic_rating = response.data.dynamic_rating;
+              self.episode.rating_id = response.data.rating_id;
+              self.series.dynamic_rating = response.data.dynamic_rating;
             }
             return updateWatchedStatus();
           }).then(function () {

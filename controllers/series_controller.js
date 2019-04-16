@@ -112,7 +112,6 @@ exports.getEpisodes = function(req, response) {
   console.log("Episode call received. Params: " + req.query.SeriesId);
 
   var sql = 'SELECT e.*, ' +
-      'te.episode_number as tvdb_episode_number, ' +
       'te.name as tvdb_episode_name, ' +
       'te.filename as tvdb_filename, ' +
       'te.overview as tvdb_overview, ' +

@@ -202,7 +202,7 @@
         </thead>
         <tr data-ng-repeat="episode in ctrl.episodes |
                           filter:ctrl.episodeFilter |
-                          orderBy:['tvdb_episode_number'] |
+                          orderBy:['absolute_number'] |
                           limitTo: ctrl.pageSize : (ctrl.currentPage - 1) * ctrl.pageSize"
             ng-click="ctrl.openEpisodeDetailFromRow(episode)"
             ng-class="ctrl.rowClass(episode)">
