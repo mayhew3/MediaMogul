@@ -108,32 +108,6 @@ exports.getAllRatingYears = function(request, response) {
   return db.executeQueryWithResults(response, sql, [0]);
 };
 
-exports.getEpisodes = function(req, response) {
-  console.log("Episode call received. Params: " + req.query.SeriesId);
-
-  var sql = 'SELECT e.*, ' +
-      'te.filename as tvdb_filename, ' +
-      'te.overview as tvdb_overview, ' +
-      'te.production_code as tvdb_production_code, ' +
-      'te.rating as tvdb_rating, ' +
-      'te.director as tvdb_director, ' +
-      'te.writer as tvdb_writer, ' +
-      'er.rating_value, ' +
-      'er.review, ' +
-      'er.id as rating_id ' +
-      'FROM episode e ' +
-      'LEFT OUTER JOIN tvdb_episode te ' +
-      ' ON e.tvdb_episode_id = te.id ' +
-      'LEFT OUTER JOIN episode_rating er ' +
-      ' ON er.episode_id = e.id ' +
-      'WHERE e.series_id = $1 ' +
-      'AND e.retired = $2 ' +
-      'AND te.retired = $3 ' +
-      'ORDER BY e.season, e.episode_number ';
-
-  return db.executeQueryWithResults(response, sql, [req.query.SeriesId, 0, 0]);
-};
-
 exports.getEpisodesForRating = function(req, response) {
   console.log("Episode call received. Params: " + JSON.stringify(req.query));
   const series_id = req.query.SeriesId;

@@ -30,7 +30,6 @@ module.exports = function(app) {
   // TV
   app.get('/episodeGroupRating', authCheck, series.getEpisodeGroupRating);
   app.get('/episodeGroupRatings', authCheck, series.getEpisodeGroupRatings);
-  app.get('/episodeList', authCheck, series.getEpisodes);
   app.get('/numShowsToRate', authCheck, series.getNumberOfShowsToRate);
   app.get('/viewingLocations', authCheck, series.getViewingLocations);
   app.get('/allPosters', authCheck, series.getAllPosters);
