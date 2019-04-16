@@ -118,32 +118,18 @@ exports.getEpisodes = function(req, response) {
       'te.rating as tvdb_rating, ' +
       'te.director as tvdb_director, ' +
       'te.writer as tvdb_writer, ' +
-      'ti.deleted_date as tivo_deleted_date, ' +
-      'ti.suggestion as tivo_suggestion, ' +
-      'ti.showing_start_time as showing_start_time, ' +
-      'ti.episode_number as tivo_episode_number, ' +
-      'ti.title as tivo_title, ' +
-      'ti.description as tivo_description, ' +
-      'ti.id as tivo_episode_id,' +
-      'ti.station as tivo_station,' +
-      'ti.channel as tivo_channel,' +
-      'ti.rating as tivo_rating,' +
       'er.rating_value, ' +
       'er.review, ' +
       'er.id as rating_id ' +
       'FROM episode e ' +
       'LEFT OUTER JOIN tvdb_episode te ' +
       ' ON e.tvdb_episode_id = te.id ' +
-      'LEFT OUTER JOIN edge_tivo_episode ete ' +
-      ' ON e.id = ete.episode_id ' +
-      'LEFT OUTER JOIN tivo_episode ti ' +
-      ' ON ete.tivo_episode_id = ti.id ' +
       'LEFT OUTER JOIN episode_rating er ' +
       ' ON er.episode_id = e.id ' +
       'WHERE e.series_id = $1 ' +
       'AND e.retired = $2 ' +
       'AND te.retired = $3 ' +
-      'ORDER BY e.season, e.episode_number, ti.id';
+      'ORDER BY e.season, e.episode_number ';
 
   return db.executeQueryWithResults(response, sql, [req.query.SeriesId, 0, 0]);
 };
@@ -249,7 +235,6 @@ exports.getPrimeSeriesInfo = function(req, response) {
     'e.on_tivo, ' +
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview ' +
-    // 'ti.deleted_date as tivo_deleted_date, ' +
     // 'er.rating_value, ' +
     // 'er.review, ' +
     // 'er.id as rating_id ' +
