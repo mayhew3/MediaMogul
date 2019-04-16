@@ -112,7 +112,6 @@ exports.getEpisodes = function(req, response) {
   console.log("Episode call received. Params: " + req.query.SeriesId);
 
   var sql = 'SELECT e.*, ' +
-      'te.name as tvdb_episode_name, ' +
       'te.filename as tvdb_filename, ' +
       'te.overview as tvdb_overview, ' +
       'te.production_code as tvdb_production_code, ' +
@@ -129,9 +128,6 @@ exports.getEpisodes = function(req, response) {
       'ti.station as tivo_station,' +
       'ti.channel as tivo_channel,' +
       'ti.rating as tivo_rating,' +
-      'er.rating_funny, ' +
-      'er.rating_character, ' +
-      'er.rating_story, ' +
       'er.rating_value, ' +
       'er.review, ' +
       'er.id as rating_id ' +
@@ -167,9 +163,6 @@ exports.getEpisodesForRating = function(req, response) {
       'e.air_time, ' +
       'e.title, ' +
       'er.rating_value,\n' +
-      'er.rating_funny, ' +
-      'er.rating_story, ' +
-      'er.rating_character, ' +
       'er.review, ' +
       'er.watched_date, ' +
       'er.watched ' +
@@ -258,9 +251,6 @@ exports.getPrimeSeriesInfo = function(req, response) {
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview ' +
     // 'ti.deleted_date as tivo_deleted_date, ' +
-    // 'er.rating_funny, ' +
-    // 'er.rating_character, ' +
-    // 'er.rating_story, ' +
     // 'er.rating_value, ' +
     // 'er.review, ' +
     // 'er.id as rating_id ' +

@@ -928,7 +928,6 @@ exports.getMyEpisodes = function(request, response) {
     'e.absolute_number, ' +
     'e.streaming, ' +
     'e.on_tivo, ' +
-    'te.name as tvdb_episode_name, ' +
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview, ' +
     'te.production_code as tvdb_production_code, ' +
@@ -949,9 +948,6 @@ exports.getMyEpisodes = function(request, response) {
       'SELECT er.episode_id, ' +
       'er.watched_date,' +
       'er.watched,' +
-      'er.rating_funny,' +
-      'er.rating_character,' +
-      'er.rating_story,' +
       'er.rating_value,' +
       'er.rating_pending, ' +
       'er.review,' +
@@ -973,9 +969,6 @@ exports.getMyEpisodes = function(request, response) {
         if (ArrayService.exists(episodeMatch)) {
           episodeMatch.watched_date = episodeRating.watched_date;
           episodeMatch.watched = episodeRating.watched;
-          episodeMatch.rating_funny = episodeRating.rating_funny;
-          episodeMatch.rating_character = episodeRating.rating_character;
-          episodeMatch.rating_story = episodeRating.rating_story;
           episodeMatch.rating_value = episodeRating.rating_value;
           episodeMatch.rating_pending = episodeRating.rating_pending;
           episodeMatch.review = episodeRating.review;
@@ -1091,9 +1084,9 @@ function addRating(episodeRating) {
   console.log("Adding rating: " + JSON.stringify(episodeRating));
 
   var sql = "INSERT INTO episode_rating (episode_id, person_id, watched, watched_date, " +
-      "rating_date, rating_funny, rating_character, rating_story, rating_value, " +
+      "rating_date, rating_value, " +
       "review, date_added) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) " +
+    "VALUES ($1, $2, $3, $4, $5, $6, $7, $8) " +
     "RETURNING id";
 
   var values = [
@@ -1102,9 +1095,6 @@ function addRating(episodeRating) {
     episodeRating.watched,
     episodeRating.watched_date,
     new Date,
-    episodeRating.rating_funny,
-    episodeRating.rating_character,
-    episodeRating.rating_story,
     episodeRating.rating_value,
     episodeRating.review,
     new Date

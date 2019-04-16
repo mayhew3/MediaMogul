@@ -58,18 +58,6 @@ angular.module('mediaMogulApp')
       return self.cleanUpRating(episode.rating_value, episode.watched);
     };
 
-    self.getRatingFunny = function(episode) {
-      return self.cleanUpRating(episode.rating_funny, episode.watched);
-    };
-
-    self.getRatingCharacter = function(episode) {
-      return self.cleanUpRating(episode.rating_character, episode.watched);
-    };
-
-    self.getRatingStory = function(episode) {
-      return self.cleanUpRating(episode.rating_story, episode.watched);
-    };
-
     function isStreamingAvailable(episode) {
       return episode.streaming && !airsInTheNextXDays(episode, 0);
     }

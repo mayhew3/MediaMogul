@@ -32,9 +32,6 @@ angular.module('mediaMogulApp')
         episode_id: self.episode.id,
         person_id: LockService.person_id,
         watched: self.episode.watched,
-        rating_funny: self.episode.rating_funny,
-        rating_character: self.episode.rating_character,
-        rating_story: self.episode.rating_story,
         rating_value: self.episode.rating_value,
         review: self.episode.review,
         rating_pending: self.episode.rating_pending
@@ -44,9 +41,6 @@ angular.module('mediaMogulApp')
         episode_id: self.episode.id,
         person_id: LockService.person_id,
         watched: self.episode.watched,
-        rating_funny: self.episode.rating_funny,
-        rating_character: self.episode.rating_character,
-        rating_story: self.episode.rating_story,
         rating_value: self.episode.rating_value,
         review: self.episode.review,
         rating_pending: self.episode.rating_pending
@@ -207,9 +201,6 @@ angular.module('mediaMogulApp')
       }
 
       function updateEpisodeFields() {
-        self.episode.rating_funny = self.interfaceRating.rating_funny;
-        self.episode.rating_character = self.interfaceRating.rating_character;
-        self.episode.rating_story = self.interfaceRating.rating_story;
         self.episode.rating_value = self.interfaceRating.rating_value;
         self.episode.review = self.interfaceRating.review;
         self.episode.rating_pending = self.interfaceRating.rating_pending;

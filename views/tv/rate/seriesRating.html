@@ -141,15 +141,6 @@
               <div class="col-lg-9">
                 <span ng-bind="episode.air_time|date:ctrl.getDateFormat(episode.air_time):'America/Los_Angeles'"></span>
               </div>
-              <div class="col-lg-1" ng-style="ctrl.colorStyleMinor(ctrl.getRatingFunny(episode))">
-                <span ng-bind="ctrl.getRatingFunny(episode)"></span>
-              </div>
-              <div class="col-lg-1" ng-style="ctrl.colorStyleMinor(ctrl.getRatingCharacter(episode))">
-                <span ng-bind="ctrl.getRatingCharacter(episode)"></span>
-              </div>
-              <div class="col-lg-1" ng-style="ctrl.colorStyleMinor(ctrl.getRatingStory(episode))">
-                <span ng-bind="ctrl.getRatingStory(episode)"></span>
-              </div>
             </div>
             <div class="col-lg-12">
               <span ng-bind="episode.review"></span>

@@ -319,9 +319,6 @@ angular.module('mediaMogulApp')
       self.updateRatingFields = function(episode) {
         let optionalFields = [
           "rating_value",
-          "rating_funny",
-          "rating_character",
-          "rating_story",
           "rating_id",
           "review",
           "watched",
@@ -333,15 +330,6 @@ angular.module('mediaMogulApp')
           }
         });
 
-        if (episode.rating_funny !== null) {
-          episode.rating_funny = parseInt(episode.rating_funny);
-        }
-        if (episode.rating_character !== null) {
-          episode.rating_character = parseInt(episode.rating_character);
-        }
-        if (episode.rating_story !== null) {
-          episode.rating_story = parseInt(episode.rating_story);
-        }
         if (_.isString(episode.rating_value)) {
           episode.rating_value = parseInt(episode.rating_value);
         }
