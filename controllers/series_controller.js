@@ -108,51 +108,6 @@ exports.getAllRatingYears = function(request, response) {
   return db.executeQueryWithResults(response, sql, [0]);
 };
 
-exports.getEpisodes = function(req, response) {
-  console.log("Episode call received. Params: " + req.query.SeriesId);
-
-  var sql = 'SELECT e.*, ' +
-      'te.episode_number as tvdb_episode_number, ' +
-      'te.name as tvdb_episode_name, ' +
-      'te.filename as tvdb_filename, ' +
-      'te.overview as tvdb_overview, ' +
-      'te.production_code as tvdb_production_code, ' +
-      'te.rating as tvdb_rating, ' +
-      'te.director as tvdb_director, ' +
-      'te.writer as tvdb_writer, ' +
-      'ti.deleted_date as tivo_deleted_date, ' +
-      'ti.suggestion as tivo_suggestion, ' +
-      'ti.showing_start_time as showing_start_time, ' +
-      'ti.episode_number as tivo_episode_number, ' +
-      'ti.title as tivo_title, ' +
-      'ti.description as tivo_description, ' +
-      'ti.id as tivo_episode_id,' +
-      'ti.station as tivo_station,' +
-      'ti.channel as tivo_channel,' +
-      'ti.rating as tivo_rating,' +
-      'er.rating_funny, ' +
-      'er.rating_character, ' +
-      'er.rating_story, ' +
-      'er.rating_value, ' +
-      'er.review, ' +
-      'er.id as rating_id ' +
-      'FROM episode e ' +
-      'LEFT OUTER JOIN tvdb_episode te ' +
-      ' ON e.tvdb_episode_id = te.id ' +
-      'LEFT OUTER JOIN edge_tivo_episode ete ' +
-      ' ON e.id = ete.episode_id ' +
-      'LEFT OUTER JOIN tivo_episode ti ' +
-      ' ON ete.tivo_episode_id = ti.id ' +
-      'LEFT OUTER JOIN episode_rating er ' +
-      ' ON er.episode_id = e.id ' +
-      'WHERE e.series_id = $1 ' +
-      'AND e.retired = $2 ' +
-      'AND te.retired = $3 ' +
-      'ORDER BY e.season, e.episode_number, ti.id';
-
-  return db.executeQueryWithResults(response, sql, [req.query.SeriesId, 0, 0]);
-};
-
 exports.getEpisodesForRating = function(req, response) {
   console.log("Episode call received. Params: " + JSON.stringify(req.query));
   const series_id = req.query.SeriesId;
@@ -163,14 +118,9 @@ exports.getEpisodesForRating = function(req, response) {
       'e.id, ' +
       'e.season, ' +
       'e.episode_number, ' +
-      'e.streaming, ' +
-      'e.on_tivo, ' +
       'e.air_time, ' +
       'e.title, ' +
       'er.rating_value,\n' +
-      'er.rating_funny, ' +
-      'er.rating_story, ' +
-      'er.rating_character, ' +
       'er.review, ' +
       'er.watched_date, ' +
       'er.watched ' +
@@ -254,14 +204,11 @@ exports.getPrimeSeriesInfo = function(req, response) {
     'e.episode_number, ' +
     'e.watched_date, ' +
     'e.air_time, ' +
+
+      // todo: remove when iOS can handle it
     'e.on_tivo, ' +
-    // 'e.streaming, ' +
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview ' +
-    // 'ti.deleted_date as tivo_deleted_date, ' +
-    // 'er.rating_funny, ' +
-    // 'er.rating_character, ' +
-    // 'er.rating_story, ' +
     // 'er.rating_value, ' +
     // 'er.review, ' +
     // 'er.id as rating_id ' +
@@ -608,21 +555,6 @@ var insertSeriesViewingLocation = function(seriesId, viewingLocationId, response
       'VALUES ($1, $2, now())';
 
   return db.executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
-};
-
-exports.changeEpisodesStreaming = function(req, response) {
-  var seriesId = req.body.SeriesId;
-  var streaming = req.body.Streaming;
-
-  console.log("Updating episodes of series " + seriesId + " to streaming: " + streaming);
-
-  var sql = "UPDATE episode " +
-      "SET streaming = $1 " +
-      "WHERE series_id = $2 " +
-      "AND season <> $3 " +
-      "AND retired = $4 ";
-
-  return db.executeQueryNoResults(response, sql, [streaming, seriesId, 0, 0]);
 };
 
 exports.updateSeries = function(req, response) {

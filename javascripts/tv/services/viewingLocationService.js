@@ -9,7 +9,7 @@ angular.module('mediaMogulApp')
           if (viewingLocations.length > 0) {
             resolve(viewingLocations);
           } else {
-            $http.get('/viewingLocations').then(function (viewingResponse) {
+            $http.get('/api/viewingLocations').then(function (viewingResponse) {
               $log.debug("Found " + viewingResponse.data.length + " viewing locations.");
               viewingLocations = viewingResponse.data;
               resolve(viewingLocations);

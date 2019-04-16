@@ -93,10 +93,6 @@ angular.module('mediaMogulApp')
         return _.findWhere(self.added, {id: series.id});
       };
 
-      self.addedRecently = function(series) {
-        return _.findWhere(self.added, {id: series.id});
-      };
-
       self.open = function(series) {
         $uibModal.open({
           templateUrl: 'views/tv/seriesDetail.html',

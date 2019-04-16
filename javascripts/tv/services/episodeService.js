@@ -49,7 +49,7 @@ angular.module('mediaMogulApp')
 
       function updateMyQueueShowsList() {
         return new Promise((resolve, reject) => {
-          $http.get('/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
+          $http.get('/api/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Queue Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
             _.forEach(tempShows, formatIncomingShow);
@@ -72,7 +72,7 @@ angular.module('mediaMogulApp')
 
       function updateMyShowsListTierOne() {
         return new Promise((resolve, reject) => {
-          $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
+          $http.get('/api/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Tier 1 Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
             _.forEach(tempShows, formatIncomingShow);
@@ -90,7 +90,7 @@ angular.module('mediaMogulApp')
 
       function updateMyShowsListTierTwo() {
         return new Promise((resolve, reject) => {
-          $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 2}}).then(function (response) {
+          $http.get('/api/myShows', {params: {PersonId: LockService.person_id, Tier: 2}}).then(function (response) {
             $log.debug("Tier 2 Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
             _.forEach(tempShows, formatIncomingShow);
@@ -107,7 +107,7 @@ angular.module('mediaMogulApp')
       }
 
       function addTimerForNextAirDate() {
-        $http.get('api/nextAired', {params: {person_id: LockService.person_id}}).then(function(results) {
+        $http.get('/api/nextAired', {params: {person_id: LockService.person_id}}).then(function(results) {
           self.nextShowsToUpdate = results.data.shows;
           if (self.nextShowsToUpdate.length > 0) {
             if (self.nextTimeout) {
@@ -197,7 +197,7 @@ angular.module('mediaMogulApp')
       }
 
       self.updateMyPendingShowsList = function() {
-        return $http.get('/myPendingShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
+        return $http.get('/api/myPendingShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
           $log.debug("Shows returned " + response.data.length + " items.");
           myPendingShows = response.data;
 
@@ -207,7 +207,7 @@ angular.module('mediaMogulApp')
       };
 
       self.updateNotMyShowsList = function() {
-        return $http.get('/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
+        return $http.get('/api/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
           $log.debug("Shows returned " + response.data.length + " items.");
           let tempShows = response.data;
           tempShows.forEach(function (show) {
@@ -241,12 +241,14 @@ angular.module('mediaMogulApp')
         return new Date(combinedStr);
       };
 
-      self.getAirTime = function(episode) {
-        if (episode.air_time === null) {
-          return self.combineDateAndTime(episode.air_date, episode.seriesAirTime);
-        } else {
-          return episode.air_time;
-        }
+      self.isUnaired = function(episode) {
+        // unaired if the air time is after now.
+
+        let isNull = episode.air_time === null;
+        let diff = (new Date(episode.air_time) - new Date);
+        let hasSufficientDiff = (diff > 0);
+
+        return isNull || hasSufficientDiff;
       };
 
       self.formatAirTime = function(combinedDate) {
@@ -258,8 +260,8 @@ angular.module('mediaMogulApp')
       self.updateMyEpisodeList = function(series) {
         let deferred = $q.defer();
         let urlCalls = [];
-        urlCalls.push($http.get('/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
-        urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
+        urlCalls.push($http.get('/api/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
+        urlCalls.push($http.get('/api/seriesViewingLocations', {params: {SeriesId: series.id}}));
 
         const episodes = [];
 
@@ -279,7 +281,6 @@ angular.module('mediaMogulApp')
             $log.debug("Locations has " + series.viewingLocations.length + " rows.");
 
             episodes.forEach( function(episode) {
-              episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/'+episode.tvdb_filename : 'images/GenericEpisode.gif';
 
               episode.colorStyle = function() {
                 if (episode.watched !== true) {
@@ -316,12 +317,31 @@ angular.module('mediaMogulApp')
         return null;
       }
 
+      self.episodeColorStyle = function(episode) {
+        if (episode.watched !== true) {
+          return {};
+        } else {
+          let hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
+          let saturation = episode.rating_value === null ? "0%" : "50%";
+          return {
+            'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)',
+            'font-size': '1.6em',
+            'text-align': 'center',
+            'font-weight': '800',
+            'color': 'white'
+          }
+        }
+      };
+
+      self.getImageResolved = function(episode) {
+        return episode.tvdb_filename ?
+            'https://thetvdb.com/banners/' + episode.tvdb_filename :
+            'images/GenericEpisode.gif';
+      };
+
       self.updateRatingFields = function(episode) {
         let optionalFields = [
           "rating_value",
-          "rating_funny",
-          "rating_character",
-          "rating_story",
           "rating_id",
           "review",
           "watched",
@@ -333,15 +353,6 @@ angular.module('mediaMogulApp')
           }
         });
 
-        if (episode.rating_funny !== null) {
-          episode.rating_funny = parseInt(episode.rating_funny);
-        }
-        if (episode.rating_character !== null) {
-          episode.rating_character = parseInt(episode.rating_character);
-        }
-        if (episode.rating_story !== null) {
-          episode.rating_story = parseInt(episode.rating_story);
-        }
         if (_.isString(episode.rating_value)) {
           episode.rating_value = parseInt(episode.rating_value);
         }
@@ -369,21 +380,12 @@ angular.module('mediaMogulApp')
         return notMyShows;
       };
 
-      self.isStreaming = function(series) {
-        $log.debug("Series.ViewingLocations: " + JSON.stringify(series.viewingLocations));
-        let streamingPlatform = series.viewingLocations.find(function(viewingLocation) {
-          return viewingLocation.streaming;
-        });
-        $log.debug("Streaming Platform: " + streamingPlatform);
-        return !(streamingPlatform === undefined);
-      };
-
       self.updateEpisode = function(episodeId, changedFields) {
-        return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
+        return $http.post('/api/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
       };
 
       self.changeTier = function(SeriesId, Tier) {
-        $http.post('/changeTier', {SeriesId: SeriesId, tier: Tier});
+        $http.post('/api/changeTier', {SeriesId: SeriesId, tier: Tier});
         // todo: add some error handling.
       };
 
@@ -391,23 +393,23 @@ angular.module('mediaMogulApp')
         let changedFields = {
           tier: Tier
         };
-        return $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
+        return $http.post('/api/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
       };
 
       self.updateSeries = function(SeriesId, ChangedFields) {
         $log.debug('Received update for Series ' + SeriesId + " with data " + JSON.stringify(ChangedFields));
-        return $http.post('/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
+        return $http.post('/api/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
       };
 
       self.addSeries = function(series) {
         $log.debug("Adding series " + JSON.stringify(series));
-        return $http.post('/addSeries', {series: series});
+        return $http.post('/api/addSeries', {series: series});
       };
 
       self.addToMyShows = function(show, lastWatched) {
         $log.debug("Adding show " + JSON.stringify(show));
         // TODO: get dynamic_score back from server and update it
-        return $http.post('/addToMyShows', {
+        return $http.post('/api/addToMyShows', {
           SeriesId: show.id,
           PersonId: LockService.person_id,
           LastWatched: lastWatched
@@ -423,44 +425,37 @@ angular.module('mediaMogulApp')
 
       self.addMyEpisodeRating = function(episodeRating, seriesId) {
         $log.debug("Adding new episode rating.");
-        return $http.post('/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});
+        return $http.post('/api/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});
       };
 
       self.updateMyEpisodeRating = function(changedFields, rating_id, seriesId) {
         $log.debug("Updating existing episode rating with id: " + rating_id + ", Changed: " + JSON.stringify(changedFields));
-        return $http.post('/rateMyEpisode', {IsNew: false, ChangedFields: changedFields, RatingId: rating_id, SeriesId: seriesId, PersonId: LockService.person_id});
+        return $http.post('/api/rateMyEpisode', {IsNew: false, ChangedFields: changedFields, RatingId: rating_id, SeriesId: seriesId, PersonId: LockService.person_id});
       };
 
       self.rateMyShow = function(series, rating) {
-        return $http.post('/rateMyShow', {PersonId: LockService.person_id, SeriesId: series.id, Rating: rating});
+        return $http.post('/api/rateMyShow', {PersonId: LockService.person_id, SeriesId: series.id, Rating: rating});
       };
 
       self.addViewingLocation = function(series, episodes, viewingLocation) {
-        let wasStreamingBefore = self.isStreaming(series);
-        let changedToStreaming = !wasStreamingBefore && viewingLocation.streaming;
         series.viewingLocations.push(viewingLocation);
 
         $log.debug("Adding viewing location '" + viewingLocation.name + "' to existing series: " + series.title);
-        $http.post('/addViewingLocation', {SeriesId: series.id, ViewingLocationId: viewingLocation.id}).then(function() {
+        $http.post('/api/addViewingLocation', {SeriesId: series.id, ViewingLocationId: viewingLocation.id}).then(function() {
           $log.debug("Viewing location added.");
-          if (changedToStreaming) {
-            changeStreamingOnEpisodes(series, episodes, true);
-          }
         }, function(errResponse) {
           $log.debug("Error adding viewing location: " + errResponse);
         });
       };
 
       self.removeFromMyShows = function(show) {
-        return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
+        return $http.post('/api/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
           removeShowFromArray(show);
           addTimerForNextAirDate();
         });
       };
 
       self.removeViewingLocation = function(series, episodes, viewingLocation) {
-        let wasStreamingBefore = self.isStreaming(series);
-
         let indexOf = series.viewingLocations.findIndex(function(location) {
           return location.id === viewingLocation.id;
         });
@@ -472,42 +467,21 @@ angular.module('mediaMogulApp')
         }
 
         series.viewingLocations.splice(indexOf, 1);
-        let changedToNotStreaming = wasStreamingBefore && !self.isStreaming(series);
 
         $log.debug("Removing viewing location '" + viewingLocation.name + "' from series: " + series.title);
-        $http.post('/removeViewingLocation', {
+        $http.post('/api/removeViewingLocation', {
           SeriesId: series.id,
           ViewingLocationId: viewingLocation.id
         }).then(function () {
           $log.debug("Success.");
-
-          if (changedToNotStreaming) {
-            changeStreamingOnEpisodes(series, episodes, false);
-          }
         }, function (errResponse) {
           $log.debug("Error removing viewing location: " + errResponse);
         });
       };
 
-      function changeStreamingOnEpisodes(series, episodes, streaming) {
-        $http.post('/changeEpisodesStreaming', {SeriesId: series.id, Streaming: streaming}).then(function () {
-          $log.debug("Episodes updated to streaming: " + streaming);
-
-          episodes.forEach(function (episode) {
-            if (episode.season !== 0) {
-              episode.streaming = streaming;
-            }
-          });
-          self.updateDenorms(series, episodes);
-
-        }, function (errResponse) {
-          $log.debug("Error updating episodes: " + errResponse);
-        });
-      }
-
       self.markMyPastWatched = function(series, episodes, lastWatched) {
         return new Promise((resolve, reject) => {
-          $http.post('/markMyPastWatched', {SeriesId: series.id, LastWatched: lastWatched, PersonId: LockService.person_id}).then(function() {
+          $http.post('/api/markMyPastWatched', {SeriesId: series.id, LastWatched: lastWatched, PersonId: LockService.person_id}).then(function() {
             $log.debug("Past watched API call complete.");
             episodes.forEach(function(episode) {
               $log.debug(lastWatched + ", " + episode.absolute_number);
@@ -521,49 +495,6 @@ angular.module('mediaMogulApp')
             reject();
           });
         });
-      };
-
-      self.updateDenorms = function(series, episodes) {
-        let unwatchedEpisodes = 0;
-        let unwatchedStreaming = 0;
-        let firstUnwatched = null;
-        let now = new Date;
-
-        episodes.forEach(function(episode) {
-
-          if (!episode.retired && episode.season !== 0) {
-
-            let onTiVo = episode.on_tivo;
-            let suggestion = episode.tivo_suggestion;
-            let deleted = (episode.tivo_deleted_date !== null);
-            let watched = episode.watched;
-            let streaming = episode.streaming;
-            let airTime = episode.air_time === null ? null : new Date(episode.air_time);
-            let canWatch = (onTiVo && !deleted) || (streaming && isBefore(airTime, now));
-
-            // STILL USED
-
-            // UNWATCHED
-            if (onTiVo && !suggestion && !deleted && !watched) {
-              unwatchedEpisodes++;
-            }
-
-            // FIRST UNWATCHED EPISODE
-            if (canWatch && isBefore(airTime, firstUnwatched) && !suggestion && !watched) {
-              firstUnwatched = airTime;
-            }
-
-            // UNWATCHED STREAMING
-            if ((!onTiVo || deleted) && canWatch && !watched) {
-              unwatchedStreaming++;
-            }
-          }
-        });
-
-        series.first_unwatched = firstUnwatched;
-        series.unwatched_all = unwatchedEpisodes + unwatchedStreaming;
-
-        // Don't need to update series table with watched information.
       };
 
       self.dateHasChanged = function(originalDate, updatedDate) {

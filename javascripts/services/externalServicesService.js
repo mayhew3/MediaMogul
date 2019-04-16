@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('ExternalServicesService', ['$log', '$http', 'ArrayService',
-    function($log, $http, ArrayService) {
+  .service('ExternalServicesService', ['$log', '$http', 'ArrayService', 'LockService',
+    function($log, $http, ArrayService, LockService) {
       const self = this;
 
       self.externalServices = [];
@@ -19,7 +19,8 @@ angular.module('mediaMogulApp')
 
         });
       };
-      self.updateExternalServices();
+
+      LockService.addCallback(self.updateExternalServices);
 
       function addOrReplaceExternalService(externalService) {
         const matching = _.findWhere(self.externalServices, {id: externalService.id});

@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .service('NavHelperService', [NavHelperService]);
 function NavHelperService() {
-  var self = this;
+  const self = this;
 
   /* TOP-LEVEL NAV */
 

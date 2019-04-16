@@ -25,23 +25,6 @@ exports.getPersons = function(request, response) {
   return db.executeQueryWithResults(response, sql, [0]);
 };
 
-exports.addPerson = function(request, response) {
-  var person = request.body.Person;
-
-  var sql = "INSERT INTO person " +
-          "(email, first_name, last_name) " +
-          "VALUES ($1, $2, $3) " +
-          "RETURNING id ";
-  var values = [
-    person.email,
-    person.first_name,
-    person.last_name
-  ];
-
-  // return data because it contains the new row id. (RETURNING id is in the sql)
-  return db.executeQueryWithResults(response, sql, values);
-};
-
 exports.getMyPendingShows = function(request, response) {
   var personId = request.query.PersonId;
   console.log("Server call: Person " + personId);
@@ -560,28 +543,6 @@ exports.getNextAiredInfo = function(request, response) {
   });
 };
 
-exports.myShowsForAdd = function(request, response) {
-  var personId = request.query.PersonId;
-  console.log("Server call: Person " + personId);
-
-  const sql = 'SELECT s.id, ' +
-    's.tvdb_series_ext_id, ' +
-    's.tvdb_match_status ' +
-    'FROM series s ' +
-    'INNER JOIN person_series ps ' +
-    '  ON ps.series_id = s.id ' +
-    'WHERE ps.person_id = $1 ' +
-    'AND s.retired = $2 ' +
-    'AND ps.retired = $2 ';
-
-  const values = [
-    personId,
-    0
-  ];
-
-  db.executeQueryWithResults(response, sql, values);
-};
-
 exports.seriesRequest = function(request, response) {
   const series_request = request.body.seriesRequest;
 
@@ -783,35 +744,6 @@ function stoppedMidseason(nextEpisode) {
 }
 
 
-exports.getShowBasicInfo = function(request, response) {
-  var sql =
-    "SELECT id, title, poster, cloud_poster " +
-    "FROM series " +
-    "WHERE retired = $1";
-
-  return db.executeQueryWithResults(response, sql, [0]);
-};
-
-exports.getMyUpcomingEpisodes = function(request, response) {
-  var personId = request.query.PersonId;
-
-  var sql = "SELECT e.series_id, e.title, e.season, e.episode_number, e.air_date, e.air_time " +
-    "FROM episode e " +
-    "INNER JOIN series s " +
-    "  ON e.series_id = s.id " +
-    "INNER JOIN person_series ps " +
-    "  ON ps.series_id = s.id " +
-    "WHERE ps.person_id = $1 " +
-    "AND e.air_time is not null " +
-    "AND e.air_time >= current_timestamp " +
-    "AND e.season <> $2 " +
-    "AND e.retired = $3 " +
-    "AND ps.tier = $4 " +
-    "ORDER BY e.air_time ASC;";
-
-  return db.executeQueryWithResults(response, sql, [personId, 0, 0, 1]);
-};
-
 exports.addToMyShows = function(request, response) {
   const personId = request.body.PersonId;
   const seriesId = request.body.SeriesId;
@@ -922,15 +854,10 @@ exports.getMyEpisodes = function(request, response) {
   var sql = 'SELECT e.id, ' +
     'e.air_date, ' +
     'e.air_time, ' +
-    'e.series_title, ' +
     'e.title, ' +
     'e.season, ' +
     'e.episode_number, ' +
     'e.absolute_number, ' +
-    'e.streaming, ' +
-    'e.on_tivo, ' +
-    'te.episode_number as tvdb_episode_number, ' +
-    'te.name as tvdb_episode_name, ' +
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview, ' +
     'te.production_code as tvdb_production_code, ' +
@@ -951,9 +878,6 @@ exports.getMyEpisodes = function(request, response) {
       'SELECT er.episode_id, ' +
       'er.watched_date,' +
       'er.watched,' +
-      'er.rating_funny,' +
-      'er.rating_character,' +
-      'er.rating_story,' +
       'er.rating_value,' +
       'er.rating_pending, ' +
       'er.review,' +
@@ -975,9 +899,6 @@ exports.getMyEpisodes = function(request, response) {
         if (ArrayService.exists(episodeMatch)) {
           episodeMatch.watched_date = episodeRating.watched_date;
           episodeMatch.watched = episodeRating.watched;
-          episodeMatch.rating_funny = episodeRating.rating_funny;
-          episodeMatch.rating_character = episodeRating.rating_character;
-          episodeMatch.rating_story = episodeRating.rating_story;
           episodeMatch.rating_value = episodeRating.rating_value;
           episodeMatch.rating_pending = episodeRating.rating_pending;
           episodeMatch.review = episodeRating.review;
@@ -1093,9 +1014,9 @@ function addRating(episodeRating) {
   console.log("Adding rating: " + JSON.stringify(episodeRating));
 
   var sql = "INSERT INTO episode_rating (episode_id, person_id, watched, watched_date, " +
-      "rating_date, rating_funny, rating_character, rating_story, rating_value, " +
+      "rating_date, rating_value, " +
       "review, date_added) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) " +
+    "VALUES ($1, $2, $3, $4, $5, $6, $7, $8) " +
     "RETURNING id";
 
   var values = [
@@ -1104,9 +1025,6 @@ function addRating(episodeRating) {
     episodeRating.watched,
     episodeRating.watched_date,
     new Date,
-    episodeRating.rating_funny,
-    episodeRating.rating_character,
-    episodeRating.rating_story,
     episodeRating.rating_value,
     episodeRating.review,
     new Date
@@ -1199,8 +1117,18 @@ exports.markEpisodesWatched = function(request, response) {
 exports.getSystemVars = function(request, response) {
   console.log("Getting system vars.");
 
-  var sql = "SELECT * FROM system_vars";
-  return db.executeQueryWithResults(response, sql, []);
+  const sql = "SELECT * FROM system_vars";
+  db.selectWithJSON(sql, []).then(results => {
+    if (results.length !== 1) {
+      response.error({msg: 'Unexpected number of system_vars.'});
+      throw new Error("Should have exactly one row in system_vars.");
+    }
+
+    const systemVars = results[0];
+    systemVars.envName = process.env.envName;
+
+    response.json(systemVars);
+  });
 };
 
 exports.increaseYear = function(request, response) {
@@ -1247,15 +1175,6 @@ exports.revertYear = function(request, response) {
 
   });
 };
-
-exports.setRatingEndDate = function(request, response) {
-  var ratingEndDate = request.body.RatingEndDate;
-  console.log("Changing rating end date to " + ratingEndDate);
-
-  var sql = "UPDATE system_vars SET rating_end_date = $1 ";
-  return db.executeQueryNoResults(response, sql, [ratingEndDate]);
-};
-
 
 exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications) {
   return new Promise(function(resolve) {

@@ -1,10 +1,13 @@
 angular.module('mediaMogulApp')
-  .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper', '__env', '$q',
-    function ($log, $http, store, $location, jwtHelper, __env, $q) {
+  .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper', '__env',
+    '$q', 'ArrayService',
+    function ($log, $http, store, $location, jwtHelper, __env, $q, ArrayService) {
 
       const self = this;
       self.user_role = 'none';
       let tokenRenewalTimeout;
+
+      const afterLoginCallbacks = [];
 
       const token = store.get('token');
       self.isAuthenticated = token && !jwtHelper.isTokenExpired(token);
@@ -36,6 +39,19 @@ angular.module('mediaMogulApp')
         }
       };
 
+      self.addCallback = function(callback) {
+        if (self.isAuthenticated) {
+          callback();
+        } else {
+          afterLoginCallbacks.push(callback);
+        }
+      };
+
+      function executeAfterLoginCallbacks() {
+        _.forEach(afterLoginCallbacks, callback => callback());
+        ArrayService.emptyArray(afterLoginCallbacks);
+      }
+
       self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
       
       console.log("Listeners being added.");
@@ -45,6 +61,7 @@ angular.module('mediaMogulApp')
           console.log('Authenticated!', authResult);
           self.isAuthenticated = true;
           self.setSession(authResult, function() {
+            executeAfterLoginCallbacks();
             $location.path('/tv/shows/main');
           });
         }
@@ -79,7 +96,9 @@ angular.module('mediaMogulApp')
             if (authResult.accessToken && authResult.idToken) {
               console.log('Authentication renewed!', authResult);
               self.isAuthenticated = true;
-              self.setSession(authResult, function () {});
+              self.setSession(authResult, function () {
+                executeAfterLoginCallbacks();
+              });
               deferred.resolve();
               return deferred.promise;
             }
@@ -142,7 +161,7 @@ angular.module('mediaMogulApp')
       function syncPersonWithDB(idTokenPayload, callback) {
         var email = idTokenPayload.email;
 
-        $http.get('/person', {params: {email: email}}).then(function (response) {
+        $http.get('/api/person', {params: {email: email}}).then(function (response) {
           var personData = response.data;
 
           if (personData.length === 0) {

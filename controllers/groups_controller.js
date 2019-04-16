@@ -249,7 +249,7 @@ exports.getGroupEpisodes = function(request, response) {
     'ORDER BY e.season, e.episode_number';
 
   db.selectWithJSON(sql, [series_id, 0, 0]).then(function (episodeResult) {
-    const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped, tge.skip_reason " +
+    const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped " +
       "FROM tv_group_episode tge " +
       "INNER JOIN episode e " +
       "  ON tge.episode_id = e.id " +
@@ -295,7 +295,6 @@ exports.getGroupEpisodes = function(request, response) {
             episodeMatch.watched_date = groupEpisode.watched_date;
             episodeMatch.watched = groupEpisode.watched;
             episodeMatch.skipped = groupEpisode.skipped;
-            episodeMatch.skip_reason = groupEpisode.skip_reason;
             episodeMatch.tv_group_episode_id = groupEpisode.id;
           }
         });
@@ -442,8 +441,8 @@ function addOrEditTVGroupEpisode(request) {
 }
 
 function addTVGroupEpisode(tv_group_episode) {
-  const sql = "INSERT INTO tv_group_episode (tv_group_id, episode_id, watched, watched_date, skipped, skip_reason, date_added) " +
-    "VALUES ($1, $2, $3, $4, $5, $6, $7) " +
+  const sql = "INSERT INTO tv_group_episode (tv_group_id, episode_id, watched, watched_date, skipped, date_added) " +
+    "VALUES ($1, $2, $3, $4, $5, $6) " +
     "RETURNING id ";
 
   const values = [
@@ -452,7 +451,6 @@ function addTVGroupEpisode(tv_group_episode) {
     tv_group_episode.watched,
     tv_group_episode.watched_date,
     tv_group_episode.skipped,
-    tv_group_episode.skip_reason,
     new Date
   ];
 
@@ -479,14 +477,13 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
     const lastWatched = payload.last_watched;
     const tv_group_id = payload.tv_group_id;
     const watched = payload.watched;
-    const skip_reason = payload.skip_reason;
 
     const watched_or_skipped = watched ? "watched" : "skipped";
 
     console.log("Updating tv_group_episodes as " + watched_or_skipped + ", before episode " + lastWatched);
 
     const sql = 'UPDATE tv_group_episode ' +
-      "SET watched = $1, watched_date = $2, skipped = $3, skip_reason = $4 " +
+      "SET watched = $1, watched_date = $2, skipped = $3 " +
       'WHERE watched = $5 ' +
       'AND skipped = $6 ' +
       'AND tv_group_id = $7 ' +
@@ -496,26 +493,25 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
       'AND e.absolute_number IS NOT NULL ' +
       'AND e.absolute_number < $9 ' +
       'AND e.season <> $10 ' +
-      'AND retired = $11) ';
+      'AND retired = $4) ';
 
 
     const values = [
       watched,             // watched or skipped
       null,             // !watched or skipped
       !watched,
-      skip_reason,
+      0,                // retired
       false,            // !watched
       false,            // !skipped
       tv_group_id,         // person_id
       series_id,         // series_id
       lastWatched,      // absolute_number <
-      0,                // season
       0                 // retired
     ];
 
     return db.updateNoJSON(sql, values).then(function() {
-      const sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, skip_reason, date_added) " +
-        "SELECT e.id, $1, $2, $3, $4, now() " +
+      const sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, date_added) " +
+        "SELECT e.id, $1, $2, $3, now() " +
         "FROM episode e " +
         "WHERE e.series_id = $5 " +
         "AND e.retired = $6 " +
@@ -525,18 +521,17 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
         "AND e.id NOT IN (SELECT tge.episode_id " +
         "FROM tv_group_episode tge " +
         "WHERE tge.tv_group_id = $9" +
-        "AND tge.retired = $10)";
+        "AND tge.retired = $4)";
       const values = [
         tv_group_id,                         // person
         watched,  // watched
         !watched,  // skipped
-        skip_reason,                        // skip_reason
+        0,                                  // retired
         series_id,                          // series
         0,                                  // retired
         lastWatched,                        // absolute number
         0,                                  // !season
-        tv_group_id,                        // person
-        0                                   // retired
+        tv_group_id                         // person
       ];
 
       db.updateNoJSON(sql, values).then(function() {

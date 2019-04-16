@@ -48,14 +48,9 @@ angular.module('mediaMogulApp')
 
     self.onSeasonSelect = function() {
       self.currentPage = 1;
-      const nextUp = _.filter(self.episodes, episode => {
-        return self.episodeFilter(episode) && episode.nextUp;
-      });
-      if (nextUp.length > 0) {
-        const nextEpisode = nextUp[0];
-        const nextEpisodeNumber = nextEpisode.episode_number;
-        self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
-      }
+      const nextEpisode = self.nextUp;
+      const nextEpisodeNumber = nextEpisode.episode_number;
+      self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
     };
 
     self.selectSeason = function(season) {
@@ -80,29 +75,37 @@ angular.module('mediaMogulApp')
         !self.shouldHide(episode);
     }
 
+
+
     function updateNextUp() {
 
-      self.episodes.forEach(function(episode) {
-        episode.nextUp = false;
-      });
+      self.nextUp = null;
 
-      var unwatchedEpisodes = self.episodes.filter(function (episode) {
+      const unwatchedEpisodes = self.episodes.filter(function (episode) {
         return isUnwatchedEpisode(episode);
       });
 
       if (unwatchedEpisodes.length > 0) {
-        var firstUnwatched = unwatchedEpisodes[0];
+        const firstUnwatched = unwatchedEpisodes[0];
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
-        if (!firstUnwatched.unaired) {
-          firstUnwatched.nextUp = true;
+        if (!self.isUnaired(firstUnwatched)) {
+          self.nextUp = firstUnwatched;
         }
       }
     }
 
+    self.isUnaired = function(episode) {
+      return EpisodeService.isUnaired(episode);
+    };
+
+    function isNextUp(episode) {
+      return ArrayService.exists(self.nextUp) && episode.id === self.nextUp.id;
+    }
+
     self.rowClass = function(episode) {
-      if (episode.nextUp) {
+      if (isNextUp(episode)) {
         return "nextUpRow";
-      } else if (episode.unaired) {
+      } else if (self.isUnaired(episode)) {
         return "unairedRow";
       } else if (episode.skipped) {
         return "skippedRow"
@@ -148,13 +151,6 @@ angular.module('mediaMogulApp')
         if (season !== null && seasonDoesNotExist(season) && !self.shouldHide(episode)) {
           self.possibleSeasons.push(seasonObj);
         }
-        if (isUnaired(episode)) {
-          episode.unaired = true;
-        }
-
-        episode.imageResolved = episode.tvdb_filename ?
-          'https://thetvdb.com/banners/' + episode.tvdb_filename :
-          'images/GenericEpisode.gif';
       });
 
       var unwatchedEpisodes = self.episodes.filter(function (episode) {
@@ -167,8 +163,8 @@ angular.module('mediaMogulApp')
         var firstUnwatched = unwatchedEpisodes[0];
         self.selectedSeason.label = firstUnwatched.season;
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
-        if (!firstUnwatched.unaired) {
-          firstUnwatched.nextUp = true;
+        if (!self.isUnaired(firstUnwatched)) {
+          self.nextUp = firstUnwatched;
           self.onSeasonSelect();
         }
       } else {
@@ -263,29 +259,6 @@ angular.module('mediaMogulApp')
     };
 
 
-    self.getLabelInfo = function(episode) {
-      if (episode.on_tivo) {
-        if (episode.tivo_deleted_date) {
-          return {labelClass: "label label-default", labelText: "Deleted"};
-        } else if (episode.tivo_suggestion === true) {
-          return {labelClass: "label label-warning", labelText: "Suggestion"};
-        } else {
-          return {labelClass: "label label-info", labelText: "Recorded"};
-        }
-      } else if (episode.streaming) {
-        if (isUnaired(episode)) {
-          return {labelClass: "label label-danger", labelText: "Unaired"};
-        } else {
-          return {labelClass: "label label-success", labelText: "Streaming"};
-        }
-      } else {
-        if (isUnaired(episode)) {
-          return {labelClass: "label label-danger", labelText: "Unaired"};
-        }
-        return null;
-      }
-    };
-
     self.getWatchedDateOrWatched = function(episode) {
       // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
       if (episode.watched_date === null) {
@@ -300,16 +273,6 @@ angular.module('mediaMogulApp')
         return $filter('date')(episode.watched_date, self.getDateFormat(episode.watched_date), 'America/Los_Angeles');
       }
     };
-
-    function isUnaired(episode) {
-      // unaired if the air time is after now.
-
-      var isNull = episode.air_time === null;
-      var diff = (new Date(episode.air_time) - new Date);
-      var hasSufficientDiff = (diff > 0);
-
-      return isNull || hasSufficientDiff;
-    }
 
     self.episodeFilter = function(episode) {
       return episode.season === self.selectedSeason.label && !self.shouldHide(episode);
@@ -342,7 +305,6 @@ angular.module('mediaMogulApp')
             episode.watched = episodeFields.watched;
             episode.watched_date = null;
             episode.skipped = episodeFields.skipped;
-            episode.skip_reason = episodeFields.skip_reason;
           }
         }
       });

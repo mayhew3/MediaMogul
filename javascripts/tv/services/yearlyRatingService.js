@@ -9,7 +9,7 @@ angular.module('mediaMogulApp')
       const self = this;
 
       self.updateRatingYears = function() {
-        return $http.get('/ratingYears').then(function (response) {
+        return $http.get('/api/ratingYears').then(function (response) {
           response.data.forEach(function(row) {
             if (!_.contains(allRatingYears, row.year)) {
               allRatingYears.push(row.year);
@@ -20,14 +20,8 @@ angular.module('mediaMogulApp')
 
       self.updateSystemVars = function() {
         if (_.isUndefined(ratingYear)) {
-          return $http.get('/systemVars').then(function (response) {
-            var numberOfRows = response.data.length;
-            if (numberOfRows !== 1) {
-              $log.debug(numberOfRows + " rows found in system_vars.");
-              return;
-            }
-
-            var systemVars = response.data[0];
+          return $http.get('/api/systemVars').then(function (response) {
+            const systemVars = response.data;
             ratingYear = systemVars.rating_year;
             ratingEndDate = systemVars.rating_end_date === null ? null : new Date(systemVars.rating_end_date);
             console.log("System vars: Year " + ratingYear + ", End Date " + ratingEndDate);
@@ -38,7 +32,7 @@ angular.module('mediaMogulApp')
       };
 
       self.updateNumberOfShowsToRate = function(year) {
-        return $http.get('/numShowsToRate', {params: {Year: year}}).then(function (response) {
+        return $http.get('/api/numShowsToRate', {params: {Year: year}}).then(function (response) {
           numberOfShowsToRate = response.data[0].num_shows;
           console.log('Number of shows to rate: ' + numberOfShowsToRate);
         });
@@ -69,7 +63,7 @@ angular.module('mediaMogulApp')
       };
 
       self.updateEpisodeGroupRatings = function(year) {
-        return $http.get('/episodeGroupRatings', {params: {Year: year}}).then(function (groupResponse) {
+        return $http.get('/api/episodeGroupRatings', {params: {Year: year}}).then(function (groupResponse) {
           let tempShows = groupResponse.data;
           $log.debug("Series returned for year " + year + ": " + tempShows.length);
           episodeGroupRatings = tempShows;
@@ -78,7 +72,7 @@ angular.module('mediaMogulApp')
 
       self.getEpisodeListForRating = function(episodeRatingGroup) {
         return new Promise((resolve, reject) => {
-          $http.get('/episodeListForRating', {params: {
+          $http.get('/api/episodeListForRating', {params: {
               SeriesId: episodeRatingGroup.series_id,
               PersonId: LockService.person_id,
               Year: episodeRatingGroup.year
@@ -88,7 +82,6 @@ angular.module('mediaMogulApp')
             $log.debug(episodes.length + " episodes found for series " + episodeRatingGroup.title);
 
             episodes.forEach( function(episode) {
-              episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/' + episode.tvdb_filename : 'images/GenericEpisode.gif';
               EpisodeService.updateRatingFields(episode);
             });
 
@@ -107,23 +100,23 @@ angular.module('mediaMogulApp')
 
       self.updateEpisodeGroupRating = function(episodeGroupRatingId, changedFields) {
         $log.debug('Received update for EpisodeGroupRating ' + episodeGroupRatingId + " with data " + JSON.stringify(changedFields));
-        return $http.post('/updateEpisodeGroupRating', {EpisodeGroupRatingId: episodeGroupRatingId, ChangedFields: changedFields});
+        return $http.post('/api/updateEpisodeGroupRating', {EpisodeGroupRatingId: episodeGroupRatingId, ChangedFields: changedFields});
       };
 
       self.addEpisodeGroupRating = function(episodeGroupRating) {
         $log.debug('Received add for EpisodeGroupRating ' + JSON.stringify(episodeGroupRating));
-        return $http.post('/addEpisodeGroupRating', {EpisodeGroupRating: episodeGroupRating});
+        return $http.post('/api/addEpisodeGroupRating', {EpisodeGroupRating: episodeGroupRating});
       };
 
       self.increaseYear = function() {
-        return $http.post('/increaseYear').then(function () {
+        return $http.post('/api/increaseYear').then(function () {
           ratingYear++;
           ratingEndDate = null;
         });
       };
 
       self.revertYear = function(endDate) {
-        return $http.post('/revertYear', {EndDate: endDate}).then(function () {
+        return $http.post('/api/revertYear', {EndDate: endDate}).then(function () {
           ratingYear--;
           ratingEndDate = endDate;
         });
@@ -163,7 +156,7 @@ angular.module('mediaMogulApp')
 
       self.updateEpisodeGroupRatingWithNewRating = function(series, episodes) {
         self.updateSystemVars().then(function() {
-          $http.get('/episodeGroupRating', {params: {Year: ratingYear, SeriesId: series.id}}).then(function (response) {
+          $http.get('/api/episodeGroupRating', {params: {Year: ratingYear, SeriesId: series.id}}).then(function (response) {
             let episodeGroupRating = response.data[0];
             let insertingNewRating = false;
             console.log("Got episode group rating: " + JSON.stringify(episodeGroupRating));

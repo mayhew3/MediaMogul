@@ -112,14 +112,6 @@ angular.module('mediaMogulApp')
         return _.findWhere(self.added, {id: series.id});
       };
 
-      self.addSeriesCallback = function(show) {
-        self.added.push(show);
-      };
-
-      self.addedRecently = function(series) {
-        return _.findWhere(self.added, {id: series.id});
-      };
-
       self.open = function(series) {
         $uibModal.open({
           templateUrl: 'views/tv/seriesDetail.html',

@@ -16,7 +16,7 @@
       <!-- Episode Image -->
       <div class="form-group col-lg-6">
         <img class="img-rounded"
-             ng-src="{{ctrl.episode.imageResolved}}"
+             ng-src="{{ctrl.getImageResolved()}}"
              width="100%"/>
       </div>
 
@@ -139,16 +139,6 @@
                       ng-click="ctrl.changeSkipped()">
                 Skipped
               </button>
-            </div>
-          </div>
-
-          <div class="row" style="margin-top: 15px" ng-show="ctrl.interfaceFields.skipped">
-            <div class="col-lg-6">
-              <input type="text"
-                     id="SkipReason"
-                     placeholder="Reason"
-                     class="darkInput form-control"
-                     ng-model="ctrl.interfaceFields.skip_reason">
             </div>
           </div>
 
