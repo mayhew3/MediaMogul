@@ -151,10 +151,6 @@ angular.module('mediaMogulApp')
         if (season !== null && seasonDoesNotExist(season) && !self.shouldHide(episode)) {
           self.possibleSeasons.push(seasonObj);
         }
-
-        episode.imageResolved = episode.tvdb_filename ?
-          'https://thetvdb.com/banners/' + episode.tvdb_filename :
-          'images/GenericEpisode.gif';
       });
 
       var unwatchedEpisodes = self.episodes.filter(function (episode) {

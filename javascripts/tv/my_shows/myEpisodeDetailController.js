@@ -200,6 +200,10 @@ angular.module('mediaMogulApp')
         }
       }
 
+      self.getImageResolved = function() {
+        return EpisodeService.getImageResolved(self.episode);
+      };
+
       function updateEpisodeFields() {
         self.episode.rating_value = self.interfaceRating.rating_value;
         self.episode.review = self.interfaceRating.review;

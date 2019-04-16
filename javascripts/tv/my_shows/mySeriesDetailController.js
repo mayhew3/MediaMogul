@@ -281,7 +281,7 @@ angular.module('mediaMogulApp')
 
     self.clearPending = function() {
       const pending = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending));
-      pending.forEach(episode => episode.watched_pending = undefined);
+      pending.forEach(episode => delete episode.watched_pending);
     };
 
     self.toggleMultiAndPrevious = function(targetEpisode) {

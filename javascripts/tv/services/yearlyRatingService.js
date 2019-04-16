@@ -88,7 +88,6 @@ angular.module('mediaMogulApp')
             $log.debug(episodes.length + " episodes found for series " + episodeRatingGroup.title);
 
             episodes.forEach( function(episode) {
-              episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/' + episode.tvdb_filename : 'images/GenericEpisode.gif';
               EpisodeService.updateRatingFields(episode);
             });
 

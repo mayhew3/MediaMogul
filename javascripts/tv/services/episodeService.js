@@ -290,7 +290,6 @@ angular.module('mediaMogulApp')
             $log.debug("Locations has " + series.viewingLocations.length + " rows.");
 
             episodes.forEach( function(episode) {
-              episode.imageResolved = episode.tvdb_filename ? 'https://thetvdb.com/banners/'+episode.tvdb_filename : 'images/GenericEpisode.gif';
 
               episode.colorStyle = function() {
                 if (episode.watched !== true) {
@@ -326,6 +325,12 @@ angular.module('mediaMogulApp')
         }
         return null;
       }
+
+      self.getImageResolved = function(episode) {
+        return episode.tvdb_filename ?
+            'https://thetvdb.com/banners/' + episode.tvdb_filename :
+            'images/GenericEpisode.gif';
+      };
 
       self.updateRatingFields = function(episode) {
         let optionalFields = [

@@ -236,6 +236,9 @@ angular.module('mediaMogulApp')
         }
       }
 
+      self.getImageResolved = function() {
+        return EpisodeService.getImageResolved(self.episode);
+      };
 
       self.updateAndClose = function() {
         self.updateOrAddRating()
