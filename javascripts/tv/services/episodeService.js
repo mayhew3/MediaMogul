@@ -222,9 +222,6 @@ angular.module('mediaMogulApp')
       };
 
       self.updateNumericFields = function(show) {
-        if (show.tier !== null) {
-          show.tier = parseInt(show.tier);
-        }
         if (show.my_tier !== null) {
           show.my_tier = parseInt(show.my_tier);
         }
