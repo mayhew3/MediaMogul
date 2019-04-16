@@ -263,29 +263,6 @@ angular.module('mediaMogulApp')
     };
 
 
-    self.getLabelInfo = function(episode) {
-      if (episode.on_tivo) {
-        if (episode.tivo_deleted_date) {
-          return {labelClass: "label label-default", labelText: "Deleted"};
-        } else if (episode.tivo_suggestion === true) {
-          return {labelClass: "label label-warning", labelText: "Suggestion"};
-        } else {
-          return {labelClass: "label label-info", labelText: "Recorded"};
-        }
-      } else if (episode.streaming) {
-        if (isUnaired(episode)) {
-          return {labelClass: "label label-danger", labelText: "Unaired"};
-        } else {
-          return {labelClass: "label label-success", labelText: "Streaming"};
-        }
-      } else {
-        if (isUnaired(episode)) {
-          return {labelClass: "label label-danger", labelText: "Unaired"};
-        }
-        return null;
-      }
-    };
-
     self.getWatchedDateOrWatched = function(episode) {
       // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
       if (episode.watched_date === null) {
@@ -342,7 +319,6 @@ angular.module('mediaMogulApp')
             episode.watched = episodeFields.watched;
             episode.watched_date = null;
             episode.skipped = episodeFields.skipped;
-            episode.skip_reason = episodeFields.skip_reason;
           }
         }
       });

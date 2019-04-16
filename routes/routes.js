@@ -57,7 +57,6 @@ module.exports = function(app) {
   app.post('/addEpisodeGroupRating', authCheck, series.addEpisodeGroupRating);
   app.post('/addViewingLocation', authCheck, series.addViewingLocation);
   app.post('/removeViewingLocation', authCheck, series.removeViewingLocation);
-  app.post('/changeEpisodesStreaming', authCheck, series.changeEpisodesStreaming);
   app.post('/api/handleSeriesRequest', authCheck, series.handleSeriesRequest);
 
   // PERSONS

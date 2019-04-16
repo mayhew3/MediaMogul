@@ -25,14 +25,12 @@ angular.module('mediaMogulApp')
       // leave watched_date out of the interface fields because I want to use a date comparison before adding to changedFields.
       self.originalFields = {
         watched: self.episode.watched,
-        skipped: self.episode.skipped,
-        skip_reason: self.episode.skip_reason
+        skipped: self.episode.skipped
       };
 
       self.interfaceFields = {
         watched: self.episode.watched,
-        skipped: self.episode.skipped,
-        skip_reason: self.episode.skip_reason
+        skipped: self.episode.skipped
       };
 
       self.updateOrAddRating = function() {
@@ -83,7 +81,6 @@ angular.module('mediaMogulApp')
       self.changeWatched = function() {
         $log.debug("On Change Watched");
         self.interfaceFields.skipped = false;
-        self.interfaceFields.skip_reason = null;
         self.allPastEpisodes = false;
 
         if (self.interfaceFields.watched) {
@@ -102,7 +99,6 @@ angular.module('mediaMogulApp')
         self.interfaceFields.watched = false;
         self.watched_date = null;
         self.allPastEpisodes = false;
-        self.interfaceFields.skip_reason = null;
       };
 
       self.anyRatingChanged = function() {
@@ -228,7 +224,6 @@ angular.module('mediaMogulApp')
         self.episode.watched = self.interfaceFields.watched;
         self.episode.watched_date = self.watched_date;
         self.episode.skipped = self.interfaceFields.skipped;
-        self.episode.skip_reason = self.interfaceFields.skip_reason;
 
         if (self.episode.watched === true || self.episode.skipped === true) {
           self.episode.nextUp = false;
@@ -263,8 +258,7 @@ angular.module('mediaMogulApp')
         if (self.allPastEpisodes) {
           allPastWatchedCallback(self.episode.absolute_number, {
             watched: self.interfaceFields.watched,
-            skipped: self.interfaceFields.skipped,
-            skip_reason: self.interfaceFields.skip_reason
+            skipped: self.interfaceFields.skipped
           });
           return $http.post('/api/watchPastGroupEpisodes', {
             series_id: self.series.id,
@@ -272,7 +266,6 @@ angular.module('mediaMogulApp')
             tv_group_id: self.group.id,
             watched: self.interfaceFields.watched,
             skipped: self.interfaceFields.skipped,
-            skip_reason: self.interfaceFields.skip_reason,
             person_ids: extractMemberIds()
           });
         } else {

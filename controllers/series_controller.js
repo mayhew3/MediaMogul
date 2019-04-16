@@ -158,8 +158,6 @@ exports.getEpisodesForRating = function(req, response) {
       'e.id, ' +
       'e.season, ' +
       'e.episode_number, ' +
-      'e.streaming, ' +
-      'e.on_tivo, ' +
       'e.air_time, ' +
       'e.title, ' +
       'er.rating_value,\n' +
@@ -246,8 +244,9 @@ exports.getPrimeSeriesInfo = function(req, response) {
     'e.episode_number, ' +
     'e.watched_date, ' +
     'e.air_time, ' +
+
+      // todo: remove when iOS can handle it
     'e.on_tivo, ' +
-    // 'e.streaming, ' +
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview ' +
     // 'ti.deleted_date as tivo_deleted_date, ' +
@@ -597,21 +596,6 @@ var insertSeriesViewingLocation = function(seriesId, viewingLocationId, response
       'VALUES ($1, $2, now())';
 
   return db.executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
-};
-
-exports.changeEpisodesStreaming = function(req, response) {
-  var seriesId = req.body.SeriesId;
-  var streaming = req.body.Streaming;
-
-  console.log("Updating episodes of series " + seriesId + " to streaming: " + streaming);
-
-  var sql = "UPDATE episode " +
-      "SET streaming = $1 " +
-      "WHERE series_id = $2 " +
-      "AND season <> $3 " +
-      "AND retired = $4 ";
-
-  return db.executeQueryNoResults(response, sql, [streaming, seriesId, 0, 0]);
 };
 
 exports.updateSeries = function(req, response) {

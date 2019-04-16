@@ -199,8 +199,8 @@
                     <td ng-bind="episode.title" class="episodeDescription"></td>
                     <td ng-bind="episode.air_time|date:ctrl.getDateFormat(episode.air_time):'America/Los_Angeles'"></td>
                     <td ng-style="episode.colorStyle()" width="70">
-              <span ng-bind="episode.rating_value"
-                    ng-show="!ctrl.shouldShowRate(episode)"></span>
+                      <span ng-bind="episode.rating_value"
+                            ng-show="!ctrl.shouldShowRate(episode)"></span>
                     </td>
                   </tr>
                 </table>
@@ -248,30 +248,6 @@
         <div ng-show="ctrl.episode.tvdb_rating !== null && ctrl.episode.tvdb_rating > 0.0">
           <h3>TVDB Rating</h3>
           <span ng-bind="ctrl.episode.tvdb_rating"></span>
-        </div>
-
-      </div>
-
-      <!-- TiVo Info-->
-      <div class="form-group col-lg-6" ng-show="ctrl.episode.on_tivo">
-
-
-        <!-- Station -->
-        <div ng-show="ctrl.episode.tivo_station !== null">
-          <h3>Station</h3>
-          <span ng-bind="ctrl.episode.tivo_station"></span>
-        </div>
-
-        <!-- Channel -->
-        <div ng-show="ctrl.episode.tivo_channel !== null">
-          <h3>Channel</h3>
-          <span ng-bind="ctrl.episode.tivo_channel"></span>
-        </div>
-
-        <!-- Rating -->
-        <div ng-show="ctrl.episode.tivo_rating !== null">
-          <h3>Rating</h3>
-          <span ng-bind="ctrl.episode.tivo_rating"></span>
         </div>
 
       </div>

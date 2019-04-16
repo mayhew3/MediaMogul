@@ -397,29 +397,6 @@ angular.module('mediaMogulApp')
       return (self.removed || !self.owned) ? "btn-danger" : "btn-default";
     };
 
-    self.getLabelInfo = function(episode) {
-      if (episode.on_tivo) {
-        if (episode.tivo_deleted_date) {
-          return {labelClass: "label label-default", labelText: "Deleted"};
-        } else if (episode.tivo_suggestion === true) {
-          return {labelClass: "label label-warning", labelText: "Suggestion"};
-        } else {
-          return {labelClass: "label label-info", labelText: "Recorded"};
-        }
-      } else if (episode.streaming) {
-        if (self.isUnaired(episode)) {
-          return {labelClass: "label label-danger", labelText: "Unaired"};
-        } else {
-          return {labelClass: "label label-success", labelText: "Streaming"};
-        }
-      } else {
-        if (self.isUnaired(episode)) {
-          return {labelClass: "label label-danger", labelText: "Unaired"};
-        }
-        return null;
-      }
-    };
-
     self.getWatchedDateOrWatched = function(episode) {
       // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
       if (self.selectedLastWatchedEpisode !== null && !isUnwatchedEpisode(episode)) {

@@ -926,8 +926,6 @@ exports.getMyEpisodes = function(request, response) {
     'e.season, ' +
     'e.episode_number, ' +
     'e.absolute_number, ' +
-    'e.streaming, ' +
-    'e.on_tivo, ' +
     'te.filename as tvdb_filename, ' +
     'te.overview as tvdb_overview, ' +
     'te.production_code as tvdb_production_code, ' +

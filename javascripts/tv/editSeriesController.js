@@ -32,12 +32,7 @@ angular.module('mediaMogulApp')
         self.inputViewingLocations.push(locationObj);
       });
       $log.debug("ViewingLocations array: " + JSON.stringify(self.inputViewingLocations));
-
-      self.isStreaming = function() {
-        return EpisodeService.isStreaming(self.series);
-      };
     }
-
 
     function containsMatchingLocation(arr, locationId) {
       const foundElement = arr.find(function(element) {

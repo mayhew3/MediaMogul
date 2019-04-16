@@ -357,15 +357,6 @@ angular.module('mediaMogulApp')
         return notMyShows;
       };
 
-      self.isStreaming = function(series) {
-        $log.debug("Series.ViewingLocations: " + JSON.stringify(series.viewingLocations));
-        let streamingPlatform = series.viewingLocations.find(function(viewingLocation) {
-          return viewingLocation.streaming;
-        });
-        $log.debug("Streaming Platform: " + streamingPlatform);
-        return !(streamingPlatform === undefined);
-      };
-
       self.updateEpisode = function(episodeId, changedFields) {
         return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
       };
@@ -424,16 +415,11 @@ angular.module('mediaMogulApp')
       };
 
       self.addViewingLocation = function(series, episodes, viewingLocation) {
-        let wasStreamingBefore = self.isStreaming(series);
-        let changedToStreaming = !wasStreamingBefore && viewingLocation.streaming;
         series.viewingLocations.push(viewingLocation);
 
         $log.debug("Adding viewing location '" + viewingLocation.name + "' to existing series: " + series.title);
         $http.post('/addViewingLocation', {SeriesId: series.id, ViewingLocationId: viewingLocation.id}).then(function() {
           $log.debug("Viewing location added.");
-          if (changedToStreaming) {
-            changeStreamingOnEpisodes(series, episodes, true);
-          }
         }, function(errResponse) {
           $log.debug("Error adding viewing location: " + errResponse);
         });
@@ -447,8 +433,6 @@ angular.module('mediaMogulApp')
       };
 
       self.removeViewingLocation = function(series, episodes, viewingLocation) {
-        let wasStreamingBefore = self.isStreaming(series);
-
         let indexOf = series.viewingLocations.findIndex(function(location) {
           return location.id === viewingLocation.id;
         });
@@ -460,7 +444,6 @@ angular.module('mediaMogulApp')
         }
 
         series.viewingLocations.splice(indexOf, 1);
-        let changedToNotStreaming = wasStreamingBefore && !self.isStreaming(series);
 
         $log.debug("Removing viewing location '" + viewingLocation.name + "' from series: " + series.title);
         $http.post('/removeViewingLocation', {
@@ -468,30 +451,10 @@ angular.module('mediaMogulApp')
           ViewingLocationId: viewingLocation.id
         }).then(function () {
           $log.debug("Success.");
-
-          if (changedToNotStreaming) {
-            changeStreamingOnEpisodes(series, episodes, false);
-          }
         }, function (errResponse) {
           $log.debug("Error removing viewing location: " + errResponse);
         });
       };
-
-      function changeStreamingOnEpisodes(series, episodes, streaming) {
-        $http.post('/changeEpisodesStreaming', {SeriesId: series.id, Streaming: streaming}).then(function () {
-          $log.debug("Episodes updated to streaming: " + streaming);
-
-          episodes.forEach(function (episode) {
-            if (episode.season !== 0) {
-              episode.streaming = streaming;
-            }
-          });
-          self.updateDenorms(series, episodes);
-
-        }, function (errResponse) {
-          $log.debug("Error updating episodes: " + errResponse);
-        });
-      }
 
       self.markMyPastWatched = function(series, episodes, lastWatched) {
         return new Promise((resolve, reject) => {
@@ -509,49 +472,6 @@ angular.module('mediaMogulApp')
             reject();
           });
         });
-      };
-
-      self.updateDenorms = function(series, episodes) {
-        let unwatchedEpisodes = 0;
-        let unwatchedStreaming = 0;
-        let firstUnwatched = null;
-        let now = new Date;
-
-        episodes.forEach(function(episode) {
-
-          if (!episode.retired && episode.season !== 0) {
-
-            let onTiVo = episode.on_tivo;
-            let suggestion = episode.tivo_suggestion;
-            let deleted = (episode.tivo_deleted_date !== null);
-            let watched = episode.watched;
-            let streaming = episode.streaming;
-            let airTime = episode.air_time === null ? null : new Date(episode.air_time);
-            let canWatch = (onTiVo && !deleted) || (streaming && isBefore(airTime, now));
-
-            // STILL USED
-
-            // UNWATCHED
-            if (onTiVo && !suggestion && !deleted && !watched) {
-              unwatchedEpisodes++;
-            }
-
-            // FIRST UNWATCHED EPISODE
-            if (canWatch && isBefore(airTime, firstUnwatched) && !suggestion && !watched) {
-              firstUnwatched = airTime;
-            }
-
-            // UNWATCHED STREAMING
-            if ((!onTiVo || deleted) && canWatch && !watched) {
-              unwatchedStreaming++;
-            }
-          }
-        });
-
-        series.first_unwatched = firstUnwatched;
-        series.unwatched_all = unwatchedEpisodes + unwatchedStreaming;
-
-        // Don't need to update series table with watched information.
       };
 
       self.dateHasChanged = function(originalDate, updatedDate) {
