@@ -213,7 +213,7 @@
           <td ng-hide="ctrl.watchMultiple">
             <span ng-bind="ctrl.getWatchedDateOrWatched(episode)"></span>
           </td>
-          <td ng-style="episode.colorStyle()"
+          <td ng-style="ctrl.episodeColorStyle(episode)"
               width="70"
               ng-show="ctrl.owned && !ctrl.watchMultiple">
             <span ng-bind="ctrl.getRating(episode)"></span>

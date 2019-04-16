@@ -200,6 +200,10 @@ angular.module('mediaMogulApp')
         }
       }
 
+      self.episodeColorStyle = function(episode) {
+        return EpisodeService.episodeColorStyle(episode);
+      };
+
       self.getImageResolved = function() {
         return EpisodeService.getImageResolved(self.episode);
       };

@@ -578,6 +578,10 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.episodeColorStyle = function(episode) {
+      return EpisodeService.episodeColorStyle(episode);
+    };
+
     self.openEpisodeDetail = function(episode) {
       $uibModal.open({
         templateUrl: 'views/tv/episodeDetail.html',

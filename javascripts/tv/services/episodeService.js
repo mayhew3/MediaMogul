@@ -251,15 +251,6 @@ angular.module('mediaMogulApp')
         return isNull || hasSufficientDiff;
       };
 
-
-      self.getAirTime = function(episode) {
-        if (episode.air_time === null) {
-          return self.combineDateAndTime(episode.air_date, episode.seriesAirTime);
-        } else {
-          return episode.air_time;
-        }
-      };
-
       self.formatAirTime = function(combinedDate) {
         let minutesPart = $filter('date')(combinedDate, 'mm');
         let timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
@@ -325,6 +316,22 @@ angular.module('mediaMogulApp')
         }
         return null;
       }
+
+      self.episodeColorStyle = function(episode) {
+        if (episode.watched !== true) {
+          return {};
+        } else {
+          let hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
+          let saturation = episode.rating_value === null ? "0%" : "50%";
+          return {
+            'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)',
+            'font-size': '1.6em',
+            'text-align': 'center',
+            'font-weight': '800',
+            'color': 'white'
+          }
+        }
+      };
 
       self.getImageResolved = function(episode) {
         return episode.tvdb_filename ?
