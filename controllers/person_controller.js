@@ -75,7 +75,6 @@ exports.getMyShows = function(request, response) {
 
   const sql = "SELECT s.id, " +
     "s.title, " +
-    "ps.tier, " +
     "s.metacritic, " +
     "s.unmatched_episodes, " +
     "(SELECT COUNT(1) " +
@@ -223,7 +222,6 @@ exports.getMyQueueShows = function(request, response) {
 
   const sql = "SELECT s.id, " +
     "s.title, " +
-    "ps.tier, " +
     "s.metacritic, " +
     "s.unmatched_episodes, " +
     "(SELECT COUNT(1) " +
@@ -392,7 +390,6 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
 
     const sql = "SELECT s.id, " +
       "s.title, " +
-      "ps.tier, " +
       "s.metacritic, " +
       "s.unmatched_episodes, " +
       "(SELECT COUNT(1) " +
