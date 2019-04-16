@@ -12,7 +12,7 @@
       scope: {
         show: '=',
         posterInfo: '=',
-        seriesDetailOpen: '='
+        onClick: '='
       }
     }
   }
@@ -22,7 +22,7 @@
 
     self.show = $scope.show;
     self.posterInfo = $scope.posterInfo;
-    self.open = $scope.seriesDetailOpen;
+    self.onClick = $scope.onClick;
 
     self.badgeValue = function() {
       return ArrayService.exists(self.posterInfo.badgeField) ? self.show[self.posterInfo.badgeField] : null;
@@ -58,6 +58,6 @@
 
     self.click = ArrayService.exists(self.posterInfo.clickOverride) ?
       self.posterInfo.clickOverride :
-      self.open;
+      self.onClick;
   }
 })();

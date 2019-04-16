@@ -12,7 +12,7 @@
       scope: {
         shows: '=',
         panelInfo: '=',
-        seriesDetailOpen: '='
+        onClick: '='
       }
     }
   }
@@ -23,7 +23,7 @@
     self.EpisodeService = EpisodeService;
 
     self.shows = $scope.shows;
-    self.open = $scope.seriesDetailOpen;
+    self.onClick = $scope.onClick;
 
     self.panelInfo = $scope.panelInfo;
     self.ArrayService = ArrayService;

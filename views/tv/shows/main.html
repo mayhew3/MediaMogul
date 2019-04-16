@@ -1,7 +1,7 @@
 
 <tv-panel shows="ctrl.series_requests"
           panel-info="ctrl.seriesRequestPanel"
-          series-detail-open="ctrl.reviewRequest"></tv-panel>
+          on-click="ctrl.reviewRequest"></tv-panel>
 
 
 <!--suppress JSUnusedLocalSymbols -->
@@ -12,5 +12,5 @@
 <!--suppress JSUnusedLocalSymbols -->
 <div ng-repeat="panel in ctrl.dashboardInfos">
   <tv-panel panel-info="panel"
-            series-detail-open="ctrl.open"></tv-panel>
+            on-click="ctrl.open"></tv-panel>
 </div>
