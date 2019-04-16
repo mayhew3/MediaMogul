@@ -38,10 +38,6 @@ angular.module('mediaMogulApp')
       self.showDetail = !self.showDetail;
     };
 
-    self.tvdbPosterPath = function() {
-      return EpisodeService.constructFullPosterLocation(self.episodeGroup);
-    };
-
     self.getWatchedDateOrWatched = function(episode) {
       // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
       if (episode.watched_date === null) {

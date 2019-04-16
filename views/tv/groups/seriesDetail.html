@@ -10,11 +10,9 @@
       <div class="row">
 <!--      Poster -->
       <div class="col-md-12 col-sm-4 col-xs-7">
-        <img class="img-rounded"
-             ng-src="{{ctrl.tvdbPosterPath()}}"
-             err-src="images/GenericSeries.gif"
-             width="100%"
-             ng-click="ctrl.openChangePoster()"/>
+        <tv-poster show="ctrl.series"
+                   poster-info="{}"
+                   series-detail-open="ctrl.openChangePoster"></tv-poster>
       </div>
 
 <!--      Metacritic-->

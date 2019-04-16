@@ -221,20 +221,6 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.updatePosterLocation = function(show) {
-        show.posterResolved = self.constructFullPosterLocation(show);
-      };
-
-      self.constructFullPosterLocation = function(show) {
-        if (show.cloud_poster) {
-          return 'https://res.cloudinary.com/media-mogul/image/upload/' + show.cloud_poster;
-        } else if (show.poster) {
-          return 'https://thetvdb.com/banners/' + show.poster;
-        } else {
-          return 'images/GenericSeries.gif';
-        }
-      };
-
       self.updateNumericFields = function(show) {
         if (show.tier !== null) {
           show.tier = parseInt(show.tier);
@@ -245,7 +231,6 @@ angular.module('mediaMogulApp')
         if (show.metacritic !== null) {
           show.metacritic = parseInt(show.metacritic);
         }
-        self.updatePosterLocation(show);
       };
 
       self.formatNextAirDate = function(show) {

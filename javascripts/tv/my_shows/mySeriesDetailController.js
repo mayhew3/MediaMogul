@@ -82,10 +82,6 @@ angular.module('mediaMogulApp')
       return self.selectedLastWatchedEpisode != null && !isUnwatchedEpisode(episode);
     }
 
-    self.tvdbPosterPath = function() {
-      return EpisodeService.constructFullPosterLocation(self.series);
-    };
-
     self.getSeasonLabel = function(season) {
       if (!season) {
         return '';

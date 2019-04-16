@@ -52,7 +52,6 @@ angular.module('mediaMogulApp')
             series.poster = self.selectedPoster.poster_path;
             series.cloud_poster = self.selectedPoster.cloud_poster;
             series.imageDoesNotExist = !series.poster;
-            EpisodeService.updatePosterLocation(series);
           });
         }
         $uibModalInstance.close();
