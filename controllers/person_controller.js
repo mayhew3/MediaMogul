@@ -25,23 +25,6 @@ exports.getPersons = function(request, response) {
   return db.executeQueryWithResults(response, sql, [0]);
 };
 
-exports.addPerson = function(request, response) {
-  var person = request.body.Person;
-
-  var sql = "INSERT INTO person " +
-          "(email, first_name, last_name) " +
-          "VALUES ($1, $2, $3) " +
-          "RETURNING id ";
-  var values = [
-    person.email,
-    person.first_name,
-    person.last_name
-  ];
-
-  // return data because it contains the new row id. (RETURNING id is in the sql)
-  return db.executeQueryWithResults(response, sql, values);
-};
-
 exports.getMyPendingShows = function(request, response) {
   var personId = request.query.PersonId;
   console.log("Server call: Person " + personId);
@@ -506,82 +489,6 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
 
 };
 
-exports.getNextAiredInfo = function(request, response) {
-  const sql = 'SELECT e.series_id, e.air_time ' +
-    'FROM episode e ' +
-    'INNER JOIN series s ' +
-    '  ON e.series_id = s.id ' +
-    'INNER JOIN person_series ps ' +
-    '  ON ps.series_id = s.id ' +
-    'WHERE ps.person_id = $1 ' +
-    'AND e.air_time IS NOT NULL ' +
-    'AND e.air_time > now() ' +
-    'AND e.retired = $2 ' +
-    'ORDER BY e.air_time ASC';
-
-  db.selectWithJSON(sql, [request.query.person_id, 0]).then(function (results) {
-    if (results.length > 0) {
-      const earliestTime = results[0].air_time;
-      const earliestEpisodes = _.filter(results, episode => episode.air_time.getTime() === earliestTime.getTime());
-      const groupedBySeries = _.groupBy(earliestEpisodes, 'series_id');
-
-      const resultObjects = [];
-
-      for (const series_id in groupedBySeries) {
-        if (groupedBySeries.hasOwnProperty(series_id)) {
-          const episodes = groupedBySeries[series_id];
-          const series_id_int = parseInt(series_id);
-          const otherEpisodes = _.where(results, {series_id: series_id_int});
-          const nextEpisode = _.find(otherEpisodes, episode => {
-            return ArrayService.exists(episode.air_time) &&
-              episode.air_time > earliestTime;
-          });
-          const infoObj = {
-            series_id: series_id,
-            episode_count: episodes.length,
-            next_air_time: nextEpisode ? nextEpisode.air_time : null
-          };
-          resultObjects.push(infoObj);
-        }
-      }
-
-      const objectWithTime = {
-        air_time: earliestTime,
-        shows: resultObjects
-      };
-
-      response.json(objectWithTime);
-    } else {
-      response.json({
-        air_time: null,
-        shows: []
-      })
-    }
-  });
-};
-
-exports.myShowsForAdd = function(request, response) {
-  var personId = request.query.PersonId;
-  console.log("Server call: Person " + personId);
-
-  const sql = 'SELECT s.id, ' +
-    's.tvdb_series_ext_id, ' +
-    's.tvdb_match_status ' +
-    'FROM series s ' +
-    'INNER JOIN person_series ps ' +
-    '  ON ps.series_id = s.id ' +
-    'WHERE ps.person_id = $1 ' +
-    'AND s.retired = $2 ' +
-    'AND ps.retired = $2 ';
-
-  const values = [
-    personId,
-    0
-  ];
-
-  db.executeQueryWithResults(response, sql, values);
-};
-
 exports.seriesRequest = function(request, response) {
   const series_request = request.body.seriesRequest;
 
@@ -782,35 +689,6 @@ function stoppedMidseason(nextEpisode) {
     nextEpisode.episode_number > 1;
 }
 
-
-exports.getShowBasicInfo = function(request, response) {
-  var sql =
-    "SELECT id, title, poster, cloud_poster " +
-    "FROM series " +
-    "WHERE retired = $1";
-
-  return db.executeQueryWithResults(response, sql, [0]);
-};
-
-exports.getMyUpcomingEpisodes = function(request, response) {
-  var personId = request.query.PersonId;
-
-  var sql = "SELECT e.series_id, e.title, e.season, e.episode_number, e.air_date, e.air_time " +
-    "FROM episode e " +
-    "INNER JOIN series s " +
-    "  ON e.series_id = s.id " +
-    "INNER JOIN person_series ps " +
-    "  ON ps.series_id = s.id " +
-    "WHERE ps.person_id = $1 " +
-    "AND e.air_time is not null " +
-    "AND e.air_time >= current_timestamp " +
-    "AND e.season <> $2 " +
-    "AND e.retired = $3 " +
-    "AND ps.tier = $4 " +
-    "ORDER BY e.air_time ASC;";
-
-  return db.executeQueryWithResults(response, sql, [personId, 0, 0, 1]);
-};
 
 exports.addToMyShows = function(request, response) {
   const personId = request.body.PersonId;
@@ -1233,15 +1111,6 @@ exports.revertYear = function(request, response) {
 
   });
 };
-
-exports.setRatingEndDate = function(request, response) {
-  var ratingEndDate = request.body.RatingEndDate;
-  console.log("Changing rating end date to " + ratingEndDate);
-
-  var sql = "UPDATE system_vars SET rating_end_date = $1 ";
-  return db.executeQueryNoResults(response, sql, [ratingEndDate]);
-};
-
 
 exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications) {
   return new Promise(function(resolve) {

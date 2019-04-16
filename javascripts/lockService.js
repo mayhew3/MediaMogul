@@ -142,7 +142,7 @@ angular.module('mediaMogulApp')
       function syncPersonWithDB(idTokenPayload, callback) {
         var email = idTokenPayload.email;
 
-        $http.get('/person', {params: {email: email}}).then(function (response) {
+        $http.get('/api/person', {params: {email: email}}).then(function (response) {
           var personData = response.data;
 
           if (personData.length === 0) {

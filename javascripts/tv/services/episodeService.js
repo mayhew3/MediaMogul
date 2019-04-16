@@ -49,7 +49,7 @@ angular.module('mediaMogulApp')
 
       function updateMyQueueShowsList() {
         return new Promise((resolve, reject) => {
-          $http.get('/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
+          $http.get('/api/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Queue Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
             _.forEach(tempShows, formatIncomingShow);
@@ -72,7 +72,7 @@ angular.module('mediaMogulApp')
 
       function updateMyShowsListTierOne() {
         return new Promise((resolve, reject) => {
-          $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
+          $http.get('/api/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
             $log.debug("Tier 1 Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
             _.forEach(tempShows, formatIncomingShow);
@@ -90,7 +90,7 @@ angular.module('mediaMogulApp')
 
       function updateMyShowsListTierTwo() {
         return new Promise((resolve, reject) => {
-          $http.get('/myShows', {params: {PersonId: LockService.person_id, Tier: 2}}).then(function (response) {
+          $http.get('/api/myShows', {params: {PersonId: LockService.person_id, Tier: 2}}).then(function (response) {
             $log.debug("Tier 2 Shows returned " + response.data.length + " items.");
             let tempShows = response.data;
             _.forEach(tempShows, formatIncomingShow);
@@ -197,7 +197,7 @@ angular.module('mediaMogulApp')
       }
 
       self.updateMyPendingShowsList = function() {
-        return $http.get('/myPendingShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
+        return $http.get('/api/myPendingShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
           $log.debug("Shows returned " + response.data.length + " items.");
           myPendingShows = response.data;
 
@@ -207,7 +207,7 @@ angular.module('mediaMogulApp')
       };
 
       self.updateNotMyShowsList = function() {
-        return $http.get('/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
+        return $http.get('/api/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
           $log.debug("Shows returned " + response.data.length + " items.");
           let tempShows = response.data;
           tempShows.forEach(function (show) {
@@ -260,8 +260,8 @@ angular.module('mediaMogulApp')
       self.updateMyEpisodeList = function(series) {
         let deferred = $q.defer();
         let urlCalls = [];
-        urlCalls.push($http.get('/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
-        urlCalls.push($http.get('/seriesViewingLocations', {params: {SeriesId: series.id}}));
+        urlCalls.push($http.get('/api/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
+        urlCalls.push($http.get('/api/seriesViewingLocations', {params: {SeriesId: series.id}}));
 
         const episodes = [];
 
@@ -381,11 +381,11 @@ angular.module('mediaMogulApp')
       };
 
       self.updateEpisode = function(episodeId, changedFields) {
-        return $http.post('/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
+        return $http.post('/api/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
       };
 
       self.changeTier = function(SeriesId, Tier) {
-        $http.post('/changeTier', {SeriesId: SeriesId, tier: Tier});
+        $http.post('/api/changeTier', {SeriesId: SeriesId, tier: Tier});
         // todo: add some error handling.
       };
 
@@ -393,23 +393,23 @@ angular.module('mediaMogulApp')
         let changedFields = {
           tier: Tier
         };
-        return $http.post('/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
+        return $http.post('/api/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
       };
 
       self.updateSeries = function(SeriesId, ChangedFields) {
         $log.debug('Received update for Series ' + SeriesId + " with data " + JSON.stringify(ChangedFields));
-        return $http.post('/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
+        return $http.post('/api/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
       };
 
       self.addSeries = function(series) {
         $log.debug("Adding series " + JSON.stringify(series));
-        return $http.post('/addSeries', {series: series});
+        return $http.post('/api/addSeries', {series: series});
       };
 
       self.addToMyShows = function(show, lastWatched) {
         $log.debug("Adding show " + JSON.stringify(show));
         // TODO: get dynamic_score back from server and update it
-        return $http.post('/addToMyShows', {
+        return $http.post('/api/addToMyShows', {
           SeriesId: show.id,
           PersonId: LockService.person_id,
           LastWatched: lastWatched
@@ -425,23 +425,23 @@ angular.module('mediaMogulApp')
 
       self.addMyEpisodeRating = function(episodeRating, seriesId) {
         $log.debug("Adding new episode rating.");
-        return $http.post('/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});
+        return $http.post('/api/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});
       };
 
       self.updateMyEpisodeRating = function(changedFields, rating_id, seriesId) {
         $log.debug("Updating existing episode rating with id: " + rating_id + ", Changed: " + JSON.stringify(changedFields));
-        return $http.post('/rateMyEpisode', {IsNew: false, ChangedFields: changedFields, RatingId: rating_id, SeriesId: seriesId, PersonId: LockService.person_id});
+        return $http.post('/api/rateMyEpisode', {IsNew: false, ChangedFields: changedFields, RatingId: rating_id, SeriesId: seriesId, PersonId: LockService.person_id});
       };
 
       self.rateMyShow = function(series, rating) {
-        return $http.post('/rateMyShow', {PersonId: LockService.person_id, SeriesId: series.id, Rating: rating});
+        return $http.post('/api/rateMyShow', {PersonId: LockService.person_id, SeriesId: series.id, Rating: rating});
       };
 
       self.addViewingLocation = function(series, episodes, viewingLocation) {
         series.viewingLocations.push(viewingLocation);
 
         $log.debug("Adding viewing location '" + viewingLocation.name + "' to existing series: " + series.title);
-        $http.post('/addViewingLocation', {SeriesId: series.id, ViewingLocationId: viewingLocation.id}).then(function() {
+        $http.post('/api/addViewingLocation', {SeriesId: series.id, ViewingLocationId: viewingLocation.id}).then(function() {
           $log.debug("Viewing location added.");
         }, function(errResponse) {
           $log.debug("Error adding viewing location: " + errResponse);
@@ -449,7 +449,7 @@ angular.module('mediaMogulApp')
       };
 
       self.removeFromMyShows = function(show) {
-        return $http.post('/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
+        return $http.post('/api/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
           removeShowFromArray(show);
           addTimerForNextAirDate();
         });
@@ -469,7 +469,7 @@ angular.module('mediaMogulApp')
         series.viewingLocations.splice(indexOf, 1);
 
         $log.debug("Removing viewing location '" + viewingLocation.name + "' from series: " + series.title);
-        $http.post('/removeViewingLocation', {
+        $http.post('/api/removeViewingLocation', {
           SeriesId: series.id,
           ViewingLocationId: viewingLocation.id
         }).then(function () {
@@ -481,7 +481,7 @@ angular.module('mediaMogulApp')
 
       self.markMyPastWatched = function(series, episodes, lastWatched) {
         return new Promise((resolve, reject) => {
-          $http.post('/markMyPastWatched', {SeriesId: series.id, LastWatched: lastWatched, PersonId: LockService.person_id}).then(function() {
+          $http.post('/api/markMyPastWatched', {SeriesId: series.id, LastWatched: lastWatched, PersonId: LockService.person_id}).then(function() {
             $log.debug("Past watched API call complete.");
             episodes.forEach(function(episode) {
               $log.debug(lastWatched + ", " + episode.absolute_number);

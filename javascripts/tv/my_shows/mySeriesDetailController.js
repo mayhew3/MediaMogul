@@ -527,7 +527,7 @@ angular.module('mediaMogulApp')
 
     function updatePersonSeriesInDatabase(changedFields) {
       if (Object.keys(changedFields).length > 0) {
-        return $http.post('/updateMyShow', {
+        return $http.post('/api/updateMyShow', {
           SeriesId: self.series.id,
           PersonId: LockService.person_id,
           ChangedFields: changedFields

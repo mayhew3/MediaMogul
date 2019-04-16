@@ -13,7 +13,7 @@ module.exports = function(app) {
   });
 
   // SYSTEM VARS
-  app.get('/systemVars', authCheck, persons.getSystemVars);
+  app.get('/api/systemVars', authCheck, persons.getSystemVars);
 
   // GAMES
   app.get('/api/games', authCheck, games.getGames);
@@ -28,63 +28,57 @@ module.exports = function(app) {
   app.post('/api/addgameplay', authCheck, games.addGameplaySession);
 
   // TV
-  app.get('/episodeGroupRating', authCheck, series.getEpisodeGroupRating);
-  app.get('/episodeGroupRatings', authCheck, series.getEpisodeGroupRatings);
-  app.get('/numShowsToRate', authCheck, series.getNumberOfShowsToRate);
-  app.get('/viewingLocations', authCheck, series.getViewingLocations);
-  app.get('/allPosters', authCheck, series.getAllPosters);
-  app.get('/seriesViewingLocations', authCheck, series.getSeriesViewingLocations);
-  app.get('/upcomingEpisodes', authCheck, series.getUpcomingEpisodes);
-  app.get('/ratingYears', authCheck, series.getAllRatingYears);
-  app.get('/episodeListForRating', authCheck, series.getEpisodesForRating);
+  app.get('/api/episodeGroupRating', authCheck, series.getEpisodeGroupRating);
+  app.get('/api/episodeGroupRatings', authCheck, series.getEpisodeGroupRatings);
+  app.get('/api/numShowsToRate', authCheck, series.getNumberOfShowsToRate);
+  app.get('/api/viewingLocations', authCheck, series.getViewingLocations);
+  app.get('/api/allPosters', authCheck, series.getAllPosters);
+  app.get('/api/seriesViewingLocations', authCheck, series.getSeriesViewingLocations);
+  app.get('/api/upcomingEpisodes', authCheck, series.getUpcomingEpisodes);
+  app.get('/api/ratingYears', authCheck, series.getAllRatingYears);
+  app.get('/api/episodeListForRating', authCheck, series.getEpisodesForRating);
   app.get('/api/tvdbMatches', authCheck, series.getTVDBMatches);
   app.get('/api/tvdbIDs', authCheck, series.getMatchedTVDBIDs);
 
   // ADMIN
-  app.get('/tvdbErrors', authCheck, admin.getTVDBErrors);
+  app.get('/api/tvdbErrors', authCheck, admin.getTVDBErrors);
   app.get('/api/services', authCheck, admin.getExternalServices);
   
   // API for iOS app
   app.get('/primeTV', authCheck, series.getPrimeTV);
   app.get('/primeSeriesInfo', authCheck, series.getPrimeSeriesInfo);
 
-  app.post('/updateEpisode', authCheck, series.updateEpisode);
-  app.post('/changeTier', authCheck, series.changeTier);
-  app.post('/addSeries', authCheck, series.addSeries);
-  app.post('/updateSeries', authCheck, series.updateSeries);
-  app.post('/updateEpisodeGroupRating', authCheck, series.updateEpisodeGroupRating);
-  app.post('/addEpisodeGroupRating', authCheck, series.addEpisodeGroupRating);
-  app.post('/addViewingLocation', authCheck, series.addViewingLocation);
-  app.post('/removeViewingLocation', authCheck, series.removeViewingLocation);
+  app.post('/api/updateEpisode', authCheck, series.updateEpisode);
+  app.post('/api/changeTier', authCheck, series.changeTier);
+  app.post('/api/addSeries', authCheck, series.addSeries);
+  app.post('/api/updateSeries', authCheck, series.updateSeries);
+  app.post('/api/updateEpisodeGroupRating', authCheck, series.updateEpisodeGroupRating);
+  app.post('/api/addEpisodeGroupRating', authCheck, series.addEpisodeGroupRating);
+  app.post('/api/addViewingLocation', authCheck, series.addViewingLocation);
+  app.post('/api/removeViewingLocation', authCheck, series.removeViewingLocation);
   app.post('/api/handleSeriesRequest', authCheck, series.handleSeriesRequest);
 
   // PERSONS
-  app.get('/person', authCheck, persons.getPersonInfo);
+  app.get('/api/person', authCheck, persons.getPersonInfo);
   app.get('/api/persons', authCheck, persons.getPersons);
-  app.post('/addPerson', authCheck, persons.addPerson);
 
   // MY SHOWS
-  app.get('/myShows', authCheck, persons.getMyShows);
-  app.get('/myQueueShows', authCheck, persons.getMyQueueShows);
-  app.get('/myPendingShows', authCheck, persons.getMyPendingShows);
-  app.get('/notMyShows', authCheck, persons.getNotMyShows);
-  app.get('/getMyEpisodes', authCheck, persons.getMyEpisodes);
-  app.get('/myUpcomingEpisodes', authCheck, persons.getMyUpcomingEpisodes);
-  app.get('/showBasicInfo', authCheck, persons.getShowBasicInfo);
-  app.get('/api/myShowsAdd', authCheck, persons.myShowsForAdd);
+  app.get('/api/myShows', authCheck, persons.getMyShows);
+  app.get('/api/myQueueShows', authCheck, persons.getMyQueueShows);
+  app.get('/api/myPendingShows', authCheck, persons.getMyPendingShows);
+  app.get('/api/notMyShows', authCheck, persons.getNotMyShows);
+  app.get('/api/getMyEpisodes', authCheck, persons.getMyEpisodes);
   app.get('/api/seriesRequest', authCheck, persons.getAllOpenSeriesRequests);
   app.get('/api/mySeriesRequests', authCheck, persons.getMySeriesRequests);
-  app.get('/api/nextAired', authCheck, persons.getNextAiredInfo);
 
-  app.post('/addToMyShows', authCheck, persons.addToMyShows);
-  app.post('/removeFromMyShows', authCheck, persons.removeFromMyShows);
-  app.post('/updateMyShow', authCheck, persons.updateMyShow);
-  app.post('/rateMyShow', authCheck, persons.rateMyShow);
-  app.post('/rateMyEpisode', authCheck, persons.rateMyEpisode);
-  app.post('/markMyPastWatched', authCheck, persons.markAllPastEpisodesAsWatched);
-  app.post('/increaseYear', authCheck, persons.increaseYear);
-  app.post('/revertYear', authCheck, persons.revertYear);
-  app.post('/setRatingEndDate', authCheck, persons.setRatingEndDate);
+  app.post('/api/addToMyShows', authCheck, persons.addToMyShows);
+  app.post('/api/removeFromMyShows', authCheck, persons.removeFromMyShows);
+  app.post('/api/updateMyShow', authCheck, persons.updateMyShow);
+  app.post('/api/rateMyShow', authCheck, persons.rateMyShow);
+  app.post('/api/rateMyEpisode', authCheck, persons.rateMyEpisode);
+  app.post('/api/markMyPastWatched', authCheck, persons.markAllPastEpisodesAsWatched);
+  app.post('/api/increaseYear', authCheck, persons.increaseYear);
+  app.post('/api/revertYear', authCheck, persons.revertYear);
   app.post('/api/seriesRequest', authCheck, persons.seriesRequest);
   app.post('/api/markEpisodesWatched', authCheck, persons.markEpisodesWatched);
 

@@ -7,7 +7,7 @@ angular.module('mediaMogulApp')
 
       self.tvdbErrors = [];
 
-      $http.get('/tvdbErrors').then(function (payload) {
+      $http.get('/api/tvdbErrors').then(function (payload) {
         const tvdbErrors = payload.data;
         tvdbErrors.forEach(function(tvdb_error) {
           let exceptionClass = tvdb_error.exception_class;

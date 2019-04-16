@@ -11,7 +11,7 @@ angular.module('mediaMogulApp')
 
       self.selectedPoster = null;
 
-      $http.get('/allPosters', {params: {tvdb_series_id: series.tvdb_series_id}}).then(function(response) {
+      $http.get('/api/allPosters', {params: {tvdb_series_id: series.tvdb_series_id}}).then(function(response) {
         $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
         const allPosters = response.data;
 
