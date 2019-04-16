@@ -92,13 +92,16 @@ angular.module('mediaMogulApp')
       };
       self.refreshSeriesList();
 
-
-      self.posterStyle = function(series) {
+      function posterStyle(series) {
         if (self.addedRecently(series)) {
           return {"opacity": "0.5"}
         } else {
           return {};
         }
+      }
+
+      self.posterInfo = {
+        extraStyles: posterStyle
       };
 
       self.addSeriesCallback = function(show) {

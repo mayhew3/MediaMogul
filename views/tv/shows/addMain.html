@@ -32,11 +32,8 @@
                 filterByTitle: ctrl.titleSearch |
                 orderBy: 'title' |
                 limitTo : ctrl.pageSize : (ctrl.currentPage - 1) * ctrl.pageSize">
-        <img class="img-rounded"
-             ng-style="ctrl.posterStyle(show)"
-             ng-src="{{show.posterResolved}}"
-             err-src="images/GenericSeries.gif"
-             width="100%"/>
+        <tv-poster show="show"
+                   poster-info="ctrl.posterInfo"></tv-poster>
         <div class="centeredInFrame posterTitle" ng-show="show.imageDoesNotExist">
           <span ng-bind="show.title"></span>
         </div>

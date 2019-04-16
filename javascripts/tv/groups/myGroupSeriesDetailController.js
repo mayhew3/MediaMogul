@@ -130,10 +130,6 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(getBallotForShow());
     };
 
-    self.tvdbPosterPath = function() {
-      return EpisodeService.constructFullPosterLocation(self.series);
-    };
-
     self.shouldDisplaySeasonList = function() {
       return self.possibleSeasons.length > 1;
     };
