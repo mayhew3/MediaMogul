@@ -107,7 +107,7 @@ angular.module('mediaMogulApp')
       }
 
       function addTimerForNextAirDate() {
-        $http.get('api/nextAired', {params: {person_id: LockService.person_id}}).then(function(results) {
+        $http.get('/api/nextAired', {params: {person_id: LockService.person_id}}).then(function(results) {
           self.nextShowsToUpdate = results.data.shows;
           if (self.nextShowsToUpdate.length > 0) {
             if (self.nextTimeout) {

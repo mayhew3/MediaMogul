@@ -489,6 +489,60 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
 
 };
 
+exports.getNextAiredInfo = function(request, response) {
+  const sql = 'SELECT e.series_id, e.air_time ' +
+    'FROM episode e ' +
+    'INNER JOIN series s ' +
+    '  ON e.series_id = s.id ' +
+    'INNER JOIN person_series ps ' +
+    '  ON ps.series_id = s.id ' +
+    'WHERE ps.person_id = $1 ' +
+    'AND e.air_time IS NOT NULL ' +
+    'AND e.air_time > now() ' +
+    'AND e.retired = $2 ' +
+    'ORDER BY e.air_time ASC';
+
+  db.selectWithJSON(sql, [request.query.person_id, 0]).then(function (results) {
+    if (results.length > 0) {
+      const earliestTime = results[0].air_time;
+      const earliestEpisodes = _.filter(results, episode => episode.air_time.getTime() === earliestTime.getTime());
+      const groupedBySeries = _.groupBy(earliestEpisodes, 'series_id');
+
+      const resultObjects = [];
+
+      for (const series_id in groupedBySeries) {
+        if (groupedBySeries.hasOwnProperty(series_id)) {
+          const episodes = groupedBySeries[series_id];
+          const series_id_int = parseInt(series_id);
+          const otherEpisodes = _.where(results, {series_id: series_id_int});
+          const nextEpisode = _.find(otherEpisodes, episode => {
+            return ArrayService.exists(episode.air_time) &&
+              episode.air_time > earliestTime;
+          });
+          const infoObj = {
+            series_id: series_id,
+            episode_count: episodes.length,
+            next_air_time: nextEpisode ? nextEpisode.air_time : null
+          };
+          resultObjects.push(infoObj);
+        }
+      }
+
+      const objectWithTime = {
+        air_time: earliestTime,
+        shows: resultObjects
+      };
+
+      response.json(objectWithTime);
+    } else {
+      response.json({
+        air_time: null,
+        shows: []
+      })
+    }
+  });
+};
+
 exports.seriesRequest = function(request, response) {
   const series_request = request.body.seriesRequest;
 
