@@ -52,12 +52,12 @@ angular.module('mediaMogulApp')
     };
 
     self.firstTier = function(series) {
-      return series.my_tier === 1
+      return series.personSeries.my_tier === 1
          && hasUnwatchedEpisodes(series);
     };
 
     self.secondTier = function(series) {
-      return series.my_tier === 2
+      return series.personSeries.my_tier === 2
          && hasUnwatchedEpisodes(series)
         ;
     };
@@ -81,15 +81,15 @@ angular.module('mediaMogulApp')
     };
 
     function airedRecently(series) {
-      return dateIsWithinLastDays(series.first_unwatched, 8);
+      return dateIsWithinLastDays(series.personSeries.first_unwatched, 8);
     }
 
     function watchedRecently(series) {
-      return dateIsWithinLastDays(series.last_watched, 14);
+      return dateIsWithinLastDays(series.personSeries.last_watched, 14);
     }
 
     function addedRecently(series) {
-      return dateIsWithinLastDays(series.date_added, 8);
+      return dateIsWithinLastDays(series.personSeries.date_added, 8);
     }
 
     self.showFetchingEpisodes = function(series) {
@@ -98,7 +98,7 @@ angular.module('mediaMogulApp')
     };
 
     self.ratingsPending = function(series) {
-      return series.rating_pending_episodes > 0;
+      return series.personSeries.rating_pending_episodes > 0;
     };
 
     self.showInQueue = function(series) {
@@ -151,7 +151,7 @@ angular.module('mediaMogulApp')
     };
 
     self.newlyAdded = function(series) {
-      return series.my_tier === null;
+      return series.personSeries.my_tier === null;
     };
 
     self.countWhere = function(filter) {
@@ -159,7 +159,7 @@ angular.module('mediaMogulApp')
     };
 
     self.orderByRating = function(series) {
-      return (angular.isDefined(series.dynamic_rating) ? -1: 0);
+      return (angular.isDefined(series.personSeries.dynamic_rating) ? -1: 0);
     };
 
     /* DASHBOARD INFOS */
@@ -336,11 +336,11 @@ angular.module('mediaMogulApp')
     };
 
     function hasUnwatchedEpisodes(series) {
-      return series.unwatched_all > 0;
+      return series.personSeries.unwatched_all > 0;
     }
 
     function hasWatchedEpisodes(series) {
-      return (series.aired_episodes - series.unwatched_all) !== 0;
+      return (series.aired_episodes - series.personSeries.unwatched_all) !== 0;
     }
 
     function nextAirDate(show) {
@@ -400,7 +400,7 @@ angular.module('mediaMogulApp')
     // $interval(self.refreshSeriesList, 60*1000*5);
 
     self.getButtonClass = function(tier, series) {
-      return series.my_tier === tier ? "btn btn-success" : "btn btn-primary";
+      return series.personSeries.my_tier === tier ? "btn btn-success" : "btn btn-primary";
     };
 
     self.open = function(series) {

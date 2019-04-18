@@ -612,7 +612,7 @@ function calculateRating(series, ratings) {
 
   const previousEpisodeWeights = [10, 10, 10, 9, 8, 6, 4, 2, 1, 1];
 
-  addElement(ratingElements, 10, series.my_rating);
+  addElement(ratingElements, 10, series.personSeries.my_rating);
 
   let lastEpisodes = _.first(ratings, previousEpisodeWeights.length);
 

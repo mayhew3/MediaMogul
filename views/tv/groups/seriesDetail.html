@@ -35,11 +35,11 @@
 <!--      Debug stats -->
       <div class="col-md-12 col-sm-4 col-xs-5" style="margin-top: 20px" ng-show="ctrl.debugOn">
         Aired: <span ng-bind="ctrl.series.aired_episodes"></span><br><br>
-        Unwatched: <span ng-bind="ctrl.series.unwatched_all"></span><br><br>
-        First Unwatched: <span ng-bind="ctrl.series.first_unwatched"></span><br><br>
-        Last Watched: <span ng-bind="ctrl.series.last_watched"></span><br><br>
+        Unwatched: <span ng-bind="ctrl.series.personSeries.unwatched_all"></span><br><br>
+        First Unwatched: <span ng-bind="ctrl.series.personSeries.first_unwatched"></span><br><br>
+        Last Watched: <span ng-bind="ctrl.series.personSeries.last_watched"></span><br><br>
         Midseason: <span ng-bind="ctrl.series.midSeason"></span><br><br>
-        Date Added: <span ng-bind="ctrl.series.date_added"></span><br><br>
+        Date Added: <span ng-bind="ctrl.series.personSeries.date_added"></span><br><br>
       </div>
 
 <!--      Add Ballot Button -->
