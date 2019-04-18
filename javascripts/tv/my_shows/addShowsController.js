@@ -51,7 +51,7 @@ angular.module('mediaMogulApp')
       };
 
       self.orderByRating = function(series) {
-        return 0 - series.dynamic_rating;
+        return 0 - series.personSeries.dynamic_rating;
       };
 
       self.addToMyShows = function(show) {

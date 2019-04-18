@@ -232,7 +232,7 @@ angular.module('mediaMogulApp')
           .then(function (response) {
             if (response) {
               self.episode.rating_id = response.data.rating_id;
-              self.series.dynamic_rating = response.data.dynamic_rating;
+              self.series.personSeries.dynamic_rating = response.data.dynamic_rating;
             }
             return updateWatchedStatus();
           }).then(function () {

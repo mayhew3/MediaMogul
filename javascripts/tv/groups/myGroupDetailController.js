@@ -231,23 +231,23 @@ angular.module('mediaMogulApp')
     // FILTER HELPERS
 
     function airedRecently(series) {
-      return dateIsWithinLastDays(series.first_unwatched, 15);
+      return dateIsWithinLastDays(series.personSeries.first_unwatched, 15);
     }
 
     function watchedRecently(series) {
-      return dateIsWithinLastDays(series.last_watched, 28);
+      return dateIsWithinLastDays(series.personSeries.last_watched, 28);
     }
 
     function addedRecently(series) {
-      return dateIsWithinLastDays(series.date_added, 15);
+      return dateIsWithinLastDays(series.personSeries.date_added, 15);
     }
 
       function hasUnwatchedEpisodes(series) {
-      return series.unwatched_all > 0;
+      return series.personSeries.unwatched_all > 0;
     }
 
     function hasWatchedEpisodes(series) {
-      return (series.aired_episodes - series.unwatched_all) !== 0;
+      return (series.aired_episodes - series.personSeries.unwatched_all) !== 0;
     }
 
     function needsFirstVote(series) {
