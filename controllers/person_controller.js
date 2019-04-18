@@ -185,71 +185,76 @@ exports.getMyQueueShows = function(request, response) {
 
   db.selectWithJSON(sql, values).then(function (seriesResults) {
 
-    const series_ids = _.pluck(seriesResults, 'id');
+    if (seriesResults.length === 0) {
+      response.json([]);
+    } else {
+      const series_ids = _.pluck(seriesResults, 'id');
 
-    const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
-      "FROM episode e " +
-      "WHERE e.retired = $1 " +
-      "AND e.season <> $2 " +
-      "AND e.id NOT IN (SELECT er.episode_id " +
-      "                   FROM episode_rating er " +
-      "                   WHERE er.person_id = $3 " +
-      "                   AND er.watched = $4) " +
-      "AND e.series_id IN (" + db.createInlineVariableList(series_ids.length, 5) + ') ' +
-      "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
-
-    const values = [
-      0,
-      0,
-      personId,
-      true
-    ];
-
-    ArrayService.addToArray(values, series_ids);
-
-    db.selectWithJSON(sql, values).then(function(episodeResults) {
-
-      updateUnwatchedDenorms(seriesResults, episodeResults);
-
-      const sql =
-        "SELECT e.series_id, er.episode_id, er.rating_value " +
-        "FROM episode_rating er " +
-        "INNER JOIN episode e " +
-        "  ON er.episode_id = e.id " +
-        "WHERE er.watched = $1 " +
-        "AND er.retired = $2 " +
-        "AND er.person_id = $3 " +
-        "AND er.rating_value IS NOT NULL " +
-        "AND e.series_id IN (" + db.createInlineVariableList(series_ids.length, 4) + ') ' +
-        "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
+      const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
+          "FROM episode e " +
+          "WHERE e.retired = $1 " +
+          "AND e.season <> $2 " +
+          "AND e.id NOT IN (SELECT er.episode_id " +
+          "                   FROM episode_rating er " +
+          "                   WHERE er.person_id = $3 " +
+          "                   AND er.watched = $4) " +
+          "AND e.series_id IN (" + db.createInlineVariableList(series_ids.length, 5) + ') ' +
+          "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
       const values = [
-        true,
         0,
-        personId
+        0,
+        personId,
+        true
       ];
 
       ArrayService.addToArray(values, series_ids);
 
-      db.selectWithJSON(sql, values).then(function(ratingResults) {
+      db.selectWithJSON(sql, values).then(function(episodeResults) {
 
-        updateRatings(seriesResults, ratingResults);
+        updateUnwatchedDenorms(seriesResults, episodeResults);
 
-        const timeElapsed = new Date - startTime;
-        console.log("Time elapsed: " + timeElapsed);
-        return response.json(seriesResults);
-      }).catch(err => {
-        throwError('Error fetching myQueue episodes: ' + err.message,
-            'getMyQueueShows episode query',
-            response)
-      });
+        const sql =
+            "SELECT e.series_id, er.episode_id, er.rating_value " +
+            "FROM episode_rating er " +
+            "INNER JOIN episode e " +
+            "  ON er.episode_id = e.id " +
+            "WHERE er.watched = $1 " +
+            "AND er.retired = $2 " +
+            "AND er.person_id = $3 " +
+            "AND er.rating_value IS NOT NULL " +
+            "AND e.series_id IN (" + db.createInlineVariableList(series_ids.length, 4) + ') ' +
+            "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
 
-    })
-        .catch(err => {
+        const values = [
+          true,
+          0,
+          personId
+        ];
+
+        ArrayService.addToArray(values, series_ids);
+
+        db.selectWithJSON(sql, values).then(function(ratingResults) {
+
+          updateRatings(seriesResults, ratingResults);
+
+          const timeElapsed = new Date - startTime;
+          console.log("Time elapsed: " + timeElapsed);
+          return response.json(seriesResults);
+        }).catch(err => {
           throwError('Error fetching myQueue episodes: ' + err.message,
               'getMyQueueShows episode query',
               response)
         });
+
+      })
+          .catch(err => {
+            throwError('Error fetching myQueue episodes: ' + err.message,
+                'getMyQueueShows episode query',
+                response)
+          });
+    }
+
   }).catch(err => {
     throwError('Error fetching myQueue ratings: ' + err.message,
         'getMyQueueShows ratings query',
