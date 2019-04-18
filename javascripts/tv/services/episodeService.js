@@ -620,7 +620,7 @@ angular.module('mediaMogulApp')
             return ArrayService.exists(episode.rating_pending) && episode.rating_pending === true;
           }).length;
 
-          series.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
+          series.personSeries.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
         });
       };
 
