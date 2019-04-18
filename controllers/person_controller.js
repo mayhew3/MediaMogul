@@ -364,7 +364,7 @@ function updateUnwatchedDenorms(seriesResults, episodeResults) {
       if (series) {
         debug("Series: " + series.title);
 
-        exports.calculateUnwatchedDenorms(series, unwatchedEpisodes);
+        exports.calculateUnwatchedDenorms(series, series.personSeries, unwatchedEpisodes);
       }
     }
   }
@@ -428,7 +428,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
 
       db.selectWithJSON(sql, values).then(function(episodeResults) {
 
-        exports.calculateUnwatchedDenorms(series, episodeResults);
+        exports.calculateUnwatchedDenorms(series, series.personSeries, episodeResults);
 
         const sql =
           "SELECT er.episode_id, er.rating_value " +
@@ -629,24 +629,24 @@ function markRequestResolved(myRequest, dupeRequest) {
 
 // denorm helper
 
-exports.calculateUnwatchedDenorms = function(series, unwatchedEpisodes) {
+exports.calculateUnwatchedDenorms = function(series, viewer, unwatchedEpisodes) {
   let unairedEpisodes = _.filter(unwatchedEpisodes, isUnaired);
   let airedEpisodes = _.filter(unwatchedEpisodes, isAired);
 
-  series.personSeries.unwatched_all = airedEpisodes.length;
+  viewer.unwatched_all = airedEpisodes.length;
 
   let nextEpisodeToWatch = airedEpisodes.length === 0 ? null : _.first(airedEpisodes);
   let nextEpisodeToAir = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
 
   if (nextEpisodeToWatch !== null) {
-    series.personSeries.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
+    viewer.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
   }
 
   if (nextEpisodeToAir !== null) {
     series.nextAirDate = nextEpisodeToAir.air_time === null ? nextEpisodeToAir.air_date : nextEpisodeToAir.air_time;
   }
 
-  series.personSeries.midSeason = stoppedMidseason(nextEpisodeToWatch);
+  viewer.midSeason = stoppedMidseason(nextEpisodeToWatch);
 
 };
 
