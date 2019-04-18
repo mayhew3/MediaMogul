@@ -93,21 +93,21 @@ exports.getMyShows = function(request, response) {
       updateUnwatchedDenorms(seriesResults, episodeResults);
 
       const sql =
-        "SELECT e.series_id, er.episode_id, er.rating_value " +
-        "FROM episode_rating er " +
-        "INNER JOIN episode e " +
-        "  ON er.episode_id = e.id " +
-        "INNER JOIN series s " +
-        "  ON e.series_id = s.id " +
-        "INNER JOIN person_series ps " +
-        "  ON ps.series_id = s.id " +
-        "WHERE er.watched = $1 " +
-        "AND er.retired = $2 " +
-        "AND er.person_id = $3 " +
-        "AND er.rating_value IS NOT NULL " +
-        "AND ps.person_id = $4 " +
-        "AND ps.tier = $5" +
-        "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
+          "SELECT e.series_id, er.episode_id, er.rating_value " +
+          "FROM episode_rating er " +
+          "INNER JOIN episode e " +
+          "  ON er.episode_id = e.id " +
+          "INNER JOIN series s " +
+          "  ON e.series_id = s.id " +
+          "INNER JOIN person_series ps " +
+          "  ON ps.series_id = s.id " +
+          "WHERE er.watched = $1 " +
+          "AND er.retired = $2 " +
+          "AND er.person_id = $3 " +
+          "AND er.rating_value IS NOT NULL " +
+          "AND ps.person_id = $4 " +
+          "AND ps.tier = $5" +
+          "ORDER BY e.series_id, er.watched_date DESC, e.season DESC, e.episode_number DESC ";
 
       const values = [
         true,
@@ -124,10 +124,24 @@ exports.getMyShows = function(request, response) {
         const timeElapsed = new Date - startTime;
         console.log("Time elapsed: " + timeElapsed);
         return response.json(seriesResults);
+      }).catch(err => {
+        throwError('Error fetching queue ratings: ' + err.message,
+            'getMyShows ratings query',
+            response)
       });
 
-    });
-  });
+    })
+        .catch(err => {
+          throwError('Error fetching queue episodes: ' + err.message,
+              'getMyShows episode query',
+              response)
+        });
+  })
+      .catch(err => {
+        throwError('Error fetching queue series: ' + err.message,
+            'getMyShows series query',
+            response)
+      });
 
 };
 
@@ -224,12 +238,30 @@ exports.getMyQueueShows = function(request, response) {
         const timeElapsed = new Date - startTime;
         console.log("Time elapsed: " + timeElapsed);
         return response.json(seriesResults);
+      }).catch(err => {
+        throwError('Error fetching myQueue episodes: ' + err.message,
+            'getMyQueueShows episode query',
+            response)
       });
 
-    });
+    })
+        .catch(err => {
+          throwError('Error fetching myQueue episodes: ' + err.message,
+              'getMyQueueShows episode query',
+              response)
+        });
+  }).catch(err => {
+    throwError('Error fetching myQueue ratings: ' + err.message,
+        'getMyQueueShows ratings query',
+        response)
   });
 
 };
+
+function throwError(consoleMsg, clientError, response) {
+  response.json({err: clientError});
+  throw new Error(consoleMsg);
+}
 
 function getCommonShowsQuery(personId) {
   return {
