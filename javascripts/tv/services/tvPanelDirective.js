@@ -29,6 +29,7 @@
     self.ArrayService = ArrayService;
 
     self.showLoading = self.panelInfo.showLoading ? self.panelInfo.showLoading : () => false;
+    self.showError = self.panelInfo.showError ? self.panelInfo.showError : () => false;
 
     self.currentPageUpNext = 1;
 
@@ -40,6 +41,7 @@
 
     self.showPanel = function() {
       return self.showLoading() ||
+          self.showError() ||
           (self.showEmpty() && self.totalItems() === 0) ||
           self.totalItems() > 0;
     };
