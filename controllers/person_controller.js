@@ -56,7 +56,7 @@ exports.getMyShows = function(request, response) {
 
   const startTime = new Date;
 
-  const commonShowsQuery = getCommonShowsQuery();
+  const commonShowsQuery = getCommonShowsQuery(personId);
 
   const sql = commonShowsQuery.sql +
     "AND ps.tier = $10 ";
@@ -152,7 +152,7 @@ exports.getMyQueueShows = function(request, response) {
 
   const startTime = new Date;
 
-  const commonShowsQuery = getCommonShowsQuery();
+  const commonShowsQuery = getCommonShowsQuery(personId);
   const sql = commonShowsQuery.sql +
     "AND ps.tier = $10 " +
     "AND ( " +

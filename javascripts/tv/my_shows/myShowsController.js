@@ -119,14 +119,14 @@ angular.module('mediaMogulApp')
       return self.firstTier(series) &&
         !self.ratingsPending(series) &&
         !self.showInQueue(series) &&
-        series.midSeason === true &&
+        series.personSeries.midSeason === true &&
         hasWatchedEpisodes(series);
     };
 
     self.continueBacklog = function(series) {
       return self.secondTier(series) &&
         !self.ratingsPending(series) &&
-        series.midSeason === true &&
+        series.personSeries.midSeason === true &&
         hasWatchedEpisodes(series);
     };
 
@@ -134,14 +134,14 @@ angular.module('mediaMogulApp')
       return self.firstTier(series) &&
         !self.ratingsPending(series) &&
         !self.showInQueue(series) &&
-        series.midSeason !== true &&
+        series.personSeries.midSeason !== true &&
         hasWatchedEpisodes(series);
     };
 
     self.newSeasonBacklog = function(series) {
       return self.secondTier(series) &&
         !self.ratingsPending(series) &&
-        series.midSeason !== true &&
+        series.personSeries.midSeason !== true &&
         hasWatchedEpisodes(series);
     };
 

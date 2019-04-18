@@ -202,7 +202,7 @@ angular.module('mediaMogulApp')
     function droppedOffFilter(series) {
       return !hasOpenBallots(series) &&
         hasUnwatchedEpisodes(series) &&
-        isTrue(series.midSeason) &&
+        isTrue(series.personSeries.midSeason) &&
         hasWatchedEpisodes(series) &&
         !inProgressFilter(series);
     }
@@ -210,7 +210,7 @@ angular.module('mediaMogulApp')
     function newSeasonFilter(series) {
       return !hasOpenBallots(series) &&
         hasUnwatchedEpisodes(series) &&
-        !isTrue(series.midSeason) &&
+        !isTrue(series.personSeries.midSeason) &&
         hasWatchedEpisodes(series) &&
         !inProgressFilter(series);
     }
