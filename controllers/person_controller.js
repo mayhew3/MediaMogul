@@ -259,9 +259,15 @@ exports.getMyQueueShows = function(request, response) {
 };
 
 function throwError(consoleMsg, clientError, response) {
-  response.json({err: clientError});
+  response.status(500);
+  response.json({ error: clientError });
   throw new Error(consoleMsg);
 }
+
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  // application specific logging, throwing an error, or other logic here
+});
 
 function getCommonShowsQuery(personId) {
   return {

@@ -13,6 +13,12 @@
       </div>
     </div>
 
+    <div class="row" ng-show="ctrl.showError()">
+      <div class="col-xs-9 col-lg-6" style="text-align: center; padding-bottom: 20px">
+        <h2>Error fetching shows. Talk to Mayhew.</h2>
+      </div>
+    </div>
+
     <div class="row" ng-hide="ctrl.showLoading()">
       <div class="fade-repeat posterRow" ng-class="ctrl.imageColumnClass()" ng-repeat="show in ctrl.getShows() |
                     orderBy: ctrl.orderBy() |

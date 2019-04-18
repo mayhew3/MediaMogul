@@ -10,6 +10,9 @@ angular.module('mediaMogulApp')
       self.loadingQueue = true;
       self.loadingTierOne = true;
 
+      self.errorQueue = false;
+      self.errorTierOne = false;
+
       const myShowObservers = [];
 
       self.nextTimeout = undefined;
@@ -30,8 +33,20 @@ angular.module('mediaMogulApp')
               updateMyShowsListTierTwo().then(() =>  {
                 resolve();
               });
-            });
-          });
+            })
+                .catch(() => {
+                  self.errorTierOne = true;
+                  self.loadingTierOne = false;
+                  updateAllShowObservers();
+                });
+          })
+              .catch(() => {
+                self.errorQueue = true;
+                self.errorTierOne = true;
+                self.loadingQueue = false;
+                self.loadingTierOne = false;
+                updateAllShowObservers();
+              });
         });
       };
 
@@ -58,8 +73,8 @@ angular.module('mediaMogulApp')
             mergeShowsIntoArray(tempShows);
 
             resolve(myShows);
-          }, function (errResponse) {
-            console.error('Error while fetching series list: ' + errResponse);
+          }).catch((err) => {
+            console.error('Error while fetching series list: ' + err);
             reject();
           });
         });
