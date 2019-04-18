@@ -126,8 +126,8 @@ angular.module('mediaMogulApp')
                 const series_id = parseInt(show.series_id);
                 const series = _.findWhere(myShows, {id: series_id});
                 console.log(' - Updating show ' + series.title);
-                series.unwatched_all += show.episode_count;
-                series.first_unwatched = nextAirDate;
+                series.personSeries.unwatched_all += show.episode_count;
+                series.personSeries.first_unwatched = nextAirDate;
                 series.nextAirDate = show.next_air_time ? new Date(show.next_air_time) : undefined;
               });
               $timeout.cancel(self.nextTimeout);
@@ -584,7 +584,7 @@ angular.module('mediaMogulApp')
         firstUnwatched = unwatchedEpisodes === 0 ? null : _.first(unwatchedEpisodesList).air_time;
 
         let originalFields = {
-          first_unwatched: series.first_unwatched,
+          first_unwatched: series.personSeries.first_unwatched,
         };
 
         let updatedFields = {
@@ -598,10 +598,10 @@ angular.module('mediaMogulApp')
 
           let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
-          series.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
-          series.first_unwatched = firstUnwatched;
-          series.unwatched_all = unwatchedEpisodes;
-          series.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
+          series.personSeries.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
+          series.personSeries.first_unwatched = firstUnwatched;
+          series.personSeries.unwatched_all = unwatchedEpisodes;
+          series.personSeries.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
             return ArrayService.exists(episode.rating_pending) && episode.rating_pending === true;
           }).length;
 

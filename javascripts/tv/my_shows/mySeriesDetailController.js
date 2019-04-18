@@ -46,11 +46,11 @@ angular.module('mediaMogulApp')
     };
 
     self.originalFields = {
-      my_rating: self.series.my_rating
+      my_rating: self.series.personSeries.my_rating
     };
 
     self.interfaceFields = {
-      my_rating: self.series.my_rating
+      my_rating: self.series.personSeries.my_rating
     };
 
     self.totalItems = function() {
@@ -362,8 +362,8 @@ angular.module('mediaMogulApp')
     self.rateMyShow = function() {
       return EpisodeService.rateMyShow(self.series, self.interfaceFields.my_rating).then(function (response) {
         self.originalFields.my_rating = self.interfaceFields.my_rating;
-        self.series.my_rating = self.interfaceFields.my_rating;
-        self.series.dynamic_rating = response.data.dynamic_rating;
+        self.series.personSeries.my_rating = self.interfaceFields.my_rating;
+        self.series.personSeries.dynamic_rating = response.data.dynamic_rating;
       });
     };
 
@@ -377,11 +377,11 @@ angular.module('mediaMogulApp')
     };
 
     self.getPinnedClass = function() {
-      return self.series.my_tier === 1 ? "btn-success" : "btn-default";
+      return self.series.personSeries.my_tier === 1 ? "btn-success" : "btn-default";
     };
 
     self.getBacklogClass = function() {
-      return self.series.my_tier === 2 ? "btn-warning" : "btn-default";
+      return self.series.personSeries.my_tier === 2 ? "btn-warning" : "btn-default";
     };
 
     self.getRemovedClass = function() {
@@ -444,7 +444,7 @@ angular.module('mediaMogulApp')
     self.changeTier = function(tier) {
       maybeReAddShow().then(() => {
         EpisodeService.changeMyTier(self.series.id, tier).then(function() {
-          self.series.my_tier = tier;
+          self.series.personSeries.my_tier = tier;
         });
       });
     };
@@ -467,7 +467,7 @@ angular.module('mediaMogulApp')
         EpisodeService.removeFromMyShows(self.series).then(function () {
           $log.debug("Returned from removal.");
           self.removed = true;
-          self.series.my_tier = null;
+          self.series.personSeries.my_tier = null;
         });
       }
     };
