@@ -113,7 +113,13 @@ exports.getGroupPersons = function(request, response) {
 exports.getGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
 
-  const sql = "SELECT s.id, s.title, s.metacritic, s.poster, s.cloud_poster, tgs.date_added, tgs.id as tv_group_series_id, " +
+  const sql = "SELECT s.id, " +
+      "s.title, " +
+      "s.metacritic, " +
+      "s.poster, " +
+      "s.cloud_poster, " +
+      "tgs.date_added, " +
+      "tgs.id as tv_group_series_id, " +
     "s.metacritic AS group_score, " +
     "s.trailer_link, " +
     "(SELECT COUNT(1) " +
@@ -139,6 +145,8 @@ exports.getGroupShows = function(request, response) {
     "AND s.tvdb_match_status = $8 ";
 
   db.selectWithJSON(sql, [0, 0, 0, 0, tv_group_id, 0, 0, 'Match Completed']).then(function (seriesResults) {
+    extractGroupSeries(seriesResults, tv_group_id);
+
     const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
       "INNER JOIN tv_group_series tgs " +
@@ -171,7 +179,9 @@ exports.getGroupShows = function(request, response) {
           let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
           debug("Series: " + series.title);
 
-          person_controller.calculateUnwatchedDenorms(series, unwatchedEpisodes);
+          const group = getGroup(series, tv_group_id);
+
+          person_controller.calculateUnwatchedDenorms(series, group, unwatchedEpisodes);
         }
       }
 
@@ -181,6 +191,30 @@ exports.getGroupShows = function(request, response) {
 
   });
 };
+
+function getGroup(series, tv_group_id) {
+  return _.findWhere(series.groups, {tv_group_id: tv_group_id});
+}
+
+function extractSingleGroupSeries(series, tv_group_id) {
+  const columnsToMove = [
+    'tv_group_series_id',
+    'date_added'
+  ];
+  const group = {
+    tv_group_id: tv_group_id
+  };
+  _.forEach(columnsToMove, column => {
+    group[column] = series[column];
+    delete series[column];
+  });
+  series.groups = [];
+  series.groups.push(group);
+}
+
+function extractGroupSeries(seriesResults, tv_group_id) {
+  _.each(seriesResults, series => extractSingleGroupSeries(series, tv_group_id));
+}
 
 exports.addToGroupShows = function(request, response) {
   const tv_group_id = request.body.tv_group_id;
@@ -599,10 +633,12 @@ function getBallots(tv_group_id, response, seriesResults) {
           let ballots = groupedBySeries[series_id];
           let series = _.findWhere(seriesResults, {id: parseInt(series_id)});
 
-          series.ballots = ballots;
+          const group = getGroup(series, tv_group_id);
+
+          group.ballots = ballots;
 
           const vote_score = calculateGroupRating(ballots[0]);
-          series.group_score = vote_score === null ? series.metacritic : vote_score;
+          group.group_score = vote_score === null ? series.metacritic : vote_score;
         }
       }
 
