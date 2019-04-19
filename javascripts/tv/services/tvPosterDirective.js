@@ -25,7 +25,7 @@
     self.onClick = $scope.onClick;
 
     self.badgeValue = function() {
-      return ArrayService.exists(self.posterInfo.badgeField) ? self.show[self.posterInfo.badgeField] : null;
+      return ArrayService.exists(self.posterInfo.badgeValue) ? self.posterInfo.badgeValue(self.show) : null;
     };
 
     self.tvdbPosterPath = function() {
