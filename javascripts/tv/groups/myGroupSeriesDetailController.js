@@ -1,13 +1,15 @@
 angular.module('mediaMogulApp')
   .controller('myGroupSeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'group',
-    '$uibModal', '$filter', 'LockService', '$http', '$timeout', 'ArrayService',
-  function($log, EpisodeService, $uibModalInstance, series, group, $uibModal, $filter, LockService, $http, $timeout, ArrayService) {
+    '$uibModal', '$filter', 'LockService', '$http', '$timeout', 'ArrayService', 'GroupService',
+  function($log, EpisodeService, $uibModalInstance, series, group, $uibModal, $filter, LockService, $http, $timeout,
+           ArrayService, GroupService) {
     var self = this;
 
     self.LockService = LockService;
 
     self.series = series;
     self.group = group;
+    self.groupSeries = GroupService.getGroupSeries(series, group.id);
 
     // TEMP: Use to view a bunch of fields to help debug filters.
     self.debugOn = false;
@@ -119,7 +121,7 @@ angular.module('mediaMogulApp')
     // BALLOT HELPERS
 
     function getBallotForShow() {
-      return _.findWhere(self.series.ballots, {voting_closed: null});
+      return _.findWhere(self.groupSeries.ballots, {voting_closed: null});
     }
 
     self.getOutstandingVoteCount = function() {
@@ -391,10 +393,10 @@ angular.module('mediaMogulApp')
     }
 
     function addBallot(ballot) {
-      if (!_.isArray(self.series.ballots)) {
-        self.series.ballots = [ballot];
+      if (!_.isArray(self.groupSeries.ballots)) {
+        self.groupSeries.ballots = [ballot];
       } else {
-        self.series.ballots.push(ballot);
+        self.groupSeries.ballots.push(ballot);
       }
     }
 
