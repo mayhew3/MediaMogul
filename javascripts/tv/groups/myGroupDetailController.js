@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
 .controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
-            'NavHelperService', 'ArrayService',
-  function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService, ArrayService) {
+            'NavHelperService', 'ArrayService', 'GroupService',
+  function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService, ArrayService, GroupService) {
     const self = this;
 
     self.LockService = LockService;
@@ -21,6 +21,21 @@ angular.module('mediaMogulApp')
     self.currentPageUpNext = 1;
     self.pageSize = 12;
 
+    function getGroupSeries(series) {
+      return GroupService.getGroupSeries(series, self.group.id);
+    }
+
+    function getUnwatched(series) {
+      return getGroupSeries(series).unwatched_all;
+    }
+
+    function getBallots(series) {
+      return getGroupSeries(series).ballots;
+    }
+
+    function getLastWatched(series) {
+      return getGroupSeries(series).last_watched;
+    }
 
     self.dashboardInfos = [
       {
@@ -64,7 +79,7 @@ angular.module('mediaMogulApp')
         tvFilter: inProgressFilter,
         showEmpty: true,
         posterSize: 'large',
-        badgeField: 'unwatched_all'
+        badgeValue: getUnwatched
       },
       {
         headerText: "Upcoming",
@@ -84,7 +99,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: newlyAddedFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12
       },
       {
@@ -95,7 +110,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: droppedOffFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12
       },
       {
@@ -106,7 +121,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: newSeasonFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12
       },
       {
@@ -117,7 +132,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: toStartFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12
       },
       {
@@ -128,7 +143,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: allVotedFilter,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12
       },
       {
@@ -148,8 +163,9 @@ angular.module('mediaMogulApp')
       $http.get('/api/groupShows', {params: {tv_group_id: self.group.id}}).then(function(results) {
         ArrayService.refreshArray(self.shows, results.data);
         self.shows.forEach(function(show) {
-          if (!ArrayService.exists(show.unwatched_all)) {
-            show.unwatched_all = 0;
+          const groupSeries = getGroupSeries(show);
+          if (!ArrayService.exists(groupSeries.unwatched_all)) {
+            groupSeries.unwatched_all = 0;
           }
         });
 
@@ -202,7 +218,7 @@ angular.module('mediaMogulApp')
     function droppedOffFilter(series) {
       return !hasOpenBallots(series) &&
         hasUnwatchedEpisodes(series) &&
-        isTrue(series.personSeries.midSeason) &&
+        isTrue(getGroupSeries(series).midSeason) &&
         hasWatchedEpisodes(series) &&
         !inProgressFilter(series);
     }
@@ -210,7 +226,7 @@ angular.module('mediaMogulApp')
     function newSeasonFilter(series) {
       return !hasOpenBallots(series) &&
         hasUnwatchedEpisodes(series) &&
-        !isTrue(series.personSeries.midSeason) &&
+        !isTrue(getGroupSeries(series).midSeason) &&
         hasWatchedEpisodes(series) &&
         !inProgressFilter(series);
     }
@@ -231,23 +247,23 @@ angular.module('mediaMogulApp')
     // FILTER HELPERS
 
     function airedRecently(series) {
-      return dateIsWithinLastDays(series.personSeries.first_unwatched, 15);
+      return dateIsWithinLastDays(getGroupSeries(series).first_unwatched, 15);
     }
 
     function watchedRecently(series) {
-      return dateIsWithinLastDays(series.personSeries.last_watched, 28);
+      return dateIsWithinLastDays(getGroupSeries(series).last_watched, 28);
     }
 
     function addedRecently(series) {
-      return dateIsWithinLastDays(series.personSeries.date_added, 15);
+      return dateIsWithinLastDays(getGroupSeries(series).date_added, 15);
     }
 
       function hasUnwatchedEpisodes(series) {
-      return series.personSeries.unwatched_all > 0;
+      return getUnwatched(series) > 0;
     }
 
     function hasWatchedEpisodes(series) {
-      return (series.aired_episodes - series.personSeries.unwatched_all) !== 0;
+      return (series.aired_episodes - getUnwatched(series)) !== 0;
     }
 
     function needsFirstVote(series) {
@@ -255,11 +271,13 @@ angular.module('mediaMogulApp')
     }
 
     function hasNeverBeenVotedOn(series) {
-      return !ArrayService.exists(series.ballots) || series.ballots.length === 0;
+      const ballots = getBallots(series);
+      return !ArrayService.exists(ballots) || ballots.length === 0;
     }
 
     function isAwaitingMyVote(series) {
-      return _.filter(series.ballots, function(ballot) {
+      const ballots = getBallots(series);
+      return _.filter(ballots, function(ballot) {
         const peopleWhoHaveVoted = _.pluck(ballot.votes, 'person_id');
         return !_.contains(peopleWhoHaveVoted, self.LockService.person_id);
       }).length > 0;
@@ -268,7 +286,8 @@ angular.module('mediaMogulApp')
     // BALLOT HELPERS
 
     function getBallotForShow(show) {
-      return _.findWhere(show.ballots, {voting_closed: null});
+      const ballots = getBallots(show);
+      return _.findWhere(ballots, {voting_closed: null});
     }
 
     function hasOpenBallots(series) {
@@ -286,8 +305,9 @@ angular.module('mediaMogulApp')
     }
 
     function lastWatchedDate(show) {
-      if (ArrayService.exists(show.last_watched)) {
-        return $filter('date')(show.last_watched, formatWatchedDate(show.last_watched), 'America/Los_Angeles');
+      const last_watched = getLastWatched(show);
+      if (ArrayService.exists(last_watched)) {
+        return $filter('date')(last_watched, formatWatchedDate(last_watched), 'America/Los_Angeles');
       }
       return null;
     }
