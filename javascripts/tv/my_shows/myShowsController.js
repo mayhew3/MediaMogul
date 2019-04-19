@@ -193,7 +193,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         panelFormat: 'panel-warning',
-        badgeField: 'rating_pending_episodes'
+        badgeValue: getRatingsPending
       },
       {
         headerText: 'Up Next',
@@ -204,7 +204,7 @@ angular.module('mediaMogulApp')
         },
         showEmpty: true,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue
       },
@@ -228,7 +228,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.continuePinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12,
         showLoading: self.showLoadingTierOne,
         showError: self.showErrorTierOne
@@ -241,7 +241,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.newSeasonPinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 6,
         showLoading: self.showLoadingTierOne,
         showError: self.showErrorTierOne
@@ -254,7 +254,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.toStartPinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 6,
         showLoading: self.showLoadingTierOne,
         showError: self.showErrorTierOne
@@ -271,7 +271,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.continuePinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         showLoading: self.showLoadingTierOne,
         showError: self.showErrorTierOne
       },
@@ -283,7 +283,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.continueBacklog,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12
       }
     ];
@@ -297,7 +297,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.newSeasonPinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         showLoading: self.showLoadingTierOne,
         showError: self.showErrorTierOne
       },
@@ -309,7 +309,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.newSeasonBacklog,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12
       }
     ];
@@ -323,7 +323,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.toStartPinned,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         showLoading: self.showLoadingTierOne,
         showError: self.showErrorTierOne
       },
@@ -335,7 +335,7 @@ angular.module('mediaMogulApp')
         },
         tvFilter: self.toStartBacklog,
         posterSize: 'large',
-        badgeField: 'unwatched_all',
+        badgeValue: getUnwatched,
         pageLimit: 12
       }
     ];
@@ -364,6 +364,14 @@ angular.module('mediaMogulApp')
         return formatAirTime(new Date(show.nextAirDate));
       }
       return null;
+    }
+
+    function getUnwatched(series) {
+      return series.personSeries.unwatched_all;
+    }
+
+    function getRatingsPending(series) {
+      return series.personSeries.rating_pending_episodes;
     }
 
     function formatAirTime(combinedDate) {
