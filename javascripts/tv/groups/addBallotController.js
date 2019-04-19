@@ -1,11 +1,14 @@
 angular.module('mediaMogulApp')
 .controller('addBallotController', ['$log', 'LockService', '$http', '$uibModalInstance',
-            'series', 'DateService', 'ArrayService', 'addBallotCallback',
-  function($log, LockService, $http, $uibModalInstance, series, DateService, ArrayService, addBallotCallback) {
+            'series', 'DateService', 'ArrayService', 'addBallotCallback', 'groupSeries',
+  function($log, LockService, $http, $uibModalInstance, series, DateService, ArrayService,
+           addBallotCallback, groupSeries) {
     const self = this;
     self.LockService = LockService;
     self.DateService = DateService;
     self.series = series;
+    self.groupSeries = groupSeries;
+
     self.reason = "To Start";
     self.possibleReasons = [
       "To Start",
@@ -21,7 +24,7 @@ angular.module('mediaMogulApp')
     self.addBallot = function() {
       const payload = {
         reason: self.reason,
-        tv_group_series_id: self.series.tv_group_series_id
+        tv_group_series_id: self.groupSeries.tv_group_series_id
       };
 
       $http.post('/api/ballots', payload).then(function(result) {
