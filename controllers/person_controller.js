@@ -776,10 +776,13 @@ exports.removeFromMyShows = function(request, response) {
 
 
 exports.getNotMyShows = function(request, response) {
-  var personId = request.query.PersonId;
+  const personId = request.query.PersonId;
   console.log("Server call 'getNotMyShows': Person " + personId);
 
-  var sql = "SELECT s.* " +
+  const sql = "SELECT s.id," +
+    "s.title, " +
+    "s.poster," +
+    "s.cloud_poster " +
     "FROM series s " +
     "WHERE id NOT IN (SELECT ps.series_id " +
     "                 FROM person_series ps " +
