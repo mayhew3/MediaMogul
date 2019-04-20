@@ -37,13 +37,17 @@ angular.module('mediaMogulApp')
       return getGroupSeries(series).last_watched;
     }
 
+    function getGroupScore(series) {
+      return getGroupSeries(series).group_score;
+    }
+
     self.dashboardInfos = [
       {
         headerText: "Up for Vote",
         tvFilter: upForVoteFilter,
         posterSize: 'large',
         sort: {
-          field: 'group_score',
+          field: getGroupScore,
           direction: 'desc'
         },
         panelFormat: 'panel-warning',
@@ -54,7 +58,7 @@ angular.module('mediaMogulApp')
         tvFilter: needsFirstVote,
         posterSize: 'large',
         sort: {
-          field: 'group_score',
+          field: getGroupScore,
           direction: 'desc'
         },
         panelFormat: 'panel-info',
@@ -73,7 +77,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Top Queue",
         sort: {
-          field: 'group_score',
+          field: getGroupScore,
           direction: 'desc'
         },
         tvFilter: inProgressFilter,
@@ -94,7 +98,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Newly Added",
         sort: {
-          field: 'group_score',
+          field: getGroupScore,
           direction: 'desc'
         },
         tvFilter: newlyAddedFilter,
@@ -105,7 +109,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Mid-Season",
         sort: {
-          field: 'group_score',
+          field: getGroupScore,
           direction: 'desc'
         },
         tvFilter: droppedOffFilter,
@@ -116,7 +120,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "Between Seasons",
         sort: {
-          field: 'group_score',
+          field: getGroupScore,
           direction: 'desc'
         },
         tvFilter: newSeasonFilter,
@@ -127,7 +131,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "To Start",
         sort: {
-          field: 'group_score',
+          field: getGroupScore,
           direction: 'desc'
         },
         tvFilter: toStartFilter,
@@ -138,7 +142,7 @@ angular.module('mediaMogulApp')
       {
         headerText: "All",
         sort: {
-          field: 'group_score',
+          field: getGroupScore,
           direction: 'desc'
         },
         tvFilter: allVotedFilter,
@@ -151,7 +155,7 @@ angular.module('mediaMogulApp')
         tvFilter: upToDateFilter,
         posterSize: 'small',
         sort: {
-          field: 'last_watched',
+          field: getLastWatched,
           direction: 'desc'
         },
         subtitle: lastWatchedDate,
