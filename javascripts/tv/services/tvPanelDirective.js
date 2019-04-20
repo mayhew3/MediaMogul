@@ -79,6 +79,14 @@
       return GroupService.getGroupSeries(series, self.group.id);
     };
 
+    self.reverseSort = function() {
+      return self.panelInfo.sort.direction === 'desc';
+    };
+
+    self.getGroupSeries = function(series) {
+      return GroupService.getGroupSeries(series, self.group.id);
+    };
+
     function getFieldWithDirection() {
       return self.panelInfo.sort;
     }
