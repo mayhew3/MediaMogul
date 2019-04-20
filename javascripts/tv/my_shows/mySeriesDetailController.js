@@ -267,9 +267,10 @@ angular.module('mediaMogulApp')
 
         return $http.post('api/markEpisodesWatched', payload).then(() => {
           changed.forEach(episode => episode.watched = episode.watched_pending);
-          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
-            updateNextUp();
-          });
+          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase, series.personSeries)
+            .then(function () {
+              updateNextUp();
+            });
         });
       } else {
         return new Promise(resolve => resolve());
@@ -478,10 +479,11 @@ angular.module('mediaMogulApp')
 
       if (self.selectedLastWatchedEpisode === null) {
         $log.debug('Mark Past Watched called with no selected episode.');
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
-          updateNextUp();
-          $uibModalInstance.close();
-        });
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase, series.personSeries)
+          .then(function () {
+            updateNextUp();
+            $uibModalInstance.close();
+          });
       } else {
 
         let lastWatched = self.selectedLastWatchedEpisode.absolute_number;
@@ -490,10 +492,11 @@ angular.module('mediaMogulApp')
 
         EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched + 1).then(function () {
           $log.debug("Finished update, adjusting denorms.");
-          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
-            updateNextUp();
-            $uibModalInstance.close();
-          });
+          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase, series.personSeries)
+            .then(function () {
+              updateNextUp();
+              $uibModalInstance.close();
+            });
         });
       }
 
@@ -610,12 +613,13 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function () {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase).then(function () {
-          if (LockService.isAdmin()) {
-            YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
-          }
-          updateNextUp();
-        });
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase, series.personSeries)
+          .then(function () {
+            if (LockService.isAdmin()) {
+              YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
+            }
+            updateNextUp();
+          });
       });
     };
 
