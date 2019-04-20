@@ -296,22 +296,6 @@ angular.module('mediaMogulApp')
             $log.debug("Locations has " + series.viewingLocations.length + " rows.");
 
             episodes.forEach( function(episode) {
-
-              episode.colorStyle = function() {
-                if (episode.watched !== true) {
-                  return {};
-                } else {
-                  let hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
-                  let saturation = episode.rating_value === null ? "0%" : "50%";
-                  return {
-                    'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)',
-                    'font-size': '1.6em',
-                    'text-align': 'center',
-                    'font-weight': '800',
-                    'color': 'white'
-                  }
-                }
-              };
               self.updateRatingFields(episode);
             });
             return deferred.resolve(episodes);
