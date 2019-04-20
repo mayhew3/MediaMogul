@@ -7,7 +7,7 @@
   function tvPanel() {
     return {
       templateUrl: 'views/tv/tvPanel.html',
-      controller: ['$scope', 'ArrayService', 'EpisodeService', tvPanelController],
+      controller: ['$scope', 'ArrayService', 'EpisodeService', 'GroupService', tvPanelController],
       controllerAs: 'ctrl',
       scope: {
         shows: '=',
@@ -17,7 +17,7 @@
     }
   }
 
-  function tvPanelController($scope, ArrayService, EpisodeService) {
+  function tvPanelController($scope, ArrayService, EpisodeService, GroupService) {
     const self = this;
 
     self.EpisodeService = EpisodeService;
@@ -71,9 +71,17 @@
       return [nullsLast, getFieldWithDirection(), 'title'];
     };
 
+    self.reverseSort = function() {
+      return self.panelInfo.sort.direction === 'desc';
+    };
+
+    self.getGroupSeries = function(series) {
+      return GroupService.getGroupSeries(series, self.group.id);
+    };
+
     function getFieldWithDirection() {
       const sort = self.panelInfo.sort;
-      return sort.direction === 'asc' ? sort.field : '-' + sort.field;
+      return sort.field;
     }
 
     self.showEmpty = function() {
