@@ -1,11 +1,13 @@
 angular.module('mediaMogulApp')
 .controller('submitVoteController', ['$log', 'LockService', '$http', '$uibModalInstance',
-            'tv_group_ballot', 'series', 'tv_group', 'DateService', 'ArrayService',
-  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, tv_group, DateService, ArrayService) {
+            'tv_group_ballot', 'series', 'tv_group', 'DateService', 'ArrayService', 'GroupService',
+  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, tv_group, DateService,
+           ArrayService, GroupService) {
     const self = this;
     self.LockService = LockService;
     self.DateService = DateService;
     self.series = series;
+    self.groupSeries = GroupService.getGroupSeries(series, tv_group.id);
     self.tv_group_ballot = tv_group_ballot;
 
     self.selectedVote = null;
@@ -37,7 +39,7 @@ angular.module('mediaMogulApp')
           vote_value: payload.vote_value,
           person_id: payload.person_id
         });
-        series.group_score = result.data.group_score;
+        self.groupSeries.group_score = result.data.group_score;
 
         maybeCloseBallot().then(function() {
           $uibModalInstance.close();
@@ -46,16 +48,22 @@ angular.module('mediaMogulApp')
     };
 
     function maybeCloseBallot() {
-      if (tv_group.members.length === tv_group_ballot.votes.length) {
-        const changedFields = {
-          voting_closed: new Date
-        };
-        return $http.patch('api/ballots', { changedFields: changedFields, tv_group_ballot_id: tv_group_ballot.id});
-      } else {
-        return new Promise(function(resolve) {
+      return new Promise(resolve => {
+        if (tv_group.members.length === tv_group_ballot.votes.length) {
+          const changedFields = {
+            voting_closed: new Date
+          };
+          $http.patch('api/ballots', {
+            changedFields: changedFields,
+            tv_group_ballot_id: tv_group_ballot.id
+          }).then(() => {
+            tv_group_ballot.voting_closed = new Date;
+            resolve();
+          });
+        } else {
           resolve();
-        });
-      }
+        }
+      });
     }
 
     self.cancel = function() {
