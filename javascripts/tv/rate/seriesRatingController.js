@@ -31,7 +31,7 @@ angular.module('mediaMogulApp')
     });
 
     self.shouldShowRate = function(episode) {
-      return episode.rating_value === null;
+      return episode.getPersonValue('rating_value') === null;
     };
 
     self.toggleShowDetail = function() {
@@ -39,11 +39,11 @@ angular.module('mediaMogulApp')
     };
 
     self.getWatchedDateOrWatched = function(episode) {
-      // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
-      if (episode.watched_date === null) {
-        return episode.watched ? "----.--.--" : "";
+      // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.getPersonValue('watched_date'));
+      if (episode.getPersonValue('watched_date') === null) {
+        return episode.getPersonValue('watched') ? "----.--.--" : "";
       } else {
-        return $filter('date')(episode.watched_date, self.getDateFormat(episode.watched_date), 'America/Los_Angeles');
+        return $filter('date')(episode.getPersonValue('watched_date'), self.getDateFormat(episode.getPersonValue('watched_date')), 'America/Los_Angeles');
       }
     };
 
@@ -55,7 +55,7 @@ angular.module('mediaMogulApp')
     };
 
     self.getRating = function(episode) {
-      return self.cleanUpRating(episode.rating_value, episode.watched);
+      return self.cleanUpRating(episode.getPersonValue('rating_value'), episode.getPersonValue('watched'));
     };
 
     self.originalFields = {

@@ -876,12 +876,9 @@ exports.getMyEpisodes = function(request, response) {
         });
 
         if (ArrayService.exists(episodeMatch)) {
-          episodeMatch.watched_date = episodeRating.watched_date;
-          episodeMatch.watched = episodeRating.watched;
-          episodeMatch.rating_value = episodeRating.rating_value;
-          episodeMatch.rating_pending = episodeRating.rating_pending;
-          episodeMatch.review = episodeRating.review;
-          episodeMatch.rating_id = episodeRating.rating_id;
+          delete episodeRating.episode_id;
+
+          episodeMatch.personEpisode = episodeRating;
         }
       });
 

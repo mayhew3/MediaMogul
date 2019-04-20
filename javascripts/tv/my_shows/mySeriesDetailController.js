@@ -59,7 +59,8 @@ angular.module('mediaMogulApp')
       return self.episodes.filter(self.episodeFilter).length;
     };
 
-    EpisodeService.updateMyEpisodeList(self.series).then(function(episodes) {
+    EpisodeService.updateViewingLocations(series);
+    EpisodeService.getEpisodes(self.series).then(function(episodes) {
       self.episodes = episodes;
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     }).then(function() {
@@ -74,7 +75,7 @@ angular.module('mediaMogulApp')
     function isUnwatchedEpisode(episode) {
       if (self.selectedLastWatchedEpisode === null) {
         return episode.season !== null && episode.season > 0 &&
-          episode.watched === false &&
+          episode.getPersonValue('watched') === false &&
           !self.shouldHide(episode);
       } else {
         return episode.absolute_number > self.selectedLastWatchedEpisode.absolute_number;
@@ -172,7 +173,7 @@ angular.module('mediaMogulApp')
     }
 
     self.isWatchProjected = function(episode) {
-      return episode.watched ||
+      return episode.getPersonValue('watched') ||
         (self.selectedLastWatchedEpisode !== null &&
           episode.absolute_number <= self.selectedLastWatchedEpisode.absolute_number);
     };
@@ -191,7 +192,7 @@ angular.module('mediaMogulApp')
           return "warning";
         }
       } else {
-        if (episode.rating_pending) {
+        if (episode.getPersonValue('rating_pending')) {
           return "ratingPendingRow";
         } else if (isNextUp(episode)) {
           return "nextUpRow";
@@ -225,7 +226,7 @@ angular.module('mediaMogulApp')
       if (isProjectedToBeWatched(episode)) {
         return true;
       } else if (_.isUndefined(episode.watched_pending)) {
-        return episode.watched;
+        return episode.getPersonValue('watched');
       } else {
         return episode.watched_pending;
       }
@@ -237,7 +238,7 @@ angular.module('mediaMogulApp')
 
     self.submitMulti = function() {
       return new Promise(resolve => {
-        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.getPersonValue('watched'));
 
         maybeUpdateMultiWatch(changed).then(() => {
           self.clearPending();
@@ -250,7 +251,7 @@ angular.module('mediaMogulApp')
 
     function maybeUpdateMultiWatch(changed) {
       if (changed.length > 0) {
-        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.watched);
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.getPersonValue('watched'));
 
         const watched = _.filter(changed, episode => {
           return !_.isUndefined(episode.watched_pending) && episode.watched_pending === true;
@@ -266,8 +267,12 @@ angular.module('mediaMogulApp')
           unwatched_ids: unwatched_ids};
 
         return $http.post('api/markEpisodesWatched', payload).then(() => {
-          changed.forEach(episode => episode.watched = episode.watched_pending);
-          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase, series.personSeries)
+          changed.forEach(episode => episode.setPersonValue('watched', episode.watched_pending));
+          EpisodeService.updateMySeriesDenorms(
+            self.series,
+            self.episodes,
+            updatePersonSeriesInDatabase,
+            series.personSeries)
             .then(function () {
               updateNextUp();
             });
@@ -392,22 +397,22 @@ angular.module('mediaMogulApp')
     };
 
     self.getWatchedDateOrWatched = function(episode) {
-      // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
+      // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.getPersonValue('watched_date'));
       if (self.selectedLastWatchedEpisode !== null && !isUnwatchedEpisode(episode)) {
         return "Watched";
-      } else if (episode.watched_date === null) {
-        return episode.watched ? "----.--.--" : "";
+      } else if (episode.getPersonValue('watched_date') === null) {
+        return episode.getPersonValue('watched') ? "----.--.--" : "";
       } else {
-        return $filter('date')(episode.watched_date, self.getDateFormat(episode.watched_date), 'America/Los_Angeles');
+        return $filter('date')(episode.getPersonValue('watched_date'), self.getDateFormat(episode.getPersonValue('watched_date')), 'America/Los_Angeles');
       }
     };
 
     self.getRating = function(episode) {
-      let rating = episode.rating_value;
+      let rating = episode.getPersonValue('rating_value');
       if (rating !== null) {
         return rating;
       }
-      return episode.watched === true ? "--" : "";
+      return episode.getPersonValue('watched') === true ? "--" : "";
     };
 
     self.queueForManualUpdate = function() {
@@ -479,7 +484,11 @@ angular.module('mediaMogulApp')
 
       if (self.selectedLastWatchedEpisode === null) {
         $log.debug('Mark Past Watched called with no selected episode.');
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase, series.personSeries)
+        EpisodeService.updateMySeriesDenorms(
+          self.series,
+          self.episodes,
+          updatePersonSeriesInDatabase,
+          series.personSeries)
           .then(function () {
             updateNextUp();
             $uibModalInstance.close();
@@ -492,7 +501,11 @@ angular.module('mediaMogulApp')
 
         EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched + 1).then(function () {
           $log.debug("Finished update, adjusting denorms.");
-          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase, series.personSeries)
+          EpisodeService.updateMySeriesDenorms(
+            self.series,
+            self.episodes,
+            updatePersonSeriesInDatabase,
+            series.personSeries)
             .then(function () {
               updateNextUp();
               $uibModalInstance.close();
@@ -613,7 +626,11 @@ angular.module('mediaMogulApp')
           }
         }
       }).result.finally(function () {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, updatePersonSeriesInDatabase, series.personSeries)
+        EpisodeService.updateMySeriesDenorms(
+          self.series,
+          self.episodes,
+          updatePersonSeriesInDatabase,
+          series.personSeries)
           .then(function () {
             if (LockService.isAdmin()) {
               YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
