@@ -101,8 +101,9 @@ angular.module('mediaMogulApp')
     }
 
     self.showFetchingEpisodes = function(series) {
-      return self.LockService.isAdmin() ||
-          (series.person_id && series.person_id === self.LockService.person_id);
+      const showEpisodes = self.LockService.isAdmin() ||
+        (series.person_id && series.person_id === self.LockService.person_id);
+      return showEpisodes;
     };
 
     self.ratingsPending = function(series) {
@@ -181,7 +182,7 @@ angular.module('mediaMogulApp')
       tvFilter: self.showFetchingEpisodes,
       posterSize: 'small',
       sort: {
-        field: getDynamicRating,
+        field: 'title',
         direction: 'desc'
       },
       panelFormat: 'panel-warning'
@@ -193,7 +194,7 @@ angular.module('mediaMogulApp')
         tvFilter: self.ratingsPending,
         posterSize: 'large',
         sort: {
-          field: getDynamicRating,
+          field: 'title',
           direction: 'desc'
         },
         panelFormat: 'panel-warning',
