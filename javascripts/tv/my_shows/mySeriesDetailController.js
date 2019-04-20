@@ -344,8 +344,8 @@ angular.module('mediaMogulApp')
     self.onSeasonSelect = function() {
       self.currentPage = 1;
       const nextEpisode = self.nextUp;
-      const nextEpisodeNumber = nextEpisode.episode_number;
-      self.currentPage = Math.ceil(nextEpisodeNumber / self.pageSize);
+      const nextEpisodeNumber = nextEpisode ? nextEpisode.episode_number : null;
+      self.currentPage = nextEpisodeNumber ? Math.ceil(nextEpisodeNumber / self.pageSize) : 1;
     };
 
     self.selectSeason = function(season) {
