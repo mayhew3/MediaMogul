@@ -224,12 +224,13 @@ exports.addToGroupShows = function(request, response) {
 
   const sql = "INSERT INTO tv_group_series " +
     "(tv_group_id, series_id) " +
-    "VALUES ($1, $2) ";
+    "VALUES ($1, $2) " +
+    "RETURNING id ";
   const values = [
     tv_group_id, series_id
   ];
 
-  return db.executeQueryNoResults(response, sql, values);
+  db.executeQueryWithResults(response, sql, values);
 };
 
 exports.getNotGroupShows = function(request, response) {

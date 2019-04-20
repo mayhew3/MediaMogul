@@ -30,7 +30,8 @@ angular.module('mediaMogulApp')
     }
 
     function getBallots(series) {
-      return getGroupSeries(series).ballots;
+      const groupSeries = getGroupSeries(series);
+      return groupSeries.ballots;
     }
 
     function getLastWatched(series) {

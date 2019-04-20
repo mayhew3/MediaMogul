@@ -413,6 +413,9 @@ angular.module('mediaMogulApp')
             },
             addBallotCallback: function() {
               return addBallot;
+            },
+            groupSeries: function () {
+              return self.groupSeries;
             }
           }
         });

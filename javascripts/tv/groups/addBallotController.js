@@ -32,7 +32,8 @@ angular.module('mediaMogulApp')
           id: result.data[0].id,
           voting_open: new Date,
           voting_closed: null,
-          reason: self.reason
+          reason: self.reason,
+          votes: []
         };
         addBallotCallback(ballot);
         $uibModalInstance.close();
