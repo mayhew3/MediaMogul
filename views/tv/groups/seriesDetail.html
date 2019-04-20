@@ -96,7 +96,7 @@
               <td ng-class="ctrl.getTooltipClass(episode)"
                   title="{{ctrl.getTooltipText(episode)}}">
               <span ng-bind="ctrl.getWatchedDateOrWatched(episode)"
-                    ng-show="episode.watched || episode.skipped"></span>
+                    ng-show="episode.getPersonValue('watched') || episode.skipped"></span>
 
                 <!-- ME label -->
                 <span class="label label-info"

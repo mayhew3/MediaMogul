@@ -199,7 +199,7 @@
                     <td ng-bind="episode.title" class="episodeDescription"></td>
                     <td ng-bind="episode.air_time|date:ctrl.getDateFormat(episode.air_time):'America/Los_Angeles'"></td>
                     <td ng-style="ctrl.episodeColorStyle(episode)" width="70">
-                      <span ng-bind="episode.rating_value"
+                      <span ng-bind="episode.getPersonValue('rating_value')"
                             ng-show="!ctrl.shouldShowRate(episode)"></span>
                     </td>
                   </tr>

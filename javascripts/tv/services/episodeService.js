@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService', '$timeout',
-    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout) {
+  .service('EpisodeService', ['$log', '$http', '$filter', 'LockService', 'ArrayService', '$timeout', 'GroupService',
+    function ($log, $http, $filter, LockService, ArrayService, $timeout, GroupService) {
       const myShows = [];
       let myPendingShows = [];
       let notMyShows = [];
@@ -272,56 +272,55 @@ angular.module('mediaMogulApp')
         return $filter('date')(combinedDate, timeFormat);
       };
 
-      self.updateMyEpisodeList = function(series) {
-        let deferred = $q.defer();
-        let urlCalls = [];
-        urlCalls.push($http.get('/api/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
-        urlCalls.push($http.get('/api/seriesViewingLocations', {params: {SeriesId: series.id}}));
-
-        const episodes = [];
-
-        $q.all(urlCalls).then(
-          function(results) {
-            let tempEpisodes = results[0].data;
-            tempEpisodes.forEach(function(episode) {
-              let existing = findEpisodeWithId(episodes, episode.id);
-              if (existing) {
-                ArrayService.removeFromArray(episodes, existing);
-              }
-              episodes.push(episode);
-            });
-
-            series.viewingLocations = results[1].data;
-            $log.debug("Episodes has " + episodes.length + " rows.");
+      self.updateViewingLocations = function(series) {
+        return new Promise(resolve => {
+          $http.get('/api/seriesViewingLocations', {params: {SeriesId: series.id}}).then((results) => {
+            series.viewingLocations = results.data;
             $log.debug("Locations has " + series.viewingLocations.length + " rows.");
-
-            episodes.forEach( function(episode) {
-              self.updateRatingFields(episode);
-            });
-            return deferred.resolve(episodes);
-          },
-          function(errors) {
-            deferred.reject(errors);
+            resolve();
           });
-        return deferred.promise;
+        });
       };
 
-      function findEpisodeWithId (episodes, id) {
-        let matching = episodes.filter(function(episode) {
-          return episode.id === id;
+      self.getEpisodes = function(series) {
+        return new Promise(resolve => {
+          $http.get('/api/getMyEpisodes', {params: {
+              SeriesId: series.id,
+              PersonId: LockService.person_id
+            }}).then(results => {
+
+            const episodes = results.data;
+            $log.debug("Episodes has " + episodes.length + " rows.");
+
+            episodes.forEach( function(episode) {
+              episode.getPersonValue = function(fieldName) {
+                if (episode.personEpisode) {
+                  return episode.personEpisode[fieldName];
+                } else {
+                  return null;
+                }
+              };
+
+              episode.setPersonValue = function(fieldName, fieldValue) {
+                if (episode.personEpisode) {
+                  episode.personEpisode[fieldName] = fieldValue;
+                }
+              };
+              self.updateRatingFields(episode);
+            });
+
+            resolve(episodes);
+          });
         });
-        if (matching.length > 0) {
-          return matching[0];
-        }
-        return null;
-      }
+      };
 
       self.episodeColorStyle = function(episode) {
-        if (episode.watched !== true) {
+        if (episode.getPersonValue('watched') !== true) {
           return {};
         } else {
-          let hue = (episode.rating_value <= 50) ? episode.rating_value * 0.5 : (50 * 0.5 + (episode.rating_value - 50) * 4.5);
-          let saturation = episode.rating_value === null ? "0%" : "50%";
+          const rating = episode.getPersonValue('rating_value');
+          let hue = (rating <= 50) ? rating * 0.5 : (50 * 0.5 + (rating - 50) * 4.5);
+          let saturation = rating === null ? "0%" : "50%";
           return {
             'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)',
             'font-size': '1.6em',
@@ -347,19 +346,23 @@ angular.module('mediaMogulApp')
           "watched_date"
         ];
         optionalFields.forEach(function(fieldName) {
-          if (_.isUndefined(episode[fieldName])) {
-            episode[fieldName] = null;
+          if (_.isUndefined(episode.getPersonValue(fieldName))) {
+            episode.setPersonValue(fieldName, null);
           }
         });
 
-        if (_.isString(episode.rating_value)) {
-          episode.rating_value = parseInt(episode.rating_value);
+        const ratingValue = episode.getPersonValue('rating_value');
+        if (_.isString(ratingValue)) {
+          episode.setPersonValue(parseInt(ratingValue));
         }
+
         if (episode.absolute_number !== null) {
           episode.absolute_number = parseInt(episode.absolute_number);
         }
-        if (episode.watched === null) {
-          episode.watched = false;
+
+        const watched = episode.getPersonValue('watched');
+        if (watched === null) {
+          episode.setPersonValue('watched', false);
         }
       };
 
@@ -486,7 +489,7 @@ angular.module('mediaMogulApp')
             episodes.forEach(function(episode) {
               $log.debug(lastWatched + ", " + episode.absolute_number);
               if (episode.absolute_number !== null && episode.absolute_number <= lastWatched && episode.season !== 0) {
-                episode.watched = true;
+                episode.setPersonValue('watched', true);
               }
             });
             resolve();
@@ -542,6 +545,12 @@ angular.module('mediaMogulApp')
       };
 
       self.updateMySeriesDenorms = function(series, episodes, databaseCallback, viewer) {
+        const isGroup = ArrayService.exists(viewer.tv_group_id);
+
+        const getEpisodeViewer = isGroup ?
+          (episode) => GroupService.getGroupEpisode(episode, viewer.tv_group_id) :
+          (episode) => episode.personEpisode;
+
         let unwatchedEpisodes = 0;
         let firstUnwatched = null;
         let now = new Date;
@@ -566,10 +575,12 @@ angular.module('mediaMogulApp')
         $log.debug("There are " + airedEpisodes.length + " aired episodes.");
 
         let unwatchedEpisodesList = _.filter(airedEpisodes, function(episode) {
-          return !episode.watched && !isTrue(episode.skipped);
+          const episodeViewer = getEpisodeViewer(episode);
+          return !episodeViewer.watched && !isTrue(episodeViewer.skipped);
         });
         let watchedEpisodesWithDates = _.filter(airedEpisodes, function(episode) {
-          return episode.watched && ArrayService.exists(episode.watched_date);
+          const episodeViewer = getEpisodeViewer(episode);
+          return episodeViewer.watched && ArrayService.exists(episodeViewer.watched_date);
         });
 
         $log.debug("Found " + unwatchedEpisodesList.length + " unwatched episodes:");
@@ -599,9 +610,13 @@ angular.module('mediaMogulApp')
           viewer.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
           viewer.first_unwatched = firstUnwatched;
           viewer.unwatched_all = unwatchedEpisodes;
-          viewer.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
-            return ArrayService.exists(episode.rating_pending) && episode.rating_pending === true;
-          }).length;
+
+          if (!isGroup) {
+            viewer.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
+              const personEpisode = episode.personEpisode;
+              return ArrayService.exists(personEpisode.rating_pending) && personEpisode.rating_pending === true;
+            }).length;
+          }
 
           viewer.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
         });
