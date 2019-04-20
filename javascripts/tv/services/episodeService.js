@@ -433,6 +433,7 @@ angular.module('mediaMogulApp')
           formatIncomingShow(series);
           addShowToArray(series);
           addTimerForNextAirDate();
+          return series;
         }, function(errResponse) {
           $log.debug("Error adding to my shows: " + errResponse);
         });

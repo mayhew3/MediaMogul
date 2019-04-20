@@ -45,13 +45,15 @@ angular.module('mediaMogulApp')
       is_open: false
     };
 
-    self.originalFields = {
-      my_rating: self.series.personSeries.my_rating
-    };
+    if (owned) {
+      self.originalFields = {
+        my_rating: self.series.personSeries.my_rating
+      };
 
-    self.interfaceFields = {
-      my_rating: self.series.personSeries.my_rating
-    };
+      self.interfaceFields = {
+        my_rating: self.series.personSeries.my_rating
+      };
+    }
 
     self.totalItems = function() {
       return self.episodes.filter(self.episodeFilter).length;
@@ -356,7 +358,7 @@ angular.module('mediaMogulApp')
     };
 
     self.ratingIsChanged = function() {
-      return self.interfaceFields.my_rating !== self.originalFields.my_rating;
+      return !self.owned || self.interfaceFields.my_rating !== self.originalFields.my_rating;
     };
 
     self.rateMyShow = function() {
@@ -619,6 +621,13 @@ angular.module('mediaMogulApp')
 
     function markMyPastWatched(lastWatched) {
       return EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched);
+    }
+
+    function getUnwatchedCountAfter(lastWatched) {
+      const unwatched = _.filter(self.episodes, episode => {
+        return episode.season !== 0 && episode.absolute_number > lastWatched;
+      });
+      return unwatched.length;
     }
 
     self.openEpisodeDetailFromRow = function(episode) {
