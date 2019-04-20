@@ -135,7 +135,8 @@ exports.getGroupShows = function(request, response) {
     "   on tge.episode_id = e.id " +
     "  where e.series_id = s.id " +
     "  and tge.retired = $3 " +
-    "  and e.retired = $4) as last_watched " +
+    "  and e.retired = $4 " +
+    "  and tge.tv_group_id = $5) as last_watched " +
     "FROM series s " +
     "INNER JOIN tv_group_series tgs " +
     "  ON tgs.series_id = s.id " +
@@ -199,6 +200,7 @@ function getGroup(series, tv_group_id) {
 function extractSingleGroupSeries(series, tv_group_id) {
   const columnsToMove = [
     'tv_group_series_id',
+    'last_watched',
     'date_added'
   ];
   const group = {
