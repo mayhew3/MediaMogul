@@ -170,6 +170,10 @@ angular.module('mediaMogulApp')
       return (angular.isDefined(series.personSeries.dynamic_rating) ? -1: 0);
     };
 
+    function getDynamicRating(series) {
+      return series.personSeries.dynamic_rating;
+    }
+
     /* DASHBOARD INFOS */
 
     self.pendingDashboardInfo = {
@@ -177,7 +181,7 @@ angular.module('mediaMogulApp')
       tvFilter: self.showFetchingEpisodes,
       posterSize: 'small',
       sort: {
-        field: 'dynamic_rating',
+        field: getDynamicRating,
         direction: 'desc'
       },
       panelFormat: 'panel-warning'
@@ -189,7 +193,7 @@ angular.module('mediaMogulApp')
         tvFilter: self.ratingsPending,
         posterSize: 'large',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         panelFormat: 'panel-warning',
@@ -199,7 +203,7 @@ angular.module('mediaMogulApp')
         headerText: 'Up Next',
         tvFilter: self.showInQueue,
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         showEmpty: true,
@@ -223,7 +227,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'Mid-Season',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.continuePinned,
@@ -236,7 +240,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'New Season',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.newSeasonPinned,
@@ -249,7 +253,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'To Start',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.toStartPinned,
@@ -266,7 +270,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'Mid-Season',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.continuePinned,
@@ -278,7 +282,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'Backlog',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.continueBacklog,
@@ -292,7 +296,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'New Season',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.newSeasonPinned,
@@ -304,7 +308,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'Backlog',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.newSeasonBacklog,
@@ -318,7 +322,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'To Start',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.toStartPinned,
@@ -330,7 +334,7 @@ angular.module('mediaMogulApp')
       {
         headerText: 'Backlog',
         sort: {
-          field: 'dynamic_rating',
+          field: getDynamicRating,
           direction: 'desc'
         },
         tvFilter: self.toStartBacklog,
