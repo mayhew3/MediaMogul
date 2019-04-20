@@ -557,7 +557,7 @@ angular.module('mediaMogulApp')
         return changedFields;
       };
 
-      self.updateMySeriesDenorms = function(series, episodes, databaseCallback) {
+      self.updateMySeriesDenorms = function(series, episodes, databaseCallback, viewer) {
         let unwatchedEpisodes = 0;
         let firstUnwatched = null;
         let now = new Date;
@@ -579,8 +579,6 @@ angular.module('mediaMogulApp')
           return episode.absolute_number;
         });
 
-
-
         $log.debug("There are " + airedEpisodes.length + " aired episodes.");
 
         let unwatchedEpisodesList = _.filter(airedEpisodes, function(episode) {
@@ -600,7 +598,7 @@ angular.module('mediaMogulApp')
         firstUnwatched = unwatchedEpisodes === 0 ? null : _.first(unwatchedEpisodesList).air_time;
 
         let originalFields = {
-          first_unwatched: series.personSeries.first_unwatched,
+          first_unwatched: viewer.first_unwatched,
         };
 
         let updatedFields = {
@@ -614,14 +612,14 @@ angular.module('mediaMogulApp')
 
           let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
-          series.personSeries.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
-          series.personSeries.first_unwatched = firstUnwatched;
-          series.personSeries.unwatched_all = unwatchedEpisodes;
-          series.personSeries.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
+          viewer.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
+          viewer.first_unwatched = firstUnwatched;
+          viewer.unwatched_all = unwatchedEpisodes;
+          viewer.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
             return ArrayService.exists(episode.rating_pending) && episode.rating_pending === true;
           }).length;
 
-          series.personSeries.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
+          viewer.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
         });
       };
 
