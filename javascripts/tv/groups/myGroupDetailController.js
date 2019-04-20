@@ -255,14 +255,14 @@ angular.module('mediaMogulApp')
     }
 
     function watchedRecently(series) {
-      return dateIsWithinLastDays(getGroupSeries(series).last_watched, 28);
+      return dateIsWithinLastDays(getGroupSeries(series).last_watched, 15);
     }
 
     function addedRecently(series) {
       return dateIsWithinLastDays(getGroupSeries(series).date_added, 15);
     }
 
-      function hasUnwatchedEpisodes(series) {
+    function hasUnwatchedEpisodes(series) {
       return getUnwatched(series) > 0;
     }
 
