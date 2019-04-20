@@ -81,9 +81,6 @@ angular.module('mediaMogulApp')
           self.series = EpisodeService.getNotMyShows();
           $log.debug("Controller has " + self.series.length + " shows.");
 
-          self.series = _.sortBy(self.series, function(show) {
-            return 0 - show.dynamic_rating;
-          });
           self.totalItems = self.series.length;
           $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
             ArrayService.refreshArray(self.mySeriesRequests, results.data);

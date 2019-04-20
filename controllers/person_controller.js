@@ -392,8 +392,10 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
   return new Promise((resolve, reject) => {
 
     const commonShowsQuery = getCommonShowsQuery(person_id);
-    const sql = commonShowsQuery.sql;
+    const sql = commonShowsQuery.sql +
+    "AND s.id = $10 ";
     const values = commonShowsQuery.values;
+    values.push(series_id);
 
     db.selectWithJSON(sql, values).then(function (seriesResults) {
 
