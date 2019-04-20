@@ -623,13 +623,6 @@ angular.module('mediaMogulApp')
       return EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched);
     }
 
-    function getUnwatchedCountAfter(lastWatched) {
-      const unwatched = _.filter(self.episodes, episode => {
-        return episode.season !== 0 && episode.absolute_number > lastWatched;
-      });
-      return unwatched.length;
-    }
-
     self.openEpisodeDetailFromRow = function(episode) {
       if (!self.adding && !self.watchMultiple) {
         self.openEpisodeDetail(episode);
