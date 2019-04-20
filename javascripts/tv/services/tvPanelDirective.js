@@ -68,7 +68,7 @@
     };
 
     self.orderBy = function() {
-      return [nullsLast, getFieldWithDirection(), 'title'];
+      return [nullsLast, getFieldOnly(), 'title'];
     };
 
     self.reverseSort = function() {
@@ -80,6 +80,10 @@
     };
 
     function getFieldWithDirection() {
+      return self.panelInfo.sort;
+    }
+
+    function getFieldOnly() {
       const sort = self.panelInfo.sort;
       return sort.field;
     }
@@ -102,7 +106,15 @@
     // COMPARATORS
 
     function nullsLast(series) {
-      return (series[self.panelInfo.sort.field] === null) ? 1: 0;
+      const sort = getFieldWithDirection();
+      const field = sort.field;
+      if (_.isFunction(field)) {
+        const groupScore = field.call(null, series);
+        const direction = sort.direction === 'desc' ? -1 : 1;
+        return !ArrayService.exists(groupScore) ? direction : 0;
+      } else {
+        return (series[field] === null) ? 1: 0;
+      }
     }
 
 

@@ -47,7 +47,7 @@ angular.module('mediaMogulApp')
         tvFilter: upForVoteFilter,
         posterSize: 'large',
         sort: {
-          field: getGroupScore,
+          field: 'title',
           direction: 'desc'
         },
         panelFormat: 'panel-warning',
@@ -58,7 +58,7 @@ angular.module('mediaMogulApp')
         tvFilter: needsFirstVote,
         posterSize: 'large',
         sort: {
-          field: getGroupScore,
+          field: 'title',
           direction: 'desc'
         },
         panelFormat: 'panel-info',
