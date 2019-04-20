@@ -789,7 +789,7 @@ exports.getNotMyShows = function(request, response) {
     "                 WHERE person_id = $1) " +
     "AND s.retired = $2 " +
     "AND s.tvdb_match_status = $3 ";
-  var values = [
+  const values = [
     personId, 0, 'Match Completed'
   ];
 
@@ -956,7 +956,9 @@ function updateSeriesRating(series_id, person_id) {
       if (!_.isEmpty(results)) {
         var series = {
           id: series_id,
-          my_rating: results[0].my_rating,
+          personSeries: {
+            my_rating: results[0].my_rating
+          },
           metacritic: results[0].metacritic
         };
 
