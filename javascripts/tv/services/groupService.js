@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-    .service('GroupService', ['$log', '$http', 'ArrayService',
-      function ($log, $http, ArrayService) {
+    .service('GroupService', [
+      function () {
         const self = this;
 
         self.getGroupSeries = function(series, tv_group_id) {
