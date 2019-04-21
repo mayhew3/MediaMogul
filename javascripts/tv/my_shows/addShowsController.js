@@ -5,6 +5,7 @@ angular.module('mediaMogulApp')
       const self = this;
 
       self.LockService = LockService;
+      self.EpisodeService = EpisodeService;
 
       self.series = [];
       self.added = [];
@@ -21,6 +22,10 @@ angular.module('mediaMogulApp')
 
       self.titleSearch = undefined;
       self.totalItems = 0;
+
+      self.getNotMyShows = function() {
+        return EpisodeService.getNotMyShows()
+      };
 
       self.updateNumItems = function() {
         var filteredShows = $filter('filterByTitle')(self.series, self.titleSearch);
@@ -76,18 +81,26 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.refreshSeriesList = function() {
-        EpisodeService.updateNotMyShowsList().then(function () {
-          self.series = EpisodeService.getNotMyShows();
-          $log.debug("Controller has " + self.series.length + " shows.");
-
-          self.totalItems = self.series.length;
-          $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
-            ArrayService.refreshArray(self.mySeriesRequests, results.data);
-          });
-        });
+      self.showLoading = function() {
+        return self.EpisodeService.loadingNotMyShows;
       };
-      self.refreshSeriesList();
+
+      self.addShowsPanel = {
+        headerText: 'Add Shows',
+        sort: {
+          field: 'title',
+          direction: 'asc'
+        },
+        showEmpty: true,
+        seriesFunction: self.getNotMyShows,
+        posterSize: 'large',
+        pageLimit: 12,
+        showLoading: self.showLoading
+      };
+
+      $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
+        ArrayService.refreshArray(self.mySeriesRequests, results.data);
+      });
 
       function posterStyle(series) {
         if (self.addedRecently(series)) {
