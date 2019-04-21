@@ -335,11 +335,10 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.updateMyEpisodeList = function(series) {
+      self.updateMyEpisodeListUsingDefer = function(series) {
         let deferred = $q.defer();
         let urlCalls = [];
         urlCalls.push($http.get('/api/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
-        urlCalls.push($http.get('/api/seriesViewingLocations', {params: {SeriesId: series.id}}));
 
         const episodes = [];
 
@@ -354,9 +353,7 @@ angular.module('mediaMogulApp')
               episodes.push(episode);
             });
 
-            series.viewingLocations = results[1].data;
-            $log.debug("Episodes has " + episodes.length + " rows.");
-            $log.debug("Locations has " + series.viewingLocations.length + " rows.");
+            console.log("Episodes has " + episodes.length + " rows.");
 
             episodes.forEach( function(episode) {
               self.updateRatingFields(episode);
