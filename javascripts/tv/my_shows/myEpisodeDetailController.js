@@ -209,12 +209,12 @@ angular.module('mediaMogulApp')
       };
 
       function updateEpisodeFields() {
-        self.episode.setPersonValue('rating_value', self.interfaceRating.rating_value);
-        self.episode.setPersonValue('review', self.interfaceRating.review);
-        self.episode.setPersonValue('rating_pending', self.interfaceRating.rating_pending);
+        self.episode.personEpisode.rating_value = self.interfaceRating.rating_value;
+        self.episode.personEpisode.review = self.interfaceRating.review;
+        self.episode.personEpisode.rating_pending = self.interfaceRating.rating_pending;
 
-        self.episode.setPersonValue('watched', self.interfaceRating.watched);
-        self.episode.setPersonValue('watched_date', self.interfaceRating.watched_date);
+        self.episode.personEpisode.watched = self.interfaceRating.watched;
+        self.episode.personEpisode.watched_date = self.watched_date;
 
         if (LockService.isAdmin()) {
           let originalAirDate = formatDate(self.episode.air_date);
@@ -231,7 +231,7 @@ angular.module('mediaMogulApp')
         self.updateOrAddRating()
           .then(function (response) {
             if (response) {
-              self.episode.setPersonValue('rating_id', response.data.rating_id);
+              self.episode.personEpisode.rating_id = response.data.rating_id;
               const dynamicRating = response.data.dynamic_rating;
               if (dynamicRating) {
                 self.series.personSeries.dynamic_rating = dynamicRating;

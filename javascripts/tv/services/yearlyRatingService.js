@@ -82,7 +82,6 @@ angular.module('mediaMogulApp')
             $log.debug(episodes.length + " episodes found for series " + episodeRatingGroup.title);
 
             episodes.forEach( function(episode) {
-              EpisodeService.addPersonFunctions(episode);
               EpisodeService.updateRatingFields(episode);
             });
 
