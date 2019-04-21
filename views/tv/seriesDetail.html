@@ -200,7 +200,7 @@
           <th ng-show="ctrl.adding || ctrl.watchMultiple">Select</th>
         </tr>
         </thead>
-        <tr data-ng-repeat="episode in ctrl.episodes |
+        <tr data-ng-repeat="episode in ctrl.getEpisodes() |
                           filter:ctrl.episodeFilter |
                           orderBy:['absolute_number'] |
                           limitTo: ctrl.pageSize : (ctrl.currentPage - 1) * ctrl.pageSize"

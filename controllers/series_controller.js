@@ -146,8 +146,29 @@ exports.getEpisodesForRating = function(req, response) {
     0,
     year
   ];
-  return db.executeQueryWithResults(response, sql, values);
+
+  db.selectWithJSON(sql, values).then(results => {
+    _.forEach(results, episode => {
+      extractSinglePersonEpisode(episode);
+    });
+
+    response.json(results);
+  });
 };
+
+function extractSinglePersonEpisode(episode) {
+  const columnsToMove = [
+    'rating_value',
+    'review',
+    'watched_date',
+    'watched'
+  ];
+  episode.personEpisode = {};
+  _.forEach(columnsToMove, column => {
+    episode.personEpisode[column] = episode[column];
+    delete episode[column];
+  });
+}
 
 exports.getViewingLocations = function(req, response) {
   console.log("Getting all possible viewing locations.");

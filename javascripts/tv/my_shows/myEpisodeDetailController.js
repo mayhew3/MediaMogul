@@ -5,7 +5,7 @@ angular.module('mediaMogulApp')
              , allPastWatchedCallback, firstUnwatched) {
       const self = this;
 
-      self.rating_id = episode.getPersonValue('rating_id');
+      self.rating_id = episode.personEpisode.rating_id;
       self.LockService = LockService;
       self.readOnly = readOnly;
       self.firstUnwatched = firstUnwatched;
@@ -21,8 +21,8 @@ angular.module('mediaMogulApp')
 
       self.skipRating = false;
 
-      self.watched_date = self.episode.getPersonValue('watched_date') === null ? null :
-        new Date(self.episode.getPersonValue('watched_date')).toLocaleDateString("en-US", options);
+      self.watched_date = self.episode.personEpisode.watched_date === null ? null :
+        new Date(self.episode.personEpisode.watched_date).toLocaleDateString("en-US", options);
 
       self.air_date = self.episode.air_date === null ? null :
         new Date(self.episode.air_date).toLocaleDateString("en-US", options);
@@ -31,19 +31,19 @@ angular.module('mediaMogulApp')
       self.originalRating = {
         episode_id: self.episode.id,
         person_id: LockService.person_id,
-        watched: self.episode.getPersonValue('watched'),
-        rating_value: self.episode.getPersonValue('rating_value'),
-        review: self.episode.getPersonValue('review'),
-        rating_pending: self.episode.getPersonValue('rating_pending')
+        watched: self.episode.personEpisode.watched,
+        rating_value: self.episode.personEpisode.rating_value,
+        review: self.episode.personEpisode.review,
+        rating_pending: self.episode.personEpisode.rating_pending
       };
 
       self.interfaceRating = {
         episode_id: self.episode.id,
         person_id: LockService.person_id,
-        watched: self.episode.getPersonValue('watched'),
-        rating_value: self.episode.getPersonValue('rating_value'),
-        review: self.episode.getPersonValue('review'),
-        rating_pending: self.episode.getPersonValue('rating_pending')
+        watched: self.episode.personEpisode.watched,
+        rating_value: self.episode.personEpisode.rating_value,
+        review: self.episode.personEpisode.review,
+        rating_pending: self.episode.personEpisode.rating_pending
       };
 
       self.updateOrAddRating = function() {
@@ -122,7 +122,7 @@ angular.module('mediaMogulApp')
 
         self.watched_date = formatDate(self.watched_date);
 
-        let originalWatchedDate = formatDate(self.episode.getPersonValue('watched_date'));
+        let originalWatchedDate = formatDate(self.episode.personEpisode.watched_date);
 
         if (dateHasChanged(originalWatchedDate, self.watched_date)) {
           changedFields.watched_date = self.watched_date;

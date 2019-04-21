@@ -870,15 +870,16 @@ exports.getMyEpisodes = function(request, response) {
 
     return db.selectWithJSON(sql, [seriesId, 0, personId]).then(function (ratingResult) {
 
-      ratingResult.forEach(function (episodeRating) {
-        var episodeMatch = _.find(episodeResult, function (episode) {
-          return episode.id === episodeRating.episode_id;
-        });
+      _.each(episodeResult, episode => {
+        const episodeRating = _.find(ratingResult, rating => rating.episode_id === episode.id);
 
-        if (ArrayService.exists(episodeMatch)) {
+        if (ArrayService.exists(episodeRating)) {
           delete episodeRating.episode_id;
-
-          episodeMatch.personEpisode = episodeRating;
+          episode.personEpisode = episodeRating;
+        } else {
+          episode.personEpisode = {
+            watched: false
+          };
         }
       });
 
