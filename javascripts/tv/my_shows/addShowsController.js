@@ -95,7 +95,8 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getNotMyShows,
         posterSize: 'large',
         pageLimit: 12,
-        showLoading: self.showLoading
+        showLoading: self.showLoading,
+        extraStyles: posterStyle
       };
 
       $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
