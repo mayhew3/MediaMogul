@@ -360,16 +360,6 @@ angular.module('mediaMogulApp')
 
       };
 
-      function findEpisodeWithId (episodes, id) {
-        let matching = episodes.filter(function(episode) {
-          return episode.id === id;
-        });
-        if (matching.length > 0) {
-          return matching[0];
-        }
-        return null;
-      }
-
       self.getImageResolved = function(episode) {
         return episode.tvdb_filename ?
             'https://thetvdb.com/banners/' + episode.tvdb_filename :
@@ -377,6 +367,14 @@ angular.module('mediaMogulApp')
       };
 
       self.updateRatingFields = function(episode) {
+        if (!episode.personEpisode) {
+          episode.personEpisode = {
+            watched: false
+          };
+        }
+
+        const personEpisode = episode.personEpisode;
+
         let optionalFields = [
           "rating_value",
           "rating_id",
@@ -384,24 +382,25 @@ angular.module('mediaMogulApp')
           "watched",
           "watched_date"
         ];
+
         optionalFields.forEach(function(fieldName) {
-          if (_.isUndefined(episode.personEpisode[fieldName])) {
-            episode.personEpisode[fieldName] = null;
+          if (_.isUndefined(personEpisode[fieldName])) {
+            personEpisode[fieldName] = null;
           }
         });
 
-        const ratingValue = episode.personEpisode.rating_value;
+        const ratingValue = personEpisode.rating_value;
         if (_.isString(ratingValue)) {
-          episode.personEpisode.rating_value = parseInt(ratingValue);
+          personEpisode.rating_value = parseInt(ratingValue);
         }
 
         if (episode.absolute_number !== null) {
           episode.absolute_number = parseInt(episode.absolute_number);
         }
 
-        const watched = episode.personEpisode.watched;
+        const watched = personEpisode.watched;
         if (watched === null) {
-          episode.personEpisode.watched = false;
+          personEpisode.watched = false;
         }
       };
 
