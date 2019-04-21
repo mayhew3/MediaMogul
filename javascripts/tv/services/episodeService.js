@@ -183,18 +183,16 @@ angular.module('mediaMogulApp')
       function mergeShowsIntoArray(newShowList) {
         const arrayCopy = myShows.slice();
 
-        _.forEach(newShowList, show => {
+        _.each(newShowList, show => {
           const match = _.findWhere(arrayCopy, {id: show.id});
           if (match) {
             ArrayService.removeFromArray(arrayCopy, match);
           }
           arrayCopy.push(show);
+          addPersonShowToAllShowsList(show);
         });
 
-        sortShowArray(arrayCopy);
         ArrayService.refreshArray(myShows, arrayCopy);
-
-        // updateAllShowObservers();
       }
 
       function addShowToArray(newShow) {
@@ -298,7 +296,7 @@ angular.module('mediaMogulApp')
             ArrayService.refreshArray(groupShowList, groupShows);
 
             groupShowList.forEach(function(show) {
-              addGroupShow(show);
+              addGroupShowToAllShowsList(show);
               const groupSeries = GroupService.getGroupSeries(show, tv_group_id);
               if (!ArrayService.exists(groupSeries.unwatched_all)) {
                 groupSeries.unwatched_all = 0;
@@ -311,7 +309,20 @@ angular.module('mediaMogulApp')
         });
       }
 
-      function addGroupShow(groupShow) {
+      function addPersonShowToAllShowsList(show) {
+        const existing = _.findWhere(allShows, {id: show.id});
+        if (existing) {
+          mergeNewPersonOntoShow(existing, show);
+        } else {
+          allShows.push(show);
+        }
+      }
+
+      function mergeNewPersonOntoShow(existingShow, newShow) {
+        existingShow.personSeries = newShow.personSeries;
+      }
+
+      function addGroupShowToAllShowsList(groupShow) {
         const existing = _.findWhere(allShows, {id: groupShow.id});
         if (existing) {
           mergeNewGroupOntoShow(existing, groupShow);
