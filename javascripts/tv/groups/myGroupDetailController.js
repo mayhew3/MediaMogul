@@ -1,10 +1,12 @@
 angular.module('mediaMogulApp')
 .controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
-            'NavHelperService', 'ArrayService', 'GroupService',
-  function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService, ArrayService, GroupService) {
+            'NavHelperService', 'ArrayService', 'GroupService', 'EpisodeService',
+  function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService, ArrayService,
+           GroupService, EpisodeService) {
     const self = this;
 
     self.LockService = LockService;
+    self.EpisodeService = EpisodeService;
 
     self.shows = [];
 
@@ -42,6 +44,14 @@ angular.module('mediaMogulApp')
       return getGroupSeries(series).group_score;
     }
 
+    self.showLoading = function() {
+      self.EpisodeService.isLoadingGroup(self.group.id);
+    };
+
+    self.getGroupShows = function() {
+      return EpisodeService.getOrCreateGroupShowList(self.group.id);
+    };
+
     self.dashboardInfos = [
       {
         headerText: "Up for Vote",
@@ -51,6 +61,8 @@ angular.module('mediaMogulApp')
           field: 'title',
           direction: 'desc'
         },
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         panelFormat: 'panel-warning',
         clickOverride: submitVotePopup
       },
@@ -62,6 +74,8 @@ angular.module('mediaMogulApp')
           field: 'title',
           direction: 'desc'
         },
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
         shouldAskForPoster: true
       },
@@ -73,6 +87,8 @@ angular.module('mediaMogulApp')
           field: 'title',
           direction: 'asc'
         },
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info'
       },
       {
@@ -83,6 +99,8 @@ angular.module('mediaMogulApp')
         },
         tvFilter: inProgressFilter,
         showEmpty: true,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         posterSize: 'large',
         badgeValue: getUnwatched
       },
@@ -94,6 +112,8 @@ angular.module('mediaMogulApp')
           field: 'nextAirDate',
           direction: 'asc'
         },
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         subtitle: nextAirDate
       },
       {
@@ -105,6 +125,8 @@ angular.module('mediaMogulApp')
         tvFilter: newlyAddedFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         pageLimit: 12
       },
       {
@@ -116,6 +138,8 @@ angular.module('mediaMogulApp')
         tvFilter: droppedOffFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         pageLimit: 12
       },
       {
@@ -127,6 +151,8 @@ angular.module('mediaMogulApp')
         tvFilter: newSeasonFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         pageLimit: 12
       },
       {
@@ -138,6 +164,8 @@ angular.module('mediaMogulApp')
         tvFilter: toStartFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         pageLimit: 12
       },
       {
@@ -149,6 +177,8 @@ angular.module('mediaMogulApp')
         tvFilter: allVotedFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         pageLimit: 12
       },
       {
@@ -160,21 +190,15 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         subtitle: lastWatchedDate,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
         pageLimit: 6
       }
     ];
 
-    function updateShows() {
-      $http.get('/api/groupShows', {params: {tv_group_id: self.group.id}}).then(function(results) {
-        ArrayService.refreshArray(self.shows, results.data);
-        self.shows.forEach(function(show) {
-          const groupSeries = getGroupSeries(show);
-          if (!ArrayService.exists(groupSeries.unwatched_all)) {
-            groupSeries.unwatched_all = 0;
-          }
-        });
+    EpisodeService.updateGroupShowsIfNeeded(self.group.id);
 
-      });
+    function updateShows() {
       $http.get('/api/groupPersons', {params: {tv_group_id: self.group.id}}).then(function(results) {
         self.group.members = results.data;
         self.memberNames = "Members: " + _.pluck(self.group.members, 'first_name').join(', ');
