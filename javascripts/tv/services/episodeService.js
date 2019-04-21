@@ -369,6 +369,36 @@ angular.module('mediaMogulApp')
         return deferred.promise;
       };
 
+      self.updateMyEpisodeListUsingPromise = function(series) {
+
+        const episodes = [];
+
+        return new Promise((resolve, reject) => {
+          $http.get('/api/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}).then(function(results) {
+            let tempEpisodes = results.data;
+            tempEpisodes.forEach(function(episode) {
+              let existing = findEpisodeWithId(episodes, episode.id);
+              if (existing) {
+                ArrayService.removeFromArray(episodes, existing);
+              }
+              episodes.push(episode);
+            });
+
+            // series.viewingLocations = results[1].data;
+            console.log("Episodes has " + episodes.length + " rows.");
+            // $log.debug("Locations has " + series.viewingLocations.length + " rows.");
+
+            episodes.forEach( function(episode) {
+              self.addPersonFunctions(episode);
+              self.updateRatingFields(episode);
+            });
+            resolve(episodes);
+          })
+            .catch(err => reject(err));
+        });
+
+      };
+
       function findEpisodeWithId (episodes, id) {
         let matching = episodes.filter(function(episode) {
           return episode.id === id;
