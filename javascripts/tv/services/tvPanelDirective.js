@@ -47,7 +47,10 @@
     };
 
     self.getShows = function() {
-      return self.shows ? self.shows : self.EpisodeService.getMyShows();
+      return self.shows ? self.shows : (
+        self.panelInfo.seriesFunction ? self.panelInfo.seriesFunction() :
+        self.EpisodeService.getMyShows()
+      );
     };
 
     self.imageColumnClass = function() {

@@ -1,12 +1,15 @@
 angular.module('mediaMogulApp')
   .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService', '$timeout', 'GroupService',
     function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService) {
+      const allShows = [];
       const myShows = [];
-      let myPendingShows = [];
-      let notMyShows = [];
+      const myPendingShows = [];
+      const notMyShows = [];
+      const groupShows = [];
 
       const self = this;
       self.uninitialized = true;
+      const groupsLoading = [];
       self.loadingQueue = true;
       self.loadingTierOne = true;
 
@@ -214,7 +217,7 @@ angular.module('mediaMogulApp')
       self.updateMyPendingShowsList = function() {
         return $http.get('/api/myPendingShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
           $log.debug("Shows returned " + response.data.length + " items.");
-          myPendingShows = response.data;
+          ArrayService.refreshArray(myPendingShows, response.data);
 
         }, function (errResponse) {
           console.error('Error while fetching series list: ' + errResponse);
@@ -229,7 +232,7 @@ angular.module('mediaMogulApp')
             self.updateNumericFields(show);
           });
           $log.debug("Finished updating.");
-          notMyShows = tempShows;
+          ArrayService.refreshArray(notMyShows, tempShows);
 
         }, function (errResponse) {
           console.error('Error while fetching series list: ' + errResponse);
@@ -255,6 +258,80 @@ angular.module('mediaMogulApp')
         let combinedStr = $filter('date')(date, 'shortDate', '+0000') + " " + time;
         return new Date(combinedStr);
       };
+
+      self.isLoadingGroup = function(tv_group_id) {
+        return _.contains(groupsLoading, tv_group_id);
+      };
+
+      self.getExistingGroupShowList = function(tv_group_id) {
+        return _.findWhere(groupShows, {tv_group_id: tv_group_id});
+      };
+
+      self.getOrCreateGroupShowList = function(tv_group_id) {
+        const existingGroupShows = self.getExistingGroupShowList(tv_group_id);
+        if (existingGroupShows) {
+          return existingGroupShows.shows;
+        } else {
+          const groupShowList = {
+            tv_group_id: tv_group_id,
+            shows: []
+          };
+          groupShows.push(groupShowList);
+          return groupShowList.shows;
+        }
+      };
+
+      self.updateGroupShowsIfNeeded = function(tv_group_id) {
+        const existing = self.getExistingGroupShowList(tv_group_id);
+        if (_.isUndefined(existing)) {
+          updateGroupShows(tv_group_id);
+        }
+      };
+
+      function updateGroupShows(tv_group_id) {
+        groupsLoading.push(tv_group_id);
+        return new Promise(resolve => {
+          $http.get('/api/groupShows', {params: {tv_group_id: tv_group_id}}).then(function(results) {
+            const groupShows = results.data;
+
+            const groupShowList = self.getOrCreateGroupShowList(tv_group_id);
+            ArrayService.refreshArray(groupShowList, groupShows);
+
+            groupShowList.forEach(function(show) {
+              addGroupShow(show);
+              const groupSeries = GroupService.getGroupSeries(show, tv_group_id);
+              if (!ArrayService.exists(groupSeries.unwatched_all)) {
+                groupSeries.unwatched_all = 0;
+              }
+
+            });
+            ArrayService.removeFromArray(groupsLoading, tv_group_id);
+            resolve(groupShows);
+          });
+        });
+      }
+
+      function addGroupShow(groupShow) {
+        const existing = _.findWhere(allShows, {id: groupShow.id});
+        if (existing) {
+          mergeNewGroupOntoShow(existing, groupShow);
+        } else {
+          allShows.push(groupShow);
+        }
+      }
+
+      function mergeNewGroupOntoShow(existingShow, newShow) {
+        if (existingShow.groups) {
+          const newGroup = newShow.groups[0];
+          const existingGroup = _.findWhere(existingShow.groups, {tv_group_id: newGroup.tv_group_id});
+          if (existingGroup) {
+            ArrayService.removeFromArray(existingShow.groups, existingGroup);
+          }
+          existingShow.groups.push(newGroup);
+        } else {
+          existingShow.groups = newShow.groups;
+        }
+      }
 
       self.isUnaired = function(episode) {
         // unaired if the air time is after now.
