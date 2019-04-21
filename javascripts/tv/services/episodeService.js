@@ -283,11 +283,7 @@ angular.module('mediaMogulApp')
       };
 
       self.addPersonFunctions = function(episode) {
-        episode.setPersonValue = function (fieldName, fieldValue) {
-          if (episode.personEpisode) {
-            episode.personEpisode[fieldName] = fieldValue;
-          }
-        };
+
       };
 
       self.episodeColorStyle = function(episode) {
@@ -327,7 +323,6 @@ angular.module('mediaMogulApp')
             console.log("Episodes has " + episodes.length + " rows.");
 
             episodes.forEach( function(episode) {
-              self.addPersonFunctions(episode);
               self.updateRatingFields(episode);
             });
 
@@ -349,7 +344,6 @@ angular.module('mediaMogulApp')
             console.log("Episodes has " + episodes.length + " rows.");
 
             episodes.forEach( function(episode) {
-              self.addPersonFunctions(episode);
               self.updateRatingFields(episode);
             });
 
@@ -527,7 +521,7 @@ angular.module('mediaMogulApp')
             episodes.forEach(function(episode) {
               $log.debug(lastWatched + ", " + episode.absolute_number);
               if (episode.absolute_number !== null && episode.absolute_number <= lastWatched && episode.season !== 0) {
-                episode.setPersonValue('watched', true);
+                episode.personSeries.watched = true;
               }
             });
             resolve();

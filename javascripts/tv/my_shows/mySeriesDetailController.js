@@ -229,20 +229,20 @@ angular.module('mediaMogulApp')
     self.watchedOrWatchPending = function(episode) {
       if (isProjectedToBeWatched(episode)) {
         return true;
-      } else if (_.isUndefined(episode.watched_pending)) {
+      } else if (_.isUndefined(episode.personEpisode.watched_pending)) {
         return episode.personEpisode.watched;
       } else {
-        return episode.watched_pending;
+        return episode.personEpisode.watched_pending;
       }
     };
 
     self.toggleMulti = function(episode) {
-      episode.watched_pending = !self.watchedOrWatchPending(episode);
+      episode.personEpisode.watched_pending = !self.watchedOrWatchPending(episode);
     };
 
     self.submitMulti = function() {
       return new Promise(resolve => {
-        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.personEpisode.watched);
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.personEpisode.watched_pending) && episode.personEpisode.watched_pending !== episode.personEpisode.watched);
 
         maybeUpdateMultiWatch(changed).then(() => {
           self.clearPending();
@@ -255,12 +255,12 @@ angular.module('mediaMogulApp')
 
     function maybeUpdateMultiWatch(changed) {
       if (changed.length > 0) {
-        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.personEpisode.watched);
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.personEpisode.watched_pending) && episode.personEpisode.watched_pending !== episode.personEpisode.watched);
 
         const watched = _.filter(changed, episode => {
-          return !_.isUndefined(episode.watched_pending) && episode.watched_pending === true;
+          return !_.isUndefined(episode.personEpisode.watched_pending) && episode.personEpisode.watched_pending === true;
         });
-        const unwatched = _.filter(changed, episode => episode.watched_pending === false);
+        const unwatched = _.filter(changed, episode => episode.personEpisode.watched_pending === false);
 
         const watched_ids = _.pluck(watched, 'id');
         const unwatched_ids = _.pluck(unwatched, 'id');
@@ -271,7 +271,7 @@ angular.module('mediaMogulApp')
           unwatched_ids: unwatched_ids};
 
         return $http.post('api/markEpisodesWatched', payload).then(() => {
-          changed.forEach(episode => episode.setPersonValue('watched', episode.watched_pending));
+          changed.forEach(episode => episode.personEpisode.watched = episode.personEpisode.watched_pending);
           EpisodeService.updateMySeriesDenorms(
             self.series,
             self.episodes,
@@ -292,8 +292,8 @@ angular.module('mediaMogulApp')
     };
 
     self.clearPending = function() {
-      const pending = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending));
-      pending.forEach(episode => delete episode.watched_pending);
+      const pending = _.filter(self.episodes, episode => !_.isUndefined(episode.personEpisode.watched_pending));
+      pending.forEach(episode => delete episode.personEpisode.watched_pending);
     };
 
     self.toggleMultiAndPrevious = function(targetEpisode) {
@@ -303,7 +303,7 @@ angular.module('mediaMogulApp')
           episode.absolute_number &&
           episode.absolute_number <= targetEpisode.absolute_number;
       });
-      eligibleEpisodes.forEach(episode => episode.watched_pending = targetState);
+      eligibleEpisodes.forEach(episode => episode.personEpisode.watched_pending = targetState);
     };
 
     function seasonDoesNotExist(seasonNumber) {
