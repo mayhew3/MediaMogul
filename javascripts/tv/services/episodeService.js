@@ -602,6 +602,12 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.removeFromNotMyShows = function(addedList) {
+        _.each(addedList, show => {
+          ArrayService.removeFromArray(notMyShows, show);
+        });
+      };
+
       self.removeViewingLocation = function(series, episodes, viewingLocation) {
         let indexOf = series.viewingLocations.findIndex(function(location) {
           return location.id === viewingLocation.id;

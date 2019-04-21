@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http',
-                                      'ArrayService',
-    function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService) {
+                                      'ArrayService', '$scope',
+    function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope) {
       const self = this;
 
       self.LockService = LockService;
@@ -31,6 +31,10 @@ angular.module('mediaMogulApp')
         var filteredShows = $filter('filterByTitle')(self.series, self.titleSearch);
         self.totalItems = filteredShows.length;
       };
+
+      $scope.$on("$destroy", function() {
+        self.EpisodeService.removeFromNotMyShows(self.added);
+      });
 
       self.updateTitleSearch = function() {
         self.updateNumItems();
@@ -85,6 +89,10 @@ angular.module('mediaMogulApp')
         return self.EpisodeService.loadingNotMyShows;
       };
 
+      function textOverlay(show) {
+        return _.contains(self.added, show) ? 'Added!' : null;
+      }
+
       self.addShowsPanel = {
         headerText: 'Add Shows',
         sort: {
@@ -96,7 +104,8 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         pageLimit: 12,
         showLoading: self.showLoading,
-        extraStyles: posterStyle
+        extraStyles: posterStyle,
+        textOverlay: textOverlay
       };
 
       $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
