@@ -274,9 +274,7 @@ exports.getGroupEpisodes = function(request, response) {
     'te.production_code as tvdb_production_code, ' +
     'te.rating as tvdb_rating, ' +
     'te.director as tvdb_director, ' +
-    'te.writer as tvdb_writer,' +
-    'false as watched, ' +
-    'false as skipped ' +
+    'te.writer as tvdb_writer ' +
     'FROM episode e ' +
     'LEFT OUTER JOIN tvdb_episode te ' +
     ' ON e.tvdb_episode_id = te.id ' +
@@ -329,10 +327,17 @@ exports.getGroupEpisodes = function(request, response) {
           });
 
           if (ArrayService.exists(episodeMatch)) {
-            episodeMatch.watched_date = groupEpisode.watched_date;
-            episodeMatch.watched = groupEpisode.watched;
-            episodeMatch.skipped = groupEpisode.skipped;
-            episodeMatch.tv_group_episode_id = groupEpisode.id;
+            episodeMatch.groups = [];
+
+            const groupEpisodeObj = {
+              tv_group_id: tv_group_id,
+              tv_group_episode_id: groupEpisode.id,
+              watched: groupEpisode.watched,
+              watched_date: groupEpisode.watched_date,
+              skipped: groupEpisode.skipped
+            };
+
+            episodeMatch.groups.push(groupEpisodeObj);
           }
         });
 
@@ -341,7 +346,20 @@ exports.getGroupEpisodes = function(request, response) {
             return episode_rating.episode_id === episode.id;
           });
 
-          episode.person_ids = _.pluck(personMatches, 'person_id');
+          const groupEpisode = episode.groups ?
+            _.findWhere(episode.groups, {tv_group_id: tv_group_id}) :
+            {
+              tv_group_id: tv_group_id,
+              watched: false,
+              skipped: false
+            };
+
+          groupEpisode.person_ids = _.pluck(personMatches, 'person_id');
+
+          if (!episode.groups) {
+            episode.groups = [];
+            episode.groups.push(groupEpisode);
+          }
         });
 
         response.send(episodeResult);

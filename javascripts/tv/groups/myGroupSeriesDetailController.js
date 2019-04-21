@@ -70,10 +70,19 @@ angular.module('mediaMogulApp')
       }
     };
 
+    function getGroupEpisode(episode) {
+      return GroupService.getGroupEpisode(episode, self.group.id);
+    }
+
+    self.isWatchedOrSkipped = function(episode) {
+      const groupEpisode = getGroupEpisode(episode);
+      return groupEpisode.watched || groupEpisode.skipped;
+    };
+
     function isUnwatchedEpisode(episode) {
       return episode.season !== null && episode.season > 0 &&
-        episode.watched === false &&
-        episode.skipped === false &&
+        getGroupEpisode(episode).watched === false &&
+        getGroupEpisode(episode).skipped === false &&
         !self.shouldHide(episode);
     }
 
@@ -109,7 +118,7 @@ angular.module('mediaMogulApp')
         return "nextUpRow";
       } else if (self.isUnaired(episode)) {
         return "unairedRow";
-      } else if (episode.skipped) {
+      } else if (getGroupEpisode(episode).skipped) {
         return "skippedRow"
       } else if (isUnwatchedEpisode(episode)) {
         return "unwatchedRow";
@@ -252,7 +261,7 @@ angular.module('mediaMogulApp')
     }
 
     function isClosed(episode) {
-      return episode.watched || episode.skipped;
+      return getGroupEpisode(episode).watched || getGroupEpisode(episode).skipped;
     }
 
     self.getTooltipClass = function(episode) {
@@ -262,17 +271,17 @@ angular.module('mediaMogulApp')
 
 
     self.getWatchedDateOrWatched = function(episode) {
-      // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.watched_date);
-      if (episode.watched_date === null) {
-        if (episode.watched) {
+      // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + getGroupEpisode(episode).watched_date);
+      if (getGroupEpisode(episode).watched_date === null) {
+        if (getGroupEpisode(episode).watched) {
           return "Watched";
-        } else if (episode.skipped) {
+        } else if (getGroupEpisode(episode).skipped) {
           return "Skipped";
         } else {
           return "";
         }
       } else {
-        return $filter('date')(episode.watched_date, self.getDateFormat(episode.watched_date), 'America/Los_Angeles');
+        return $filter('date')(getGroupEpisode(episode).watched_date, self.getDateFormat(getGroupEpisode(episode).watched_date), 'America/Los_Angeles');
       }
     };
 
@@ -303,10 +312,10 @@ angular.module('mediaMogulApp')
     function markAllPreviousWatched(lastWatchedNumber, episodeFields) {
       self.episodes.forEach(function(episode) {
         if (episode.absolute_number < lastWatchedNumber) {
-          if (!episode.watched && !episode.skipped) {
-            episode.watched = episodeFields.watched;
-            episode.watched_date = null;
-            episode.skipped = episodeFields.skipped;
+          if (!getGroupEpisode(episode).watched && !getGroupEpisode(episode).skipped) {
+            getGroupEpisode(episode).watched = episodeFields.watched;
+            getGroupEpisode(episode).watched_date = null;
+            getGroupEpisode(episode).skipped = episodeFields.skipped;
           }
         }
       });
