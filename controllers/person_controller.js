@@ -894,7 +894,7 @@ exports.rateMyEpisode = function(request, response) {
     updateSeriesRating(result.series_id, result.person_id).then(function(result) {
       var data = {
         rating_id: rating_id,
-        dynamic_rating: result.dynamic_rating
+        dynamic_rating: result.personSeries.dynamic_rating
       };
       return response.json(data);
     });
