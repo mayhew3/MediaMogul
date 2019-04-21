@@ -1,8 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService', 'addSeriesCallback', 'ArrayService',
+    '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService', 'addSeriesCallback',
+    'ArrayService', '$scope',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           adding, YearlyRatingService, addSeriesCallback, ArrayService) {
+           adding, YearlyRatingService, addSeriesCallback, ArrayService, $scope) {
     const self = this;
 
     self.LockService = LockService;
@@ -59,13 +60,16 @@ angular.module('mediaMogulApp')
       return self.episodes.filter(self.episodeFilter).length;
     };
 
-    EpisodeService.updateViewingLocations(series);
-    EpisodeService.getEpisodes(self.series).then(function(episodes) {
+    EpisodeService.updateMyEpisodeList(self.series).then(function(episodes) {
       self.episodes = episodes;
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     }).then(function() {
       updateSeasonLabels();
     });
+
+    self.getEpisodes = function() {
+      return self.episodes;
+    };
 
     self.shouldHide = function(episode) {
       // todo: remove when MM-236 is resolved.
@@ -75,7 +79,7 @@ angular.module('mediaMogulApp')
     function isUnwatchedEpisode(episode) {
       if (self.selectedLastWatchedEpisode === null) {
         return episode.season !== null && episode.season > 0 &&
-          episode.getPersonValue('watched') === false &&
+          episode.personEpisode.watched === false &&
           !self.shouldHide(episode);
       } else {
         return episode.absolute_number > self.selectedLastWatchedEpisode.absolute_number;
@@ -173,7 +177,7 @@ angular.module('mediaMogulApp')
     }
 
     self.isWatchProjected = function(episode) {
-      return episode.getPersonValue('watched') ||
+      return episode.personEpisode.watched ||
         (self.selectedLastWatchedEpisode !== null &&
           episode.absolute_number <= self.selectedLastWatchedEpisode.absolute_number);
     };
@@ -192,7 +196,7 @@ angular.module('mediaMogulApp')
           return "warning";
         }
       } else {
-        if (episode.getPersonValue('rating_pending')) {
+        if (episode.personEpisode.rating_pending) {
           return "ratingPendingRow";
         } else if (isNextUp(episode)) {
           return "nextUpRow";
@@ -226,7 +230,7 @@ angular.module('mediaMogulApp')
       if (isProjectedToBeWatched(episode)) {
         return true;
       } else if (_.isUndefined(episode.watched_pending)) {
-        return episode.getPersonValue('watched');
+        return episode.personEpisode.watched;
       } else {
         return episode.watched_pending;
       }
@@ -238,7 +242,7 @@ angular.module('mediaMogulApp')
 
     self.submitMulti = function() {
       return new Promise(resolve => {
-        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.getPersonValue('watched'));
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.personEpisode.watched);
 
         maybeUpdateMultiWatch(changed).then(() => {
           self.clearPending();
@@ -251,7 +255,7 @@ angular.module('mediaMogulApp')
 
     function maybeUpdateMultiWatch(changed) {
       if (changed.length > 0) {
-        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.getPersonValue('watched'));
+        const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.watched_pending) && episode.watched_pending !== episode.personEpisode.watched);
 
         const watched = _.filter(changed, episode => {
           return !_.isUndefined(episode.watched_pending) && episode.watched_pending === true;
@@ -397,22 +401,22 @@ angular.module('mediaMogulApp')
     };
 
     self.getWatchedDateOrWatched = function(episode) {
-      // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.getPersonValue('watched_date'));
+      // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.personEpisode.watched_date);
       if (self.selectedLastWatchedEpisode !== null && !isUnwatchedEpisode(episode)) {
         return "Watched";
-      } else if (episode.getPersonValue('watched_date') === null) {
-        return episode.getPersonValue('watched') ? "----.--.--" : "";
+      } else if (episode.personEpisode.watched_date === null) {
+        return episode.personEpisode.watched ? "----.--.--" : "";
       } else {
-        return $filter('date')(episode.getPersonValue('watched_date'), self.getDateFormat(episode.getPersonValue('watched_date')), 'America/Los_Angeles');
+        return $filter('date')(episode.personEpisode.watched_date, self.getDateFormat(episode.personEpisode.watched_date), 'America/Los_Angeles');
       }
     };
 
     self.getRating = function(episode) {
-      let rating = episode.getPersonValue('rating_value');
+      let rating = episode.personEpisode.rating_value;
       if (rating !== null) {
         return rating;
       }
-      return episode.getPersonValue('watched') === true ? "--" : "";
+      return episode.personEpisode.watched === true ? "--" : "";
     };
 
     self.queueForManualUpdate = function() {

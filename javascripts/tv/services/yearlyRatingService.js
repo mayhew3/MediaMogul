@@ -82,6 +82,7 @@ angular.module('mediaMogulApp')
             $log.debug(episodes.length + " episodes found for series " + episodeRatingGroup.title);
 
             episodes.forEach( function(episode) {
+              EpisodeService.addPersonFunctions(episode);
               EpisodeService.updateRatingFields(episode);
             });
 
@@ -148,7 +149,7 @@ angular.module('mediaMogulApp')
 
       function watchedInTime(episode) {
         return ratingEndDate === null ||
-          (episode.getPersonValue('watched_date') !== null && new Date(episode.getPersonValue('watched_date')) < ratingEndDate);
+          (episode.personEpisode.watched_date !== null && new Date(episode.personEpisode.watched_date) < ratingEndDate);
       }
 
       // NOTE: This logic is duplicated by EpisodeGroupUpdater. At some point I might want to migrate them both to some shared
@@ -189,14 +190,14 @@ angular.module('mediaMogulApp')
             } else {
 
               let watchedEpisodes = _.filter(eligibleEpisodes, function(episode) {
-                return episode.getPersonValue('watched') && watchedInTime(episode);
+                return episode.personEpisode.watched && watchedInTime(episode);
               });
 
               let ratedEpisodes = _.filter(watchedEpisodes, function(episode) {
-                return episode.getPersonValue('rating_value') !== null;
+                return episode.personEpisode.rating_value !== null;
               });
               let rating_values = _.map(ratedEpisodes, function(episode) {
-                return episode.getPersonValue('rating_value');
+                return episode.personEpisode.rating_value;
               });
 
               let avg_rating = _.isEmpty(rating_values) ? null : averageFromNumbers(rating_values);
@@ -207,7 +208,7 @@ angular.module('mediaMogulApp')
                 ((avg_rating * 5) + (max_rating * 3) + (last_rating * 1)) / 9;
 
               let unwatchedEpisodes = _.filter(eligibleEpisodes, function(episode) {
-                return !episode.getPersonValue('watched') || !watchedInTime(episode);
+                return !episode.personEpisode.watched || !watchedInTime(episode);
               });
               let nextUnwatched = _.first(unwatchedEpisodes);
 
@@ -220,7 +221,7 @@ angular.module('mediaMogulApp')
               let post_update_episodes = 0;
               if (episodeGroupRating.review_update_date) {
                 let episodeArray = _.filter(watchedEpisodes, function(episode) {
-                  return new Date(episode.getPersonValue('watched_date')) > new Date(episodeGroupRating.review_update_date);
+                  return new Date(episode.personEpisode.watched_date) > new Date(episodeGroupRating.review_update_date);
                 });
                 post_update_episodes = episodeArray.length;
               }
