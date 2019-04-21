@@ -175,7 +175,6 @@ angular.module('mediaMogulApp')
         ArrayService.removeFromArray(myShowObservers, scope);
       };
 
-      /* Might need this later? Right now it seems to be getting updated automatically. */
       function updateAllShowObservers() {
         _.forEach(myShowObservers, scope => scope.$apply());
       }
@@ -228,6 +227,7 @@ angular.module('mediaMogulApp')
           let tempShows = response.data;
           tempShows.forEach(function (show) {
             self.updateNumericFields(show);
+            addShowWithNoViewerToAllShowsList(show);
           });
           $log.debug("Finished updating.");
           ArrayService.refreshArray(notMyShows, tempShows);
@@ -313,8 +313,10 @@ angular.module('mediaMogulApp')
         const existing = _.findWhere(allShows, {id: show.id});
         if (existing) {
           mergeNewPersonOntoShow(existing, show);
+          return existing;
         } else {
           allShows.push(show);
+          return show;
         }
       }
 
@@ -326,8 +328,10 @@ angular.module('mediaMogulApp')
         const existing = _.findWhere(allShows, {id: groupShow.id});
         if (existing) {
           mergeNewGroupOntoShow(existing, groupShow);
+          return existing;
         } else {
           allShows.push(groupShow);
+          return groupShow;
         }
       }
 
@@ -341,6 +345,13 @@ angular.module('mediaMogulApp')
           existingShow.groups.push(newGroup);
         } else {
           existingShow.groups = newShow.groups;
+        }
+      }
+
+      function addShowWithNoViewerToAllShowsList(show) {
+        const existing = _.findWhere(allShows, {id: show.id});
+        if (!existing) {
+          allShows.push(show);
         }
       }
 
@@ -536,11 +547,12 @@ angular.module('mediaMogulApp')
           PersonId: LockService.person_id,
           LastWatched: lastWatched
         }).then(function (resultShow) {
-          const series = resultShow.data;
-          formatIncomingShow(series);
-          addShowToArray(series);
+          const incomingShow = resultShow.data;
+          formatIncomingShow(incomingShow);
+          const show = addPersonShowToAllShowsList(incomingShow);
+          addShowToArray(show);
           addTimerForNextAirDate();
-          return series;
+          return show;
         }, function(errResponse) {
           $log.debug("Error adding to my shows: " + errResponse);
         });
