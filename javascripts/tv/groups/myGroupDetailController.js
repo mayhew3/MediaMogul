@@ -52,6 +52,10 @@ angular.module('mediaMogulApp')
       return EpisodeService.getOrCreateGroupShowList(self.group.id);
     };
 
+    function textOverlay(show) {
+      return !show.trailer_link ? 'No Trailer' : null;
+    }
+
     self.dashboardInfos = [
       {
         headerText: "Up for Vote",
@@ -77,7 +81,7 @@ angular.module('mediaMogulApp')
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
-        shouldAskForPoster: true
+        textOverlay: textOverlay
       },
       {
         headerText: "Awaiting Votes",

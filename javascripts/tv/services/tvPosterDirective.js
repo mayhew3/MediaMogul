@@ -38,16 +38,18 @@
       }
     };
 
-    self.alreadyExists = function() {
-      return ArrayService.exists(self.posterInfo.alreadyExists) ? self.posterInfo.alreadyExists(self.show) : false;
+    self.showTextOverlay = function() {
+      return ArrayService.exists(self.textOverlay());
     };
 
     self.showTitleOverPoster = function() {
       return self.imageDoesNotExist || self.tvdbPosterPath() === 'images/GenericSeries.gif';
     };
 
-    self.showNoTrailer = function() {
-      return self.posterInfo.shouldAskForPoster && !self.show.trailer_link;
+    self.textOverlay = function() {
+      return ArrayService.exists(self.posterInfo.textOverlay) ?
+        self.posterInfo.textOverlay(self.show) :
+        null;
     };
 
     self.extraStyles = ArrayService.exists(self.posterInfo.extraStyles) ?

@@ -21,12 +21,8 @@
     <span ng-bind="ctrl.show.title"></span>
   </div>
 
-  <div class="centeredInFrame alreadyExistsOverlay" ng-show="ctrl.alreadyExists()">
-    <span>Already Added</span>
-  </div>
-
-  <div class="centeredInFrame alreadyExistsOverlay" ng-show="ctrl.showNoTrailer()">
-    <span>No Trailer</span>
+  <div class="centeredInFrame alreadyExistsOverlay" ng-show="ctrl.showTextOverlay()">
+    <span>{{ctrl.textOverlay()}}</span>
   </div>
 
 
