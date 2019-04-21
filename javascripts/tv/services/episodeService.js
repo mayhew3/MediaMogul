@@ -283,39 +283,11 @@ angular.module('mediaMogulApp')
       };
 
       self.addPersonFunctions = function(episode) {
-        episode.getPersonValue = function (fieldName) {
-          if (episode.personEpisode) {
-            return episode.personEpisode[fieldName];
-          } else {
-            return null;
-          }
-        };
-
         episode.setPersonValue = function (fieldName, fieldValue) {
           if (episode.personEpisode) {
             episode.personEpisode[fieldName] = fieldValue;
           }
         };
-      };
-
-      self.getEpisodes = function(series) {
-        return new Promise(resolve => {
-          $http.get('/api/getMyEpisodes', {params: {
-              SeriesId: series.id,
-              PersonId: LockService.person_id
-            }}).then(results => {
-
-            const episodes = results.data;
-            $log.debug("Episodes has " + episodes.length + " rows.");
-
-            episodes.forEach( function(episode) {
-              self.addPersonFunctions(episode);
-              self.updateRatingFields(episode);
-            });
-
-            resolve(episodes);
-          });
-        });
       };
 
       self.episodeColorStyle = function(episode) {
@@ -338,26 +310,27 @@ angular.module('mediaMogulApp')
       self.updateMyEpisodeListUsingDefer = function(series) {
         let deferred = $q.defer();
         let urlCalls = [];
-        urlCalls.push($http.get('/api/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}));
+        urlCalls.push($http.get('/api/getMyEpisodes',
+          {
+            params: {
+              SeriesId: series.id,
+              PersonId: LockService.person_id
+            }
+          }));
 
         const episodes = [];
 
         $q.all(urlCalls).then(
           function(results) {
-            let tempEpisodes = results[0].data;
-            tempEpisodes.forEach(function(episode) {
-              let existing = findEpisodeWithId(episodes, episode.id);
-              if (existing) {
-                ArrayService.removeFromArray(episodes, existing);
-              }
-              episodes.push(episode);
-            });
+            ArrayService.refreshArray(episodes, results[0].data);
 
             console.log("Episodes has " + episodes.length + " rows.");
 
             episodes.forEach( function(episode) {
+              self.addPersonFunctions(episode);
               self.updateRatingFields(episode);
             });
+
             return deferred.resolve(episodes);
           },
           function(errors) {
@@ -367,28 +340,19 @@ angular.module('mediaMogulApp')
       };
 
       self.updateMyEpisodeListUsingPromise = function(series) {
-
         const episodes = [];
 
         return new Promise((resolve, reject) => {
           $http.get('/api/getMyEpisodes', {params: {SeriesId: series.id, PersonId: LockService.person_id}}).then(function(results) {
-            let tempEpisodes = results.data;
-            tempEpisodes.forEach(function(episode) {
-              let existing = findEpisodeWithId(episodes, episode.id);
-              if (existing) {
-                ArrayService.removeFromArray(episodes, existing);
-              }
-              episodes.push(episode);
-            });
+            ArrayService.refreshArray(episodes, results[0].data);
 
-            // series.viewingLocations = results[1].data;
             console.log("Episodes has " + episodes.length + " rows.");
-            // $log.debug("Locations has " + series.viewingLocations.length + " rows.");
 
             episodes.forEach( function(episode) {
               self.addPersonFunctions(episode);
               self.updateRatingFields(episode);
             });
+
             resolve(episodes);
           })
             .catch(err => reject(err));
