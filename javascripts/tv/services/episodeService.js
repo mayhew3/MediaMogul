@@ -12,6 +12,7 @@ angular.module('mediaMogulApp')
       const groupsLoading = [];
       self.loadingQueue = true;
       self.loadingTierOne = true;
+      self.loadingNotMyShows = true;
 
       self.errorQueue = false;
       self.errorTierOne = false;
@@ -34,7 +35,10 @@ angular.module('mediaMogulApp')
               self.loadingTierOne = false;
               addTimerForNextAirDate();
               updateMyShowsListTierTwo().then(() =>  {
-                resolve();
+                self.updateNotMyShowsList().then(() => {
+                  self.loadingNotMyShows = false;
+                  resolve();
+                });
               });
             })
                 .catch(() => {
@@ -201,7 +205,7 @@ angular.module('mediaMogulApp')
         ArrayService.refreshArray(myShows, arrayCopy);
       }
 
-      function removeShowFromArray(oldShow) {
+      function removeShowFromMyShowsArray(oldShow) {
         ArrayService.removeFromArray(myShows, oldShow);
       }
 
@@ -584,9 +588,17 @@ angular.module('mediaMogulApp')
       };
 
       self.removeFromMyShows = function(show) {
-        return $http.post('/api/removeFromMyShows', {SeriesId: show.id, PersonId: LockService.person_id}).then(function() {
-          removeShowFromArray(show);
-          addTimerForNextAirDate();
+        return new Promise(resolve => {
+          $http.post('/api/removeFromMyShows', {
+            SeriesId: show.id,
+            PersonId: LockService.person_id
+          }).then(function() {
+            delete show.personSeries;
+            ArrayService.removeFromArray(myShows, show);
+            notMyShows.push(show);
+            addTimerForNextAirDate();
+            resolve();
+          });
         });
       };
 
