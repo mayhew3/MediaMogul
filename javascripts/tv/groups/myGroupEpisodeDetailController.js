@@ -1,23 +1,29 @@
 angular.module('mediaMogulApp')
   .controller('myGroupEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode',
-            'previousEpisodes', 'series', 'LockService', 'group', '$http', 'allPastWatchedCallback', 'firstUnwatched',
+              'previousEpisodes', 'series', 'LockService', 'group', '$http', 'allPastWatchedCallback', 'firstUnwatched',
+              'GroupService',
     function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService,
-             group, $http, allPastWatchedCallback, firstUnwatched) {
+             group, $http, allPastWatchedCallback, firstUnwatched, GroupService) {
       const self = this;
-      self.tv_group_episode_id = episode.tv_group_episode_id;
+
+      self.episode = episode;
+      self.series = series;
+      self.group = group;
+
+      self.tv_group_episode_id = getGroupEpisode(episode).tv_group_episode_id;
       self.LockService = LockService;
       self.firstUnwatched = firstUnwatched;
+
+      function getGroupEpisode(episode) {
+        return GroupService.getGroupEpisode(episode, self.group.id);
+      }
 
       const options = {
         year: "numeric", month: "2-digit",
         day: "2-digit", timeZone: "America/Los_Angeles"
       };
 
-      self.episode = episode;
-      self.series = series;
-      self.group = group;
-
-      self.watched_date = formatDateString(episode.watched_date);
+      self.watched_date = formatDateString(getGroupEpisode(episode).watched_date);
       self.air_date = formatDateString(episode.air_date);
 
       self.allPastEpisodes = false;
@@ -25,13 +31,13 @@ angular.module('mediaMogulApp')
 
       // leave watched_date out of the interface fields because I want to use a date comparison before adding to changedFields.
       self.originalFields = {
-        watched: self.episode.watched,
-        skipped: self.episode.skipped
+        watched: getGroupEpisode(episode).watched,
+        skipped: getGroupEpisode(episode).skipped
       };
 
       self.interfaceFields = {
-        watched: self.episode.watched,
-        skipped: self.episode.skipped
+        watched: getGroupEpisode(episode).watched,
+        skipped: getGroupEpisode(episode).skipped
       };
 
       self.updateOrAddRating = function() {
@@ -127,7 +133,7 @@ angular.module('mediaMogulApp')
 
         self.watched_date = formatDate(self.watched_date);
 
-        var originalWatchedDate = formatDate(self.episode.watched_date);
+        var originalWatchedDate = formatDate(getGroupEpisode(episode).watched_date);
 
         if (dateHasChanged(originalWatchedDate, self.watched_date)) {
           changedFields.watched_date = self.watched_date;
@@ -222,12 +228,12 @@ angular.module('mediaMogulApp')
       }
 
       function updateEpisodeFields() {
-        self.episode.watched = self.interfaceFields.watched;
-        self.episode.watched_date = self.watched_date;
-        self.episode.skipped = self.interfaceFields.skipped;
+        getGroupEpisode(episode).watched = self.interfaceFields.watched;
+        getGroupEpisode(episode).watched_date = self.watched_date;
+        getGroupEpisode(episode).skipped = self.interfaceFields.skipped;
 
         if (LockService.isAdmin()) {
-          var originalAirDate = formatDate(self.episode.air_date);
+          const originalAirDate = formatDate(self.episode.air_date);
 
           if (dateHasChanged(originalAirDate, self.air_date)) {
             self.episode.air_date = self.air_date;
@@ -243,7 +249,7 @@ angular.module('mediaMogulApp')
       self.updateAndClose = function() {
         self.updateOrAddRating()
           .then(function (response) {
-            episode.tv_group_episode_id = response.data.tv_group_episode_id;
+            getGroupEpisode(episode).tv_group_episode_id = response.data.tv_group_episode_id;
             return updateWatchedStatus();
           })
           .then(function () {
