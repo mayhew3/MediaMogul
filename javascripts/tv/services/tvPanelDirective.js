@@ -111,7 +111,8 @@
       clickOverride: self.panelInfo.clickOverride,
       badgeValue: self.panelInfo.badgeValue,
       alreadyExists: self.panelInfo.alreadyExists,
-      shouldAskForPoster: self.panelInfo.shouldAskForPoster
+      shouldAskForPoster: self.panelInfo.shouldAskForPoster,
+      extraStyles: self.panelInfo.extraStyles
     };
 
     // COMPARATORS
