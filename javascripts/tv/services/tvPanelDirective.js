@@ -33,11 +33,17 @@
 
     self.currentPageUpNext = 1;
 
+    self.titleSearch = undefined;
+
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
     if (!$scope.shows) {
       self.EpisodeService.registerAsObserver($scope);
     }
+
+    self.showQuickFilter = function() {
+      return !!ArrayService.exists(self.panelInfo.showQuickFilter);
+    };
 
     self.showPanel = function() {
       return self.showLoading() ||
@@ -57,8 +63,16 @@
       return (self.panelInfo.posterSize === 'small') ? 'col-xs-4 col-sm-2 col-md-2' : 'col-xs-6 col-sm-3 col-md-2';
     };
 
+    self.allFilter = function(show) {
+      return self.tvFilter(show) && self.titleFilter(show);
+    };
+
     self.tvFilter = function(show) {
       return ArrayService.exists(self.panelInfo.tvFilter) ? self.panelInfo.tvFilter(show) : true;
+    };
+
+    self.titleFilter = function(show) {
+      return self.titleSearch === undefined || show.title.toLowerCase().indexOf(self.titleSearch.toLowerCase()) > -1;
     };
 
     self.totalItems = function() {

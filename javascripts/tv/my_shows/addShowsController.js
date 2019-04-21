@@ -105,7 +105,8 @@ angular.module('mediaMogulApp')
         pageLimit: 12,
         showLoading: self.showLoading,
         extraStyles: posterStyle,
-        textOverlay: textOverlay
+        textOverlay: textOverlay,
+        showQuickFilter: true
       };
 
       $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
