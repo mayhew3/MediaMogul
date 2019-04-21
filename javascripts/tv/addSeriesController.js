@@ -46,11 +46,14 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(existingMatch);
     }
 
+    function textOverlay(show) {
+      return TVDBIDAlreadyExists(show) ? 'Already Added' : null;
+    }
 
     self.posterInfo = {
       clickOverride: updateSelectedShow,
       extraStyles: posterStyle,
-      alreadyExists: TVDBIDAlreadyExists
+      textOverlay: textOverlay
     };
 
     function posterStyle(match) {
