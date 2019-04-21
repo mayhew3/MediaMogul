@@ -639,7 +639,13 @@ angular.module('mediaMogulApp')
 
           let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
-          viewer.last_watched = ArrayService.exists(lastWatchedEpisode) ? lastWatchedEpisode.watched_date : null;
+          if (ArrayService.exists(lastWatchedEpisode)) {
+            const episodeViewer = getEpisodeViewer(lastWatchedEpisode);
+            viewer.last_watched = episodeViewer.watched_date;
+          } else {
+            viewer.last_watched = null;
+          }
+          
           viewer.first_unwatched = firstUnwatched;
           viewer.unwatched_all = unwatchedEpisodes;
 
