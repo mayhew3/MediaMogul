@@ -77,7 +77,7 @@ angular.module('mediaMogulApp')
             _.forEach(tempShows, formatIncomingShow);
             $log.debug("Finished updating Queue.");
 
-            mergeShowsIntoArray(tempShows);
+            mergeShowsIntoMyShowsArray(tempShows);
 
             resolve(myShows);
           }).catch((err) => {
@@ -100,7 +100,7 @@ angular.module('mediaMogulApp')
             _.forEach(tempShows, formatIncomingShow);
             $log.debug("Finished updating Tier 1.");
 
-            mergeShowsIntoArray(tempShows);
+            mergeShowsIntoMyShowsArray(tempShows);
 
             resolve(myShows);
           }, function (errResponse) {
@@ -118,7 +118,7 @@ angular.module('mediaMogulApp')
             _.forEach(tempShows, formatIncomingShow);
             $log.debug("Finished updating Tier 2.");
 
-            mergeShowsIntoArray(tempShows);
+            mergeShowsIntoMyShowsArray(tempShows);
 
             resolve(tempShows);
           }, function (errResponse) {
@@ -183,7 +183,7 @@ angular.module('mediaMogulApp')
         _.forEach(myShowObservers, scope => scope.$apply());
       }
 
-      function mergeShowsIntoArray(newShowList) {
+      function mergeShowsIntoMyShowsArray(newShowList) {
         const arrayCopy = myShows.slice();
 
         _.each(newShowList, show => {
@@ -196,6 +196,21 @@ angular.module('mediaMogulApp')
         });
 
         ArrayService.refreshArray(myShows, arrayCopy);
+      }
+
+      function shallowCopy(sourceObj, destinationObj) {
+        for (let propertyName in sourceObj) {
+          if (sourceObj.hasOwnProperty(propertyName)) {
+            const originalProp = sourceObj[propertyName];
+            if (shouldCopy(originalProp)) {
+              destinationObj[propertyName] = originalProp;
+            }
+          }
+        }
+      }
+
+      function shouldCopy(propertyValue) {
+        return !_.isArray(propertyValue);
       }
 
       function addShowToArray(newShow) {
@@ -242,8 +257,8 @@ angular.module('mediaMogulApp')
       };
 
       self.updateNumericFields = function(show) {
-        if (show.my_tier !== null) {
-          show.my_tier = parseInt(show.my_tier);
+        if (show.personSeries && _.isString(show.personSeries.my_tier)) {
+          show.personSeries.my_tier = parseInt(show.personSeries.my_tier);
         }
         if (show.metacritic !== null) {
           show.metacritic = parseInt(show.metacritic);
@@ -316,7 +331,8 @@ angular.module('mediaMogulApp')
       function addPersonShowToAllShowsList(show) {
         const existing = _.findWhere(allShows, {id: show.id});
         if (existing) {
-          mergeNewPersonOntoShow(existing, show);
+          shallowCopy(show, existing);
+          // mergeNewPersonOntoShow(existing, show);
           return existing;
         } else {
           allShows.push(show);
@@ -331,6 +347,7 @@ angular.module('mediaMogulApp')
       function addGroupShowToAllShowsList(groupShow) {
         const existing = _.findWhere(allShows, {id: groupShow.id});
         if (existing) {
+          shallowCopy(groupShow, existing);
           mergeNewGroupOntoShow(existing, groupShow);
           return existing;
         } else {
