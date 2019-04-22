@@ -201,7 +201,8 @@ function extractSingleGroupSeries(series, tv_group_id) {
   const columnsToMove = [
     'tv_group_series_id',
     'last_watched',
-    'date_added'
+    'date_added',
+    'group_score'
   ];
   const group = {
     tv_group_id: tv_group_id
