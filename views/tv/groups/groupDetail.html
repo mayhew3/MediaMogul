@@ -15,7 +15,7 @@
     <input type="text"
            ng-model="ctrl.quickFindResult"
            placeholder="Search..."
-           uib-typeahead="show as show.title for show in ctrl.shows | filter:{title:$viewValue} | limitTo:5"
+           uib-typeahead="show as show.title for show in ctrl.getGroupShows() | filter:{title:$viewValue} | limitTo:5"
            typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
            class="darkInput form-control input-lg">
 

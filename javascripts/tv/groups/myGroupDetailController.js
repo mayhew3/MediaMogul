@@ -8,9 +8,6 @@ angular.module('mediaMogulApp')
     self.LockService = LockService;
     self.EpisodeService = EpisodeService;
 
-    // todo: remove
-    self.shows = [];
-
     self.memberNames = null;
 
     self.group = {
@@ -393,11 +390,6 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(object) && object === true;
     }
 
-    // todo: remove
-    function addShowToGroupCollection(show) {
-      self.shows.push(show);
-    }
-
     self.open = function(series) {
       $uibModal.open({
         templateUrl: 'views/tv/groups/seriesDetail.html',
@@ -411,6 +403,8 @@ angular.module('mediaMogulApp')
             return self.group;
           }
         }
+      }).result.finally(function() {
+        self.quickFindResult = undefined;
       });
     };
 
@@ -427,8 +421,6 @@ angular.module('mediaMogulApp')
             return addShowToGroupCollection;
           }
         }
-      }).result.finally(function() {
-        self.quickFindResult = undefined;
       });
     };
 
