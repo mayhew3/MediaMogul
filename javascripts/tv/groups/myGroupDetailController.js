@@ -416,9 +416,6 @@ angular.module('mediaMogulApp')
         resolve: {
           group: function() {
             return self.group;
-          },
-          addShowCallback: function() {
-            return addShowToGroupCollection;
           }
         }
       });
