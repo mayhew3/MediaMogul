@@ -1,11 +1,12 @@
 angular.module('mediaMogulApp')
   .controller('addGroupShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', 'group',
-              '$http', '$filter', 'addShowCallback', '$uibModalInstance', '$scope',
+              '$http', '$filter', '$uibModalInstance', '$scope', 'EpisodeService',
     function($log, $uibModal, $interval, EpisodeService, LockService, group,
-             $http, $filter, addShowCallback, $uibModalInstance, $scope) {
-      var self = this;
+             $http, $filter, $uibModalInstance, $scope, EpisodeService) {
+      const self = this;
 
       self.LockService = LockService;
+      self.EpisodeService = EpisodeService;
 
       self.group = group;
 
@@ -27,6 +28,8 @@ angular.module('mediaMogulApp')
         var filteredShows = $filter('filterByTitle')(self.series, self.titleSearch);
         self.totalItems = filteredShows.length;
       };
+
+
 
       self.updateTitleSearch = function() {
         self.updateNumItems();
@@ -58,6 +61,34 @@ angular.module('mediaMogulApp')
         });
       };
       self.refreshSeriesList();
+
+      self.getNotGroupShows = function() {
+        return _.union(self.added, self.EpisodeService.getNotGroupShows(self.group.id));
+      };
+
+      self.showLoading = function() {
+        return self.EpisodeService.loadingNotMyShows;
+      };
+
+      function textOverlay(show) {
+        return _.contains(self.added, show) ? 'Added!' : null;
+      }
+
+      self.addShowsPanel = {
+        headerText: 'Add Shows',
+        sort: {
+          field: 'title',
+          direction: 'asc'
+        },
+        showEmpty: true,
+        seriesFunction: self.getNotGroupShows,
+        posterSize: 'large',
+        pageLimit: 12,
+        showLoading: self.showLoading,
+        extraStyles: posterStyle,
+        textOverlay: textOverlay,
+        showQuickFilter: true
+      };
 
       function updateNotOurShows() {
         return $http.get('/api/notGroupShows', {params: {tv_group_id: self.group.id}}).then(function (response) {

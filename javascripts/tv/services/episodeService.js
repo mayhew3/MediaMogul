@@ -281,13 +281,14 @@ angular.module('mediaMogulApp')
       };
 
       self.getExistingGroupShowList = function(tv_group_id) {
-        return _.findWhere(groupShows, {tv_group_id: tv_group_id});
+        const groupObj = _.findWhere(groupShows, {tv_group_id: tv_group_id});
+        return groupObj ? groupObj.shows : undefined;
       };
 
       self.getOrCreateGroupShowList = function(tv_group_id) {
         const existingGroupShows = self.getExistingGroupShowList(tv_group_id);
         if (existingGroupShows) {
-          return existingGroupShows.shows;
+          return existingGroupShows;
         } else {
           const groupShowList = {
             tv_group_id: tv_group_id,
@@ -532,6 +533,19 @@ angular.module('mediaMogulApp')
 
       self.getNotMyShows = function() {
         return notMyShows;
+      };
+
+      self.getNotGroupShows = function(tv_group_id) {
+        if (self.loadingNotMyShows) {
+          return [];
+        } else {
+          const groupList = self.getExistingGroupShowList(tv_group_id);
+          const curatedList = _.filter(allShows, show => {
+            const matching = _.findWhere(groupList, {id: show.id});
+            return !ArrayService.exists(matching);
+          });
+          return curatedList;
+        }
       };
 
       self.updateEpisode = function(episodeId, changedFields) {
