@@ -579,6 +579,34 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.addToGroupShows = function(show, tv_group_id) {
+        return new Promise((resolve, reject) => {
+          $http.post('/api/addGroupShow', {series_id: show.id, tv_group_id: tv_group_id}).then(function(results) {
+            const tv_group_series_id = results.data[0].id;
+            show.groups = [];
+
+            const groupSeries = {
+              tv_group_id: tv_group_id,
+              ballots: [],
+              unwatched_all: show.aired_episodes,
+              date_added: new Date,
+              last_watched: undefined,
+              tv_group_series_id: tv_group_series_id
+            };
+            show.groups.push(groupSeries);
+
+            const groupList = self.getOrCreateGroupShowList(tv_group_id);
+            groupList.push(show);
+
+            addGroupShowToAllShowsList(show);
+            resolve();
+          }, function(errResponse) {
+            $log.debug("Error adding to group shows: " + errResponse);
+            reject(errResponse);
+          });
+        });
+      };
+
       self.addMyEpisodeRating = function(episodeRating, seriesId) {
         $log.debug("Adding new episode rating.");
         return $http.post('/api/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});

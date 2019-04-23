@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('addGroupShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', 'group',
-              '$http', '$filter', 'addShowCallback', '$uibModalInstance', 'GroupService',
+              '$http', '$filter', 'addShowCallback', '$uibModalInstance', '$scope',
     function($log, $uibModal, $interval, EpisodeService, LockService, group,
-             $http, $filter, addShowCallback, $uibModalInstance, GroupService) {
+             $http, $filter, addShowCallback, $uibModalInstance, $scope) {
       var self = this;
 
       self.LockService = LockService;
@@ -41,25 +41,11 @@ angular.module('mediaMogulApp')
       };
 
       self.addToMyShows = function(show) {
-        $http.post('/api/addGroupShow', {series_id: show.id, tv_group_id: self.group.id}).then(function(results) {
-          const tv_group_series_id = results.data[0].id;
-          show.groups = [];
-
-          const groupSeries = {
-            tv_group_id: self.group.id,
-            ballots: [],
-            unwatched_all: show.aired_episodes,
-            date_added: new Date,
-            last_watched: undefined,
-            tv_group_series_id: tv_group_series_id
-          };
-          show.groups.push(groupSeries);
-
+        EpisodeService.addToGroupShows(show, self.group.id).then(() => {
           self.added.push(show);
-          addShowCallback(show);
-        }, function(errResponse) {
-          $log.debug("Error adding to group shows: " + errResponse);
-        });
+          $scope.$apply();
+        })
+          .catch(err => console.log('Error adding to group shows: ' + err));
       };
 
       self.refreshSeriesList = function() {
