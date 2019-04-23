@@ -8,6 +8,7 @@ angular.module('mediaMogulApp')
     self.LockService = LockService;
     self.EpisodeService = EpisodeService;
 
+    // todo: remove
     self.shows = [];
 
     self.memberNames = null;
@@ -392,6 +393,7 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(object) && object === true;
     }
 
+    // todo: remove
     function addShowToGroupCollection(show) {
       self.shows.push(show);
     }
