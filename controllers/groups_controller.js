@@ -231,6 +231,7 @@ exports.addToGroupShows = function(request, response) {
     tv_group_id, series_id
   ];
 
+  // todo: return series info to match getGroupShows
   db.executeQueryWithResults(response, sql, values);
 };
 
