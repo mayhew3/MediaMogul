@@ -75,7 +75,7 @@ angular.module('mediaMogulApp')
     };
 
     self.onSubCategoryChange = function(subCategory) {
-      changeCurrentCategory(subCategory);
+      changeCurrentSubCategory(subCategory);
       $state.go('tv.shows.main.' + subCategory.sref);
     };
 
@@ -229,7 +229,7 @@ angular.module('mediaMogulApp')
       showError: self.showErrorTierOne
     };
 
-    self.backlogShowsPanel = {
+    self.backlogPanel = {
       headerText: 'My Shows',
       sort: {
         field: ShowFilterService.getDynamicRating,
@@ -239,8 +239,8 @@ angular.module('mediaMogulApp')
       posterSize: 'large',
       badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,
-      showLoading: self.showLoadingTierOne,
-      showError: self.showErrorTierOne
+      showLoading: self.showLoadingTierTwo,
+      showError: self.showErrorTierTwo
     };
 
     self.seriesRequestPanel = {
