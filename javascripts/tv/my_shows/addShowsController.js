@@ -10,9 +10,6 @@ angular.module('mediaMogulApp')
       self.series = [];
       self.added = [];
 
-      self.tiers = [1, 2, 3, 4, 5];
-      self.unwatchedOnly = true;
-
       self.selectedPill = "Main";
 
       self.mySeriesRequests = [];

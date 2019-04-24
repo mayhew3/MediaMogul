@@ -9,7 +9,6 @@ angular.module('mediaMogulApp')
     self.series = series;
     self.episodes = episodes;
 
-    self.tiers = [1, 2, 3, 4, 5];
     self.viewingLocations = [];
     self.originalViewingLocations = [];
     self.inputViewingLocations = [];

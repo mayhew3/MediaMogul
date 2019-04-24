@@ -10,8 +10,6 @@ angular.module('mediaMogulApp')
     self.tvdb_matches = [];
     self.used_tvdb_ids = [];
 
-    self.tiers = [1, 2, 3, 4, 5];
-
     self.selectedLocation = null;
     self.selectedShow = null;
 

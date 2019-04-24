@@ -308,6 +308,7 @@ function getCommonShowsQuery(personId) {
       "ps.first_unwatched, " +
       "ps.tier AS my_tier, " +
       "ps.date_added, " +
+      "ps.pinned, " +
       "COALESCE(ps.rating, metacritic) AS dynamic_rating, " +
       "(SELECT MAX(er.watched_date) " +
       "  from episode_rating er " +
@@ -337,7 +338,8 @@ function extractSinglePersonSeries(series) {
     'my_tier',
     'date_added',
     'dynamic_rating',
-    'last_watched'
+    'last_watched',
+    'pinned'
   ];
   series.personSeries = {};
   _.forEach(columnsToMove, column => {

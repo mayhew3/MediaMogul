@@ -14,8 +14,6 @@ angular.module('mediaMogulApp')
 
     self.episodes = [];
 
-    self.tiers = [1, 2];
-
     self.possibleSeasons = [];
     self.selectedSeason = {
       label: null
