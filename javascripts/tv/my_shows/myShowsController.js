@@ -81,14 +81,14 @@ angular.module('mediaMogulApp')
     self.upcomingSoon = function(series) {
       return dateIsInNextDays(series.nextAirDate, 7) &&
         (!hasUnwatchedEpisodes(series) ||
-        self.showInQueue(series));
+        self.justAired(series));
     };
 
     self.allUnaired = function(series) {
       return ArrayService.exists(series.nextAirDate) && series.nextAirDate > Date.now();
     };
 
-    function airedRecently(series) {
+    function firstUnwatchedAiredRecently(series) {
       return dateIsWithinLastDays(series.personSeries.first_unwatched, 8);
     }
 
@@ -113,7 +113,32 @@ angular.module('mediaMogulApp')
     self.showInQueue = function(series) {
       return self.firstTier(series) &&
         !self.ratingsPending(series) &&
-        (airedRecently(series) || watchedRecently(series) || addedRecently(series));
+        (firstUnwatchedAiredRecently(series) || watchedRecently(series) || addedRecently(series));
+    };
+
+    self.justAired = function(series) {
+      return self.firstTier(series) &&
+        !self.ratingsPending(series) &&
+        firstUnwatchedAiredRecently(series);
+    };
+
+    self.otherQueue = function(series) {
+      return self.firstTier(series) &&
+        !self.ratingsPending(series) &&
+        !self.justAired(series) &&
+        watchedRecently(series);
+    };
+
+    self.addedSection = function(series) {
+      return self.firstTier(series) &&
+        !self.ratingsPending(series) &&
+        !self.justAired(series) &&
+        !self.otherQueue(series) &&
+        addedRecently(series);
+    };
+
+    self.pinnedToDashboard = function(series) {
+      return !!series.personSeries.pinnedToDashboard;
     };
 
     self.continuePinned = function(series) {
@@ -201,13 +226,52 @@ angular.module('mediaMogulApp')
         badgeValue: getRatingsPending
       },
       {
-        headerText: 'Up Next',
-        tvFilter: self.showInQueue,
+        headerText: 'Aired Recently',
+        tvFilter: self.justAired,
         sort: {
           field: getDynamicRating,
           direction: 'desc'
         },
         showEmpty: true,
+        posterSize: 'large',
+        badgeValue: getUnwatched,
+        showLoading: self.showLoadingQueue,
+        showError: self.showErrorQueue
+      },
+      {
+        headerText: 'Continue',
+        tvFilter: self.otherQueue,
+        sort: {
+          field: getDynamicRating,
+          direction: 'desc'
+        },
+        showEmpty: false,
+        posterSize: 'large',
+        badgeValue: getUnwatched,
+        showLoading: self.showLoadingQueue,
+        showError: self.showErrorQueue
+      },
+      {
+        headerText: 'Added Recently',
+        tvFilter: self.addedSection,
+        sort: {
+          field: getDynamicRating,
+          direction: 'desc'
+        },
+        showEmpty: false,
+        posterSize: 'large',
+        badgeValue: getUnwatched,
+        showLoading: self.showLoadingQueue,
+        showError: self.showErrorQueue
+      },
+      {
+        headerText: 'Pinned',
+        tvFilter: self.pinnedToDashboard,
+        sort: {
+          field: getDynamicRating,
+          direction: 'desc'
+        },
+        showEmpty: false,
         posterSize: 'large',
         badgeValue: getUnwatched,
         showLoading: self.showLoadingQueue,
@@ -224,45 +288,6 @@ angular.module('mediaMogulApp')
         subtitle: nextAirDate,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue
-      },
-      {
-        headerText: 'Mid-Season',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.continuePinned,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        pageLimit: 12,
-        showLoading: self.showLoadingTierOne,
-        showError: self.showErrorTierOne
-      },
-      {
-        headerText: 'New Season',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.newSeasonPinned,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        pageLimit: 6,
-        showLoading: self.showLoadingTierOne,
-        showError: self.showErrorTierOne
-      },
-      {
-        headerText: 'To Start',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.toStartPinned,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        pageLimit: 6,
-        showLoading: self.showLoadingTierOne,
-        showError: self.showErrorTierOne
       }
 
     ];
