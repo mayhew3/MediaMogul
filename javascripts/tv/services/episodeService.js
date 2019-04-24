@@ -12,10 +12,12 @@ angular.module('mediaMogulApp')
       const groupsLoading = [];
       self.loadingQueue = true;
       self.loadingTierOne = true;
+      self.loadingTierTwo = true;
       self.loadingNotMyShows = true;
 
       self.errorQueue = false;
       self.errorTierOne = false;
+      self.errorTierTwo = false;
 
       const myShowObservers = [];
 
@@ -35,23 +37,33 @@ angular.module('mediaMogulApp')
               self.loadingTierOne = false;
               addTimerForNextAirDate();
               updateMyShowsListTierTwo().then(() =>  {
+                self.loadingTierTwo = false;
                 self.updateNotMyShowsList().then(() => {
                   self.loadingNotMyShows = false;
                   resolve();
                 });
-              });
+              })
+                .catch(() => {
+                  self.errorTierTwo = true;
+                  self.loadingTierTwo = false;
+                  updateAllShowObservers();
+                });
             })
                 .catch(() => {
                   self.errorTierOne = true;
+                  self.errorTierTwo = true;
                   self.loadingTierOne = false;
+                  self.loadingTierTwo = false;
                   updateAllShowObservers();
                 });
           })
               .catch(() => {
                 self.errorQueue = true;
                 self.errorTierOne = true;
+                self.errorTierTwo = true;
                 self.loadingQueue = false;
                 self.loadingTierOne = false;
+                self.loadingTierTwo = false;
                 updateAllShowObservers();
               });
         });

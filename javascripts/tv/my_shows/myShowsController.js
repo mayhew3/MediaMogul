@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService',
+    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService', '$stateParams',
   function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout,
-           $state, ShowFilterService) {
+           $state, ShowFilterService, $stateParams) {
     const self = this;
 
     self.LockService = LockService;
@@ -12,40 +12,58 @@ angular.module('mediaMogulApp')
 
     self.series_requests = [];
 
-    self.selectedFilterInfo = {
-      label: 'Dashboard',
-      sref: 'main'
-    };
+    self.incomingParam = $stateParams.group_id;
 
     self.quickFindResult = undefined;
 
     self.categories = [
       {
-        label: 'Dashboard',
-        sref: 'main'
-      },
-      {
         label: 'My Shows',
-        sref: 'allShows'
-      },
-        {
-        label: 'Mid-Season',
-        sref: 'continue'
-      },
-        {
-        label: 'New Season',
-        sref: 'newSeason'
-      },
-        {
-        label: 'To Start',
-        sref: 'toStart'
+        sref: 'main'
       }
     ];
+
+    self.subCategories = [
+      {
+        label: 'Dashboard',
+        sref: 'dashboard'
+      },
+      {
+        label: 'All Active',
+        sref: 'all'
+      },
+      {
+        label: 'Backlog',
+        sref: 'backlog'
+      }
+    ];
+
+    self.selectedFilterInfo = {
+      label: 'My Shows',
+      sref: 'main'
+    };
+
+    function getCategory(sref) {
+      return _.findWhere(self.categories, {sref: sref});
+    }
+
+    function getSubCategory(sref) {
+      return _.findWhere(self.subCategories, {sref: sref});
+    }
+
+    self.currentSref = $state.current.name.split('.');
+    self.selectedFilterInfo = getCategory(self.currentSref[2]);
+    self.selectedSubNav = getSubCategory(self.currentSref[3]);
 
     self.onCategoryChange = function(category) {
       self.selectedFilterInfo.label = category.label;
       self.selectedFilterInfo.sref = category.sref;
       $state.go('tv.shows.' + category.sref);
+    };
+
+    self.onSubCategoryChange = function(subCategory) {
+      self.selectedSubNav.label = subCategory.label;
+      self.selectedSubNav.sref = subCategory.sref;
     };
 
     self.showLoadingQueue = function() {
@@ -56,12 +74,20 @@ angular.module('mediaMogulApp')
       return self.EpisodeService.loadingTierOne;
     };
 
+    self.showLoadingTierTwo = function() {
+      return self.EpisodeService.loadingTierTwo;
+    };
+
     self.showErrorQueue = function() {
       return self.EpisodeService.errorQueue;
     };
 
     self.showErrorTierOne = function() {
       return self.EpisodeService.errorTierOne;
+    };
+
+    self.showErrorTierTwo = function() {
+      return self.EpisodeService.errorTierTwo;
     };
 
     self.showFetchingEpisodes = function(series) {
@@ -173,6 +199,20 @@ angular.module('mediaMogulApp')
         direction: 'desc'
       },
       tvFilter: ShowFilterService.allShows,
+      posterSize: 'large',
+      badgeValue: ShowFilterService.getUnwatched,
+      pageLimit: 18,
+      showLoading: self.showLoadingTierOne,
+      showError: self.showErrorTierOne
+    };
+
+    self.backlogShowsPanel = {
+      headerText: 'My Shows',
+      sort: {
+        field: ShowFilterService.getDynamicRating,
+        direction: 'desc'
+      },
+      tvFilter: ShowFilterService.backlogShows,
       posterSize: 'large',
       badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,

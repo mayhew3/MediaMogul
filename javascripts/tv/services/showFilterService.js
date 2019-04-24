@@ -81,6 +81,11 @@ function ShowFilterService(ArrayService, DateService) {
       hasWatchedEpisodes(series);
   };
 
+  self.backlogShows = function(series) {
+    return self.secondTier(series) &&
+      hasWatchedEpisodes(series);
+  };
+
   self.continueBacklog = function(series) {
     return self.secondTier(series) &&
       !self.ratingsPending(series) &&
