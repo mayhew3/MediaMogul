@@ -1,16 +1,14 @@
 angular.module('mediaMogulApp')
   .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-    '$http', 'ArrayService', '$scope', '$timeout', '$state',
-  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout, $state) {
+    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService',
+  function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout,
+           $state, ShowFilterService) {
     const self = this;
 
     self.LockService = LockService;
     self.EpisodeService = EpisodeService;
 
     self.pendingShows = [];
-
-    self.tiers = [1, 2, 3, 4, 5];
-    self.unwatchedOnly = true;
 
     self.series_requests = [];
 
@@ -20,11 +18,6 @@ angular.module('mediaMogulApp')
     };
 
     self.quickFindResult = undefined;
-
-    self.currentPageContinue = 1;
-    self.currentPageNewSeason = 1;
-    self.currentPageToStart = 1;
-    self.pageSize = 12;
 
     self.categories = [
       {
@@ -55,17 +48,6 @@ angular.module('mediaMogulApp')
       $state.go('tv.shows.' + category.sref);
     };
 
-    self.firstTier = function(series) {
-      return series.personSeries.my_tier === 1
-         && hasUnwatchedEpisodes(series);
-    };
-
-    self.secondTier = function(series) {
-      return series.personSeries.my_tier === 2
-         && hasUnwatchedEpisodes(series)
-        ;
-    };
-
     self.showLoadingQueue = function() {
       return self.EpisodeService.loadingQueue;
     };
@@ -82,124 +64,15 @@ angular.module('mediaMogulApp')
       return self.EpisodeService.errorTierOne;
     };
 
-    self.upcomingSoon = function(series) {
-      return dateIsInNextDays(series.nextAirDate, 7) &&
-        (!hasUnwatchedEpisodes(series) ||
-        self.justAired(series));
-    };
-
-    self.allUnaired = function(series) {
-      return ArrayService.exists(series.nextAirDate) && series.nextAirDate > Date.now();
-    };
-
-    function firstUnwatchedAiredRecently(series) {
-      return dateIsWithinLastDays(series.personSeries.first_unwatched, 8);
-    }
-
-    function watchedRecently(series) {
-      return dateIsWithinLastDays(series.personSeries.last_watched, 14);
-    }
-
-    function addedRecently(series) {
-      return dateIsWithinLastDays(series.personSeries.date_added, 8);
-    }
-
     self.showFetchingEpisodes = function(series) {
       const showEpisodes = self.LockService.isAdmin() ||
         (series.person_id && series.person_id === self.LockService.person_id);
       return showEpisodes;
     };
 
-    self.ratingsPending = function(series) {
-      return series.personSeries.rating_pending_episodes > 0;
-    };
-
-    self.showInQueue = function(series) {
-      return self.firstTier(series) &&
-        !self.ratingsPending(series) &&
-        (firstUnwatchedAiredRecently(series) || watchedRecently(series) || addedRecently(series));
-    };
-
-    self.justAired = function(series) {
-      return self.firstTier(series) &&
-        !self.ratingsPending(series) &&
-        firstUnwatchedAiredRecently(series);
-    };
-
-    self.otherQueue = function(series) {
-      return self.firstTier(series) &&
-        !self.ratingsPending(series) &&
-        !self.justAired(series) &&
-        watchedRecently(series);
-    };
-
-    self.addedSection = function(series) {
-      return self.firstTier(series) &&
-        !self.ratingsPending(series) &&
-        !self.justAired(series) &&
-        !self.otherQueue(series) &&
-        addedRecently(series);
-    };
-
-    self.pinnedToDashboard = function(series) {
-      return !!series.personSeries.pinnedToDashboard;
-    };
-
-    self.allShows = function(series) {
-      return self.firstTier(series) &&
-        hasWatchedEpisodes(series);
-    };
-
-    self.continueBacklog = function(series) {
-      return self.secondTier(series) &&
-        !self.ratingsPending(series) &&
-        series.personSeries.midSeason === true &&
-        hasWatchedEpisodes(series);
-    };
-
-    self.newSeasonPinned = function(series) {
-      return self.firstTier(series) &&
-        !self.ratingsPending(series) &&
-        !self.showInQueue(series) &&
-        series.personSeries.midSeason !== true &&
-        hasWatchedEpisodes(series);
-    };
-
-    self.newSeasonBacklog = function(series) {
-      return self.secondTier(series) &&
-        !self.ratingsPending(series) &&
-        series.personSeries.midSeason !== true &&
-        hasWatchedEpisodes(series);
-    };
-
-    self.toStartPinned = function(series) {
-      return self.firstTier(series) &&
-        !self.ratingsPending(series) &&
-        !self.showInQueue(series) &&
-        !hasWatchedEpisodes(series);
-    };
-
-    self.toStartBacklog = function(series) {
-      return self.secondTier(series) &&
-        !self.ratingsPending(series) &&
-        !hasWatchedEpisodes(series);
-    };
-
-    self.newlyAdded = function(series) {
-      return series.personSeries.my_tier === null;
-    };
-
-    self.countWhere = function(filter) {
-      return EpisodeService.getMyShows().filter(filter).length;
-    };
-
     self.orderByRating = function(series) {
       return (angular.isDefined(series.personSeries.dynamic_rating) ? -1: 0);
     };
-
-    function getDynamicRating(series) {
-      return series.personSeries.dynamic_rating;
-    }
 
     /* DASHBOARD INFOS */
 
@@ -217,76 +90,76 @@ angular.module('mediaMogulApp')
     self.dashboardInfos = [
       {
         headerText: "Ratings Pending",
-        tvFilter: self.ratingsPending,
+        tvFilter: ShowFilterService.ratingsPending,
         posterSize: 'large',
         sort: {
           field: 'title',
           direction: 'desc'
         },
         panelFormat: 'panel-warning',
-        badgeValue: getRatingsPending
+        badgeValue: ShowFilterService.getRatingsPending
       },
       {
         headerText: 'Aired Recently',
-        tvFilter: self.justAired,
+        tvFilter: ShowFilterService.justAired,
         sort: {
-          field: getDynamicRating,
+          field: ShowFilterService.getDynamicRating,
           direction: 'desc'
         },
         showEmpty: true,
         posterSize: 'large',
-        badgeValue: getUnwatched,
+        badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue
       },
       {
         headerText: 'Continue',
-        tvFilter: self.otherQueue,
+        tvFilter: ShowFilterService.otherQueue,
         sort: {
-          field: getDynamicRating,
+          field: ShowFilterService.getDynamicRating,
           direction: 'desc'
         },
         showEmpty: false,
         posterSize: 'large',
-        badgeValue: getUnwatched,
+        badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue
       },
       {
         headerText: 'Added Recently',
-        tvFilter: self.addedSection,
+        tvFilter: ShowFilterService.addedSection,
         sort: {
-          field: getDynamicRating,
+          field: ShowFilterService.getDynamicRating,
           direction: 'desc'
         },
         showEmpty: false,
         posterSize: 'large',
-        badgeValue: getUnwatched,
+        badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue
       },
       {
         headerText: 'Pinned',
-        tvFilter: self.pinnedToDashboard,
+        tvFilter: ShowFilterService.pinnedToDashboard,
         sort: {
-          field: getDynamicRating,
+          field: ShowFilterService.getDynamicRating,
           direction: 'desc'
         },
         showEmpty: false,
         posterSize: 'large',
-        badgeValue: getUnwatched,
+        badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue
       },
       {
         headerText: "Upcoming",
-        tvFilter: self.upcomingSoon,
+        tvFilter: ShowFilterService.upcomingSoon,
         posterSize: 'small',
         sort: {
           field: 'nextAirDate',
           direction: 'asc'
         },
-        subtitle: nextAirDate,
+        subtitle: ShowFilterService.nextAirDate,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue
       }
@@ -296,12 +169,12 @@ angular.module('mediaMogulApp')
     self.allShowsPanel = {
       headerText: 'My Shows',
       sort: {
-        field: getDynamicRating,
+        field: ShowFilterService.getDynamicRating,
         direction: 'desc'
       },
-      tvFilter: self.allShows,
+      tvFilter: ShowFilterService.allShows,
       posterSize: 'large',
-      badgeValue: getUnwatched,
+      badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,
       showLoading: self.showLoadingTierOne,
       showError: self.showErrorTierOne
@@ -317,51 +190,6 @@ angular.module('mediaMogulApp')
       posterSize: 'large',
       showEmpty: false
     };
-
-    function hasUnwatchedEpisodes(series) {
-      return series.personSeries.unwatched_all > 0;
-    }
-
-    function hasWatchedEpisodes(series) {
-      return (series.aired_episodes - series.personSeries.unwatched_all) !== 0;
-    }
-
-    function nextAirDate(show) {
-      if (ArrayService.exists(show.nextAirDate)) {
-        return formatAirTime(new Date(show.nextAirDate));
-      }
-      return null;
-    }
-
-    function getUnwatched(series) {
-      return series.personSeries.unwatched_all;
-    }
-
-    function getRatingsPending(series) {
-      return series.personSeries.rating_pending_episodes;
-    }
-
-    function formatAirTime(combinedDate) {
-      const minutesPart = $filter('date')(combinedDate, 'mm');
-      const timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';
-      return $filter('date')(combinedDate, timeFormat);
-    }
-
-    function dateIsWithinLastDays(referenceDate, daysAgo) {
-      if (referenceDate === null || _.isUndefined(referenceDate)) {
-        return false;
-      }
-
-      return moment().subtract(daysAgo, 'day').isBefore(moment(referenceDate));
-    }
-
-    function dateIsInNextDays(referenceDate, days) {
-      if (referenceDate === null || _.isUndefined(referenceDate)) {
-        return false;
-      }
-
-      return moment().add(days, 'day').isAfter(moment(referenceDate));
-    }
 
 
     EpisodeService.updateMyShowsListIfDoesntExist();
