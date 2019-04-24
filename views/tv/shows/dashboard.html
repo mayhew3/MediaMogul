@@ -1,0 +1,16 @@
+
+<tv-panel shows="ctrl.series_requests"
+          panel-info="ctrl.seriesRequestPanel"
+          on-click="ctrl.reviewRequest"></tv-panel>
+
+
+<!--suppress JSUnusedLocalSymbols -->
+<tv-panel ng-show="ctrl.LockService.isUser()"
+          shows="ctrl.pendingShows"
+          panel-info="ctrl.pendingDashboardInfo"></tv-panel>
+
+<!--suppress JSUnusedLocalSymbols -->
+<div ng-repeat="panel in ctrl.dashboardInfos">
+  <tv-panel panel-info="panel"
+            on-click="ctrl.open"></tv-panel>
+</div>
