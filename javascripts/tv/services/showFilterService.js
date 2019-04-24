@@ -59,17 +59,21 @@ function ShowFilterService(ArrayService, DateService) {
       watchedRecently(series);
   };
 
+  self.pinnedToDashboard = function(series) {
+    return !!series.personSeries.pinned &&
+      !self.ratingsPending(series) &&
+      !self.justAired(series) &&
+      !self.otherQueue(series) &&
+      hasUnwatchedEpisodes(series);
+  };
+
   self.addedSection = function(series) {
     return self.firstTier(series) &&
       !self.ratingsPending(series) &&
       !self.justAired(series) &&
       !self.otherQueue(series) &&
+      !self.pinnedToDashboard(series) &&
       addedRecently(series);
-  };
-
-  self.pinnedToDashboard = function(series) {
-    return !!series.personSeries.pinned &&
-      hasUnwatchedEpisodes(series);
   };
 
   self.allShows = function(series) {

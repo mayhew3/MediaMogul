@@ -113,21 +113,8 @@ angular.module('mediaMogulApp')
         showError: self.showErrorQueue
       },
       {
-        headerText: 'Continue',
+        headerText: 'Watched Recently',
         tvFilter: ShowFilterService.otherQueue,
-        sort: {
-          field: ShowFilterService.getDynamicRating,
-          direction: 'desc'
-        },
-        showEmpty: false,
-        posterSize: 'large',
-        badgeValue: ShowFilterService.getUnwatched,
-        showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue
-      },
-      {
-        headerText: 'Added Recently',
-        tvFilter: ShowFilterService.addedSection,
         sort: {
           field: ShowFilterService.getDynamicRating,
           direction: 'desc'
@@ -141,6 +128,19 @@ angular.module('mediaMogulApp')
       {
         headerText: 'Pinned',
         tvFilter: ShowFilterService.pinnedToDashboard,
+        sort: {
+          field: ShowFilterService.getDynamicRating,
+          direction: 'desc'
+        },
+        showEmpty: false,
+        posterSize: 'large',
+        badgeValue: ShowFilterService.getUnwatched,
+        showLoading: self.showLoadingQueue,
+        showError: self.showErrorQueue
+      },
+      {
+        headerText: 'Added Recently',
+        tvFilter: ShowFilterService.addedSection,
         sort: {
           field: ShowFilterService.getDynamicRating,
           direction: 'desc'
