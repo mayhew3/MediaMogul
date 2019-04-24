@@ -15,7 +15,7 @@ angular.module('mediaMogulApp')
     self.series_requests = [];
 
     self.selectedFilterInfo = {
-      label: 'Main',
+      label: 'Dashboard',
       sref: 'main'
     };
 
@@ -28,8 +28,12 @@ angular.module('mediaMogulApp')
 
     self.categories = [
       {
-        label: 'Main',
+        label: 'Dashboard',
         sref: 'main'
+      },
+      {
+        label: 'My Shows',
+        sref: 'allShows'
       },
         {
         label: 'Mid-Season',
@@ -141,11 +145,8 @@ angular.module('mediaMogulApp')
       return !!series.personSeries.pinnedToDashboard;
     };
 
-    self.continuePinned = function(series) {
+    self.allShows = function(series) {
       return self.firstTier(series) &&
-        !self.ratingsPending(series) &&
-        !self.showInQueue(series) &&
-        series.personSeries.midSeason === true &&
         hasWatchedEpisodes(series);
     };
 
@@ -292,83 +293,19 @@ angular.module('mediaMogulApp')
 
     ];
 
-    self.continuePanels = [
-      {
-        headerText: 'Mid-Season',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.continuePinned,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        showLoading: self.showLoadingTierOne,
-        showError: self.showErrorTierOne
+    self.allShowsPanel = {
+      headerText: 'My Shows',
+      sort: {
+        field: getDynamicRating,
+        direction: 'desc'
       },
-      {
-        headerText: 'Backlog',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.continueBacklog,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        pageLimit: 12
-      }
-    ];
-
-    self.newSeasonPanels = [
-      {
-        headerText: 'New Season',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.newSeasonPinned,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        showLoading: self.showLoadingTierOne,
-        showError: self.showErrorTierOne
-      },
-      {
-        headerText: 'Backlog',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.newSeasonBacklog,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        pageLimit: 12
-      }
-    ];
-
-    self.toStartPanels = [
-      {
-        headerText: 'To Start',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.toStartPinned,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        showLoading: self.showLoadingTierOne,
-        showError: self.showErrorTierOne
-      },
-      {
-        headerText: 'Backlog',
-        sort: {
-          field: getDynamicRating,
-          direction: 'desc'
-        },
-        tvFilter: self.toStartBacklog,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        pageLimit: 12
-      }
-    ];
+      tvFilter: self.allShows,
+      posterSize: 'large',
+      badgeValue: getUnwatched,
+      pageLimit: 18,
+      showLoading: self.showLoadingTierOne,
+      showError: self.showErrorTierOne
+    };
 
     self.seriesRequestPanel = {
       headerText: 'Series Requests',

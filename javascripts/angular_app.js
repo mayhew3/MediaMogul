@@ -35,6 +35,10 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/main',
           templateUrl: 'views/tv/shows/main.html'
         })
+        .state('tv.shows.allShows', {
+          url: '/allShows',
+          templateUrl: 'views/tv/shows/allShows.html'
+        })
         .state('tv.shows.blogtest', {
           url: '/blogtest',
           templateUrl: 'views/tv/shows/blogtest.html'
