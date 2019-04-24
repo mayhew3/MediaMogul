@@ -202,7 +202,8 @@ function extractSingleGroupSeries(series, tv_group_id) {
     'tv_group_series_id',
     'last_watched',
     'date_added',
-    'group_score'
+    'group_score',
+    'first_unwatched'
   ];
   const group = {
     tv_group_id: tv_group_id
@@ -213,6 +214,8 @@ function extractSingleGroupSeries(series, tv_group_id) {
   });
   series.groups = [];
   series.groups.push(group);
+
+  return group;
 }
 
 function extractGroupSeries(seriesResults, tv_group_id) {
@@ -231,8 +234,68 @@ exports.addToGroupShows = function(request, response) {
     tv_group_id, series_id
   ];
 
-  // todo: return series info to match getGroupShows
-  db.executeQueryWithResults(response, sql, values);
+  db.selectWithJSON(sql, values).then(results => {
+    const tv_group_series_id = results[0].id;
+
+    const sql = "SELECT s.id, " +
+      "s.title, " +
+      "s.metacritic, " +
+      "s.poster, " +
+      "s.cloud_poster, " +
+      "tgs.date_added, " +
+      "tgs.id as tv_group_series_id, " +
+      "s.metacritic AS group_score, " +
+      "s.trailer_link, " +
+      "(SELECT COUNT(1) " +
+      "    from episode e " +
+      "    where e.series_id = s.id " +
+      "    and e.retired = $1" +
+      "    and e.season <> $2 " +
+      "    and e.air_date IS NOT NULL" +
+      "    and e.air_date < NOW()) as aired_episodes " +
+      "FROM series s " +
+      "INNER JOIN tv_group_series tgs " +
+      "  ON tgs.series_id = s.id " +
+      "WHERE tgs.id = $3 " +
+      "AND s.retired = $4 ";
+
+    const values = [
+      0, 0, tv_group_series_id, 0
+    ];
+
+    db.selectWithJSON(sql, values).then(seriesResults => {
+      const series = seriesResults[0];
+      const groupSeries = extractSingleGroupSeries(series, tv_group_id);
+
+      const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
+        "FROM episode e " +
+        "INNER JOIN tv_group_series tgs " +
+        "  ON tgs.series_id = e.series_id " +
+        "WHERE e.retired = $1 " +
+        "AND e.season <> $2 " +
+        "AND e.id NOT IN (SELECT tge.episode_id " +
+        "                   FROM tv_group_episode tge " +
+        "                   WHERE tge.tv_group_id = $3 " +
+        "                   AND (tge.watched = $4 OR tge.skipped = $5)) " +
+        "AND tgs.id = $6 " +
+        "ORDER BY e.air_time, e.season, e.episode_number ";
+
+      const values = [
+        0,
+        0,
+        tv_group_id,
+        true,
+        true,
+        tv_group_series_id
+      ];
+
+      db.selectWithJSON(sql, values).then(episodeResults =>  {
+        person_controller.calculateUnwatchedDenorms(series, groupSeries, episodeResults);
+
+        response.json(series);
+      });
+    });
+  });
 };
 
 exports.getNotGroupShows = function(request, response) {
