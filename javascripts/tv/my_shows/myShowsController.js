@@ -30,7 +30,7 @@ angular.module('mediaMogulApp')
       },
       {
         label: 'All Active',
-        sref: 'all'
+        sref: 'allShows'
       },
       {
         label: 'Backlog',
@@ -43,6 +43,11 @@ angular.module('mediaMogulApp')
       sref: 'main'
     };
 
+    self.selectedSubCategory = {
+      label: 'Dashboard',
+      sref: 'dashboard'
+    };
+
     function getCategory(sref) {
       return _.findWhere(self.categories, {sref: sref});
     }
@@ -51,20 +56,38 @@ angular.module('mediaMogulApp')
       return _.findWhere(self.subCategories, {sref: sref});
     }
 
-    self.currentSref = $state.current.name.split('.');
-    self.selectedFilterInfo = getCategory(self.currentSref[2]);
-    self.selectedSubNav = getSubCategory(self.currentSref[3]);
+
+    function initializeIncoming() {
+      const currentSref = $state.current.name.split('.');
+
+      const selectedCat = getCategory(currentSref[2]);
+      changeCurrentCategory(selectedCat);
+
+      const selectedSubCat = getSubCategory(currentSref[3]);
+      changeCurrentSubCategory(selectedSubCat);
+    }
+
+    initializeIncoming();
 
     self.onCategoryChange = function(category) {
-      self.selectedFilterInfo.label = category.label;
-      self.selectedFilterInfo.sref = category.sref;
+      changeCurrentCategory(category);
       $state.go('tv.shows.' + category.sref);
     };
 
     self.onSubCategoryChange = function(subCategory) {
-      self.selectedSubNav.label = subCategory.label;
-      self.selectedSubNav.sref = subCategory.sref;
+      changeCurrentCategory(subCategory);
+      $state.go('tv.shows.main.' + subCategory.sref);
     };
+
+    function changeCurrentCategory(category) {
+      self.selectedFilterInfo.label = category.label;
+      self.selectedFilterInfo.sref = category.sref;
+    }
+
+    function changeCurrentSubCategory(subCategory) {
+      self.selectedSubCategory.label = subCategory.label;
+      self.selectedSubCategory.sref = subCategory.sref;
+    }
 
     self.showLoadingQueue = function() {
       return self.EpisodeService.loadingQueue;
