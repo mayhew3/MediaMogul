@@ -58,15 +58,22 @@ angular.module('mediaMogulApp')
         const selectedCat = getCategory(currentSref[1]);
         changeCurrentCategory(selectedCat);
 
-        const selectedSubCat = getSubCategory(currentSref[2]);
+        const lastPart = currentSref[2];
+        const destSubCat = lastPart ? lastPart : 'dashboard';
+
+        const selectedSubCat = getSubCategory(destSubCat);
         changeCurrentSubCategory(selectedSubCat);
+
+        if (!lastPart) {
+          $state.go('tv.' + selectedCat.sref + ".dashboard");
+        }
       }
 
       initializeIncoming();
 
       self.onCategoryChange = function(category) {
         changeCurrentCategory(category);
-        $state.go('tv.' + category.sref);
+        $state.go('tv.' + category.sref + '.dashboard');
       };
 
       self.onSubCategoryChange = function(subCategory) {
