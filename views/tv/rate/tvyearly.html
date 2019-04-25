@@ -8,7 +8,7 @@
           <h1>TV Ratings</h1>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
-          <drop-down initial-value="ctrl.viewedYear"
+          <drop-down dynamic-value="ctrl.getViewedYear"
                      possible-values="ctrl.possibleYears"
                      on-change-callback="ctrl.changeYear"></drop-down>
         </div>

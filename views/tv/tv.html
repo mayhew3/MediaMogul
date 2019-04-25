@@ -13,7 +13,7 @@
     <div class="row" style="margin-bottom: 10px;">
       <div class="col-sm-3 col-xs-6" style="padding-right: 2px">
 
-        <drop-down initial-value="ctrl.selectedFilterInfo"
+        <drop-down dynamic-value="ctrl.getSelectedCategory"
                    possible-values="ctrl.categories"
                    on-change-callback="ctrl.onCategoryChange"></drop-down>
 

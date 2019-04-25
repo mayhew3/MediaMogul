@@ -10,7 +10,6 @@
       controller: ['$scope', 'ArrayService', dropDownController],
       controllerAs: 'ctrl',
       scope: {
-        initialValue: '=',
         possibleValues: '=',
         formatFunction: '=',
         badgeValueFunction: '=',
@@ -23,7 +22,6 @@
   function dropDownController($scope, ArrayService) {
     const self = this;
 
-    self.initialValue = $scope.initialValue;
     self.possibleValues = $scope.possibleValues;
     self.formatFunction = $scope.formatFunction;
     self.badgeValueFunction = $scope.badgeValueFunction;
@@ -31,10 +29,9 @@
     self.dynamicValue = $scope.dynamicValue;
 
     self.isOpen = false;
-    self.selectedValue = self.initialValue;
 
     self.getSelectedValue = function() {
-      return self.selectedValue ? self.selectedValue : self.dynamicValue();
+      return self.dynamicValue();
     };
 
     self.showEntireThing = function() {
