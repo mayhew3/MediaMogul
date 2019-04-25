@@ -62,7 +62,7 @@ angular.module('mediaMogulApp')
           self.isAuthenticated = true;
           self.setSession(authResult, function() {
             executeAfterLoginCallbacks();
-            $location.path('/tv/shows/main');
+            $location.path('/tv/shows/dashboard');
           });
         }
       });

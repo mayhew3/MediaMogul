@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('addSeriesController', ['$log', '$uibModalInstance', 'LockService', '$http',
-              'addSeriesCallback', 'postAddCallback', 'ArrayService',
-  function($log, $uibModalInstance, LockService, $http, addSeriesCallback, postAddCallback, ArrayService) {
+              'ArrayService', 'EpisodeService',
+  function($log, $uibModalInstance, LockService, $http, ArrayService, EpisodeService) {
     const self = this;
 
     self.LockService = LockService;
@@ -90,10 +90,10 @@ angular.module('mediaMogulApp')
       self.series.poster = self.selectedShow.poster;
       self.series.title = self.selectedShow.title;
 
-      addSeriesCallback(self.series).then(function(result) {
+      EpisodeService.addSeries(self.series).then(function(result) {
         self.series.id = result.data.seriesId;
         self.series.tvdb_match_status = 'Match Confirmed';
-        postAddCallback(self.series);
+        EpisodeService.addToPendingShows(self.series);
         $uibModalInstance.close();
       });
     };
