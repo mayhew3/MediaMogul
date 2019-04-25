@@ -60,6 +60,10 @@ angular.module('mediaMogulApp')
       self.onSeasonSelect();
     };
 
+    self.getSelectedSeason = function() {
+      return self.selectedSeason;
+    };
+
     self.getSeasonLabel = function(season) {
       if (!season) {
         return '';

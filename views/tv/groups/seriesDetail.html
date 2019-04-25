@@ -66,7 +66,7 @@
              class="col-md-12 col-xs-12"
              ng-show="ctrl.shouldDisplaySeasonList()">
 
-          <drop-down initial-value="ctrl.selectedSeason"
+          <drop-down dynamic-value="ctrl.getSelectedSeason"
                      possible-values="ctrl.possibleSeasons"
                      format-function="ctrl.getSeasonLabel"
                      badge-value-function="ctrl.getUnwatchedForSeason"

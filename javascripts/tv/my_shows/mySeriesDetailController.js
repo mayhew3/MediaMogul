@@ -88,6 +88,10 @@ angular.module('mediaMogulApp')
       return self.selectedLastWatchedEpisode != null && !isUnwatchedEpisode(episode);
     }
 
+    self.getSelectedSeason = function() {
+      return self.selectedSeason;
+    };
+
     self.getSeasonLabel = function(season) {
       if (!season) {
         return '';

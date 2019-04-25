@@ -28,6 +28,10 @@ angular.module('mediaMogulApp')
       updateGroupRatings(yearInfo.label);
     };
 
+    self.getViewedYear = function() {
+      return self.viewedYear;
+    };
+
     function updateGroupRatings(year) {
       YearlyRatingService.updateEpisodeGroupRatings(year).then(function () {
         self.episodeGroups = YearlyRatingService.getEpisodeGroupRatings();
