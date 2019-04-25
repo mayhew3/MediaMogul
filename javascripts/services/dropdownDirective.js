@@ -14,7 +14,8 @@
         formatFunction: '=',
         badgeValueFunction: '=',
         onChangeCallback: '=',
-        dynamicValue: '='
+        dynamicValue: '=',
+        dynamicPossibleValues: '='
       }
     }
   }
@@ -27,6 +28,7 @@
     self.badgeValueFunction = $scope.badgeValueFunction;
     self.onChangeCallback = $scope.onChangeCallback;
     self.dynamicValue = $scope.dynamicValue;
+    self.dynamicPossibleValues = $scope.dynamicPossibleValues;
 
     self.isOpen = false;
 
@@ -47,6 +49,14 @@
         return self.formatFunction(value);
       } else {
         return value.label;
+      }
+    };
+
+    self.getPossibleValues = function() {
+      if (self.dynamicPossibleValues) {
+        return self.dynamicPossibleValues();
+      } else {
+        return self.possibleValues;
       }
     };
 

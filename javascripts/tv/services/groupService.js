@@ -37,9 +37,13 @@ angular.module('mediaMogulApp')
             if (self.uninitialized) {
               self.updateMyGroupsList().then((groups) => resolve(groups));
             } else {
-              resolve();
+              resolve(groups);
             }
           });
+        };
+
+        self.getMyGroups = function() {
+          return groups;
         };
 
         self.getGroupSeries = function(series, tv_group_id) {

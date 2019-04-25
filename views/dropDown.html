@@ -18,7 +18,7 @@
       role="menu"
       aria-labelledby="single-button">
     <li role="menuitem"
-        ng-repeat="value in ctrl.possibleValues"
+        ng-repeat="value in ctrl.getPossibleValues()"
         ng-class="ctrl.rowClass(value)"
         style="font-size: 13pt">
       <a ng-click="ctrl.selectValue(value)"
