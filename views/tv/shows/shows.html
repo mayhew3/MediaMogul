@@ -9,14 +9,14 @@
                  on-change-callback="ctrl.onCategoryChange"></drop-down>
 
     </div>
-    <div class="col-sm-2 col-xs-6" style="padding-right: 2px">
+    <div class="col-md-2 col-sm-3 col-xs-6" style="padding-right: 2px">
 
       <drop-down initial-value="ctrl.selectedSubCategory"
                  possible-values="ctrl.subCategories"
                  on-change-callback="ctrl.onSubCategoryChange"></drop-down>
 
     </div>
-    <div class="col-sm-2 col-xs-6" style="padding-left: 2px; padding-right: 0">
+    <div class="col-md-2 col-sm-3 col-xs-5" style="padding-left: 2px; padding-right: 0">
 
           <button type="button"
                   class="btn btn-lg btn-default"
@@ -33,7 +33,7 @@
           </button>
 
     </div>
-    <div class="col-sm-5 col-xs-12 custom-typeahead">
+    <div class="col-md-5 col-sm-3 col-xs-7 custom-typeahead">
       <input type="text"
              placeholder="Quick Find..."
              ng-model="ctrl.quickFindResult"
