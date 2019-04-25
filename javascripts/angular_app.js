@@ -31,19 +31,15 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           controllerAs: 'ctrl',
           templateUrl: 'views/tv/shows/shows.html'
         })
-        .state('tv.shows.main', {
-          url: '/main',
-          templateUrl: 'views/tv/shows/main.html'
-        })
-        .state('tv.shows.main.dashboard', {
+        .state('tv.shows.dashboard', {
           url: '/dashboard',
           templateUrl: 'views/tv/shows/dashboard.html'
         })
-        .state('tv.shows.main.allShows', {
+        .state('tv.shows.allShows', {
           url: '/allShows',
           templateUrl: 'views/tv/shows/allShows.html'
         })
-        .state('tv.shows.main.backlog', {
+        .state('tv.shows.backlog', {
           url: '/backlog',
           templateUrl: 'views/tv/shows/backlog.html'
         })

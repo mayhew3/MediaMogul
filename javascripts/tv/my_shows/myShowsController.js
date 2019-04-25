@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService', '$stateParams',
+    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService',
   function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout,
-           $state, ShowFilterService, $stateParams) {
+           $state, ShowFilterService) {
     const self = this;
 
     self.LockService = LockService;
@@ -11,83 +11,6 @@ angular.module('mediaMogulApp')
     self.pendingShows = [];
 
     self.series_requests = [];
-
-    self.incomingParam = $stateParams.group_id;
-
-    self.quickFindResult = undefined;
-
-    self.categories = [
-      {
-        label: 'My Shows',
-        sref: 'main'
-      }
-    ];
-
-    self.subCategories = [
-      {
-        label: 'Dashboard',
-        sref: 'dashboard'
-      },
-      {
-        label: 'All Active',
-        sref: 'allShows'
-      },
-      {
-        label: 'Backlog',
-        sref: 'backlog'
-      }
-    ];
-
-    self.selectedFilterInfo = {
-      label: 'My Shows',
-      sref: 'main'
-    };
-
-    self.selectedSubCategory = {
-      label: 'Dashboard',
-      sref: 'dashboard'
-    };
-
-    function getCategory(sref) {
-      return _.findWhere(self.categories, {sref: sref});
-    }
-
-    function getSubCategory(sref) {
-      return _.findWhere(self.subCategories, {sref: sref});
-    }
-
-
-    function initializeIncoming() {
-      const currentSref = $state.current.name.split('.');
-
-      const selectedCat = getCategory(currentSref[2]);
-      changeCurrentCategory(selectedCat);
-
-      const selectedSubCat = getSubCategory(currentSref[3]);
-      changeCurrentSubCategory(selectedSubCat);
-    }
-
-    initializeIncoming();
-
-    self.onCategoryChange = function(category) {
-      changeCurrentCategory(category);
-      $state.go('tv.shows.' + category.sref);
-    };
-
-    self.onSubCategoryChange = function(subCategory) {
-      changeCurrentSubCategory(subCategory);
-      $state.go('tv.shows.main.' + subCategory.sref);
-    };
-
-    function changeCurrentCategory(category) {
-      self.selectedFilterInfo.label = category.label;
-      self.selectedFilterInfo.sref = category.sref;
-    }
-
-    function changeCurrentSubCategory(subCategory) {
-      self.selectedSubCategory.label = subCategory.label;
-      self.selectedSubCategory.sref = subCategory.sref;
-    }
 
     self.showLoadingQueue = function() {
       return self.EpisodeService.loadingQueue;
@@ -133,6 +56,7 @@ angular.module('mediaMogulApp')
         field: 'title',
         direction: 'desc'
       },
+      seriesFunction: getPendingShows,
       panelFormat: 'panel-warning'
     };
 
@@ -263,9 +187,11 @@ angular.module('mediaMogulApp')
       });
     }
 
-    EpisodeService.updateMyPendingShowsList().then(function() {
-      ArrayService.refreshArray(self.pendingShows, EpisodeService.getPendingShowsList());
-    });
+    EpisodeService.updateMyPendingShowsList();
+
+    function getPendingShows() {
+      return self.EpisodeService.getPendingShowsList();
+    }
 
     function removeFromRequests(seriesRequest) {
       removeAllRequestsForShow(seriesRequest.tvdb_series_ext_id);
@@ -304,8 +230,6 @@ angular.module('mediaMogulApp')
             return undefined;
           }
         }
-      }).result.finally(function() {
-        self.quickFindResult = undefined;
       });
     };
 
@@ -322,8 +246,6 @@ angular.module('mediaMogulApp')
             return removeFromRequests;
           }
         }
-      }).result.finally(function() {
-        self.quickFindResult = undefined;
       });
     };
 
