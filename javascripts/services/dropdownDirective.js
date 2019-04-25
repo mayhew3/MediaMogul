@@ -14,7 +14,8 @@
         possibleValues: '=',
         formatFunction: '=',
         badgeValueFunction: '=',
-        onChangeCallback: '='
+        onChangeCallback: '=',
+        dynamicValue: '='
       }
     }
   }
@@ -27,16 +28,20 @@
     self.formatFunction = $scope.formatFunction;
     self.badgeValueFunction = $scope.badgeValueFunction;
     self.onChangeCallback = $scope.onChangeCallback;
+    self.dynamicValue = $scope.dynamicValue;
 
     self.isOpen = false;
     self.selectedValue = self.initialValue;
 
+    self.getSelectedValue = function() {
+      return self.selectedValue ? self.selectedValue : self.dynamicValue();
+    };
+
     self.showEntireThing = function() {
-      return ArrayService.exists(self.selectedValue) && ArrayService.exists(self.selectedValue.label);
+      return ArrayService.exists(self.getSelectedValue()) && ArrayService.exists(self.getSelectedValue().label);
     };
 
     self.selectValue = function(value) {
-      self.selectedValue = value;
       self.onChangeCallback(value);
     };
 
@@ -49,7 +54,7 @@
     };
 
     self.rowClass = function(value) {
-      return value.label === self.selectedValue.label ? 'highlightedEntry' : '';
+      return value.label === self.getSelectedValue().label ? 'highlightedEntry' : '';
     };
 
     self.hideBadge = function(value) {

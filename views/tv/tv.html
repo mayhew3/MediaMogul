@@ -20,7 +20,7 @@
       </div>
       <div class="col-md-2 col-sm-3 col-xs-6" style="padding-right: 2px">
 
-        <drop-down initial-value="ctrl.selectedSubCategory"
+        <drop-down dynamic-value="ctrl.getSelectedSubCategory"
                    possible-values="ctrl.subCategories"
                    on-change-callback="ctrl.onSubCategoryChange"></drop-down>
 
