@@ -55,6 +55,10 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           controllerAs: 'ctrl',
           templateUrl: 'views/tv/groups/groupDetail.html'
         })
+        .state('tv.groups.detail.dashboard', {
+          url: '/dashboard',
+          templateUrl: 'views/tv/groups/groupDashboard.html'
+        })
         .state('tv.rate', {
           url: '/rate/yearly',
           controller: 'yearlyRatingController',
@@ -180,6 +184,28 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       const self = this;
 
       LockService.scheduleRenewal();
+
+      $rootScope.$on('$stateChangeStart',function(event, toState, toParams, fromState, fromParams){
+        console.log('$stateChangeStart to '+toState.to+'- fired when the transition begins. toState,toParams : \n',toState, toParams);
+      });
+
+      $rootScope.$on('$stateChangeError',function(event, toState, toParams, fromState, fromParams){
+        console.log('$stateChangeError - fired when an error occurs during transition.');
+        console.log(arguments);
+      });
+
+      $rootScope.$on('$stateChangeSuccess',function(event, toState, toParams, fromState, fromParams){
+        console.log('$stateChangeSuccess to '+toState.name+'- fired once the state transition is complete.');
+      });
+
+      $rootScope.$on('$viewContentLoaded',function(event){
+        console.log('$viewContentLoaded - fired after dom rendered',event);
+      });
+
+      $rootScope.$on('$stateNotFound',function(event, unfoundState, fromState, fromParams){
+        console.log('$stateNotFound '+unfoundState.to+'  - fired when a state cannot be found by its name.');
+        console.log(unfoundState, fromState, fromParams);
+      });
 
       // return value is a "deregistration" function that can be called to detach from the event.
       const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);

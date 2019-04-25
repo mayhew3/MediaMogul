@@ -24,7 +24,9 @@ angular.module('mediaMogulApp')
         _.each(groups, group => {
           const groupCategory = {
             label: group.name,
-            subtitle: self.GroupService.getGroupMemberList(group)
+            subtitle: self.GroupService.getGroupMemberList(group),
+            sref: 'groups.detail',
+            group_id: group.id
           };
 
           self.categories.push(groupCategory);
@@ -97,7 +99,12 @@ angular.module('mediaMogulApp')
 
         changeCurrentCategory(category);
         changeCurrentSubCategory(dashboard);
-        $state.go('tv.' + category.sref + '.dashboard');
+
+        if (category.sref === 'groups.detail') {
+          $state.go('tv.' + category.sref + '.dashboard', {group_id: category.group_id});
+        } else {
+          $state.go('tv.' + category.sref + '.dashboard');
+        }
       };
 
       self.onSubCategoryChange = function(subCategory) {
