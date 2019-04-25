@@ -171,19 +171,6 @@ angular.module('mediaMogulApp')
         pageLimit: 12
       },
       {
-        headerText: "All",
-        sort: {
-          field: getGroupScore,
-          direction: 'desc'
-        },
-        tvFilter: allVotedFilter,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        showLoading: self.showLoading,
-        seriesFunction: self.getGroupShows,
-        pageLimit: 12
-      },
-      {
         headerText: "Up to Date",
         tvFilter: upToDateFilter,
         posterSize: 'small',
@@ -197,6 +184,20 @@ angular.module('mediaMogulApp')
         pageLimit: 6
       }
     ];
+
+    self.allShowsPanel = {
+      headerText: 'Group Shows',
+      sort: {
+        field: getGroupScore,
+        direction: 'desc'
+      },
+      tvFilter: allVotedFilter,
+      posterSize: 'large',
+      badgeValue: getUnwatched,
+      pageLimit: 18,
+      showLoading: self.showLoading,
+      seriesFunction: self.getGroupShows
+    };
 
     EpisodeService.updateGroupShowsIfNeeded(self.group.id);
 

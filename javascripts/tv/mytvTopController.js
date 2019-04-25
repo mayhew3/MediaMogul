@@ -39,20 +39,7 @@ angular.module('mediaMogulApp')
         self.groupsInitialized = true;
       });
 
-      self.subCategories = [
-        {
-          label: 'Dashboard',
-          sref: 'dashboard'
-        },
-        {
-          label: 'All Active',
-          sref: 'allShows'
-        },
-        {
-          label: 'Backlog',
-          sref: 'backlog'
-        }
-      ];
+      self.subCategories = getMyShowsSubCategories();
 
       self.selectedFilterInfo = self.categories[0];
       self.selectedSubCategory = self.subCategories[0];
@@ -64,6 +51,36 @@ angular.module('mediaMogulApp')
       self.getSelectedSubCategory = function() {
         return self.selectedSubCategory;
       };
+
+      function getMyShowsSubCategories() {
+        return [
+          {
+            label: 'Dashboard',
+            sref: 'dashboard'
+          },
+          {
+            label: 'All Active',
+            sref: 'allShows'
+          },
+          {
+            label: 'Backlog',
+            sref: 'backlog'
+          }
+        ];
+      }
+
+      function getGroupShowsSubCategories() {
+        return [
+          {
+            label: 'Dashboard',
+            sref: 'dashboard'
+          },
+          {
+            label: 'All Active',
+            sref: 'allShows'
+          }
+        ];
+      }
 
       function getCategoryFromState() {
         const srefParts = $state.current.name.split('.');
@@ -77,10 +94,6 @@ angular.module('mediaMogulApp')
           const sref = srefParts[1];
           return _.findWhere(self.categories, {sref: sref});
         }
-      }
-
-      function getSubCategory(sref) {
-        return _.findWhere(self.subCategories, {sref: sref});
       }
 
       function getSubCategoryFromState() {
@@ -132,42 +145,36 @@ angular.module('mediaMogulApp')
           self.selectedFilterInfo = categoryFromState;
           self.selectedSubCategory = getSubCategoryFromState();
         }
+
+        if (isInGroupMode()) {
+          self.subCategories = getGroupShowsSubCategories();
+        } else {
+          self.subCategories = getMyShowsSubCategories();
+        }
       }
 
       initializeIncoming();
 
       self.onCategoryChange = function(category) {
-        if (category.sref === 'groups.detail') {
-          $state.transitionTo('tv.' + category.sref + '.dashboard',
-            {group_id: category.group_id},
-            {
-              reload: true,
-              inherit: false,
-              notify: true
-            }
-        );
-        } else if (category.sref === 'shows') {
-          $state.go('tv.' + category.sref + '.dashboard');
-        } else {
-          console.error('Unexpected category sref: ' + category.sref);
-        }
-        // initializeIncoming();
+        navigateTo(category.sref, 'dashboard', category.group_id);
       };
+
+      function navigateTo(sref, subSref, groupId) {
+        const groupObj = groupId ? {group_id: groupId} : {};
+        $state.transitionTo('tv.' + sref + '.' + subSref,
+          groupObj,
+          {
+            reload: true,
+            inherit: false,
+            notify: true
+          }
+        );
+      }
 
       self.onSubCategoryChange = function(subCategory) {
-        changeCurrentSubCategory(subCategory);
-        $state.go('tv.shows.' + subCategory.sref);
+        const category = self.getSelectedCategory();
+        navigateTo(category.sref, subCategory.sref, category.group_id);
       };
-
-      function changeCurrentCategory(category) {
-        self.selectedFilterInfo.label = category.label;
-        self.selectedFilterInfo.sref = category.sref;
-      }
-
-      function changeCurrentSubCategory(subCategory) {
-        self.selectedSubCategory.label = subCategory.label;
-        self.selectedSubCategory.sref = subCategory.sref;
-      }
 
       NavHelperService.changeSelectedNav('TV');
 

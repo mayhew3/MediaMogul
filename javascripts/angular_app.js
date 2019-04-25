@@ -57,6 +57,10 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/dashboard',
           templateUrl: 'views/tv/groups/groupDashboard.html'
         })
+        .state('tv.groups.detail.allShows', {
+          url: '/allShows',
+          templateUrl: 'views/tv/groups/allShows.html'
+        })
         .state('tv.rate', {
           url: '/rate/yearly',
           controller: 'yearlyRatingController',
