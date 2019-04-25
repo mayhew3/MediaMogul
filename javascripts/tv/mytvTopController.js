@@ -43,6 +43,14 @@ angular.module('mediaMogulApp')
         sref: 'dashboard'
       };
 
+      self.getSelectedCategory = function() {
+        return self.selectedFilterInfo;
+      };
+
+      self.getSelectedSubCategory = function() {
+        return self.selectedSubCategory;
+      };
+
       function getCategory(sref) {
         return _.findWhere(self.categories, {sref: sref});
       }
@@ -72,7 +80,10 @@ angular.module('mediaMogulApp')
       initializeIncoming();
 
       self.onCategoryChange = function(category) {
+        const dashboard = getSubCategory('dashboard');
+
         changeCurrentCategory(category);
+        changeCurrentSubCategory(dashboard);
         $state.go('tv.' + category.sref + '.dashboard');
       };
 
