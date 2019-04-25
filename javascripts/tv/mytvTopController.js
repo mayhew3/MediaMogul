@@ -1,11 +1,13 @@
 angular.module('mediaMogulApp')
   .controller('mytvTopController', ['LockService', 'NavHelperService', 'YearlyRatingService', '$state', '$stateParams',
-    'EpisodeService', '$uibModal',
-    function (LockService, NavHelperService, YearlyRatingService, $state, $stateParams, EpisodeService, $uibModal) {
+    'EpisodeService', '$uibModal', 'GroupService',
+    function (LockService, NavHelperService, YearlyRatingService, $state, $stateParams, EpisodeService, $uibModal,
+              GroupService) {
       const self = this;
 
       self.LockService = LockService;
       self.EpisodeService = EpisodeService;
+      self.GroupService = GroupService;
       self.year = 2017;
 
       self.incomingParam = $stateParams.group_id;
@@ -17,6 +19,17 @@ angular.module('mediaMogulApp')
           sref: 'shows'
         }
       ];
+
+      self.GroupService.updateMyGroupsListIfDoesntExist().then((groups) => {
+        _.each(groups, group => {
+          const groupCategory = {
+            label: group.name,
+            subtitle: self.GroupService.getGroupMemberList(group)
+          };
+
+          self.categories.push(groupCategory);
+        });
+      });
 
       self.subCategories = [
         {
