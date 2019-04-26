@@ -579,6 +579,7 @@ angular.module('mediaMogulApp')
 
             formatIncomingShow(series);
 
+            // todo: add base group info for unwatched group episodes.
             series.episodes.forEach( function(episode) {
               self.updateRatingFields(episode);
             });
