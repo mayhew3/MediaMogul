@@ -560,6 +560,37 @@ angular.module('mediaMogulApp')
         }
       };
 
+      self.getSeriesDetailInfo = function(series) {
+        let deferred = $q.defer();
+        let urlCalls = [];
+        urlCalls.push($http.get('/api/seriesDetail',
+          {
+            params: {
+              SeriesId: series.id,
+              PersonId: LockService.person_id
+            }
+          }));
+
+        $q.all(urlCalls).then(
+          function(results) {
+            const series = results[0].data;
+
+            console.log("Episodes has " + series.episodes.length + " rows.");
+
+            formatIncomingShow(series);
+
+            series.episodes.forEach( function(episode) {
+              self.updateRatingFields(episode);
+            });
+
+            return deferred.resolve(series);
+          },
+          function(errors) {
+            deferred.reject(errors);
+          });
+        return deferred.promise;
+      };
+
       self.updateEpisode = function(episodeId, changedFields) {
         return $http.post('/api/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
       };
