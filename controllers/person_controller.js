@@ -548,7 +548,66 @@ exports.getSeriesDetailInfo = function(request, response) {
 
         updateDenormsUsingAll(series, series.personSeries, series.episodes);
 
-        response.json(series);
+        const sql = 'SELECT tgs.tv_group_id, ' +
+          ' tgs.date_added, ' +
+          ' tgs.id AS tv_group_series_id ' +
+          'FROM tv_group_series tgs ' +
+          'INNER JOIN tv_group tg ' +
+          ' ON tgs.tv_group_id = tg.id ' +
+          'INNER JOIN tv_group_person tgp ' +
+          ' ON tgp.tv_group_id = tg.id ' +
+          'WHERE tgs.series_id = $1 ' +
+          'AND tgp.person_id = $2 ' +
+          'AND tgs.retired = $3 ' +
+          'AND tg.retired = $3 ' +
+          'AND tgp.retired = $3 ';
+
+        const values = [series_id, person_id, 0];
+
+        db.selectWithJSON(sql, values).then(groupResults => {
+          series.groups = groupResults;
+
+          const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped, tge.tv_group_id " +
+            "FROM tv_group_episode tge " +
+            "INNER JOIN episode e " +
+            "  ON tge.episode_id = e.id " +
+            "WHERE e.series_id = $1 " +
+            "AND e.retired = $2 " +
+            "AND tge.retired = $2 ";
+
+          const values = [series_id, 0];
+
+          db.selectWithJSON(sql, values).then(groupEpisodeResults => {
+
+            _.each(groupEpisodeResults, groupEpisode => {
+              const episodeMatch = _.find(series.episodes, function (episode) {
+                return episode.id === groupEpisode.episode_id;
+              });
+
+              if (ArrayService.exists(episodeMatch)) {
+                episodeMatch.groups = [];
+
+                const groupEpisodeObj = {
+                  tv_group_id: groupEpisode.tv_group_id,
+                  tv_group_episode_id: groupEpisode.id,
+                  watched: groupEpisode.watched,
+                  watched_date: groupEpisode.watched_date,
+                  skipped: groupEpisode.skipped
+                };
+
+                episodeMatch.groups.push(groupEpisodeObj);
+              }
+            });
+
+            _.each(series.groups, group => {
+              updateDenormsUsingAll(series, group, series.episodes);
+            });
+
+            response.json(series);
+          });
+
+        });
+
       })
         .catch(err => {
           throwError('Error fetching seriesDetail ratings: ' + err.message,
@@ -759,11 +818,21 @@ exports.calculateUnwatchedDenorms = function(series, viewer, unwatchedEpisodes) 
 
 };
 
+function getGroupEpisode(episode, tv_group_id) {
+  return _.findWhere(episode.groups, {tv_group_id: tv_group_id});
+}
+
 function updateDenormsUsingAll(series, viewer, allEpisodes) {
+  const isGroup = ArrayService.exists(viewer.tv_group_id);
+
+  const getEpisodeViewer = isGroup ?
+    (episode) => getGroupEpisode(episode, viewer.tv_group_id) :
+    (episode) => episode.personEpisode;
+
   const eligibleEpisodes = _.filter(allEpisodes, isEligible);
   let unairedEpisodes = _.filter(eligibleEpisodes, isUnaired);
   let airedEpisodes = _.filter(eligibleEpisodes, isAired);
-  const unwatchedEpisodes = _.filter(airedEpisodes, isUnwatched);
+  const unwatchedEpisodes = _.filter(airedEpisodes, episode => isUnwatched(getEpisodeViewer(episode)));
 
   viewer.unwatched_all = unwatchedEpisodes.length;
 
@@ -847,12 +916,12 @@ function isAired(episode) {
   return !isUnaired(episode);
 }
 
-function isUnwatched(episode) {
-  return !isWatched(episode);
+function isUnwatched(viewer) {
+  return !isWatched(viewer);
 }
 
-function isWatched(episode) {
-  return episode.personEpisode && !!episode.personEpisode.watched;
+function isWatched(viewer) {
+  return viewer && !!viewer.watched;
 }
 
 function stoppedMidseason(nextEpisode) {
