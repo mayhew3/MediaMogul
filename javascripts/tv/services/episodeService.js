@@ -560,13 +560,13 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.getSeriesDetailInfo = function(series) {
+      self.getSeriesDetailInfo = function(series_id) {
         let deferred = $q.defer();
         let urlCalls = [];
         urlCalls.push($http.get('/api/seriesDetail',
           {
             params: {
-              SeriesId: series.id,
+              SeriesId: series_id,
               PersonId: LockService.person_id
             }
           }));

@@ -12,7 +12,8 @@
       scope: {
         show: '=',
         posterInfo: '=',
-        onClick: '='
+        onClick: '=',
+        getSref: '='
       }
     }
   }
@@ -23,6 +24,7 @@
     self.show = $scope.show;
     self.posterInfo = $scope.posterInfo;
     self.onClick = $scope.onClick;
+    self.getSref = $scope.getSref;
 
     self.badgeValue = function() {
       return ArrayService.exists(self.posterInfo.badgeValue) ? self.posterInfo.badgeValue(self.show) : null;
@@ -52,14 +54,24 @@
         null;
     };
 
+    self.sref = function() {
+      return self.getSref ? self.getSref(self.show) : '';
+    };
+
     self.extraStyles = ArrayService.exists(self.posterInfo.extraStyles) ?
       self.posterInfo.extraStyles :
       function() {
         return '';
       };
 
-    self.click = ArrayService.exists(self.posterInfo.clickOverride) ?
-      self.posterInfo.clickOverride :
-      self.onClick;
+    self.click = function(show) {
+      if (!ArrayService.exists(self.getSref)) {
+        if (ArrayService.exists(self.posterInfo.clickOverride)) {
+          self.posterInfo.clickOverride(show);
+        } else {
+          self.onClick(show);
+        }
+      }
+    }
   }
 })();

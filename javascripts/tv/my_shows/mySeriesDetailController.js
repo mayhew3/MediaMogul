@@ -1,16 +1,19 @@
 angular.module('mediaMogulApp')
-  .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
-    '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService', 'addSeriesCallback',
-    'ArrayService',
-  function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           adding, YearlyRatingService, addSeriesCallback, ArrayService) {
+  .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService',
+    '$http', 'YearlyRatingService', 'ArrayService', '$stateParams',
+  function($log, EpisodeService, $uibModal, $filter, LockService, $http, YearlyRatingService, ArrayService,
+           $stateParams) {
     const self = this;
 
     self.LockService = LockService;
 
-    self.series = series;
-    self.owned = owned;
-    self.adding = adding;
+    self.series_id = $stateParams.series_id;
+
+    self.series = undefined;
+    self.owned = true;
+    self.adding = false;
+
+    let loading = true;
 
     self.episodes = [];
 
@@ -27,9 +30,7 @@ angular.module('mediaMogulApp')
     self.selectedAddingEpisodes = 'None';
     self.selectedLastWatchedEpisode = null;
 
-    self.lastUpdate = self.series.last_tvdb_update === null ?
-      self.series.last_tvdb_error :
-      self.series.last_tvdb_update;
+    self.lastUpdate = undefined;
 
     self.daysSinceLastUpdate = Math.floor((new Date - new Date(self.lastUpdate)) / 1000 / 60 / 60 / 24);
 
@@ -44,13 +45,13 @@ angular.module('mediaMogulApp')
       is_open: false
     };
 
-    if (owned) {
+    if (self.owned) {
       self.originalFields = {
-        my_rating: self.series.personSeries.my_rating
+        my_rating: undefined
       };
 
       self.interfaceFields = {
-        my_rating: self.series.personSeries.my_rating
+        my_rating: undefined
       };
     }
 
@@ -58,10 +59,26 @@ angular.module('mediaMogulApp')
       return self.episodes.filter(self.episodeFilter).length;
     };
 
-    EpisodeService.getSeriesDetailInfo(self.series).then(function(series) {
+    EpisodeService.getSeriesDetailInfo(self.series_id).then(function(series) {
       self.series = series;
       self.episodes = series.episodes;
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
+
+      self.lastUpdate = self.series.last_tvdb_update === null ?
+        self.series.last_tvdb_error :
+        self.series.last_tvdb_update;
+
+      if (self.owned) {
+        self.originalFields = {
+          my_rating: self.series.personSeries.my_rating
+        };
+
+        self.interfaceFields = {
+          my_rating: self.series.personSeries.my_rating
+        };
+      }
+
+      loading = false;
     }).then(function() {
       updateSeasonLabels();
     });
@@ -71,7 +88,6 @@ angular.module('mediaMogulApp')
     };
 
     self.shouldHide = function(episode) {
-      // todo: remove when MM-236 is resolved.
       return episode.air_time === null;
     };
 
@@ -84,6 +100,10 @@ angular.module('mediaMogulApp')
         return episode.absolute_number > self.selectedLastWatchedEpisode.absolute_number;
       }
     }
+
+    self.isLoading = function() {
+      return loading;
+    };
 
     function isProjectedToBeWatched(episode) {
       return self.selectedLastWatchedEpisode != null && !isUnwatchedEpisode(episode);
@@ -279,7 +299,7 @@ angular.module('mediaMogulApp')
             self.series,
             self.episodes,
             updatePersonSeriesInDatabase,
-            series.personSeries)
+            self.series.personSeries)
             .then(function () {
               updateNextUp();
             });
@@ -495,10 +515,9 @@ angular.module('mediaMogulApp')
           self.series,
           self.episodes,
           updatePersonSeriesInDatabase,
-          series.personSeries)
+          self.series.personSeries)
           .then(function () {
             updateNextUp();
-            $uibModalInstance.close();
           });
       } else {
 
@@ -512,10 +531,9 @@ angular.module('mediaMogulApp')
             self.series,
             self.episodes,
             updatePersonSeriesInDatabase,
-            series.personSeries)
+            self.series.personSeries)
             .then(function () {
               updateNextUp();
-              $uibModalInstance.close();
             });
         });
       }
@@ -620,7 +638,7 @@ angular.module('mediaMogulApp')
             return getPreviousEpisodes(episode);
           },
           series: function () {
-            return series;
+            return self.series;
           },
           readOnly: function () {
             return !self.owned;
@@ -637,7 +655,7 @@ angular.module('mediaMogulApp')
           self.series,
           self.episodes,
           updatePersonSeriesInDatabase,
-          series.personSeries)
+          self.series.personSeries)
           .then(function () {
             if (LockService.isAdmin()) {
               YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
@@ -700,17 +718,11 @@ angular.module('mediaMogulApp')
         self.selectedLastWatchedEpisode.absolute_number :
         0;
 
-      EpisodeService.addToMyShows(self.series, lastWatched + 1).then(function() {
-        addSeriesCallback(self.series);
-        $uibModalInstance.close();
-      });
+      EpisodeService.addToMyShows(self.series, lastWatched + 1);
     };
 
     self.submitAndClose = function() {
-      self.submitMulti().then(() => $uibModalInstance.close());
+      self.submitMulti();
     };
 
-    self.close = function() {
-      $uibModalInstance.close();
-    };
   }]);
