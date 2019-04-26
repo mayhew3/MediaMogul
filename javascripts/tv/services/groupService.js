@@ -51,7 +51,9 @@ angular.module('mediaMogulApp')
         };
 
         self.getGroupEpisode = function(episode, tv_group_id) {
-          return _.findWhere(episode.groups, {tv_group_id: tv_group_id});
+          return episode.groups ?
+            _.findWhere(episode.groups, {tv_group_id: tv_group_id}) :
+            undefined;
         };
 
         self.getGroupMemberList = function(group) {
