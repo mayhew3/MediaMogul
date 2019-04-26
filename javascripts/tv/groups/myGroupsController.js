@@ -24,12 +24,12 @@ angular.module('mediaMogulApp')
         const selectedGroup = getGroupFromName(tvGroupName);
         self.selectedGroupInfo.label = selectedGroup.name;
         self.selectedGroupInfo.subtitle = self.getGroupList(selectedGroup);
-        $state.go('tv.groups.detail', {group_id: selectedGroup.id});
+        $state.go('tv.shows.groups.detail', {group_id: selectedGroup.id});
       };
 
       self.updateGroupToSelected = function() {
         const selectedGroup = _.findWhere(self.groups, {id: self.selectedGroupInfo.id});
-        $state.go('tv.groups.detail', {group_id: selectedGroup.id});
+        $state.go('tv.shows.groups.detail', {group_id: selectedGroup.id});
       };
 
       self.getSelectedGroupInfo = function() {

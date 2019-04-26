@@ -53,21 +53,21 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           controllerAs: 'ctrl',
           templateUrl: 'views/tv/seriesDetail.html'
         })
-        .state('tv.groups', {
+        .state('tv.shows.groups', {
           url: '/groups',
           templateUrl: 'views/tv/groups/main.html'
         })
-        .state('tv.groups.detail', {
+        .state('tv.shows.groups.detail', {
           url: '/:group_id',
           controller: 'myGroupDetailController',
           controllerAs: 'ctrl',
           templateUrl: 'views/tv/groups/groupDetail.html'
         })
-        .state('tv.groups.detail.dashboard', {
+        .state('tv.shows.groups.detail.dashboard', {
           url: '/dashboard',
           templateUrl: 'views/tv/groups/groupDashboard.html'
         })
-        .state('tv.groups.detail.allShows', {
+        .state('tv.shows.groups.detail.allShows', {
           url: '/allShows',
           templateUrl: 'views/tv/groups/allShows.html'
         })
