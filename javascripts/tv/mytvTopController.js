@@ -18,7 +18,7 @@ angular.module('mediaMogulApp')
       self.categories = [
         {
           label: 'My Shows',
-          sref: 'shows'
+          sref: 'shows.my'
         }
       ];
 
@@ -91,7 +91,7 @@ angular.module('mediaMogulApp')
           const sref = srefParts[1] + '.' + srefParts[2];
           return _.findWhere(self.categories, {sref: sref, group_id: groupId});
         } else {
-          const sref = srefParts[1];
+          const sref = srefParts[1] + '.' + srefParts[2];
           return _.findWhere(self.categories, {sref: sref});
         }
       }
@@ -103,7 +103,7 @@ angular.module('mediaMogulApp')
         if (groupId) {
           return _.findWhere(self.subCategories, {sref: srefParts[3]});
         } else {
-          return _.findWhere(self.subCategories, {sref: srefParts[2]});
+          return _.findWhere(self.subCategories, {sref: srefParts[3]});
         }
       }
 

@@ -212,7 +212,7 @@ angular.module('mediaMogulApp')
     };
 
     self.getSref = function(series) {
-      return 'tv.shows.detail({series_id: ' + series.id + '})';
+      return 'tv.detail({series_id: ' + series.id + '})';
     };
 
     self.open = function(series) {
