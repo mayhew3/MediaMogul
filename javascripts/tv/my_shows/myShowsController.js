@@ -213,8 +213,8 @@ angular.module('mediaMogulApp')
 
     self.open = function(series) {
       $uibModal.open({
-        templateUrl: 'views/tv/seriesDetail.html',
-        controller: 'mySeriesDetailController as ctrl',
+        templateUrl: 'views/tv/seriesDetailPopup.html',
+        controller: 'mySeriesDetailPopupController as ctrl',
         size: 'lg',
         resolve: {
           series: function() {
