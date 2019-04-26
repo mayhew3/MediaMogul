@@ -27,7 +27,7 @@ angular.module('mediaMogulApp')
           const groupCategory = {
             label: group.name,
             subtitle: self.GroupService.getGroupMemberList(group),
-            sref: 'groups.detail',
+            sref: 'shows.groups.detail',
             group_id: group.id
           };
 
@@ -88,7 +88,7 @@ angular.module('mediaMogulApp')
 
         if (groupId) {
           groupId = parseInt(groupId);
-          const sref = srefParts[1] + '.' + srefParts[2];
+          const sref = srefParts[1] + '.' + srefParts[2] + '.' + srefParts[3];
           return _.findWhere(self.categories, {sref: sref, group_id: groupId});
         } else {
           const sref = srefParts[1] + '.' + srefParts[2];
@@ -101,7 +101,7 @@ angular.module('mediaMogulApp')
         const groupId = $stateParams.group_id;
 
         if (groupId) {
-          return _.findWhere(self.subCategories, {sref: srefParts[3]});
+          return _.findWhere(self.subCategories, {sref: srefParts[4]});
         } else {
           return _.findWhere(self.subCategories, {sref: srefParts[3]});
         }
@@ -123,12 +123,12 @@ angular.module('mediaMogulApp')
       function appendDashboardIfNecessary() {
         const currentSref = $state.current.name.split('.');
 
-        if (currentSref[1] === 'shows') {
+        if (currentSref[2] === 'my') {
           if (currentSref.length < 3) {
             $state.go($state.current.name + '.dashboard');
           }
-        } else if (currentSref[1] === 'groups') {
-          if (currentSref.length < 4) {
+        } else if (currentSref[2] === 'groups') {
+          if (currentSref.length < 5) {
             $state.go($state.current.name + '.dashboard');
           }
         } else {
