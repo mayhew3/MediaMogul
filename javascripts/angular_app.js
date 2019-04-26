@@ -27,23 +27,27 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         })
         .state('tv.shows', {
           url: '/shows',
-          controller: 'myShowsController',
-          controllerAs: 'ctrl',
           templateUrl: 'views/tv/shows/shows.html'
         })
-        .state('tv.shows.dashboard', {
+        .state('tv.shows.my', {
+          url: '/my',
+          controller: 'myShowsController',
+          controllerAs: 'ctrl',
+          templateUrl: 'views/tv/shows/my.html'
+        })
+        .state('tv.shows.my.dashboard', {
           url: '/dashboard',
           templateUrl: 'views/tv/shows/dashboard.html'
         })
-        .state('tv.shows.allShows', {
+        .state('tv.shows.my.allShows', {
           url: '/allShows',
           templateUrl: 'views/tv/shows/allShows.html'
         })
-        .state('tv.shows.backlog', {
+        .state('tv.shows.my.backlog', {
           url: '/backlog',
           templateUrl: 'views/tv/shows/backlog.html'
         })
-        .state('tv.shows.detail', {
+        .state('tv.detail', {
           url: '/detail/:series_id',
           controller: 'mySeriesDetailController',
           controllerAs: 'ctrl',
