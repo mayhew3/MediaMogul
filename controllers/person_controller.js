@@ -467,6 +467,111 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
 
 };
 
+exports.getSeriesDetailInfo = function(request, response) {
+  const series_id = request.query.SeriesId;
+  const person_id = request.query.PersonId;
+
+  const commonShowsQuery = getCommonShowsQuery(person_id);
+  const sql = commonShowsQuery.sql +
+    "AND s.id = $10 ";
+  const values = commonShowsQuery.values;
+  values.push(series_id);
+
+  db.selectWithJSON(sql, values).then(function (seriesResults) {
+
+    if (seriesResults.length === 0) {
+      reject("No person_series found with series_id: " + series_id + " and person_id: " + person_id);
+      return;
+    }
+
+    const series = seriesResults[0];
+
+    extractSinglePersonSeries(series);
+
+    const sql = "SELECT e.id, " +
+      "e.air_time, " +
+      "e.air_date, " +
+      "e.season, " +
+      "e.episode_number, " +
+      "e.absolute_number " +
+      "FROM episode e " +
+      "WHERE e.retired = $1 " +
+      "AND e.series_id = $2 " +
+      "ORDER BY e.air_time, e.absolute_number ";
+
+    const values = [
+      0,
+      series_id
+    ];
+
+    db.selectWithJSON(sql, values).then(function(episodeResults) {
+
+      series.episodes = episodeResults;
+
+      const sql =
+        "SELECT er.episode_id, " +
+        "er.watched_date, " +
+        "er.watched, " +
+        "er.rating_value, " +
+        "er.rating_pending, " +
+        "er.review, " +
+        "er.id as rating_id " +
+        "FROM episode_rating er " +
+        "INNER JOIN episode e " +
+        "  ON er.episode_id = e.id " +
+        "WHERE er.retired = $1 " +
+        "AND er.person_id = $2 " +
+        "AND e.series_id = $3 " +
+        "ORDER BY er.watched_date DESC, e.absolute_number DESC ";
+
+      const values = [
+        0,
+        person_id,
+        series_id
+      ];
+
+      db.selectWithJSON(sql, values).then(function(ratingResults) {
+
+        calculateRating(series, ratingResults);
+
+        ratingResults.forEach(function (episodeRating) {
+          const episodeMatch = _.find(episodeResults, function (episode) {
+            return episode.id === episodeRating.episode_id;
+          });
+
+          if (ArrayService.exists(episodeMatch)) {
+            delete episodeRating.episode_id;
+
+            episodeMatch.personEpisode = episodeRating;
+          }
+        });
+
+        updateDenormsUsingAll(series, series.personSeries, series.episodes);
+
+        response.json(series);
+      })
+        .catch(err => {
+          throwError('Error fetching seriesDetail ratings: ' + err.message,
+            'getSeriesDetailInfo ratings query',
+            response)
+        });
+
+    })
+      .catch(err => {
+        throwError('Error fetching seriesDetail episodes: ' + err.message,
+          'getSeriesDetailInfo episodes query',
+          response)
+      });
+  })
+    .catch(err => {
+      throwError('Error fetching seriesDetail series: ' + err.message,
+        'getSeriesDetailInfo series query',
+        response)
+    });
+
+
+};
+
 exports.getNextAiredInfo = function(request, response) {
   const sql = 'SELECT e.series_id, e.air_time ' +
     'FROM episode e ' +
@@ -654,6 +759,28 @@ exports.calculateUnwatchedDenorms = function(series, viewer, unwatchedEpisodes) 
 
 };
 
+function updateDenormsUsingAll(series, viewer, allEpisodes) {
+  const eligibleEpisodes = _.filter(allEpisodes, isEligible);
+  let unairedEpisodes = _.filter(eligibleEpisodes, isUnaired);
+  let airedEpisodes = _.filter(eligibleEpisodes, isAired);
+  const unwatchedEpisodes = _.filter(airedEpisodes, isUnwatched);
+
+  viewer.unwatched_all = unwatchedEpisodes.length;
+
+  let nextEpisodeToWatch = unwatchedEpisodes.length === 0 ? null : _.first(unwatchedEpisodes);
+  if (nextEpisodeToWatch !== null) {
+    viewer.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
+  }
+
+  let nextEpisodeToAir = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
+  if (nextEpisodeToAir !== null) {
+    series.nextAirDate = nextEpisodeToAir.air_time === null ? nextEpisodeToAir.air_date : nextEpisodeToAir.air_time;
+  }
+
+  viewer.midSeason = stoppedMidseason(nextEpisodeToWatch);
+
+}
+
 function calculateRating(series, ratings) {
   const ratingElements = [];
 
@@ -706,6 +833,11 @@ function combineRatingElements(ratingElements) {
 
 // aired helpers
 
+function isEligible(episode) {
+  // unaired if the air time after now.
+  return episode.season !== 0;
+}
+
 function isUnaired(episode) {
   // unaired if the air time after now.
   return episode.air_time === null || ((episode.air_time - new Date) > 0);
@@ -713,6 +845,14 @@ function isUnaired(episode) {
 
 function isAired(episode) {
   return !isUnaired(episode);
+}
+
+function isUnwatched(episode) {
+  return !isWatched(episode);
+}
+
+function isWatched(episode) {
+  return episode.personEpisode && !!episode.personEpisode.watched;
 }
 
 function stoppedMidseason(nextEpisode) {

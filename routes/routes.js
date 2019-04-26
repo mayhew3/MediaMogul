@@ -68,6 +68,7 @@ module.exports = function(app) {
   app.get('/api/myPendingShows', authCheck, persons.getMyPendingShows);
   app.get('/api/notMyShows', authCheck, persons.getNotMyShows);
   app.get('/api/getMyEpisodes', authCheck, persons.getMyEpisodes);
+  app.get('/api/seriesDetail', authCheck, persons.getSeriesDetailInfo);
   app.get('/api/seriesRequest', authCheck, persons.getAllOpenSeriesRequests);
   app.get('/api/mySeriesRequests', authCheck, persons.getMySeriesRequests);
   app.get('/api/nextAired', authCheck, persons.getNextAiredInfo);

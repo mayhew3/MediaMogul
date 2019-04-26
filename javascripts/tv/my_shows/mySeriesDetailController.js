@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'series', 'owned',
     '$uibModal', '$filter', 'LockService', '$http', 'adding', 'YearlyRatingService', 'addSeriesCallback',
-    'ArrayService', '$scope',
+    'ArrayService',
   function($log, EpisodeService, $uibModalInstance, series, owned, $uibModal, $filter, LockService, $http,
-           adding, YearlyRatingService, addSeriesCallback, ArrayService, $scope) {
+           adding, YearlyRatingService, addSeriesCallback, ArrayService) {
     const self = this;
 
     self.LockService = LockService;
@@ -58,8 +58,9 @@ angular.module('mediaMogulApp')
       return self.episodes.filter(self.episodeFilter).length;
     };
 
-    EpisodeService.updateMyEpisodeListUsingDefer(self.series).then(function(episodes) {
-      self.episodes = episodes;
+    EpisodeService.getSeriesDetailInfo(self.series).then(function(series) {
+      self.series = series;
+      self.episodes = series.episodes;
       $log.debug("Updated list with " + self.episodes.length + " episodes!");
     }).then(function() {
       updateSeasonLabels();
