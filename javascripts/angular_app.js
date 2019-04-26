@@ -43,6 +43,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/backlog',
           templateUrl: 'views/tv/shows/backlog.html'
         })
+        .state('tv.shows.detail', {
+          url: '/detail/:series_id',
+          controller: 'mySeriesDetailController',
+          controllerAs: 'ctrl',
+          templateUrl: 'views/tv/seriesDetail.html'
+        })
         .state('tv.groups', {
           url: '/groups',
           templateUrl: 'views/tv/groups/main.html'

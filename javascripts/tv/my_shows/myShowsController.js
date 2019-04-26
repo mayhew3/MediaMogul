@@ -211,6 +211,10 @@ angular.module('mediaMogulApp')
       return series.personSeries.my_tier === tier ? "btn btn-success" : "btn btn-primary";
     };
 
+    self.getSref = function(series) {
+      return 'tv.shows.detail({series_id: ' + series.id + '})';
+    };
+
     self.open = function(series) {
       $uibModal.open({
         templateUrl: 'views/tv/seriesDetailPopup.html',
