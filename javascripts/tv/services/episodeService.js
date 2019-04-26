@@ -578,11 +578,7 @@ angular.module('mediaMogulApp')
             console.log("Episodes has " + series.episodes.length + " rows.");
 
             formatIncomingShow(series);
-
-            // todo: add base group info for unwatched group episodes.
-            series.episodes.forEach( function(episode) {
-              self.updateRatingFields(episode);
-            });
+            addInfoForUnwatchedEpisodes(series);
 
             return deferred.resolve(series);
           },
@@ -591,6 +587,33 @@ angular.module('mediaMogulApp')
           });
         return deferred.promise;
       };
+
+      function addInfoForUnwatchedEpisodes(series) {
+        series.episodes.forEach( function(episode) {
+
+          // my episodes
+          self.updateRatingFields(episode);
+
+          // group episodes
+          if (!episode.groups) {
+            episode.groups = [];
+          }
+
+          _.each(series.groups, group => {
+
+            const existing = GroupService.getGroupEpisode(episode, group.tv_group_id);
+            if (!existing) {
+              const groupEpisode = {
+                tv_group_id: group.tv_group_id,
+                watched: false,
+                skipped: false
+              };
+              episode.groups.push(groupEpisode);
+            }
+          });
+        });
+
+      }
 
       self.updateEpisode = function(episodeId, changedFields) {
         return $http.post('/api/updateEpisode', {EpisodeId: episodeId, ChangedFields: changedFields});
