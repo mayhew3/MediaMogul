@@ -186,6 +186,17 @@ angular.module('mediaMogulApp')
         return YearlyRatingService.getNumberOfShowsToRate();
       };
 
+      self.goTo = function(series) {
+        $state.transitionTo('tv.main',
+          {series_id: series.id},
+          {
+            reload: true,
+            inherit: false,
+            notify: true
+          }
+        );
+      };
+
       self.addSeries = function() {
         $uibModal.open({
           templateUrl: 'views/tv/addSeries.html',

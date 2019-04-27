@@ -192,35 +192,29 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       $httpProvider.interceptors.push('jwtInterceptor');
 
     }])
-  .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location',
-    function($rootScope, LockService, store, jwtHelper, $location) {
+  .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location', '$transitions', '$state',
+    function($rootScope, LockService, store, jwtHelper, $location, $transitions, $state) {
 
       const self = this;
 
       LockService.scheduleRenewal();
 
-      $rootScope.$on('$stateChangeStart',function(event, toState, toParams, fromState, fromParams){
-        console.log('$stateChangeStart to '+toState.to+'- fired when the transition begins. toState,toParams : \n',toState, toParams);
+      $transitions.onStart({}, transition => {
+        console.log('Transitioning to: ' + transition.to().name);
       });
 
-      $rootScope.$on('$stateChangeError',function(event, toState, toParams, fromState, fromParams){
-        console.log('$stateChangeError - fired when an error occurs during transition.');
-        console.log(arguments);
+      $transitions.onSuccess({}, transition => {
+        console.log('Transition success to: ' + transition.to().name);
       });
 
-      $rootScope.$on('$stateChangeSuccess',function(event, toState, toParams, fromState, fromParams){
-        console.log('$stateChangeSuccess to '+toState.name+'- fired once the state transition is complete.');
+      $transitions.onError({}, transition => {
+        console.log("Transition error: " + transition.error());
       });
 
-      $rootScope.$on('$viewContentLoaded',function(event){
-        console.log('$viewContentLoaded - fired after dom rendered',event);
+      $state.defaultErrorHandler(function(error) {
+// This is a naive example of how to silence the default error handler.
+        console.log(error);
       });
-
-      $rootScope.$on('$stateNotFound',function(event, unfoundState, fromState, fromParams){
-        console.log('$stateNotFound '+unfoundState.to+'  - fired when a state cannot be found by its name.');
-        console.log(unfoundState, fromState, fromParams);
-      });
-
       // return value is a "deregistration" function that can be called to detach from the event.
       const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);
 
