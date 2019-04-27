@@ -215,6 +215,10 @@ angular.module('mediaMogulApp')
       return 'tv.show({series_id: ' + series.id + '})';
     };
 
+    self.goTo = function(series) {
+      $state.go('tv.show', {series_id: series.id});
+    };
+
     self.open = function(series) {
       $uibModal.open({
         templateUrl: 'views/tv/seriesDetailPopup.html',

@@ -38,7 +38,7 @@
              placeholder="Quick Find..."
              ng-model="ctrl.quickFindResult"
              uib-typeahead="show as show.title for show in ctrl.EpisodeService.getMyShows() | filter:{title:$viewValue} | limitTo:5"
-             typeahead-on-select="ctrl.open(ctrl.quickFindResult)"
+             typeahead-on-select="ctrl.goTo(ctrl.quickFindResult)"
              class="darkInput form-control input-lg">
     </div>
   </div>
