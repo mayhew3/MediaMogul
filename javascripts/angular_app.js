@@ -192,8 +192,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       $httpProvider.interceptors.push('jwtInterceptor');
 
     }])
-  .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location', '$transitions', '$state',
-    function($rootScope, LockService, store, jwtHelper, $location, $transitions, $state) {
+  .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location', '$transitions', '$trace', '$state',
+    function($rootScope, LockService, store, jwtHelper, $location, $transitions, $trace, $state) {
 
       const self = this;
 
@@ -210,6 +210,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       $transitions.onError({}, transition => {
         console.log("Transition error: " + transition.error());
       });
+
+      // $trace.enable();
 
       $state.defaultErrorHandler(function(error) {
 // This is a naive example of how to silence the default error handler.

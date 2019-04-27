@@ -121,20 +121,25 @@ angular.module('mediaMogulApp')
       };
 
       function appendDashboardIfNecessary() {
-        const currentSref = $state.current.name.split('.');
+        const currentSref = getTrimmedSref();
 
-        if (currentSref[2] === 'my') {
-          if (currentSref.length < 3) {
-            $state.go($state.current.name + '.dashboard');
-          }
-        } else if (currentSref[2] === 'groups') {
-          if (currentSref.length < 5) {
-            $state.go($state.current.name + '.dashboard');
-          }
-        } else {
-          console.error('Unexpected 2nd sref part found: ' + $state.current.name + ". Expecting 'shows' or 'groups'");
+        if (hasMatch(currentSref)) {
+          $state.go($state.current.name + '.dashboard');
         }
-        return currentSref;
+
+        return $state.current.name.split('.');
+      }
+
+      function hasMatch(sref) {
+        const match = _.findWhere(self.categories, {sref: sref});
+        return match;
+      }
+
+      function getTrimmedSref() {
+        const srefParts = $state.current.name.split('.');
+        const withoutFirst = srefParts.splice(1);
+        const srefWithoutFirst = withoutFirst.join('.');
+        return srefWithoutFirst;
       }
 
       function initializeIncoming() {
@@ -187,7 +192,7 @@ angular.module('mediaMogulApp')
       };
 
       self.goTo = function(series) {
-        $state.transitionTo('tv.main',
+        $state.transitionTo('tv.show',
           {series_id: series.id},
           {
             reload: true,
