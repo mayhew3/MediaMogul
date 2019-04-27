@@ -1,5 +1,5 @@
 angular.module('mediaMogulApp')
-  .controller('mytvTopController', ['LockService', 'NavHelperService', 'YearlyRatingService', '$state', '$stateParams',
+  .controller('showsController', ['LockService', 'NavHelperService', 'YearlyRatingService', '$state', '$stateParams',
     'EpisodeService', '$uibModal', 'GroupService',
     function (LockService, NavHelperService, YearlyRatingService, $state, $stateParams, EpisodeService, $uibModal,
               GroupService) {
