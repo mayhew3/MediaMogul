@@ -49,8 +49,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/backlog',
           templateUrl: 'views/tv/shows/backlog.html'
         })
-        .state('tv.detail', {
-          url: '/detail/:series_id',
+        .state('tv.show', {
+          url: '/show/:series_id',
           controller: 'mySeriesDetailController',
           controllerAs: 'ctrl',
           templateUrl: 'views/tv/seriesDetail.html'
