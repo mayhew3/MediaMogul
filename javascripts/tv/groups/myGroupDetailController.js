@@ -391,6 +391,10 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(object) && object === true;
     }
 
+    self.getSref = function(series) {
+      return 'tv.show({series_id: ' + series.id + '})';
+    };
+
     self.open = function(series) {
       $uibModal.open({
         templateUrl: 'views/tv/groups/seriesDetail.html',
