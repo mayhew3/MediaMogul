@@ -49,6 +49,15 @@ h1 {
   padding: 7px;
 }
 
+.dropdownCaretSmall {
+  float: right;
+  margin: 9px 0;
+}
+
+.seriesDetailElement {
+  margin-bottom: 15px;
+}
+
 .posterRow {
   margin-bottom: 15px;
   text-align: center;

@@ -8,21 +8,63 @@
   <div class="col-md-2 col-sm-3 col-xs-5">
 
     <div class="row">
-      <div class="col-xs-12">
+
+      <div class="col-xs-12 seriesDetailElement">
         <tv-poster show="ctrl.series"
                    poster-info="{}"
                    on-click="ctrl.openChangePoster"></tv-poster>
       </div>
-      <div class="col-xs-12">
+
+      <div class="col-xs-12 seriesDetailElement">
         <rating-box value="ctrl.series.personSeries.dynamic_rating"
                     max-value="100"></rating-box>
       </div>
-      <div class="col-xs-11">
+
+      <div class="col-xs-11 seriesDetailElement">
         <checkmark-button
             label="'My Shows'"
             button-is-toggled="ctrl.isInMyShows"
             on-click="ctrl.toggleInMyShows"></checkmark-button>
       </div>
+
+      <div class="col-xs-11 seriesDetailElement">
+        <div class="btn-group btn-block"
+             uib-dropdown
+             is-open="ctrl.groupDropdownOpen">
+
+          <button type="button"
+                  class="btn btn-block btn-default"
+                  uib-dropdown-toggle
+                  ng-disabled="disabled"
+          style="padding-left: 7px">
+            <div class="text-left">
+              <img src="../images/NoCheckmark.svg"
+                   width="24"
+                   height="24"
+                   alt="unchecked">
+              Groups <span class="caret dropdownCaretSmall"></span>
+            </div>
+          </button>
+          <ul uib-dropdown-menu role="menu">
+            <li role="menuitem"
+                ng-repeat="group in ctrl.groups">
+              <a href="#"
+                 style="padding-left: 7px;">
+                <div style="text-align: left !important;">
+                  <img src="../images/NoCheckmark.svg"
+                       width="24"
+                       height="24"
+                       alt="unchecked">
+                  {{group.label}}
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+
     </div>
   </div>
 
