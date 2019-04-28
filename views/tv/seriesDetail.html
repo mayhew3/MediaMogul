@@ -91,6 +91,27 @@
                 </div>
               </a>
             </li>
+            <li role="menuitem">
+              <a href="#" style="padding-left: 15px;">
+                <div class="dropdownLeftAlign">
+                  Move to Backlog
+                </div>
+              </a>
+            </li>
+            <li role="menuitem" ng-if="ctrl.LockService.isAdmin()">
+              <a href="#" style="padding-left: 15px;">
+                <div class="dropdownLeftAlign">
+                  Edit
+                </div>
+              </a>
+            </li>
+            <li role="menuitem" ng-if="ctrl.LockService.isAdmin()">
+              <a href="#" style="padding-left: 15px;">
+                <div class="dropdownLeftAlign">
+                  Update TVDB
+                </div>
+              </a>
+            </li>
           </ul>
         </div>
 
