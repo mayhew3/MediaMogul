@@ -642,21 +642,22 @@ angular.module('mediaMogulApp')
       };
 
       self.addToMyShows = function(show, lastWatched) {
-        $log.debug("Adding show " + JSON.stringify(show));
-        // TODO: get dynamic_score back from server and update it
-        return $http.post('/api/addToMyShows', {
-          SeriesId: show.id,
-          PersonId: LockService.person_id,
-          LastWatched: lastWatched
-        }).then(function (resultShow) {
-          const incomingShow = resultShow.data;
-          formatIncomingShow(incomingShow);
-          const show = addPersonShowToAllShowsList(incomingShow);
-          addShowToArray(show);
-          addTimerForNextAirDate();
-          return show;
-        }, function(errResponse) {
-          $log.debug("Error adding to my shows: " + errResponse);
+        return new Promise((resolve, reject) => {
+          $http.post('/api/addToMyShows', {
+            SeriesId: show.id,
+            PersonId: LockService.person_id,
+            LastWatched: lastWatched
+          }).then(function (resultShow) {
+            const incomingShow = resultShow.data;
+            formatIncomingShow(incomingShow);
+            const show = addPersonShowToAllShowsList(incomingShow);
+            addShowToArray(show);
+            addTimerForNextAirDate();
+            resolve(show);
+          }, function(errResponse) {
+            $log.debug("Error adding to my shows: " + errResponse);
+            reject(errResponse);
+          });
         });
       };
 

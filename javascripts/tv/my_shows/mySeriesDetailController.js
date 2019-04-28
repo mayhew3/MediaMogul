@@ -59,6 +59,18 @@ angular.module('mediaMogulApp')
       return self.episodes.filter(self.episodeFilter).length;
     };
 
+    self.isInMyShows = function() {
+      return ArrayService.exists(self.series.personSeries);
+    };
+
+    self.toggleInMyShows = function() {
+      if (self.isInMyShows()) {
+        self.removeFromMyShows();
+      } else {
+        maybeReAddShow();
+      }
+    };
+
     EpisodeService.getSeriesDetailInfo(self.series_id).then(function(series) {
       self.series = series;
       self.episodes = series.episodes;
@@ -487,8 +499,9 @@ angular.module('mediaMogulApp')
     function maybeReAddShow() {
       return new Promise(resolve => {
         if (self.removed) {
-          EpisodeService.addToMyShows(self.series).then(() => {
+          EpisodeService.addToMyShows(self.series).then((show) => {
             self.removed = false;
+            self.series = show;
             resolve();
           });
         } else {
@@ -502,7 +515,6 @@ angular.module('mediaMogulApp')
         EpisodeService.removeFromMyShows(self.series).then(function () {
           $log.debug("Returned from removal.");
           self.removed = true;
-          self.series.personSeries.my_tier = null;
         });
       }
     };
