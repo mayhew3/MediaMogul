@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('mySeriesDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService',
-    '$http', 'YearlyRatingService', 'ArrayService', '$stateParams',
+    '$http', 'YearlyRatingService', 'ArrayService', '$stateParams', 'GroupService',
   function($log, EpisodeService, $uibModal, $filter, LockService, $http, YearlyRatingService, ArrayService,
-           $stateParams) {
+           $stateParams, GroupService) {
     const self = this;
 
     self.LockService = LockService;
@@ -55,6 +55,24 @@ angular.module('mediaMogulApp')
       };
     }
 
+    self.groupDropdownLabel = {
+      label: 'Groups'
+    };
+    self.groups = [];
+
+    GroupService.updateMyGroupsListIfDoesntExist().then(groups => {
+      _.each(groups, group => {
+        const groupObj = {
+          label: group.name
+        };
+        self.groups.push(groupObj);
+      });
+    });
+
+    self.getDynamicValue = function() {
+      return self.groupDropdownLabel;
+    };
+
     self.totalItems = function() {
       return self.episodes.filter(self.episodeFilter).length;
     };
@@ -69,6 +87,10 @@ angular.module('mediaMogulApp')
       } else {
         maybeReAddShow();
       }
+    };
+
+    self.getGroups = function() {
+      return GroupService.getMyGroups();
     };
 
     EpisodeService.getSeriesDetailInfo(self.series_id).then(function(series) {
