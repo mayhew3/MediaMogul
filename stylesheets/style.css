@@ -54,6 +54,10 @@ h1 {
   margin: 9px 0;
 }
 
+.dropdownLeftAlign {
+  text-align: left !important;
+}
+
 .seriesDetailElement {
   margin-bottom: 15px;
 }
