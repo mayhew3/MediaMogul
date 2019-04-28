@@ -22,6 +22,8 @@ angular.module('mediaMogulApp')
       label: null
     };
 
+    self.activePill = 0;
+
     self.removed = false;
 
     self.firstUnwatchedNumber = null;
