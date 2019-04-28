@@ -45,6 +45,10 @@ h1 {
   background-image: linear-gradient(#6a3166, #5A2258 60%, #50285d);
 }
 
+.checkmarkButton {
+  padding: 7px;
+}
+
 .posterRow {
   margin-bottom: 15px;
   text-align: center;

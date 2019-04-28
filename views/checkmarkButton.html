@@ -1,6 +1,19 @@
 <button type="button"
-        class="btn"
+        class="btn btn-block checkmarkButton"
         ng-class="ctrl.getButtonClass()"
         ng-click="ctrl.onClick()">
-  {{ctrl.label}}
+  <div class="text-left">
+    <img ng-if="ctrl.buttonIsToggled()"
+         src="../images/Checkmark.svg"
+         width="24"
+         height="24"
+         alt="checked">
+    <img ng-if="!ctrl.buttonIsToggled()"
+         src="../images/NoCheckmark.svg"
+         width="24"
+         height="24"
+         alt="checked">
+    <span ng-bind="ctrl.label"></span>
+  </div>
+
 </button>

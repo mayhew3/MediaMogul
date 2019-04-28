@@ -15,9 +15,9 @@ function checkmarkButtonController() {
 
   self.getButtonClass = function() {
     if (self.buttonIsToggled()) {
-      return 'btn-success';
-    } else {
       return 'btn-tv-primary';
+    } else {
+      return 'btn-default';
     }
   }
 
