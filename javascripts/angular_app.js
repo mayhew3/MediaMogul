@@ -49,12 +49,6 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/backlog',
           templateUrl: 'views/tv/shows/backlog.html'
         })
-        .state('tv.show', {
-          url: '/show/:series_id',
-          controller: 'mySeriesDetailController',
-          controllerAs: 'ctrl',
-          templateUrl: 'views/tv/seriesDetail.html'
-        })
         .state('tv.shows.groups', {
           url: '/groups',
           templateUrl: 'views/tv/groups/main.html'
@@ -72,6 +66,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         .state('tv.shows.groups.detail.allShows', {
           url: '/allShows',
           templateUrl: 'views/tv/groups/allShows.html'
+        })
+        .state('tv.show', {
+          url: '/show/:series_id',
+          controller: 'showDetailController',
+          controllerAs: 'ctrl',
+          templateUrl: 'views/tv/seriesDetail.html'
         })
         .state('tv.rate', {
           url: '/rate/yearly',
