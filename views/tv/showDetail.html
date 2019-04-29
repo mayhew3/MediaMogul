@@ -123,12 +123,28 @@
   <div class="col-md-10 col-sm-7 col-xs-12">
 
     <div class="row">
-      <uib-tabset active="ctrl.activePill" vertical="false" type="pills">
-        <uib-tab index="0" heading="Next Up">Season 1 Episode 12: It's great.</uib-tab>
-        <uib-tab index="1" heading="Episodes">Ep 1, Ep 2, Ep 3</uib-tab>
-        <uib-tab index="2" heading="Groups">My Groups</uib-tab>
-      </uib-tabset>
 
+      <div class="col-lg-2">
+        <div class="btn btn-lg btn-block btn-primary">
+          <a href="#" ui-sref="tv.show.next_up">Next Up</a>
+        </div>
+      </div>
+      <div class="col-lg-2">
+        <div class="btn btn-lg btn-block btn-primary">
+          <a href="#" ui-sref="tv.show.episodes">Episodes</a>
+        </div>
+      </div>
+      <div class="col-lg-2">
+        <div class="btn btn-lg btn-block btn-primary">
+          <a href="#" ui-sref="tv.show.groups">Groups</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div ui-view></div>
+      </div>
     </div>
 
   </div>
