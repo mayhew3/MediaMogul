@@ -610,20 +610,20 @@ exports.getSeriesDetailInfo = function(request, response) {
 
       })
         .catch(err => {
-          throwError('Error fetching seriesDetail ratings: ' + err.message,
+          throwError('Error fetching showDetail ratings: ' + err.message,
             'getSeriesDetailInfo ratings query',
             response)
         });
 
     })
       .catch(err => {
-        throwError('Error fetching seriesDetail episodes: ' + err.message,
+        throwError('Error fetching showDetail episodes: ' + err.message,
           'getSeriesDetailInfo episodes query',
           response)
       });
   })
     .catch(err => {
-      throwError('Error fetching seriesDetail series: ' + err.message,
+      throwError('Error fetching showDetail series: ' + err.message,
         'getSeriesDetailInfo series query',
         response)
     });

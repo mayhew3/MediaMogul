@@ -71,7 +71,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/show/:series_id',
           controller: 'showDetailController',
           controllerAs: 'ctrl',
-          templateUrl: 'views/tv/seriesDetail.html'
+          templateUrl: 'views/tv/showDetail.html'
         })
         .state('tv.rate', {
           url: '/rate/yearly',
