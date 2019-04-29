@@ -1,1 +1,9 @@
 <h1>EPISODES!</h1>
+
+<div class="row" ng-if="ctrl.series">
+  SERIES!
+  <div class="col-lg-6" ng-repeat="episode in ctrl.episodes">
+    Episode:
+    <span ng-bind="episode.title"></span>
+  </div>
+</div>

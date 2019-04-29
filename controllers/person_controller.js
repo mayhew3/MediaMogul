@@ -491,6 +491,7 @@ exports.getSeriesDetailInfo = function(request, response) {
     const sql = "SELECT e.id, " +
       "e.air_time, " +
       "e.air_date, " +
+      "e.title, " +
       "e.season, " +
       "e.episode_number, " +
       "e.absolute_number " +
