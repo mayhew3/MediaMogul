@@ -122,23 +122,22 @@
 
   <div class="col-md-10 col-sm-7 col-xs-12">
 
-    <div class="row">
+    <div class="row seriesDetailElement">
 
-      <div class="col-lg-2">
-        <div class="btn btn-lg btn-block btn-primary">
-          <a href="#" ui-sref="tv.show.next_up">Next Up</a>
-        </div>
+      <div class="col-md-6 col-sm-9 col-xs-12">
+        <ul class="nav nav-pills nav-justified">
+          <li class="active">
+            <a href="#" ui-sref="tv.show.next_up">Next Up</a>
+          </li>
+          <li>
+            <a href="#" ui-sref="tv.show.episodes">Episodes</a>
+          </li>
+          <li>
+            <a href="#" ui-sref="tv.show.groups">Groups</a>
+          </li>
+        </ul>
       </div>
-      <div class="col-lg-2">
-        <div class="btn btn-lg btn-block btn-primary">
-          <a href="#" ui-sref="tv.show.episodes">Episodes</a>
-        </div>
-      </div>
-      <div class="col-lg-2">
-        <div class="btn btn-lg btn-block btn-primary">
-          <a href="#" ui-sref="tv.show.groups">Groups</a>
-        </div>
-      </div>
+
     </div>
 
     <div class="row">
@@ -150,3 +149,20 @@
   </div>
 
 </div>
+
+<!-- WORKAROUND for bootstrap 3 bug where nav pills justified aren't really equal width:
+    https://stackoverflow.com/questions/33614854/bootstrap-v3-nav-justified-witdh-not-actually-equal
+    https://stackoverflow.com/questions/34756313/same-height-for-nav-tabs -->
+<style>
+  .nav-pills{
+    display: flex;
+  }
+  .nav-pills li {
+    display: flex;
+    flex: 1;
+  }
+
+  .nav-pills li  a {
+    flex: 1;
+  }
+</style>
