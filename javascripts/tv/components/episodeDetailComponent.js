@@ -25,5 +25,13 @@ function episodeDetailCompController(EpisodeService) {
       new Date(self.episode.air_date).toLocaleDateString("en-US", options);
   };
 
+  self.isWatched = function() {
+    return self.episode.watched;
+  };
+
+  self.toggleWatched = function() {
+    self.episode.watched = !self.episode.watched;
+  };
+
 }
 

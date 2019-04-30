@@ -40,5 +40,13 @@
     Air Date: <span ng-bind="ctrl.getAirDate()"></span>
   </div>
 
+</div>
 
+<!-- Mark Watched -->
+<div class="col-md-3 col-sm-4 col-xs-6">
+  <checkmark-button label="'Mark Watched'"
+                    checked-label="'Watched'"
+                    unchecked-theme="'success'"
+                    button-is-toggled="ctrl.isWatched"
+                    on-click="ctrl.toggleWatched"></checkmark-button>
 </div>
