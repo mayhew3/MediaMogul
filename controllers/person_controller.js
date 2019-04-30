@@ -494,8 +494,12 @@ exports.getSeriesDetailInfo = function(request, response) {
       "e.title, " +
       "e.season, " +
       "e.episode_number, " +
-      "e.absolute_number " +
+      "e.absolute_number," +
+      "te.filename as tvdb_filename, " +
+      "te.overview as tvdb_overview " +
       "FROM episode e " +
+      "INNER JOIN tvdb_episode te " +
+      " ON e.tvdb_episode_id = te.id " +
       "WHERE e.retired = $1 " +
       "AND e.series_id = $2 " +
       "ORDER BY e.air_time, e.absolute_number ";

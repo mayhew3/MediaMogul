@@ -295,10 +295,12 @@ h1 {
 /* SERIES REQUEST */
 
 .alreadyExistsOverlay {
-  color: orange;
   font-size: 24pt;
   font-weight: bolder;
   text-shadow: 2px 2px #0c0d0e;
+  -webkit-text-fill-color: green; /* Will override color (regardless of order) */
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: white;
 }
 
 .centeredInFrame {
