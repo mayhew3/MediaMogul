@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-    .service('GroupService', ['$http', 'ArrayService', 'LockService',
-      function ($http, ArrayService, LockService) {
+    .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q',
+      function ($http, ArrayService, LockService, $q) {
         const self = this;
 
         self.LockService = LockService;
@@ -17,7 +17,7 @@ angular.module('mediaMogulApp')
           self.loadingGroups = true;
           self.errorGroups = false;
 
-          return new Promise((resolve, reject) => {
+          return $q((resolve, reject) => {
             $http.get('/api/myGroups', {params: {person_id: LockService.person_id}}).then(function(results) {
               self.loadingGroups = false;
 
@@ -33,7 +33,7 @@ angular.module('mediaMogulApp')
         };
 
         self.updateMyGroupsListIfDoesntExist = function() {
-          return new Promise(resolve => {
+          return $q(resolve => {
             if (self.uninitialized) {
               self.updateMyGroupsList().then((groups) => resolve(groups));
             } else {

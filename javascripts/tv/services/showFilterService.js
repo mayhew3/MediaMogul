@@ -47,16 +47,18 @@ function ShowFilterService(ArrayService, DateService) {
   };
 
   self.justAired = function(series) {
-    return self.firstTier(series) &&
+    const isRecentlyAired = self.firstTier(series) &&
       !self.ratingsPending(series) &&
       firstUnwatchedAiredRecently(series);
+    return isRecentlyAired;
   };
 
   self.otherQueue = function(series) {
-    return self.firstTier(series) &&
+    const isWatchedRecently = self.firstTier(series) &&
       !self.ratingsPending(series) &&
       !self.justAired(series) &&
       watchedRecently(series);
+    return isWatchedRecently;
   };
 
   self.pinnedToDashboard = function(series) {

@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .component('episodeDetail', {
     templateUrl: 'views/tv/episodeDetailComponent.html',
-    controller: ['EpisodeService', 'ArrayService', 'LockService', 'DateService', '$scope', episodeDetailCompController],
+    controller: ['EpisodeService', 'ArrayService', 'LockService', 'DateService', '$scope', '$q', episodeDetailCompController],
     controllerAs: 'ctrl',
     bindings: {
       episode: '=',
@@ -9,7 +9,7 @@ angular.module('mediaMogulApp')
     }
   });
 
-function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope) {
+function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q) {
   const self = this;
 
   self.$onInit = function() {
@@ -47,7 +47,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   };
 
   self.addOrUpdateRating = function() {
-    return new Promise(resolve => {
+    return $q(resolve => {
       const episode = self.episode;
       if (hasRating()) {
         const personEpisode = episode.personEpisode;
@@ -89,7 +89,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         dynamicRating = response.data.dynamic_rating;
       }
       self.postRatingCallback(self.episode, dynamicRating);
-      $scope.$apply();
+      // $scope.$apply();
     });
   };
 
