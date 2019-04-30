@@ -43,6 +43,8 @@ angular.module('mediaMogulApp')
     self.selectedAddingEpisodes = 'None';
     self.selectedLastWatchedEpisode = null;
 
+    self.ratingScopes = [];
+
     self.lastUpdate = undefined;
 
     self.daysSinceLastUpdate = Math.floor((new Date - new Date(self.lastUpdate)) / 1000 / 60 / 60 / 24);
@@ -552,6 +554,15 @@ angular.module('mediaMogulApp')
           $log.debug("Returned from removal.");
           self.removed = true;
         });
+      }
+    };
+
+    self.afterRatingChange = function(episode, dynamic_rating) {
+      if (ArrayService.exists(dynamic_rating)) {
+        if (!self.series.personSeries) {
+          self.series.personSeries = {};
+        }
+        self.series.personSeries.dynamic_rating = dynamic_rating;
       }
     };
 
