@@ -1,13 +1,24 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService',
-    '$http', 'YearlyRatingService', 'ArrayService', '$stateParams', 'GroupService',
+    '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService',
   function($log, EpisodeService, $uibModal, $filter, LockService, $http, YearlyRatingService, ArrayService,
-           $stateParams, GroupService) {
+           $state, $stateParams, GroupService) {
     const self = this;
 
     self.LockService = LockService;
 
     self.series_id = $stateParams.series_id;
+
+    if ($state.current.name === 'tv.show') {
+      $state.transitionTo('tv.show.next_up',
+        {series_id: self.series_id},
+        {
+          reload: true,
+          inherit: false,
+          notify: true
+        }
+      );
+    }
 
     self.series = undefined;
     self.owned = true;
@@ -22,7 +33,7 @@ angular.module('mediaMogulApp')
       label: null
     };
 
-    self.activePill = 0;
+    self.activePill = getSelectedSubState();
 
     self.removed = false;
 
@@ -42,21 +53,6 @@ angular.module('mediaMogulApp')
 
     self.watchMultiple = false;
 
-    /* DROPDOWN */
-    self.status = {
-      is_open: false
-    };
-
-    if (self.owned) {
-      self.originalFields = {
-        my_rating: undefined
-      };
-
-      self.interfaceFields = {
-        my_rating: undefined
-      };
-    }
-
     self.groupDropdownLabel = {
       label: 'Groups'
     };
@@ -70,6 +66,22 @@ angular.module('mediaMogulApp')
         self.groups.push(groupObj);
       });
     });
+
+    function getSelectedSubState() {
+      return _.last($state.current.name.split('.'));
+    }
+
+    self.changeSelectedPill = function(subState) {
+      self.activePill = subState;
+    };
+
+    self.getPillClass = function(sref) {
+      if (sref === self.activePill) {
+        return 'active';
+      } else {
+        return '';
+      }
+    };
 
     self.getDynamicValue = function() {
       return self.groupDropdownLabel;

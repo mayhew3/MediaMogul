@@ -126,14 +126,20 @@
 
       <div class="col-md-6 col-sm-9 col-xs-12">
         <ul class="nav nav-pills nav-justified">
-          <li class="active">
-            <a href="#" ui-sref="tv.show.next_up">Next Up</a>
+          <li ng-class="ctrl.getPillClass('next_up')">
+            <a href="#"
+               ui-sref="tv.show.next_up"
+               ng-click="ctrl.changeSelectedPill('next_up')">Next Up</a>
           </li>
-          <li>
-            <a href="#" ui-sref="tv.show.episodes">Episodes</a>
+          <li ng-class="ctrl.getPillClass('episodes')">
+            <a href="#"
+               ui-sref="tv.show.episodes"
+               ng-click="ctrl.changeSelectedPill('episodes')">Episodes</a>
           </li>
-          <li>
-            <a href="#" ui-sref="tv.show.groups">Groups</a>
+          <li ng-class="ctrl.getPillClass('groups')">
+            <a href="#"
+               ui-sref="tv.show.groups"
+               ng-click="ctrl.changeSelectedPill('groups')">Groups</a>
           </li>
         </ul>
       </div>
