@@ -1,5 +1,6 @@
 
 <div ng-if="ctrl.nextUp">
-  <episode-detail episode="ctrl.nextUp"></episode-detail>
+  <episode-detail episode="ctrl.nextUp"
+                  post-rating-callback="ctrl.afterRatingChange"></episode-detail>
 </div>
 

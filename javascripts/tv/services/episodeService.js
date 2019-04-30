@@ -578,6 +578,7 @@ angular.module('mediaMogulApp')
             console.log("Episodes has " + series.episodes.length + " rows.");
 
             formatIncomingShow(series);
+            addSeriesIdsToEpisodes(series);
             addInfoForUnwatchedEpisodes(series);
 
             return deferred.resolve(series);
@@ -587,6 +588,10 @@ angular.module('mediaMogulApp')
           });
         return deferred.promise;
       };
+
+      function addSeriesIdsToEpisodes(series) {
+        _.each(series.episodes, episode => episode.series_id = series.id);
+      }
 
       function addInfoForUnwatchedEpisodes(series) {
         series.episodes.forEach( function(episode) {

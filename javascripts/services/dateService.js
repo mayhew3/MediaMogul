@@ -25,6 +25,21 @@ function DateService($filter) {
     return $filter('date')(timeString, timeFormat);
   };
 
+  self.formatDateForDatabase = function(unformattedDate) {
+    let originalDate = (unformattedDate === '' || unformattedDate === null) ? null :
+      new Date(unformattedDate);
+    if (originalDate !== null) {
+      originalDate.setHours(0, 0, 0, 0);
+    }
+    return originalDate;
+  };
+
+  self.formatDateStringForInput = function(dateString) {
+    return dateString === null ?
+      null :
+      new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
   self.getFormattedDate = function(date) {
     return $filter('date')(date, self.getDateFormat(date), 'America/Los_Angeles');
   };
