@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService',
-    '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService',
+    '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q',
   function($log, EpisodeService, $uibModal, $filter, LockService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService) {
+           $state, $stateParams, GroupService, $q) {
     const self = this;
 
     self.LockService = LockService;
@@ -314,7 +314,7 @@ angular.module('mediaMogulApp')
     };
 
     self.submitMulti = function() {
-      return new Promise(resolve => {
+      return $q(resolve => {
         const changed = _.filter(self.episodes, episode => !_.isUndefined(episode.personEpisode.watched_pending) && episode.personEpisode.watched_pending !== episode.personEpisode.watched);
 
         maybeUpdateMultiWatch(changed).then(() => {
@@ -355,7 +355,7 @@ angular.module('mediaMogulApp')
             });
         });
       } else {
-        return new Promise(resolve => resolve());
+        return $q(resolve => resolve());
       }
     }
 
@@ -535,7 +535,7 @@ angular.module('mediaMogulApp')
     };
 
     function maybeReAddShow() {
-      return new Promise(resolve => {
+      return $q(resolve => {
         if (self.removed) {
           EpisodeService.addToMyShows(self.series).then((show) => {
             self.removed = false;
@@ -564,6 +564,17 @@ angular.module('mediaMogulApp')
         }
         self.series.personSeries.dynamic_rating = dynamic_rating;
       }
+      EpisodeService.updateMySeriesDenorms(
+        self.series,
+        self.episodes,
+        updatePersonSeriesInDatabase,
+        self.series.personSeries)
+        .then(function () {
+          if (LockService.isAdmin()) {
+            YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
+          }
+          updateNextUp();
+        });
     };
 
     self.markAllPastWatched = function() {
@@ -635,7 +646,7 @@ angular.module('mediaMogulApp')
           ChangedFields: changedFields
         });
       } else {
-        return new Promise(function(resolve) {
+        return $q(function(resolve) {
           return resolve();
         });
       }

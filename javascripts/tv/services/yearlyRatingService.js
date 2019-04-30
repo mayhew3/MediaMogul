@@ -71,7 +71,7 @@ angular.module('mediaMogulApp')
       };
 
       self.getEpisodeListForRating = function(episodeRatingGroup) {
-        return new Promise((resolve, reject) => {
+        return $q((resolve, reject) => {
           $http.get('/api/episodeListForRating', {params: {
               SeriesId: episodeRatingGroup.series_id,
               PersonId: LockService.person_id,

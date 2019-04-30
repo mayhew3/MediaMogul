@@ -1,11 +1,11 @@
 angular.module('mediaMogulApp')
-  .service('ViewingLocationService', ['$log', '$http',
-    function ($log, $http) {
+  .service('ViewingLocationService', ['$log', '$http', '$q',
+    function ($log, $http, $q) {
       let viewingLocations = [];
       const self = this;
 
       self.getViewingLocations = function() {
-        return new Promise((resolve, reject) => {
+        return $q((resolve, reject) => {
           if (viewingLocations.length > 0) {
             resolve(viewingLocations);
           } else {
