@@ -312,6 +312,21 @@ h1 {
   transform: translateX(-50%) translateY(-50%);
 }
 
+/* EPISODE TILE */
+
+.episodeTile {
+  margin-bottom: 5px;
+  padding: 5px;
+}
+
+.episodeTileNumber {
+  color: lightblue;
+  font-size: 6pt;
+}
+
+.episodeTileTitle {
+  font-size: 12pt;
+}
 
 /*
 
