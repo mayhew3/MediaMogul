@@ -71,7 +71,15 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/show/:series_id',
           controller: 'showDetailController',
           controllerAs: 'ctrl',
-          templateUrl: 'views/tv/showDetail.html'
+          templateUrl: 'views/tv/showDetail.html',
+          resolve: {
+            viewer: function($stateParams) {
+              return $stateParams.viewer;
+            }
+          },
+          params: {
+            viewer: null
+          }
         })
         .state('tv.show.next_up', {
           url: '/next',

@@ -193,7 +193,10 @@ angular.module('mediaMogulApp')
 
       self.goTo = function(series) {
         $state.transitionTo('tv.show.next_up',
-          {series_id: series.id},
+          {
+            series_id: series.id,
+            viewer: self.selectedFilterInfo.sref
+          },
           {
             reload: true,
             inherit: false,
