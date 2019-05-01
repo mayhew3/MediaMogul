@@ -127,14 +127,6 @@ angular.module('mediaMogulApp')
         self.formatNextAirDate(show);
       }
 
-      self.findShowWithTitle = function(title) {
-        return _.findWhere(allShows, {title: title});
-      };
-
-      self.findMyShowWithTitle = function(title) {
-        return _.findWhere(myShows, {title: title});
-      };
-
       function updateMyShowsListTierOne() {
         return $q((resolve, reject) => {
           $http.get('/api/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
@@ -142,11 +134,6 @@ angular.module('mediaMogulApp')
             let tempShows = response.data;
             _.forEach(tempShows, formatIncomingShow);
             $log.debug("Finished updating Tier 1.");
-
-            const debugShow = self.getDebugShow();
-
-            debugShow.crisco = true;
-            debugShow.personSeries.buttery = true;
 
             mergeShowsIntoMyShowsArray(tempShows);
 
@@ -258,19 +245,6 @@ angular.module('mediaMogulApp')
 
       function shouldCopy(propertyValue) {
         return !_.isArray(propertyValue);
-      }
-
-      function addShowToMyShowsArray(newShow) {
-        let arrayCopy = myShows.slice();
-        arrayCopy.push(newShow);
-        sortShowArray(arrayCopy);
-        ArrayService.refreshArray(myShows, arrayCopy);
-      }
-
-      function sortShowArray(showArray) {
-        ArrayService.refreshArray(showArray, _.sortBy(showArray, function(show) {
-          return 0 - show.dynamic_rating;
-        }));
       }
 
       self.updateMyPendingShowsList = function() {
@@ -650,16 +624,6 @@ angular.module('mediaMogulApp')
             addSeriesIdsToEpisodes(show, episodes);
             addInfoForUnwatchedEpisodes(show, episodes);
 
-            const matching = _.where(allShows, {id: series_id});
-            if (matching.length > 1) {
-              console.log("MULTIPLE MATCHES FOUND! '" + show.title + "' has " + matching.length + " matches.");
-            } else {
-              console.log("Everything's fine.");
-            }
-
-            self.getDebugShow();
-            console.log('Series Detail hash: ' + show.$$hashKey);
-
             resolve({
               series: show,
               episodes: episodes
@@ -909,9 +873,6 @@ angular.module('mediaMogulApp')
       };
 
       self.updateMySeriesDenorms = function(series, episodes, databaseCallback, viewer) {
-        console.log('Series Detail hash: ' + series.$$hashKey);
-        self.getDebugShow();
-
         const isGroup = ArrayService.exists(viewer.tv_group_id);
 
         const getEpisodeViewer = isGroup ?

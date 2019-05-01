@@ -41,10 +41,9 @@ function ShowFilterService(ArrayService, DateService) {
   };
 
   self.showInQueue = function(series) {
-    const inQueue = self.firstTier(series) &&
+    return self.firstTier(series) &&
       !self.ratingsPending(series) &&
       (firstUnwatchedAiredRecently(series) || watchedRecently(series) || addedRecently(series));
-    return inQueue;
   };
 
   self.justAired = function(series) {
@@ -63,12 +62,11 @@ function ShowFilterService(ArrayService, DateService) {
   };
 
   self.pinnedToDashboard = function(series) {
-    const isPinned = !!series.personSeries.pinned &&
+    return !!series.personSeries.pinned &&
       !self.ratingsPending(series) &&
       !self.justAired(series) &&
       !self.otherQueue(series) &&
       hasUnwatchedEpisodes(series);
-    return isPinned;
   };
 
   self.addedSection = function(series) {
