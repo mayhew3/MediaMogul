@@ -564,17 +564,12 @@ angular.module('mediaMogulApp')
         }
         self.series.personSeries.dynamic_rating = dynamic_rating;
       }
-
-      console.log('After Rating Change hash: ' + self.series.$$hashKey);
-      EpisodeService.getDebugShow();
-
       EpisodeService.updateMySeriesDenorms(
         self.series,
         self.episodes,
         updatePersonSeriesInDatabase,
         self.series.personSeries)
         .then(function () {
-          console.log('After denorm hash: ' + self.series.$$hashKey);
           if (LockService.isAdmin()) {
             YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
           }
