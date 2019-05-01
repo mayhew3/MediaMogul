@@ -1,155 +1,163 @@
-<div class="page-header">
-  <h1 ng-bind="ctrl.series.title"></h1>
+<div ng-if="ctrl.isLoading()">
+  <h3>Loading...</h3>
 </div>
 
-<div class="row" ng-if="!ctrl.isLoading()">
+<div ng-if="!ctrl.isLoading()">
 
-  <!--  LEFT SIDE -->
-  <div class="col-md-2 col-sm-3 col-xs-5">
-
-    <div class="row">
-
-      <!-- POSTER -->
-      <div class="col-xs-12 seriesDetailElement">
-        <tv-poster show="ctrl.series"
-                   poster-info="{}"
-                   on-click="ctrl.openChangePoster"></tv-poster>
-      </div>
-
-      <!-- DYNAMIC RATING -->
-      <div class="col-xs-12 seriesDetailElement">
-        <rating-box value="ctrl.series.personSeries.dynamic_rating"
-                    max-value="100"></rating-box>
-      </div>
-
-      <!-- MY SHOWS TOGGLE -->
-      <div class="col-xs-11 seriesDetailElement">
-        <checkmark-button
-            label="'My Shows'"
-            button-is-toggled="ctrl.isInMyShows"
-            on-click="ctrl.toggleInMyShows"></checkmark-button>
-      </div>
-
-      <!-- GROUP COLLECTION DROPDOWN -->
-      <div class="col-xs-11 seriesDetailElement">
-        <div class="btn-group btn-block"
-             uib-dropdown
-             is-open="ctrl.groupDropdownOpen">
-
-          <button type="button"
-                  class="btn btn-block btn-default"
-                  uib-dropdown-toggle
-                  ng-disabled="disabled"
-          style="padding-left: 7px">
-            <div class="text-left">
-              <img src="../images/NoCheckmark.svg"
-                   width="24"
-                   height="24"
-                   alt="unchecked">
-              Groups <span class="caret dropdownCaretSmall"></span>
-            </div>
-          </button>
-          <ul uib-dropdown-menu role="menu">
-            <li role="menuitem"
-                ng-repeat="group in ctrl.groups">
-              <a href="#"
-                 style="padding-left: 7px;">
-                <div class="dropdownLeftAlign">
-                  <img src="../images/NoCheckmark.svg"
-                       width="24"
-                       height="24"
-                       alt="unchecked">
-                  {{group.label}}
-                </div>
-              </a>
-            </li>
-          </ul>
-        </div>
-
-      </div>
-
-      <!-- ACTIONS DROPDOWN -->
-      <div class="col-xs-11 seriesDetailElement">
-        <div class="btn-group btn-block"
-             uib-dropdown
-             is-open="ctrl.actionDropdownOpen">
-
-          <button type="button"
-                  class="btn btn-block btn-default"
-                  uib-dropdown-toggle
-                  ng-disabled="disabled"
-                  style="padding-left: 15px">
-            <div class="text-left">
-              Actions <span class="caret dropdownCaretSmall"></span>
-            </div>
-          </button>
-          <ul uib-dropdown-menu role="menu">
-            <li role="menuitem">
-              <a href="#" style="padding-left: 15px;">
-                <div class="dropdownLeftAlign">
-                  Pin to Dashboard
-                </div>
-              </a>
-            </li>
-            <li role="menuitem">
-              <a href="#" style="padding-left: 15px;">
-                <div class="dropdownLeftAlign">
-                  Move to Backlog
-                </div>
-              </a>
-            </li>
-            <li role="menuitem" ng-if="ctrl.LockService.isAdmin()">
-              <a href="#" style="padding-left: 15px;">
-                <div class="dropdownLeftAlign">
-                  Edit
-                </div>
-              </a>
-            </li>
-            <li role="menuitem" ng-if="ctrl.LockService.isAdmin()">
-              <a href="#" style="padding-left: 15px;">
-                <div class="dropdownLeftAlign">
-                  Update TVDB
-                </div>
-              </a>
-            </li>
-          </ul>
-        </div>
-
-      </div>
-
-    </div>
+  <div class="page-header">
+    <h1 ng-bind="ctrl.series.title"></h1>
   </div>
 
-  <div class="col-md-10 col-sm-7 col-xs-12">
+  <div class="row">
 
-    <div class="row seriesDetailElement">
+    <!--  LEFT SIDE -->
+    <div class="col-md-2 col-sm-3 col-xs-5">
 
-      <div class="col-md-6 col-sm-9 col-xs-12">
-        <ul class="nav nav-pills nav-justified">
-          <li ng-class="ctrl.getPillClass('next_up')">
-            <a href="#"
-               ui-sref="tv.show.next_up"
-               ng-click="ctrl.changeSelectedPill('next_up')">Next Up</a>
-          </li>
-          <li ng-class="ctrl.getPillClass('episodes')">
-            <a href="#"
-               ui-sref="tv.show.episodes"
-               ng-click="ctrl.changeSelectedPill('episodes')">Episodes</a>
-          </li>
-          <li ng-class="ctrl.getPillClass('groups')">
-            <a href="#"
-               ui-sref="tv.show.groups"
-               ng-click="ctrl.changeSelectedPill('groups')">Groups</a>
-          </li>
-        </ul>
+      <div class="row">
+
+        <!-- POSTER -->
+        <div class="col-xs-12 seriesDetailElement">
+          <tv-poster show="ctrl.series"
+                     poster-info="{}"
+                     on-click="ctrl.openChangePoster"></tv-poster>
+        </div>
+
+        <!-- DYNAMIC RATING -->
+        <div class="col-xs-12 seriesDetailElement">
+          <rating-box value="ctrl.series.personSeries.dynamic_rating"
+                      max-value="100"></rating-box>
+        </div>
+
+        <!-- MY SHOWS TOGGLE -->
+        <div class="col-xs-11 seriesDetailElement">
+          <checkmark-button
+              label="'My Shows'"
+              button-is-toggled="ctrl.isInMyShows"
+              on-click="ctrl.toggleInMyShows"></checkmark-button>
+        </div>
+
+        <!-- GROUP COLLECTION DROPDOWN -->
+        <div class="col-xs-11 seriesDetailElement">
+          <div class="btn-group btn-block"
+               uib-dropdown
+               is-open="ctrl.groupDropdownOpen">
+
+            <button type="button"
+                    class="btn btn-block btn-default"
+                    uib-dropdown-toggle
+                    ng-disabled="disabled"
+                    style="padding-left: 7px">
+              <div class="text-left">
+                <img src="../images/NoCheckmark.svg"
+                     width="24"
+                     height="24"
+                     alt="unchecked">
+                Groups <span class="caret dropdownCaretSmall"></span>
+              </div>
+            </button>
+            <ul uib-dropdown-menu role="menu">
+              <li role="menuitem"
+                  ng-repeat="group in ctrl.groups">
+                <a href="#"
+                   style="padding-left: 7px;">
+                  <div class="dropdownLeftAlign">
+                    <img src="../images/NoCheckmark.svg"
+                         width="24"
+                         height="24"
+                         alt="unchecked">
+                    {{group.label}}
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- ACTIONS DROPDOWN -->
+        <div class="col-xs-11 seriesDetailElement">
+          <div class="btn-group btn-block"
+               uib-dropdown
+               is-open="ctrl.actionDropdownOpen">
+
+            <button type="button"
+                    class="btn btn-block btn-default"
+                    uib-dropdown-toggle
+                    ng-disabled="disabled"
+                    style="padding-left: 15px">
+              <div class="text-left">
+                Actions <span class="caret dropdownCaretSmall"></span>
+              </div>
+            </button>
+            <ul uib-dropdown-menu role="menu">
+              <li role="menuitem">
+                <a href="#" style="padding-left: 15px;">
+                  <div class="dropdownLeftAlign">
+                    Pin to Dashboard
+                  </div>
+                </a>
+              </li>
+              <li role="menuitem">
+                <a href="#" style="padding-left: 15px;">
+                  <div class="dropdownLeftAlign">
+                    Move to Backlog
+                  </div>
+                </a>
+              </li>
+              <li role="menuitem" ng-if="ctrl.LockService.isAdmin()">
+                <a href="#" style="padding-left: 15px;">
+                  <div class="dropdownLeftAlign">
+                    Edit
+                  </div>
+                </a>
+              </li>
+              <li role="menuitem" ng-if="ctrl.LockService.isAdmin()">
+                <a href="#" style="padding-left: 15px;">
+                  <div class="dropdownLeftAlign">
+                    Update TVDB
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
       </div>
-
     </div>
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div ui-view></div>
+    <div class="col-md-10 col-sm-7 col-xs-12">
+
+      <div class="row seriesDetailElement">
+
+        <div class="col-md-6 col-sm-9 col-xs-12">
+          <ul class="nav nav-pills nav-justified">
+            <li ng-class="ctrl.getPillClass('next_up')">
+              <a href="#"
+                 ui-sref="tv.show.next_up"
+                 ng-click="ctrl.changeSelectedPill('next_up')">Next Up</a>
+            </li>
+            <li ng-class="ctrl.getPillClass('episodes')">
+              <a href="#"
+                 ui-sref="tv.show.episodes"
+                 ng-click="ctrl.changeSelectedPill('episodes')">Episodes</a>
+            </li>
+            <li ng-class="ctrl.getPillClass('groups')">
+              <a href="#"
+                 ui-sref="tv.show.groups"
+                 ng-click="ctrl.changeSelectedPill('groups')">Groups</a>
+            </li>
+          </ul>
+        </div>
+
       </div>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div ui-view></div>
+        </div>
+      </div>
+
     </div>
 
   </div>

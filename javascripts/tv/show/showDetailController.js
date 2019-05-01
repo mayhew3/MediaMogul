@@ -20,11 +20,16 @@ angular.module('mediaMogulApp')
       );
     }
 
-    self.series = undefined;
+    let loading = true;
+
+    EpisodeService.registerDataPresentCallback({
+      series_id: parseInt(self.series_id),
+      callback: getBasicSeriesThenStartDetailUpdate
+    });
+
     self.owned = true;
     self.adding = false;
 
-    let loading = true;
 
     self.episodes = [];
 
@@ -109,29 +114,33 @@ angular.module('mediaMogulApp')
       return GroupService.getMyGroups();
     };
 
-    EpisodeService.getSeriesDetailInfo(self.series_id).then(function(results) {
-      self.series = results.series;
-      self.episodes = results.episodes;
-      $log.debug("Updated list with " + self.episodes.length + " episodes!");
+    function getBasicSeriesThenStartDetailUpdate(series) {
+      self.series = series;
 
-      self.lastUpdate = self.series.last_tvdb_update === null ?
-        self.series.last_tvdb_error :
-        self.series.last_tvdb_update;
+      EpisodeService.getSeriesDetailInfo(self.series_id).then(function(results) {
+        self.episodes = results.episodes;
+        $log.debug("Updated list with " + self.episodes.length + " episodes!");
 
-      if (self.owned) {
-        self.originalFields = {
-          my_rating: self.series.personSeries.my_rating
-        };
+        self.lastUpdate = self.series.last_tvdb_update === null ?
+          self.series.last_tvdb_error :
+          self.series.last_tvdb_update;
 
-        self.interfaceFields = {
-          my_rating: self.series.personSeries.my_rating
-        };
-      }
+        if (self.owned) {
+          self.originalFields = {
+            my_rating: self.series.personSeries.my_rating
+          };
 
-      loading = false;
-    }).then(function() {
-      updateSeasonLabels();
-    });
+          self.interfaceFields = {
+            my_rating: self.series.personSeries.my_rating
+          };
+        }
+
+        loading = false;
+      }).then(function() {
+        updateSeasonLabels();
+      });
+
+    }
 
     self.getEpisodes = function() {
       return self.episodes;
