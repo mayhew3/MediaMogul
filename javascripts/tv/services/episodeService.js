@@ -40,6 +40,7 @@ angular.module('mediaMogulApp')
                 self.loadingTierTwo = false;
                 self.updateNotMyShowsList().then(() => {
                   self.loadingNotMyShows = false;
+                  validateShowArrays();
                   resolve();
                 });
               })
@@ -68,6 +69,28 @@ angular.module('mediaMogulApp')
               });
         });
       };
+
+      function validateShowArrays() {
+        let mismatchCount = 0;
+        let mismatches = [];
+        _.each(myShows, show => {
+          const matching = _.where(allShows, {id: show.id});
+          if (matching > 1) {
+            console.log("DUPLICATE FOUND FOR SHOW: " + show.title);
+          } else {
+            if (!_.isEqual(show.$$hashKey, matching[0].$$hashKey)) {
+              mismatchCount++;
+              mismatches.push(show);
+            }
+          }
+        });
+        if (mismatchCount > 0) {
+          console.log("MISMATCHES: " + mismatchCount + " found.");
+          _.each(mismatches, show => console.log(' - ' + show.title));
+        } else {
+          console.log("No mismatches found.")
+        }
+      }
 
       self.updateMyShowsListIfDoesntExist = function() {
         return $q(resolve => {
@@ -104,6 +127,14 @@ angular.module('mediaMogulApp')
         self.formatNextAirDate(show);
       }
 
+      self.findShowWithTitle = function(title) {
+        return _.findWhere(allShows, {title: title});
+      };
+
+      self.findMyShowWithTitle = function(title) {
+        return _.findWhere(myShows, {title: title});
+      };
+
       function updateMyShowsListTierOne() {
         return $q((resolve, reject) => {
           $http.get('/api/myShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
@@ -111,6 +142,11 @@ angular.module('mediaMogulApp')
             let tempShows = response.data;
             _.forEach(tempShows, formatIncomingShow);
             $log.debug("Finished updating Tier 1.");
+
+            const debugShow = self.getDebugShow();
+
+            debugShow.crisco = true;
+            debugShow.personSeries.buttery = true;
 
             mergeShowsIntoMyShowsArray(tempShows);
 
@@ -196,18 +232,17 @@ angular.module('mediaMogulApp')
       }
 
       function mergeShowsIntoMyShowsArray(newShowList) {
-        const arrayCopy = myShows.slice();
+        const showsToAdd = [];
 
         _.each(newShowList, show => {
-          const match = _.findWhere(arrayCopy, {id: show.id});
-          if (match) {
-            ArrayService.removeFromArray(arrayCopy, match);
+          const match = _.findWhere(myShows, {id: show.id});
+          if (!ArrayService.exists(match)) {
+            showsToAdd.push(show);
+            addPersonShowToAllShowsList(show);
           }
-          arrayCopy.push(show);
-          addPersonShowToAllShowsList(show);
         });
 
-        ArrayService.refreshArray(myShows, arrayCopy);
+        ArrayService.addToArray(myShows, showsToAdd);
       }
 
       function shallowCopy(sourceObj, destinationObj) {
@@ -225,15 +260,11 @@ angular.module('mediaMogulApp')
         return !_.isArray(propertyValue);
       }
 
-      function addShowToArray(newShow) {
+      function addShowToMyShowsArray(newShow) {
         let arrayCopy = myShows.slice();
         arrayCopy.push(newShow);
         sortShowArray(arrayCopy);
         ArrayService.refreshArray(myShows, arrayCopy);
-      }
-
-      function removeShowFromMyShowsArray(oldShow) {
-        ArrayService.removeFromArray(myShows, oldShow);
       }
 
       function sortShowArray(showArray) {
@@ -353,10 +384,6 @@ angular.module('mediaMogulApp')
         }
       }
 
-      function mergeNewPersonOntoShow(existingShow, newShow) {
-        existingShow.personSeries = newShow.personSeries;
-      }
-
       function addGroupShowToAllShowsList(groupShow) {
         const existing = _.findWhere(allShows, {id: groupShow.id});
         if (existing) {
@@ -366,6 +393,20 @@ angular.module('mediaMogulApp')
         } else {
           allShows.push(groupShow);
           return groupShow;
+        }
+      }
+
+      function mergeAllNewGroupOntoShow(existingShow, newShow) {
+        if (existingShow.groups) {
+          _.each(newShow.groups, newGroup => {
+            const existingGroup = _.findWhere(existingShow.groups, {tv_group_id: newGroup.tv_group_id});
+            if (existingGroup) {
+              ArrayService.removeFromArray(existingShow.groups, existingGroup);
+            }
+            existingShow.groups.push(newGroup);
+          });
+        } else {
+          existingShow.groups = newShow.groups;
         }
       }
 
@@ -560,41 +601,87 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.getSeriesDetailInfo = function(series_id) {
-        let deferred = $q.defer();
-        let urlCalls = [];
-        urlCalls.push($http.get('/api/seriesDetail',
-          {
-            params: {
-              SeriesId: series_id,
-              PersonId: LockService.person_id
+      self.getDebugShow = function() {
+        const title = 'I Think You Should Leave with Tim Robinson';
+        const matching =  _.where(allShows, {title: title});
+
+        const matchingMyShows = _.where(myShows, {title: title});
+
+        if (matching.length > 1) {
+          console.log("MULTIPLE MATCHES FOUND! '" + title + "' has " + matching.length + " matches.");
+        } else if (matching.length < 1) {
+          console.log("NO MATCHES FOUND! '" + title + "' has " + matching.length + " matches.")
+        } else {
+          if (matchingMyShows.length > 1) {
+            console.log("MULTIPLE MYSHOWS MATCHES FOUND! '" + title + "' has " + matching.length + " matches.");
+          } else {
+
+            const singleMatch = matching[0];
+            const singleMyMatch = matchingMyShows[0];
+
+            if (singleMatch.$$hashKey) {
+              if (singleMatch.$$hashKey !== singleMyMatch.$$hashKey) {
+                console.log("DIFFERENT HASHES: " + singleMatch.$$hashKey + ' AND MY ' + singleMyMatch.$$hashKey);
+              }
+              console.log("Object with hash: " + singleMatch.$$hashKey);
             }
-          }));
+            return singleMatch;
+          }
 
-        $q.all(urlCalls).then(
-          function(results) {
-            const series = results[0].data;
-
-            console.log("Episodes has " + series.episodes.length + " rows.");
-
-            formatIncomingShow(series);
-            addSeriesIdsToEpisodes(series);
-            addInfoForUnwatchedEpisodes(series);
-
-            return deferred.resolve(series);
-          },
-          function(errors) {
-            deferred.reject(errors);
-          });
-        return deferred.promise;
+        }
       };
 
-      function addSeriesIdsToEpisodes(series) {
-        _.each(series.episodes, episode => episode.series_id = series.id);
+      self.getSeriesDetailInfo = function(series_id) {
+        return $q(resolve => {
+          $http.get('/api/seriesDetail',
+            {
+              params: {
+                SeriesId: series_id,
+                PersonId: LockService.person_id
+              }
+            }).then(results => {
+            const incomingSeries = results.data;
+            const episodes = incomingSeries.episodes;
+
+            console.log("Episodes has " + incomingSeries.episodes.length + " rows.");
+
+            formatIncomingShow(incomingSeries);
+            const show = mergeSeriesDetailOntoExistingShow(incomingSeries);
+            addSeriesIdsToEpisodes(show, episodes);
+            addInfoForUnwatchedEpisodes(show, episodes);
+
+            const matching = _.where(allShows, {id: series_id});
+            if (matching.length > 1) {
+              console.log("MULTIPLE MATCHES FOUND! '" + show.title + "' has " + matching.length + " matches.");
+            } else {
+              console.log("Everything's fine.");
+            }
+
+            self.getDebugShow();
+            console.log('Series Detail hash: ' + show.$$hashKey);
+
+            resolve({
+              series: show,
+              episodes: episodes
+            });
+          });
+        });
+
+      };
+
+      function mergeSeriesDetailOntoExistingShow(show) {
+        const existing = _.findWhere(allShows, {id: show.id});
+        shallowCopy(show, existing);
+        mergeAllNewGroupOntoShow(existing, show);
+        return existing;
       }
 
-      function addInfoForUnwatchedEpisodes(series) {
-        series.episodes.forEach( function(episode) {
+      function addSeriesIdsToEpisodes(series, episodes) {
+        _.each(episodes, episode => episode.series_id = series.id);
+      }
+
+      function addInfoForUnwatchedEpisodes(series, episodes) {
+        episodes.forEach( function(episode) {
 
           // my episodes
           self.updateRatingFields(episode);
@@ -656,7 +743,7 @@ angular.module('mediaMogulApp')
             const incomingShow = resultShow.data;
             formatIncomingShow(incomingShow);
             const show = addPersonShowToAllShowsList(incomingShow);
-            addShowToArray(show);
+            myShows.push(show);
             addTimerForNextAirDate();
             resolve(show);
           }, function(errResponse) {
@@ -822,6 +909,9 @@ angular.module('mediaMogulApp')
       };
 
       self.updateMySeriesDenorms = function(series, episodes, databaseCallback, viewer) {
+        console.log('Series Detail hash: ' + series.$$hashKey);
+        self.getDebugShow();
+
         const isGroup = ArrayService.exists(viewer.tv_group_id);
 
         const getEpisodeViewer = isGroup ?
