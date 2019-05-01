@@ -12,11 +12,7 @@ angular.module('mediaMogulApp')
 function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q) {
   const self = this;
 
-  self.$onInit = function() {
-    self.watched_date = initWatchedDate();
-  };
-
-  function initWatchedDate() {
+  function getWatchedDate() {
     return DateService.formatDateStringForInput(self.episode.personEpisode.watched_date);
   }
 
@@ -51,7 +47,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       const episode = self.episode;
       if (hasRating()) {
         const personEpisode = episode.personEpisode;
-        const watchedDate = self.isWatched() ? null : DateService.formatDateForDatabase(self.watched_date);
+        const watchedDate = self.isWatched() ? null : DateService.formatDateForDatabase(new Date());
         const changedFields = {
           watched: !self.isWatched(),
           watched_date: watchedDate
@@ -66,7 +62,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
           episode_id: episode.id,
           person_id: LockService.person_id,
           watched: !self.isWatched(),
-          watched_date: self.isWatched() ? null : DateService.formatDateForDatabase(self.watched_date),
+          watched_date: self.isWatched() ? null : DateService.formatDateForDatabase(new Date()),
           rating_value: null,
           review: null,
           rating_pending: false
