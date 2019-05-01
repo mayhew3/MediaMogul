@@ -21,6 +21,8 @@ angular.module('mediaMogulApp')
 
       const myShowObservers = [];
 
+      const dataPresentCallbacks = [];
+
       self.nextTimeout = undefined;
       self.nextShowsToUpdate = [];
 
@@ -31,16 +33,28 @@ angular.module('mediaMogulApp')
         self.loadingTierOne = true;
         return $q(resolve => {
           ArrayService.emptyArray(myShows);
+
+          // QUEUE
           updateMyQueueShowsList().then(() => {
             self.loadingQueue = false;
+            executeEligibleCallbacks();
+
+            // TIER 1
             updateMyShowsListTierOne().then(() => {
               self.loadingTierOne = false;
+              executeEligibleCallbacks();
               addTimerForNextAirDate();
+
+              // TIER 2
               updateMyShowsListTierTwo().then(() =>  {
                 self.loadingTierTwo = false;
+                executeEligibleCallbacks();
+
+                // NOT MY SHOWS
                 self.updateNotMyShowsList().then(() => {
                   self.loadingNotMyShows = false;
                   validateShowArrays();
+                  executeEligibleCallbacks();
                   resolve();
                 });
               })
@@ -90,6 +104,35 @@ angular.module('mediaMogulApp')
         } else {
           console.log("No mismatches found.")
         }
+      }
+
+      self.registerDataPresentCallback = function(callbackObject) {
+        const existing = findSeriesWithId(callbackObject.series_id);
+        if (ArrayService.exists(existing)) {
+          callbackObject.callback(existing);
+        } else {
+          dataPresentCallbacks.push(callbackObject);
+        }
+      };
+
+      function executeEligibleCallbacks() {
+        const executedCallbacks = [];
+        _.each(dataPresentCallbacks, callbackObject => {
+          const existing = findSeriesWithId(callbackObject.series_id);
+          if (ArrayService.exists(existing)) {
+            callbackObject.callback(existing);
+            executedCallbacks.push(callbackObject);
+          }
+        });
+
+        // remove callbacks that were run, but leave callbacks whose series isn't there yet.
+        _.each(executedCallbacks, callbackObject => {
+          ArrayService.removeFromArray(dataPresentCallbacks, callbackObject)
+        });
+      }
+
+      function findSeriesWithId(series_id) {
+        return _.findWhere(allShows, {id: series_id});
       }
 
       self.updateMyShowsListIfDoesntExist = function() {
