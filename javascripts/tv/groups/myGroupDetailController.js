@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
 .controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
-            'NavHelperService', 'ArrayService', 'GroupService', 'EpisodeService',
+            'NavHelperService', 'ArrayService', 'GroupService', 'EpisodeService', '$state',
   function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService, ArrayService,
-           GroupService, EpisodeService) {
+           GroupService, EpisodeService, $state) {
     const self = this;
 
     self.LockService = LockService;
@@ -391,14 +391,21 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(object) && object === true;
     }
 
-    self.getSref = function(series) {
-      return 'tv.show.next_up({' +
-        'series_id: ' + series.id + ', ' +
-        'viewer: {' +
-        ' type: "group", ' +
-        ' group_id: ' + self.group.id + ' ' +
-        '}' +
-        '})';
+    self.goTo = function(series) {
+      $state.transitionTo('tv.show.next_up',
+        {
+          series_id: series.id,
+          viewer: {
+            type: 'group',
+            group_id: self.group.id
+          }
+        },
+        {
+          reload: true,
+          inherit: false,
+          notify: true
+        }
+      );
     };
 
     self.open = function(series) {
