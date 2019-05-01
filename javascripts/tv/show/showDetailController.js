@@ -116,6 +116,7 @@ angular.module('mediaMogulApp')
 
     function getBasicSeriesThenStartDetailUpdate(series) {
       self.series = series;
+      loading = false;
 
       EpisodeService.getSeriesDetailInfo(self.series_id).then(function(results) {
         self.episodes = results.episodes;
@@ -135,7 +136,6 @@ angular.module('mediaMogulApp')
           };
         }
 
-        loading = false;
       }).then(function() {
         updateSeasonLabels();
       });
