@@ -9,6 +9,7 @@ angular.module('mediaMogulApp')
 
     self.series_id = $stateParams.series_id;
     self.viewer = $stateParams.viewer;
+    self.selectedEpisodeId = $stateParams.episode_id;
 
     if ($state.current.name === 'tv.show') {
       $state.transitionTo('tv.show.next_up',
@@ -75,8 +76,22 @@ angular.module('mediaMogulApp')
       });
     });
 
+    self.hasSelectedEpisode = function() {
+      return ArrayService.exists(self.selectedEpisodeId) &&
+        ArrayService.exists(self.episodes);
+    };
+
+    self.getSelectedEpisode = function() {
+      if (self.hasSelectedEpisode()) {
+        return _.findWhere(self.episodes, {id: parseInt(self.selectedEpisodeId)});
+      } else {
+        return undefined;
+      }
+    };
+
+
     function getSelectedSubState() {
-      return _.last($state.current.name.split('.'));
+      return $state.current.name.split('.')[2];
     }
 
     self.changeSelectedPill = function(subState) {
@@ -89,6 +104,21 @@ angular.module('mediaMogulApp')
       } else {
         return '';
       }
+    };
+
+    self.goToEpisode = function(episode) {
+      $state.transitionTo('tv.show.episodes.detail',
+        {
+          series_id: self.series.id,
+          viewer: self.viewer,
+          episode_id: episode.id
+        },
+        {
+          reload: true,
+          inherit: false,
+          notify: true
+        }
+      );
     };
 
     self.getDynamicValue = function() {
