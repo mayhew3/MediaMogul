@@ -164,6 +164,14 @@ angular.module('mediaMogulApp')
         navigateTo(category.sref, 'dashboard', category.group_id);
       };
 
+      function getViewerObj() {
+        const viewerObj = {
+          type: isInGroupMode() ? 'group' : 'my',
+          group_id: isInGroupMode() ? self.selectedFilterInfo.group_id : null
+        };
+        return viewerObj;
+      }
+
       function navigateTo(sref, subSref, groupId) {
         const groupObj = groupId ? {group_id: groupId} : {};
         $state.transitionTo('tv.' + sref + '.' + subSref,
@@ -195,7 +203,7 @@ angular.module('mediaMogulApp')
         $state.transitionTo('tv.show.next_up',
           {
             series_id: series.id,
-            viewer: self.selectedFilterInfo.sref
+            viewer: getViewerObj()
           },
           {
             reload: true,
