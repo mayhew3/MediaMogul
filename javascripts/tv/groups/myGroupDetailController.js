@@ -392,7 +392,13 @@ angular.module('mediaMogulApp')
     }
 
     self.getSref = function(series) {
-      return 'tv.show.next_up({series_id: ' + series.id + '})';
+      return 'tv.show.next_up({' +
+        'series_id: ' + series.id + ', ' +
+        'viewer: {' +
+        ' type: "group", ' +
+        ' group_id: ' + self.group.id + ' ' +
+        '}' +
+        '})';
     };
 
     self.open = function(series) {
