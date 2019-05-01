@@ -23,6 +23,10 @@ h1 {
   color: #FF8888;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 .btn-sm > li > a {
   font-size: 10pt;
   padding: 9px 12px;
@@ -377,6 +381,7 @@ div.gameCard {
   margin-top: 0;
   padding: 0 5pt;
   border-radius: 3pt;
+  color: white;
 }
 
 .posterTitle {

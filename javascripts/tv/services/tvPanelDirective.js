@@ -12,8 +12,7 @@
       scope: {
         shows: '=',
         panelInfo: '=',
-        onClick: '=',
-        getSref: '='
+        onClick: '='
       }
     }
   }
@@ -28,8 +27,6 @@
 
     self.panelInfo = $scope.panelInfo;
     self.ArrayService = ArrayService;
-
-    self.getSref = $scope.getSref;
 
     self.showLoading = self.panelInfo.showLoading ? self.panelInfo.showLoading : () => false;
     self.showError = self.panelInfo.showError ? self.panelInfo.showError : () => false;

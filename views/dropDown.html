@@ -22,7 +22,8 @@
         ng-class="ctrl.rowClass(value)"
         style="font-size: 13pt">
       <a ng-click="ctrl.selectValue(value)"
-      style="padding-top: 7px; padding-bottom: 7px; cursor: pointer;">
+         class="clickable"
+         style="padding-top: 7px; padding-bottom: 7px;">
         {{ctrl.getFormattedLabel(value)}}
         <span class="badge pillTabGreen"
               ng-hide="ctrl.hideBadge(value)">

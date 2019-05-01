@@ -211,18 +211,21 @@ angular.module('mediaMogulApp')
       return series.personSeries.my_tier === tier ? "btn btn-success" : "btn btn-primary";
     };
 
-    self.getSref = function(series) {
-      return 'tv.show.next_up({' +
-        'series_id: ' + series.id + ', ' +
-        'viewer: {' +
-        ' type: "my", ' +
-        ' group_id: null ' +
-        '}' +
-        '})';
-    };
-
     self.goTo = function(series) {
-      $state.go('tv.show.next_up', {series_id: series.id});
+      $state.transitionTo('tv.show.next_up',
+        {
+          series_id: series.id,
+          viewer: {
+            type: 'my',
+            group_id: null
+          }
+        },
+        {
+          reload: true,
+          inherit: false,
+          notify: true
+        }
+      );
     };
 
     self.open = function(series) {
