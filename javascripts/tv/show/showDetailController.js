@@ -8,6 +8,7 @@ angular.module('mediaMogulApp')
     self.LockService = LockService;
 
     self.series_id = $stateParams.series_id;
+    self.viewer = $stateParams.viewer;
 
     if ($state.current.name === 'tv.show') {
       $state.transitionTo('tv.show.next_up',
