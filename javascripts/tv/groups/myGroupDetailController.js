@@ -11,7 +11,7 @@ angular.module('mediaMogulApp')
     self.memberNames = null;
 
     self.group = {
-      id: $stateParams.group_id
+      id: parseInt($stateParams.group_id)
     };
 
     NavHelperService.changeSelectedTVGroup(self.group.id);

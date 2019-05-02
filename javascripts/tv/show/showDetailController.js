@@ -8,7 +8,16 @@ angular.module('mediaMogulApp')
     self.LockService = LockService;
 
     self.series_id = $stateParams.series_id;
-    self.viewer = $stateParams.viewer;
+    self.viewer = $stateParams.viewer ?
+      {
+        type: $stateParams.viewer.type,
+        group_id: parseInt($stateParams.viewer.group_id)
+      } :
+      {
+        type: 'my',
+        group_id: null
+      };
+
     self.selectedEpisodeId = $stateParams.episode_id;
 
     if ($state.current.name === 'tv.show') {
@@ -181,10 +190,24 @@ angular.module('mediaMogulApp')
       return episode.air_time === null;
     };
 
-    function isUnwatchedEpisode(episode) {
+    function isInGroupMode() {
+      return self.viewer.type === 'group';
+    }
+
+    function getOptionalGroup() {
+      return self.viewer.group_id;
+    }
+
+    function isWatched(episode) {
+      return isInGroupMode() ?
+        GroupService.getGroupEpisode(episode, getOptionalGroup()).watched :
+        episode.personEpisode.watched;
+    }
+
+    function shouldCountAsUnwatched(episode) {
       if (self.selectedLastWatchedEpisode === null) {
         return episode.season !== null && episode.season > 0 &&
-          episode.personEpisode.watched === false &&
+          !isWatched(episode) &&
           !self.shouldHide(episode);
       } else {
         return episode.absolute_number > self.selectedLastWatchedEpisode.absolute_number;
@@ -196,7 +219,7 @@ angular.module('mediaMogulApp')
     };
 
     function isProjectedToBeWatched(episode) {
-      return self.selectedLastWatchedEpisode != null && !isUnwatchedEpisode(episode);
+      return self.selectedLastWatchedEpisode != null && !shouldCountAsUnwatched(episode);
     }
 
     self.getSelectedSeason = function() {
@@ -263,7 +286,7 @@ angular.module('mediaMogulApp')
       self.nextUp = null;
 
       const unwatchedEpisodes = self.episodes.filter(function (episode) {
-        return isUnwatchedEpisode(episode);
+        return shouldCountAsUnwatched(episode);
       });
 
       if (unwatchedEpisodes.length > 0) {
@@ -278,7 +301,7 @@ angular.module('mediaMogulApp')
     function updateNextUpProjected() {
 
       let unwatchedEpisodes = self.episodes.filter(function (episode) {
-        return isUnwatchedEpisode(episode);
+        return shouldCountAsUnwatched(episode);
       });
 
       if (unwatchedEpisodes.length > 0) {
@@ -315,7 +338,7 @@ angular.module('mediaMogulApp')
           return "nextUpRow";
         } else if (self.isUnaired(episode)) {
           return "unairedRow";
-        } else if (isUnwatchedEpisode(episode)) {
+        } else if (shouldCountAsUnwatched(episode)) {
           return "unwatchedRow";
         }
       }
@@ -437,7 +460,7 @@ angular.module('mediaMogulApp')
       });
 
       let unwatchedEpisodes = self.episodes.filter(function (episode) {
-        return isUnwatchedEpisode(episode);
+        return shouldCountAsUnwatched(episode);
       });
 
       $log.debug("Unwatched: " + unwatchedEpisodes.length);
@@ -498,7 +521,7 @@ angular.module('mediaMogulApp')
     };
 
     self.isAiredUnwatched = function(episode) {
-      return !self.isUnaired(episode) && isUnwatchedEpisode(episode);
+      return !self.isUnaired(episode) && shouldCountAsUnwatched(episode);
     };
 
     self.getPinnedClass = function() {
@@ -515,7 +538,7 @@ angular.module('mediaMogulApp')
 
     self.getWatchedDateOrWatched = function(episode) {
       // $log.debug("In getWatchedDateOrWatched. WatchedDate: " + episode.personEpisode.watched_date);
-      if (self.selectedLastWatchedEpisode !== null && !isUnwatchedEpisode(episode)) {
+      if (self.selectedLastWatchedEpisode !== null && !shouldCountAsUnwatched(episode)) {
         return "Watched";
       } else if (episode.personEpisode.watched_date === null) {
         return episode.personEpisode.watched ? "----.--.--" : "";

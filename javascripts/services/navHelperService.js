@@ -25,7 +25,7 @@ function NavHelperService() {
   };
 
   self.changeSelectedTVGroup = function(tv_group_id) {
-    self.selectedTVGroupID = parseInt(tv_group_id);
+    self.selectedTVGroupID = tv_group_id;
   };
 }
 
