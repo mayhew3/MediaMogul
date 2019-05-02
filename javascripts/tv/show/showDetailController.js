@@ -113,6 +113,11 @@ angular.module('mediaMogulApp')
     }
 
     self.changeSelectedPill = function(subState) {
+      if (ArrayService.exists(self.nextUp)) {
+        self.goToEpisode(self.nextUp);
+      } else {
+        $state.go('tv.show.episodes');
+      }
       self.activePill = subState;
     };
 
