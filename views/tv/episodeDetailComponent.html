@@ -1,18 +1,11 @@
 <div ng-if="ctrl.episode">
 
-  <div class="col-md-4 col-sm-6 col-xs-12">
-    <img class="img-rounded"
-         ng-src="{{ctrl.getEpisodeImage()}}"
-         width="100%"
-         alt="episode image"/>
-  </div>
-
   <div class="col-md-8 col-sm-6 col-xs-12">
 
     <!-- Title -->
     <div class="row">
       <div class="col-lg-12">
-        <h2 ng-bind="ctrl.episode.title"></h2>
+        <h2 style="margin-top: 0" ng-bind="ctrl.episode.title"></h2>
       </div>
     </div>
 
@@ -38,9 +31,18 @@
     <!-- Air Date -->
 
     <div class="row" ng-show="!ctrl.LockService.isAdmin()" style="margin-top: 15px">
-      Air Date: <span ng-bind="ctrl.getAirDate()"></span>
+      <div class="col-lg-12">
+        Air Date: <span ng-bind="ctrl.getAirDate()"></span>
+      </div>
     </div>
 
+  </div>
+
+  <div class="col-md-4 col-sm-6 col-xs-12 seriesDetailElement">
+    <img class="img-rounded"
+         ng-src="{{ctrl.getEpisodeImage()}}"
+         width="100%"
+         alt="episode image"/>
   </div>
 
   <!-- Mark Watched -->

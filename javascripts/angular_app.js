@@ -89,19 +89,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             from_params: null
           }
         })
-        .state('tv.show.next_up', {
-          url: '/next',
-          templateUrl: 'views/tv/show/nextUp.html'
-        })
-        .state('tv.show.episodes', {
-          url: '/episodes',
-          templateUrl: 'views/tv/show/episodes.html'
-        })
-        .state('tv.show.groups', {
-          url: '/groups',
-          templateUrl: 'views/tv/show/groups.html'
-        })
-        .state('tv.show.episodes.detail', {
+        .state('tv.show.episode', {
           url: '/:episode_id',
           templateUrl: 'views/tv/show/episodeDetail.html'
         })

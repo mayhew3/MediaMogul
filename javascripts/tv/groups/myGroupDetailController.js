@@ -393,7 +393,7 @@ angular.module('mediaMogulApp')
     }
 
     self.goTo = function(series) {
-      $state.transitionTo('tv.show.next_up',
+      $state.transitionTo('tv.show',
         {
           series_id: series.id,
           viewer: {
