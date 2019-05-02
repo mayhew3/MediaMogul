@@ -115,6 +115,14 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.getViewerName = function() {
+      if (self.viewer.type === 'my') {
+        return 'Me';
+      } else {
+        return GroupService.getGroupWithID(getOptionalGroupID()).name + ' (Group)';
+      }
+    };
+
     self.goToEpisode = function(episode) {
       $state.transitionTo('tv.show.episodes.detail',
         {
