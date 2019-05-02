@@ -5,10 +5,21 @@ angular.module('mediaMogulApp')
     controllerAs: 'ctrl',
     bindings: {
       episode: '=',
-      onClick: '<'
+      onClick: '<',
+      tileClass: '<'
     }
   });
 
 function episodeTileController() {
+  const self = this;
 
+  self.getTileClass = function() {
+    return self.tileClass ? self.tileClass(self.episode) : '';
+  };
+
+  self.myOnClick = function() {
+    if (self.onClick) {
+      self.onClick(self.episode);
+    }
+  };
 }
