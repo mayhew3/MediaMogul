@@ -215,6 +215,18 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.getTileClass = function(episode) {
+      if (shouldCountAsUnwatched(episode) && !self.isUnaired(episode)) {
+        return 'tile-ready';
+      } else if (isWatched(episode)) {
+        return 'tile-watched';
+      } else if (self.isUnaired(episode)) {
+        return 'tile-unaired';
+      } else {
+        return '';
+      }
+    };
+
     function isWatched(episode) {
       return isInGroupMode() ?
         GroupService.getGroupEpisode(episode, getOptionalGroupID()).watched :
