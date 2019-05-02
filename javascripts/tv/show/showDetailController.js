@@ -186,6 +186,7 @@ angular.module('mediaMogulApp')
 
       }).then(function() {
         updateSeasonLabels();
+        initSelectedSeason();
       });
 
     }
@@ -475,23 +476,30 @@ angular.module('mediaMogulApp')
 
       if (unwatchedEpisodes.length > 0) {
         let firstUnwatched = unwatchedEpisodes[0];
-        self.selectedSeason.label = firstUnwatched.season;
         self.firstUnwatchedNumber = firstUnwatched.absolute_number;
         if (!self.isUnaired(firstUnwatched)) {
           self.nextUp = firstUnwatched;
           self.onSeasonSelect();
         }
-      } else {
-        let allEpisodes = self.episodes.filter(function (episode) {
-          return episode.season !== null && episode.season > 0 &&
-                  !self.shouldHide(episode);
-        });
+      }
+    }
 
-        if (allEpisodes.length > 0) {
-          self.selectedSeason.label = allEpisodes[0].season;
-        } else {
-          self.selectedSeason.label = 0;
-        }
+    function getEligibleEpisodes() {
+      return self.episodes.filter(function (episode) {
+        return episode.season !== null && episode.season > 0 &&
+          !self.shouldHide(episode);
+      });
+    }
+
+    function initSelectedSeason() {
+      if (ArrayService.exists(self.selectedEpisodeId)) {
+        self.selectedSeason.label = self.getSelectedEpisode().season;
+      } else if (ArrayService.exists(self.nextUp)) {
+        self.selectedSeason.label = self.nextUp.season;
+      } else if (getEligibleEpisodes().length > 0) {
+        self.selectedSeason.label = getEligibleEpisodes()[0].season;
+      } else {
+        self.selectedSeason.label = 0;
       }
     }
 
