@@ -17,6 +17,8 @@ angular.module('mediaMogulApp')
         type: 'my',
         group_id: null
       };
+    self.from_sref = $stateParams.from_sref ? $stateParams.from_sref : 'tv.shows.my.dashboard';
+    self.from_params = $stateParams.from_params;
 
     self.selectedEpisodeId = $stateParams.episode_id;
 
@@ -206,6 +208,14 @@ angular.module('mediaMogulApp')
     function getOptionalGroupID() {
       return self.viewer.group_id;
     }
+
+    self.getBackButtonLabel = function() {
+      if (self.from_sref.includes('tv.shows.my')) {
+        return 'Back to My Shows'
+      } else {
+        return 'Back to ' + GroupService.getGroupWithID(getOptionalGroupID()).name + ' (Group)';
+      }
+    };
 
     function isWatched(episode) {
       return isInGroupMode() ?
@@ -434,6 +444,17 @@ angular.module('mediaMogulApp')
     self.cancelMulti = function() {
       self.clearPending();
       self.watchMultiple = false;
+    };
+
+    self.goBack = function() {
+      $state.transitionTo(self.from_sref,
+        self.from_params,
+        {
+          reload: false,
+          inherit: false,
+          notify: true
+        }
+      );
     };
 
     self.clearPending = function() {

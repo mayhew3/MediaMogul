@@ -75,10 +75,18 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           resolve: {
             viewer: function($stateParams) {
               return $stateParams.viewer;
+            },
+            from_sref: function($stateParams) {
+              return $stateParams.from_sref;
+            },
+            from_params: function($stateParams) {
+              return $stateParams.from_params;
             }
           },
           params: {
-            viewer: null
+            viewer: null,
+            from_sref: null,
+            from_params: null
           }
         })
         .state('tv.show.next_up', {

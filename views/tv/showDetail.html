@@ -7,6 +7,17 @@
   <div class="page-header" style="margin-top: 60px; margin-bottom: 2px" >
     <div class="row">
       <div class="col-lg-12">
+        <button type="button"
+                class="btn btn-sm btn-primary backButton"
+                ng-if="ctrl.from_sref"
+                ng-click="ctrl.goBack()"><img src="../images/back.svg"
+                                              width="20"
+                                              height="16"
+                                              alt="back"> {{ctrl.getBackButtonLabel()}}</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
         <h1 ng-bind="ctrl.series.title"></h1>
       </div>
     </div>

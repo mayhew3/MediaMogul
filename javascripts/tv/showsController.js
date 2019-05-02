@@ -203,7 +203,9 @@ angular.module('mediaMogulApp')
         $state.transitionTo('tv.show.next_up',
           {
             series_id: series.id,
-            viewer: getViewerObj()
+            viewer: getViewerObj(),
+            from_sref: $state.current.name,
+            from_params: $stateParams
           },
           {
             reload: true,
