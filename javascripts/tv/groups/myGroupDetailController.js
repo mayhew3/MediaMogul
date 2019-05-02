@@ -398,7 +398,9 @@ angular.module('mediaMogulApp')
           viewer: {
             type: 'group',
             group_id: self.group.id
-          }
+          },
+          from_sref: $state.current.name,
+          from_params: $stateParams
         },
         {
           reload: true,
