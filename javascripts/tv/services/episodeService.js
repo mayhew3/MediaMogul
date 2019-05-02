@@ -27,6 +27,10 @@ angular.module('mediaMogulApp')
       self.nextShowsToUpdate = [];
 
 
+      self.findSeriesWithId = function(series_id) {
+        return _.findWhere(allShows, {id: series_id});
+      };
+
       self.updateMyShowsList = function() {
         self.uninitialized = false;
         self.loadingQueue = true;
@@ -107,7 +111,7 @@ angular.module('mediaMogulApp')
       }
 
       self.registerDataPresentCallback = function(callbackObject) {
-        const existing = findSeriesWithId(callbackObject.series_id);
+        const existing = self.findSeriesWithId(callbackObject.series_id);
         if (ArrayService.exists(existing)) {
           callbackObject.callback(existing);
         } else {
@@ -118,7 +122,7 @@ angular.module('mediaMogulApp')
       function executeEligibleCallbacks() {
         const executedCallbacks = [];
         _.each(dataPresentCallbacks, callbackObject => {
-          const existing = findSeriesWithId(callbackObject.series_id);
+          const existing = self.findSeriesWithId(callbackObject.series_id);
           if (ArrayService.exists(existing)) {
             callbackObject.callback(existing);
             executedCallbacks.push(callbackObject);
@@ -129,10 +133,6 @@ angular.module('mediaMogulApp')
         _.each(executedCallbacks, callbackObject => {
           ArrayService.removeFromArray(dataPresentCallbacks, callbackObject)
         });
-      }
-
-      function findSeriesWithId(series_id) {
-        return _.findWhere(allShows, {id: series_id});
       }
 
       self.updateMyShowsListIfDoesntExist = function() {
@@ -694,9 +694,14 @@ angular.module('mediaMogulApp')
 
       function mergeSeriesDetailOntoExistingShow(show) {
         const existing = _.findWhere(allShows, {id: show.id});
-        shallowCopy(show, existing);
-        mergeAllNewGroupOntoShow(existing, show);
-        return existing;
+        if (ArrayService.exists(existing)) {
+          shallowCopy(show, existing);
+          mergeAllNewGroupOntoShow(existing, show);
+          return existing;
+        } else {
+          allShows.push(show);
+          return show;
+        }
       }
 
       function addSeriesIdsToEpisodes(series, episodes) {
