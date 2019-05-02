@@ -64,4 +64,13 @@ angular.module('mediaMogulApp')
           return memberNames.join(', ');
         };
 
+        self.getGroupWithID = function(tv_group_id) {
+          return _.findWhere(groups, {id: tv_group_id});
+        };
+
+        self.getMemberIDs = function(tv_group_id) {
+          const group = self.getGroupWithID(tv_group_id);
+          return _.pluck(group.members, 'person_id');
+        };
+
       }]);
