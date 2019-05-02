@@ -196,10 +196,18 @@ angular.module('mediaMogulApp')
 
           loading = false;
         }).then(function () {
+          updateNextUp();
+          goToNextUpOnInit();
           updateSeasonLabels();
           initSelectedSeason();
         });
       });
+    }
+
+    function goToNextUpOnInit() {
+      if (ArrayService.exists(self.nextUp) && !self.hasSelectedEpisode()) {
+        self.goToEpisode(self.nextUp);
+      }
     }
 
     self.getEpisodes = function() {
@@ -326,8 +334,8 @@ angular.module('mediaMogulApp')
       updateNextUpProjected();
     };
 
-    function updateNextUp() {
 
+    function updateNextUp() {
       self.nextUp = null;
 
       const unwatchedEpisodes = self.episodes.filter(function (episode) {
@@ -335,25 +343,18 @@ angular.module('mediaMogulApp')
       });
 
       if (unwatchedEpisodes.length > 0) {
-        let firstUnwatched = unwatchedEpisodes[0];
-        self.firstUnwatchedNumber = firstUnwatched.absolute_number;
-        if (!self.isUnaired(firstUnwatched)) {
-          self.nextUp = firstUnwatched;
-        }
+        self.nextUp = unwatchedEpisodes[0];
       }
     }
 
     function updateNextUpProjected() {
 
-      let unwatchedEpisodes = self.episodes.filter(function (episode) {
+      const unwatchedEpisodes = self.episodes.filter(function (episode) {
         return shouldCountAsUnwatched(episode);
       });
 
       if (unwatchedEpisodes.length > 0) {
-        let firstUnwatched = unwatchedEpisodes[0];
-        if (!self.isUnaired(firstUnwatched)) {
-          self.nextUp = firstUnwatched;
-        }
+        self.nextUp = unwatchedEpisodes[0];
       }
     }
 
@@ -514,21 +515,6 @@ angular.module('mediaMogulApp')
           self.possibleSeasons.push(seasonObj);
         }
       });
-
-      let unwatchedEpisodes = self.episodes.filter(function (episode) {
-        return shouldCountAsUnwatched(episode);
-      });
-
-      $log.debug("Unwatched: " + unwatchedEpisodes.length);
-
-      if (unwatchedEpisodes.length > 0) {
-        let firstUnwatched = unwatchedEpisodes[0];
-        self.firstUnwatchedNumber = firstUnwatched.absolute_number;
-        if (!self.isUnaired(firstUnwatched)) {
-          self.nextUp = firstUnwatched;
-          self.onSeasonSelect();
-        }
-      }
     }
 
     function getEligibleEpisodes() {
@@ -832,46 +818,6 @@ angular.module('mediaMogulApp')
 
     self.episodeColorStyle = function(episode) {
       return EpisodeService.episodeColorStyle(episode);
-    };
-
-    self.openEpisodeDetail = function(episode) {
-      $uibModal.open({
-        templateUrl: 'views/tv/episodeDetail.html',
-        controller: 'myEpisodeDetailController as ctrl',
-        size: 'lg',
-        resolve: {
-          episode: function () {
-            return episode;
-          },
-          previousEpisodes: function () {
-            return getPreviousEpisodes(episode);
-          },
-          series: function () {
-            return self.series;
-          },
-          readOnly: function () {
-            return !self.owned;
-          },
-          allPastWatchedCallback: function() {
-            return markMyPastWatched;
-          },
-          firstUnwatched: function() {
-            return episode.absolute_number === self.firstUnwatchedNumber;
-          }
-        }
-      }).result.finally(function () {
-        EpisodeService.updateMySeriesDenorms(
-          self.series,
-          self.episodes,
-          updatePersonSeriesInDatabase,
-          self.series.personSeries)
-          .then(function () {
-            if (LockService.isAdmin()) {
-              YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
-            }
-            updateNextUp();
-          });
-      });
     };
 
     function markMyPastWatched(lastWatched) {
