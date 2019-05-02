@@ -7,7 +7,7 @@ angular.module('mediaMogulApp')
 
     self.LockService = LockService;
 
-    self.series_id = $stateParams.series_id;
+    self.series_id = parseInt($stateParams.series_id);
     self.viewer = $stateParams.viewer ?
       {
         type: $stateParams.viewer.type,
@@ -35,10 +35,11 @@ angular.module('mediaMogulApp')
 
     let loading = true;
 
-    EpisodeService.registerDataPresentCallback({
-      series_id: parseInt(self.series_id),
-      callback: getBasicSeriesThenStartDetailUpdate
-    });
+    self.series = EpisodeService.findSeriesWithId(self.series_id);
+    if (ArrayService.exists(self.series)) {
+      loading = false;
+    }
+    startDetailUpdate().then(() => EpisodeService.updateMyShowsListIfDoesntExist());
 
     self.owned = true;
     self.adding = false;
@@ -166,33 +167,28 @@ angular.module('mediaMogulApp')
       return GroupService.getMyGroups();
     };
 
-    function getBasicSeriesThenStartDetailUpdate(series) {
-      self.series = series;
-      loading = false;
+    function startDetailUpdate() {
+      return $q(resolve => {
+        EpisodeService.getSeriesDetailInfo(self.series_id).then(function (results) {
+          resolve();
 
-      EpisodeService.getSeriesDetailInfo(self.series_id).then(function(results) {
-        self.episodes = results.episodes;
-        $log.debug("Updated list with " + self.episodes.length + " episodes!");
+          if (!ArrayService.exists(self.series)) {
+            self.series = results.series;
+          }
+          self.episodes = results.episodes;
 
-        self.lastUpdate = self.series.last_tvdb_update === null ?
-          self.series.last_tvdb_error :
-          self.series.last_tvdb_update;
+          $log.debug("Updated list with " + self.episodes.length + " episodes!");
 
-        if (self.owned) {
-          self.originalFields = {
-            my_rating: self.series.personSeries.my_rating
-          };
+          self.lastUpdate = self.series.last_tvdb_update === null ?
+            self.series.last_tvdb_error :
+            self.series.last_tvdb_update;
 
-          self.interfaceFields = {
-            my_rating: self.series.personSeries.my_rating
-          };
-        }
-
-      }).then(function() {
-        updateSeasonLabels();
-        initSelectedSeason();
+          loading = false;
+        }).then(function () {
+          updateSeasonLabels();
+          initSelectedSeason();
+        });
       });
-
     }
 
     self.getEpisodes = function() {
