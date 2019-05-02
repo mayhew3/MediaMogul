@@ -180,22 +180,22 @@ exports.getGroupShows = function(request, response) {
           let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
           debug("Series: " + series.title);
 
-          const group = getGroup(series, tv_group_id);
+          const group = exports.getGroup(series, tv_group_id);
 
           person_controller.calculateUnwatchedDenorms(series, group, unwatchedEpisodes);
         }
       }
 
-      getBallots(tv_group_id, response, seriesResults);
+      exports.getBallots(tv_group_id, response, seriesResults);
 
     });
 
   });
 };
 
-function getGroup(series, tv_group_id) {
+exports.getGroup = function(series, tv_group_id) {
   return _.findWhere(series.groups, {tv_group_id: tv_group_id});
-}
+};
 
 function extractSingleGroupSeries(series, tv_group_id) {
   const columnsToMove = [
@@ -664,7 +664,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
 
 // VOTING
 
-function getBallots(tv_group_id, response, seriesResults) {
+exports.getBallots = function(tv_group_id, response, seriesResults) {
 
   const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, ' +
     '  tgs.series_id  ' +
@@ -719,11 +719,11 @@ function getBallots(tv_group_id, response, seriesResults) {
           let ballots = groupedBySeries[series_id];
           let series = _.findWhere(seriesResults, {id: parseInt(series_id)});
 
-          const group = getGroup(series, tv_group_id);
+          const group = exports.getGroup(series, tv_group_id);
 
           group.ballots = ballots;
 
-          const vote_score = calculateGroupRating(ballots[0]);
+          const vote_score = exports.calculateGroupRating(ballots[0]);
           group.group_score = vote_score === null ? series.metacritic : vote_score;
         }
       }
@@ -731,7 +731,7 @@ function getBallots(tv_group_id, response, seriesResults) {
       response.json(seriesResults);
     });
   });
-}
+};
 
 exports.addBallot = function(request, response) {
   const tv_group_series_id = request.body.tv_group_series_id;
@@ -780,14 +780,14 @@ exports.submitVote = function(request, response) {
     ];
 
     db.selectWithJSON(sql, values).then(function(votesResult) {
-      const group_score = calculateGroupRating({votes: votesResult});
+      const group_score = exports.calculateGroupRating({votes: votesResult});
 
       response.json({group_score: group_score});
     });
   });
 };
 
-function calculateGroupRating(ballot) {
+exports.calculateGroupRating = function(ballot) {
   const votes = ballot.votes;
 
   if (_.isUndefined(votes) || votes.length === 0) {

@@ -2,6 +2,7 @@ const _ = require('underscore');
 const db = require('postgres-mmethods');
 const debug = require('debug');
 const ArrayService = require('./array_util');
+const groups_controller = require('./groups_controller');
 
 exports.getPersonInfo = function(request, response) {
   var email = request.query.email;
@@ -578,7 +579,8 @@ exports.getSeriesDetailInfo = function(request, response) {
             "  ON tge.episode_id = e.id " +
             "WHERE e.series_id = $1 " +
             "AND e.retired = $2 " +
-            "AND tge.retired = $2 ";
+            "AND tge.retired = $2 " +
+            "ORDER BY tge.tv_group_id, e.absolute_number ";
 
           const values = [series_id, 0];
 
@@ -590,7 +592,9 @@ exports.getSeriesDetailInfo = function(request, response) {
               });
 
               if (ArrayService.exists(episodeMatch)) {
-                episodeMatch.groups = [];
+                if (!ArrayService.exists(episodeMatch.groups)) {
+                  episodeMatch.groups = [];
+                }
 
                 const groupEpisodeObj = {
                   tv_group_id: groupEpisode.tv_group_id,
@@ -604,11 +608,16 @@ exports.getSeriesDetailInfo = function(request, response) {
               }
             });
 
-            _.each(series.groups, group => {
-              updateDenormsUsingAll(series, group, series.episodes);
+            const updates = [];
+
+            _.each(series.groups, groupSeries => {
+              updates.push(attachBallotsToGroupSeries(series, groupSeries));
+              updateDenormsUsingAll(series, groupSeries, series.episodes);
             });
 
-            response.json(series);
+            Promise.all(updates).then(() => {
+              response.json(series);
+            });
           });
 
         });
@@ -635,6 +644,63 @@ exports.getSeriesDetailInfo = function(request, response) {
 
 
 };
+
+function attachBallotsToGroupSeries(series, groupSeries) {
+  return new Promise(resolve => {
+    const tv_group_series_id = groupSeries.tv_group_series_id;
+
+    const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode ' +
+      'FROM tv_group_ballot tgb ' +
+      'WHERE tgb.tv_group_series_id = $1 ' +
+      'AND tgb.retired = $2 ' +
+      'ORDER BY tgb.voting_open DESC ';
+
+    const values = [
+      tv_group_series_id,
+      0
+    ];
+
+    db.selectWithJSON(sql, values).then(function (ballotResults) {
+      const sql = 'SELECT tgv.tv_group_ballot_id, tgv.person_id, tgv.vote_value ' +
+        'FROM tv_group_vote tgv ' +
+        'INNER JOIN tv_group_ballot tgb ' +
+        '  ON tgv.tv_group_ballot_id = tgb.id ' +
+        'WHERE tgb.tv_group_series_id = $1 ' +
+        'AND tgv.retired = $2 ' +
+        'AND tgb.retired = $3 ';
+
+      const values = [
+        tv_group_series_id,
+        0, 0
+      ];
+
+      db.selectWithJSON(sql, values).then(function (voteResults) {
+
+        let groupedByBallot = _.groupBy(voteResults, 'tv_group_ballot_id');
+
+        ballotResults.forEach(function (ballot) {
+          let votesForBallot = groupedByBallot[ballot.id];
+          ballot.votes = _.map(votesForBallot, function (vote) {
+            return _.omit(vote, 'tv_group_ballot_id');
+          });
+        });
+
+        groupSeries.ballots = ballotResults;
+
+        const mostRecentBallot = ballotResults[0];
+
+        if (ArrayService.exists(mostRecentBallot)) {
+          const vote_score = groups_controller.calculateGroupRating(mostRecentBallot);
+          groupSeries.group_score = vote_score === null ? series.metacritic : vote_score;
+        } else {
+          groupSeries.group_score = null;
+        }
+
+        resolve();
+      });
+    });
+  });
+}
 
 exports.getNextAiredInfo = function(request, response) {
   const sql = 'SELECT e.series_id, e.air_time ' +
