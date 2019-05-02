@@ -1,6 +1,7 @@
 
 <div ng-if="ctrl.hasSelectedEpisode()">
   <episode-detail episode="ctrl.getSelectedEpisode()"
-                  post-rating-callback="ctrl.afterRatingChange"></episode-detail>
+                  post-rating-callback="ctrl.afterRatingChange"
+                  viewer="ctrl.viewer"></episode-detail>
 </div>
 
