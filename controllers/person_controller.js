@@ -556,7 +556,15 @@ exports.getSeriesDetailInfo = function(request, response) {
 
         const sql = 'SELECT tgs.tv_group_id, ' +
           ' tgs.date_added, ' +
-          ' tgs.id AS tv_group_series_id ' +
+          ' tgs.id AS tv_group_series_id, ' +
+          "(SELECT MAX(tge.watched_date) " +
+          "  from tv_group_episode tge " +
+          "  inner join episode e " +
+          "   on tge.episode_id = e.id " +
+          "  where e.series_id = $1 " +
+          "  and tge.retired = $3 " +
+          "  and e.retired = $3 " +
+          "  and tge.tv_group_id = tgs.tv_group_id) as last_watched " +
           'FROM tv_group_series tgs ' +
           'INNER JOIN tv_group tg ' +
           ' ON tgs.tv_group_id = tg.id ' +
