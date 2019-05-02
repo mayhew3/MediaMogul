@@ -24,17 +24,6 @@ angular.module('mediaMogulApp')
       parseInt($stateParams.episode_id) :
       undefined;
 
-    if ($state.current.name === 'tv.show') {
-      $state.transitionTo('tv.show.next_up',
-        {series_id: self.series_id},
-        {
-          reload: true,
-          inherit: false,
-          notify: true
-        }
-      );
-    }
-
     let loading = true;
 
     self.series = EpisodeService.findSeriesWithId(self.series_id);
@@ -53,8 +42,6 @@ angular.module('mediaMogulApp')
     self.selectedSeason = {
       label: null
     };
-
-    self.activePill = getSelectedSubState();
 
     self.removed = false;
 
@@ -107,26 +94,13 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(self.selectedEpisodeId) && episode.id === self.selectedEpisodeId;
     }
 
-
-    function getSelectedSubState() {
-      return $state.current.name.split('.')[2];
-    }
-
     self.changeSelectedPill = function(subState) {
       if (ArrayService.exists(self.nextUp)) {
         self.goToEpisode(self.nextUp);
       } else {
-        $state.go('tv.show.episodes');
+        $state.go('tv.show');
       }
       self.activePill = subState;
-    };
-
-    self.getPillClass = function(sref) {
-      if (sref === self.activePill) {
-        return 'active';
-      } else {
-        return '';
-      }
     };
 
     self.getViewerName = function() {
@@ -138,7 +112,7 @@ angular.module('mediaMogulApp')
     };
 
     self.goToEpisode = function(episode) {
-      $state.transitionTo('tv.show.episodes.detail',
+      $state.transitionTo('tv.show.episode',
         {
           series_id: self.series.id,
           viewer: self.viewer,
@@ -197,15 +171,21 @@ angular.module('mediaMogulApp')
           loading = false;
         }).then(function () {
           updateNextUp();
-          goToNextUpOnInit();
+          goToNextUpIfNotOnEpisodeAlready();
           updateSeasonLabels();
           initSelectedSeason();
         });
       });
     }
 
-    function goToNextUpOnInit() {
-      if (ArrayService.exists(self.nextUp) && !self.hasSelectedEpisode()) {
+    function goToNextUpIfNotOnEpisodeAlready() {
+      if (!self.hasSelectedEpisode()) {
+        goToNextUp();
+      }
+    }
+
+    function goToNextUp() {
+      if (ArrayService.exists(self.nextUp)) {
         self.goToEpisode(self.nextUp);
       }
     }
@@ -687,6 +667,7 @@ angular.module('mediaMogulApp')
       if (isInGroupMode()) {
         EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
         updateNextUp();
+        goToNextUp();
       } else {
         EpisodeService.updateMySeriesDenorms(
           self.series,
@@ -698,6 +679,7 @@ angular.module('mediaMogulApp')
               YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
             }
             updateNextUp();
+            goToNextUp();
           });
       }
     };
