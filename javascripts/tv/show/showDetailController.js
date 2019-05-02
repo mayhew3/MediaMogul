@@ -130,7 +130,9 @@ angular.module('mediaMogulApp')
         {
           series_id: self.series.id,
           viewer: self.viewer,
-          episode_id: episode.id
+          episode_id: episode.id,
+          from_sref: self.from_sref,
+          from_params: self.from_params
         },
         {
           reload: true,
