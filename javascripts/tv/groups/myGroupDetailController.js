@@ -227,10 +227,11 @@ angular.module('mediaMogulApp')
     }
 
     function inProgressFilter(series) {
-      return !hasOpenBallots(series) &&
+      const isInProgress = !hasOpenBallots(series) &&
         hasUnwatchedEpisodes(series) &&
         hasWatchedEpisodes(series) &&
         (airedRecently(series) || watchedRecently(series));
+      return isInProgress;
     }
 
     function upcomingFilter(series) {

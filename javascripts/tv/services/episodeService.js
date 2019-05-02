@@ -145,8 +145,6 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.updateMyShowsList();
-
       function updateMyQueueShowsList() {
         return $q((resolve, reject) => {
           $http.get('/api/myQueueShows', {params: {PersonId: LockService.person_id, Tier: 1}}).then(function (response) {
@@ -272,9 +270,15 @@ angular.module('mediaMogulApp')
         const showsToAdd = [];
 
         _.each(newShowList, show => {
-          const match = _.findWhere(myShows, {id: show.id});
-          if (!ArrayService.exists(match)) {
-            showsToAdd.push(show);
+          const existingInMyShows = _.findWhere(myShows, {id: show.id});
+          const existing = _.findWhere(allShows, {id: show.id});
+
+          if (!ArrayService.exists(existingInMyShows)) {
+            if (ArrayService.exists(existing)) {
+              showsToAdd.push(existing);
+            } else {
+              showsToAdd.push(show);
+            }
             addPersonShowToAllShowsList(show);
           }
         });
@@ -369,7 +373,9 @@ angular.module('mediaMogulApp')
       self.updateGroupShowsIfNeeded = function(tv_group_id) {
         const existing = self.getExistingGroupShowList(tv_group_id);
         if (_.isUndefined(existing)) {
-          updateGroupShows(tv_group_id);
+          updateGroupShows(tv_group_id).then(() => {
+            self.updateMyShowsListIfDoesntExist();
+          });
         }
       };
 
@@ -427,9 +433,10 @@ angular.module('mediaMogulApp')
           _.each(newShow.groups, newGroup => {
             const existingGroup = _.findWhere(existingShow.groups, {tv_group_id: newGroup.tv_group_id});
             if (existingGroup) {
-              ArrayService.removeFromArray(existingShow.groups, existingGroup);
+              shallowCopy(newGroup, existingGroup);
+            } else {
+              existingShow.groups.push(newGroup);
             }
-            existingShow.groups.push(newGroup);
           });
         } else {
           existingShow.groups = newShow.groups;
