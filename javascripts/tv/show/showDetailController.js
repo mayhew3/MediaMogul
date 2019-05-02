@@ -20,7 +20,9 @@ angular.module('mediaMogulApp')
     self.from_sref = $stateParams.from_sref ? $stateParams.from_sref : 'tv.shows.my.dashboard';
     self.from_params = $stateParams.from_params;
 
-    self.selectedEpisodeId = $stateParams.episode_id;
+    self.selectedEpisodeId = ArrayService.exists($stateParams.episode_id) ?
+      parseInt($stateParams.episode_id) :
+      undefined;
 
     if ($state.current.name === 'tv.show') {
       $state.transitionTo('tv.show.next_up',
@@ -95,11 +97,15 @@ angular.module('mediaMogulApp')
 
     self.getSelectedEpisode = function() {
       if (self.hasSelectedEpisode()) {
-        return _.findWhere(self.episodes, {id: parseInt(self.selectedEpisodeId)});
+        return _.findWhere(self.episodes, {id: self.selectedEpisodeId});
       } else {
         return undefined;
       }
     };
+
+    function isSelectedEpisode(episode) {
+      return ArrayService.exists(self.selectedEpisodeId) && episode.id === self.selectedEpisodeId;
+    }
 
 
     function getSelectedSubState() {
@@ -216,15 +222,20 @@ angular.module('mediaMogulApp')
     };
 
     self.getTileClass = function(episode) {
+      const selectors = [];
       if (shouldCountAsUnwatched(episode) && !self.isUnaired(episode)) {
-        return 'tile-ready';
+        selectors.push('tile-ready');
       } else if (isWatched(episode)) {
-        return 'tile-watched';
+        selectors.push('tile-watched');
       } else if (self.isUnaired(episode)) {
-        return 'tile-unaired';
-      } else {
-        return '';
+        selectors.push('tile-unaired');
       }
+
+      if (isSelectedEpisode(episode)) {
+        selectors.push('selectedEpisodeTile');
+      }
+
+      return selectors.join(' ');
     };
 
     function isWatched(episode) {
