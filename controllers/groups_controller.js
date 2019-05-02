@@ -800,4 +800,4 @@ exports.calculateGroupRating = function(ballot) {
   const minimum = _.min(vote_numbers);
 
   return ((average * 2) + (minimum * 3)) / 5;
-}
+};
