@@ -194,13 +194,13 @@ angular.module('mediaMogulApp')
       return self.viewer.type === 'group';
     }
 
-    function getOptionalGroup() {
+    function getOptionalGroupID() {
       return self.viewer.group_id;
     }
 
     function isWatched(episode) {
       return isInGroupMode() ?
-        GroupService.getGroupEpisode(episode, getOptionalGroup()).watched :
+        GroupService.getGroupEpisode(episode, getOptionalGroupID()).watched :
         episode.personEpisode.watched;
     }
 
@@ -620,6 +620,14 @@ angular.module('mediaMogulApp')
       }
     };
 
+    function doNothing() {
+      return $q(resolve => resolve());
+    }
+
+    function getGroupSeries() {
+      return GroupService.getGroupSeries(self.series, getOptionalGroupID());
+    }
+
     self.afterRatingChange = function(episode, dynamic_rating) {
       if (ArrayService.exists(dynamic_rating)) {
         if (!self.series.personSeries) {
@@ -627,17 +635,22 @@ angular.module('mediaMogulApp')
         }
         self.series.personSeries.dynamic_rating = dynamic_rating;
       }
-      EpisodeService.updateMySeriesDenorms(
-        self.series,
-        self.episodes,
-        updatePersonSeriesInDatabase,
-        self.series.personSeries)
-        .then(function () {
-          if (LockService.isAdmin()) {
-            YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
-          }
-          updateNextUp();
-        });
+      if (isInGroupMode()) {
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
+        updateNextUp();
+      } else {
+        EpisodeService.updateMySeriesDenorms(
+          self.series,
+          self.episodes,
+          updatePersonSeriesInDatabase,
+          self.series.personSeries)
+          .then(function () {
+            if (LockService.isAdmin()) {
+              YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
+            }
+            updateNextUp();
+          });
+      }
     };
 
     self.markAllPastWatched = function() {

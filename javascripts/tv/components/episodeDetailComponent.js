@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .component('episodeDetail', {
     templateUrl: 'views/tv/episodeDetailComponent.html',
-    controller: ['EpisodeService', 'ArrayService', 'LockService', 'DateService', '$scope', '$q', 'GroupService',
+    controller: ['EpisodeService', 'ArrayService', 'LockService', 'DateService', '$scope', '$q', 'GroupService', '$http',
       episodeDetailCompController],
     controllerAs: 'ctrl',
     bindings: {
@@ -11,7 +11,7 @@ angular.module('mediaMogulApp')
     }
   });
 
-function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService) {
+function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService, $http) {
   const self = this;
 
   function getWatchedDate() {
@@ -40,13 +40,17 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return self.viewer.type === 'group';
   }
 
-  function getOptionalGroup() {
+  function getOptionalGroupID() {
     return self.viewer.group_id;
+  }
+
+  function getGroupEpisode() {
+    return GroupService.getGroupEpisode(self.episode, getOptionalGroupID());
   }
 
   self.isWatched = function() {
     return isInGroupMode() ?
-      GroupService.getGroupEpisode(self.episode, getOptionalGroup()).watched :
+      getGroupEpisode().watched :
       self.episode.personEpisode.watched;
   };
 
@@ -82,7 +86,42 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     });
   }
 
-  self.addOrUpdateRating = function() {
+  function createPayload(watchedDate) {
+    const groupEpisode = getGroupEpisode();
+    const payload = {
+      changedFields: {
+        watched: !self.isWatched(),
+        watched_date: watchedDate,
+        skipped: false
+      },
+      member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
+      episode_id: self.episode.id
+    };
+    if (_.isNumber(groupEpisode.tv_group_episode_id)) {
+      payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
+    } else {
+      payload.changedFields.tv_group_id = self.viewer.group_id;
+      payload.changedFields.episode_id = self.episode.id;
+    }
+    return payload;
+  }
+
+  function updateOrAddGroupRating() {
+    const watchedDate = DateService.formatDateForDatabase(new Date());
+    const groupEpisode = getGroupEpisode();
+
+    const payload = createPayload(watchedDate);
+
+    $http.post('/api/groupWatchEpisode', {payload: payload}).then(function(response) {
+      groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
+      groupEpisode.watched = !self.isWatched();
+      groupEpisode.watched_date = watchedDate;
+      groupEpisode.skipped = false;
+      self.postRatingCallback(self.episode, null);
+    });
+  }
+
+  function updateOrAddMyRating() {
     return $q(resolve => {
       if (hasRating()) {
         updateExistingRating(resolve);
@@ -90,19 +129,26 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         addRating(resolve);
       }
     });
+  }
+
+  self.addOrUpdateRating = function() {
+    if (isInGroupMode()) {
+      updateOrAddGroupRating();
+    } else {
+      updateOrAddMyRating().then(response => {
+        let dynamicRating = undefined;
+        if (response) {
+          const personEpisode = self.episode.personEpisode;
+          personEpisode.rating_id = response.data.rating_id;
+          dynamicRating = response.data.dynamic_rating;
+        }
+        self.postRatingCallback(self.episode, dynamicRating);
+      });
+    }
   };
 
   self.toggleWatched = function() {
-    self.addOrUpdateRating().then(response => {
-      let dynamicRating = undefined;
-      if (response) {
-        const personEpisode = self.episode.personEpisode;
-        personEpisode.rating_id = response.data.rating_id;
-        dynamicRating = response.data.dynamic_rating;
-      }
-      self.postRatingCallback(self.episode, dynamicRating);
-      // $scope.$apply();
-    });
+    self.addOrUpdateRating();
   };
 
 }
