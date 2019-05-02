@@ -503,7 +503,7 @@ exports.getSeriesDetailInfo = function(request, response) {
       " ON e.tvdb_episode_id = te.id " +
       "WHERE e.retired = $1 " +
       "AND e.series_id = $2 " +
-      "ORDER BY e.air_time, e.absolute_number ";
+      "ORDER BY e.season, e.episode_number, e.air_time ";
 
     const values = [
       0,
