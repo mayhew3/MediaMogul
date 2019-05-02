@@ -168,6 +168,13 @@ angular.module('mediaMogulApp')
       function formatIncomingShow(show) {
         self.updateNumericFields(show);
         self.formatNextAirDate(show);
+        formatSeriesGroups(show);
+      }
+
+      function formatSeriesGroups(show) {
+        if (ArrayService.exists(show.groups)) {
+          _.each(show.groups, group => group.tv_group_id = parseInt(group.tv_group_id));
+        }
       }
 
       function updateMyShowsListTierOne() {
@@ -371,6 +378,8 @@ angular.module('mediaMogulApp')
         return $q(resolve => {
           $http.get('/api/groupShows', {params: {tv_group_id: tv_group_id}}).then(function(results) {
             const groupShows = results.data;
+
+            _.each(groupShows, formatIncomingShow);
 
             const groupShowList = self.getOrCreateGroupShowList(tv_group_id);
             ArrayService.refreshArray(groupShowList, groupShows);
