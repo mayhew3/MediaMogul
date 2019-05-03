@@ -157,7 +157,7 @@ angular.module('mediaMogulApp')
       if (self.isInMyShows()) {
         self.removeFromMyShows();
       } else {
-        maybeReAddShow();
+        addShow();
       }
     };
 
@@ -670,24 +670,20 @@ angular.module('mediaMogulApp')
     };
 
     self.changeTier = function(tier) {
-      maybeReAddShow().then(() => {
+      addShow().then(() => {
         EpisodeService.changeMyTier(self.series.id, tier).then(function() {
           self.series.personSeries.my_tier = tier;
         });
       });
     };
 
-    function maybeReAddShow() {
+    function addShow() {
       return $q(resolve => {
-        if (self.removed) {
-          EpisodeService.addToMyShows(self.series).then((show) => {
-            self.removed = false;
-            self.series = show;
-            resolve();
-          });
-        } else {
+        EpisodeService.addToMyShows(self.series).then((show) => {
+          self.removed = false;
+          self.series = show;
           resolve();
-        }
+        });
       });
     }
 
