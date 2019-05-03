@@ -99,15 +99,15 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           controllerAs: 'ctrl',
           templateUrl: 'views/tv/rate/tvyearly.html'
         })
-        .state('tv.addshows', {
-          url: '/addshows',
+        .state('tv.addShows', {
+          url: '/addShows',
           controller: 'addShowsController',
           controllerAs: 'ctrl',
           templateUrl: 'views/tv/shows/addShows.html'
         })
-        .state('tv.addshows.main', {
-          url: '/main',
-          templateUrl: 'views/tv/shows/addMain.html'
+        .state('tv.addShows.initial', {
+          url: '/addShows/:initial_search',
+          templateUrl: 'views/tv/shows/addShows.html'
         })
         .state('games', {
           url: '/games',

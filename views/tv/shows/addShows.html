@@ -1,38 +1,62 @@
 
 <div class="container" style="margin-top: 10px">
 
-  <div class="container col-lg-2">
+  <div class="page-header" style="margin-bottom: 2px" id="banner">
+    <div class="row">
+      <div class="col-lg-12">
 
-    <ul class="nav nav-pills nav-stacked btn-sm">
-      <li role="tv" ng-class="ctrl.isActive('Main')">
-        <a href ui-sref="tv.addshows.main" ng-click="ctrl.selectedPill='Main'">
-          Main
-        </a>
-      </li>
-    </ul>
-
-    <ul class="nav nav-pills nav-stacked btn-sm">
-      <li role="tv">
-        <a href ng-click="ctrl.refreshSeriesList()">
-          Update
-        </a>
-      </li>
-    </ul>
-
-    <ul class="nav nav-pills nav-stacked btn-sm nav-pills-success" ng-show="ctrl.LockService.isUser()">
-      <li role="tv">
-        <a href ng-click="ctrl.seriesRequest()">
-          Series Request
-        </a>
-      </li>
-    </ul>
-
-
-
+      </div>
+    </div>
   </div>
 
-  <div class="container col-lg-10">
-    <div ui-view></div>
+  <div class="row" style="margin-top: 10px">
+
+    <div class="form-group col-lg-9">
+
+      <div class="col-lg-6">
+
+        <div class="input-group">
+          <input type="text"
+                 class="form-control"
+                 id="newSeriesTitle"
+                 name="newSeriesTitle"
+                 placeholder="Series Name"
+                 ng-required="true"
+                 ng-model-options="{ updateOn: 'blur' }"
+                 ng-model="ctrl.searchString"/>
+          <span class="input-group-btn">
+              <input type="button"
+                     class="btn btn-info"
+                     value="Search"
+                     ng-disabled="ctrl.used_tvdb_ids.length === 0"
+                     ng-click="ctrl.updateTVDBMatches()">
+            </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 10px" ng-hide="ctrl.alternateText">
+    <div class="col-lg-12">
+      <!--suppress JSUnusedLocalSymbols -->
+      <div class="fade-repeat col-lg-3 posterRow" ng-repeat="show in ctrl.tvdb_matches">
+        <tv-poster show="show"
+                   poster-info="ctrl.posterInfo"></tv-poster>
+
+        <!-- SUBTITLE (optional) -->
+
+        <div align="right">
+          <h5 ng-bind="show.title"></h5>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 10px" ng-show="ctrl.alternateText">
+    <div class="col-lg-12">
+      <span ng-bind="ctrl.alternateText"></span>
+    </div>
   </div>
 
 </div>
