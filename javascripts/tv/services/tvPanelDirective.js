@@ -53,12 +53,12 @@
       return ArrayService.exists(getButtonInfo());
     };
 
-    self.getButtonLabel = function() {
-      return self.hasButtonInfo() ? getButtonInfo().label : null;
+    self.getButtonLabel = function(show) {
+      return self.hasButtonInfo() ? getButtonInfo().getLabel(show) : null;
     };
 
-    self.getButtonClass = function() {
-      return self.hasButtonInfo() ? getButtonInfo().buttonClass : null;
+    self.getButtonClass = function(show) {
+      return self.hasButtonInfo() ? getButtonInfo().getButtonClass(show) : null;
     };
 
     self.doButtonAction = function(show) {

@@ -28,7 +28,7 @@
               <input type="button"
                      class="btn btn-info"
                      value="Search"
-                     ng-disabled="!ctrl.fullDataLoaded"
+                     ng-disabled="!ctrl.fullDataLoaded || !ctrl.requestsLoaded"
                      ng-click="ctrl.updateTVDBMatches()">
             </span>
         </div>
