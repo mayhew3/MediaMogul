@@ -1,8 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService',
+  .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService', 'DateService',
     '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
-  function($log, EpisodeService, $uibModal, $filter, LockService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q, $timeout) {
+    'SeriesDetailService',
+  function($log, EpisodeService, $uibModal, $filter, LockService, DateService, $http, YearlyRatingService, ArrayService,
+           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService) {
     const self = this;
 
     self.LockService = LockService;
@@ -167,7 +168,7 @@ angular.module('mediaMogulApp')
 
     function startDetailUpdate() {
       return $q(resolve => {
-        EpisodeService.getSeriesDetailInfo(self.series_id).then(function (results) {
+        SeriesDetailService.getSeriesDetailInfo(self.series_id).then(function (results) {
           resolve();
 
           if (!ArrayService.exists(self.series)) {
@@ -809,10 +810,10 @@ angular.module('mediaMogulApp')
     function getPreviousEpisodes(episode) {
       let allEarlierEpisodes = self.episodes.filter(function (otherEpisode) {
         return  otherEpisode.air_date !== null &&
-                otherEpisode.season !== 0 &&
-                ((otherEpisode.season < episode.season) ||
-                (otherEpisode.season === episode.season &&
-                otherEpisode.episode_number < episode.episode_number));
+          otherEpisode.season !== 0 &&
+          ((otherEpisode.season < episode.season) ||
+            (otherEpisode.season === episode.season &&
+              otherEpisode.episode_number < episode.episode_number));
       });
 
       let earlierSorted = allEarlierEpisodes.sort(function(e1, e2) {
