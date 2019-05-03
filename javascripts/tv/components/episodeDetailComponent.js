@@ -14,6 +14,8 @@ angular.module('mediaMogulApp')
 function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService, $http) {
   const self = this;
 
+  self.updating = false;
+
   self.$onInit = function() {
     self.watchedDate = initWatchedDate();
   };
@@ -66,7 +68,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       'No date';
   };
 
-  function hasRating() {
+  function hasMyRating() {
     return ArrayService.exists(self.episode.personEpisode.rating_id);
   }
 
@@ -112,7 +114,11 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   };
 
   self.isUnaired = function() {
-    return EpisodeService.isUnaired(self.episode)
+    return EpisodeService.isUnaired(self.episode);
+  };
+
+  self.isUpdating = function() {
+    return self.updating;
   };
 
   self.getWatchButtonClass = function() {
@@ -124,6 +130,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       selectors.push('btn-info');
     } else {
       selectors.push('btn-success');
+    }
+
+    if (self.isUpdating()) {
+      selectors.push('loadingButton')
     }
 
     return selectors.join(' ');
@@ -192,13 +202,14 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.watched = !self.isWatched();
       groupEpisode.watched_date = watchedDate;
       groupEpisode.skipped = false;
+      self.updating = false;
       self.postRatingCallback(self.episode, null);
     });
   }
 
   function updateOrAddMyRating() {
     return $q(resolve => {
-      if (hasRating()) {
+      if (hasMyRating()) {
         updateExistingRating(resolve);
       } else {
         addRating(resolve);
@@ -207,6 +218,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   }
 
   self.addOrUpdateRating = function() {
+    self.updating = true;
     if (isInGroupMode()) {
       updateOrAddGroupRating();
     } else {
@@ -217,6 +229,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
           personEpisode.rating_id = response.data.rating_id;
           dynamicRating = response.data.dynamic_rating;
         }
+        self.updating = false;
         self.postRatingCallback(self.episode, dynamicRating);
       });
     }

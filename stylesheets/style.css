@@ -57,6 +57,10 @@ h1 {
   /*width: 240px;*/
 }
 
+.loadingButton {
+  opacity: 0.5;
+}
+
 .dropdownCaretSmall {
   float: right;
   margin: 9px 0;

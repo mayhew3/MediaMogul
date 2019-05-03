@@ -8,12 +8,17 @@ angular.module('mediaMogulApp')
       checkedLabel: '<',
       buttonIsToggled: '<',
       onClick: '<',
-      buttonClass: '<'
+      buttonClass: '<',
+      isUpdating: '<'
     }
   });
 
 function checkmarkButtonController(ArrayService) {
   const self = this;
+
+  function hasUpdatingMethodAndIsUpdating() {
+    return ArrayService.exists(self.isUpdating) && self.isUpdating();
+  }
 
   self.getButtonClass = function() {
     if (ArrayService.exists(self.buttonClass)) {
@@ -24,10 +29,16 @@ function checkmarkButtonController(ArrayService) {
   };
 
   self.getLabel = function() {
-    return (!self.buttonIsToggled() || !ArrayService.exists(self.checkedLabel)) ?
-      self.label :
-      self.checkedLabel;
+    if (hasCheckedLabelAndIsToggled()) {
+      return self.checkedLabel;
+    } else {
+      return self.label;
+    }
   };
+
+  function hasCheckedLabelAndIsToggled() {
+    return self.buttonIsToggled() && ArrayService.exists(self.checkedLabel);
+  }
 
 }
 
