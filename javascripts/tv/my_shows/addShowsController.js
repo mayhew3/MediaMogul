@@ -1,6 +1,7 @@
 angular.module('mediaMogulApp')
-  .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService', '$state', '$stateParams',
-    function($log, LockService, $http, ArrayService, EpisodeService, $state, $stateParams) {
+  .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService',
+    'SeriesRequestService', '$state', '$stateParams',
+    function($log, LockService, $http, ArrayService, EpisodeService, SeriesRequestService, $state, $stateParams) {
       const self = this;
 
       self.LockService = LockService;
@@ -105,7 +106,8 @@ angular.module('mediaMogulApp')
       };
 
       self.initiateSeriesRequest = function(show) {
-        console.log("NOTHING IMPLEMENTED YET");
+        show.person_id = self.LockService.person_id;
+
       };
 
       self.inSystemPanel = {
