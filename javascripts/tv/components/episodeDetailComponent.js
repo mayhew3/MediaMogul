@@ -14,8 +14,28 @@ angular.module('mediaMogulApp')
 function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService, $http) {
   const self = this;
 
-  function getWatchedDate() {
-    return DateService.formatDateStringForInput(self.episode.personEpisode.watched_date);
+  self.$onInit = function() {
+    self.watchedDate = initWatchedDate();
+  };
+
+  function initWatchedDate() {
+    return self.isWatched() ?
+      new Date(getWatchedDateFromEpisode()) :
+      new Date();
+  }
+
+  function getWatchedDateFromEpisode() {
+    if (isInGroupMode()) {
+      return getGroupEpisode().watched_date;
+    } else {
+      return self.episode.personEpisode.watched_date;
+    }
+  }
+
+  function hasWatchedDate() {
+    return ArrayService.exists(self.episode) &&
+      ArrayService.exists(self.episode.personEpisode) &&
+      ArrayService.exists(self.episode.personEpisode.watched_date);
   }
 
   self.getEpisodeImage = function() {
@@ -69,6 +89,23 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     });
   }
 
+  // Datepicker
+
+  self.popup = {
+    opened: false
+  };
+
+  self.dateOptions = {
+    formatYear: 'yy',
+    startingDay: 1
+  };
+
+  self.altInputFormats = ['M!/d!/yyyy'];
+
+  self.open = function() {
+    self.popup.opened = true;
+  };
+
   self.airedFromNow = function() {
     return ArrayService.exists(self.episode.air_time) ?
       moment(self.episode.air_time).fromNow() :
@@ -80,7 +117,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   };
 
   self.getWatchButtonClass = function() {
-    const selectors = ['btn-lg', 'checkmarkButtonLarge'];
+    const selectors = ['btn-lg', 'btn-block', 'checkmarkButtonLarge'];
 
     if (self.isWatched()) {
       selectors.push('btn-primary');
