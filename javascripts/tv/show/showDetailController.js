@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService',
-    '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q',
+    '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
   function($log, EpisodeService, $uibModal, $filter, LockService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q) {
+           $state, $stateParams, GroupService, $q, $timeout) {
     const self = this;
 
     self.LockService = LockService;
@@ -200,6 +200,12 @@ angular.module('mediaMogulApp')
       if (ArrayService.exists(self.nextUp)) {
         self.goToEpisode(self.nextUp);
       }
+    }
+
+    function goToNextUpAfterPause() {
+      $timeout(function() {
+        goToNextUp();
+      }, 500);
     }
 
     self.getEpisodes = function() {
@@ -679,7 +685,7 @@ angular.module('mediaMogulApp')
       if (isInGroupMode()) {
         EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
         updateNextUp();
-        goToNextUp();
+        goToNextUpAfterPause();
       } else {
         EpisodeService.updateMySeriesDenorms(
           self.series,
@@ -691,7 +697,7 @@ angular.module('mediaMogulApp')
               YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
             }
             updateNextUp();
-            goToNextUp();
+            goToNextUpAfterPause();
           });
       }
     };
