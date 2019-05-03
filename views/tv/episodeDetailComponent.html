@@ -41,32 +41,43 @@
 
     <div class="row">
       <div class="col-lg-6">
-        <!-- Mark Watched -->
-        <checkmark-button label="'Mark Watched'"
-                          checked-label="'Watched'"
-                          button-class="ctrl.getWatchButtonClass"
-                          button-is-toggled="ctrl.isWatched"
-                          on-click="ctrl.toggleWatched"></checkmark-button>
-      </div>
 
-      <div class="col-lg-6">
-        <p class="input-group">
-          <input type="text"
-                 class="form-control"
-                 uib-datepicker-popup="{{'dd-MMMM-yyyy'}}"
-                 ng-model="ctrl.watchedDate"
-                 is-open="ctrl.popup.opened"
-                 datepicker-options="ctrl.dateOptions"
-                 ng-required="false"
-                 close-text="Close"
-                 alt-input-formats="ctrl.altInputFormats" />
-          <span class="input-group-btn">
+        <div class="seriesDetailElement">
+          <!-- Mark Watched -->
+          <checkmark-button label="'Mark Watched'"
+                            checked-label="'Watched'"
+                            button-class="ctrl.getWatchButtonClass"
+                            button-is-toggled="ctrl.isWatched"
+                            on-click="ctrl.toggleWatched"></checkmark-button>
+        </div>
+
+
+        <!-- Watched Date Input-->
+        <div ng-if="!ctrl.isWatched()">
+          <label for="watchedDateInput">On</label>
+          <p class="input-group">
+            <input type="text"
+                   id="watchedDateInput"
+                   class="form-control"
+                   uib-datepicker-popup="{{'dd-MMMM-yyyy'}}"
+                   ng-model="ctrl.watchedDate"
+                   is-open="ctrl.popup.opened"
+                   datepicker-options="ctrl.dateOptions"
+                   ng-required="false"
+                   close-text="Close"
+                   alt-input-formats="ctrl.altInputFormats" />
+            <span class="input-group-btn">
             <button type="button"
                     class="btn btn-default"
                     ng-click="ctrl.open()"><i class="glyphicon glyphicon-calendar"></i></button>
           </span>
-        </p>
-<!--        <span ng-bind="ctrl.getWatchedDateForDisplay()"></span>-->
+          </p>
+        </div>
+
+
+        <!-- Watched Date Readonly -->
+        <span ng-if="ctrl.isWatched()">On {{ctrl.getWatchedDateForDisplay()}}</span>
+
       </div>
     </div>
 
