@@ -106,7 +106,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           templateUrl: 'views/tv/shows/addShows.html'
         })
         .state('tv.addShows.initial', {
-          url: '/addShows/:initial_search',
+          url: '/:initial_search',
           templateUrl: 'views/tv/shows/addShows.html'
         })
         .state('games', {
