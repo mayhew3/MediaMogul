@@ -140,6 +140,18 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(self.series.personSeries);
     };
 
+    self.getMyShowsButtonClass = function() {
+      const selectors = ['btn-block', 'checkmarkButtonSmall'];
+
+      if (self.isInMyShows()) {
+        selectors.push('btn-primary');
+      } else {
+        selectors.push('btn-default');
+      }
+
+      return selectors.join(' ');
+    };
+
     self.toggleInMyShows = function() {
       if (self.isInMyShows()) {
         self.removeFromMyShows();

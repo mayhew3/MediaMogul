@@ -6,9 +6,9 @@ angular.module('mediaMogulApp')
     bindings: {
       label: '<',
       checkedLabel: '<',
-      uncheckedTheme: '<',
       buttonIsToggled: '<',
-      onClick: '<'
+      onClick: '<',
+      buttonClass: '<'
     }
   });
 
@@ -16,12 +16,10 @@ function checkmarkButtonController(ArrayService) {
   const self = this;
 
   self.getButtonClass = function() {
-    if (self.buttonIsToggled()) {
-      return 'btn-primary';
+    if (ArrayService.exists(self.buttonClass)) {
+      return self.buttonClass();
     } else {
-      return self.uncheckedTheme ?
-        'btn-' + self.uncheckedTheme :
-        'btn-default';
+      return '';
     }
   };
 

@@ -69,6 +69,20 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     });
   }
 
+  self.getWatchButtonClass = function() {
+    const selectors = ['btn-lg', 'checkmarkButtonLarge'];
+
+    if (self.isWatched()) {
+      selectors.push('btn-primary');
+    } else if (EpisodeService.isUnaired(self.episode)) {
+      selectors.push('btn-info');
+    } else {
+      selectors.push('btn-success');
+    }
+
+    return selectors.join(' ');
+  };
+
   function addRating(resolve) {
     const episode = self.episode;
     const ratingFields = {

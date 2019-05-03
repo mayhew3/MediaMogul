@@ -48,8 +48,12 @@ h1 {
   padding: 7px 11px 7px 4px;
 }
 
-.checkmarkButton {
-  padding: 7px;
+.checkmarkButtonSmall {
+  padding: 7px 10px 7px 7px;
+}
+
+.checkmarkButtonLarge {
+  padding: 10px 20px 10px 10px;
 }
 
 .dropdownCaretSmall {
