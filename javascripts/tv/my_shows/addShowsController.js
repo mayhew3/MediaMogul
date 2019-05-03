@@ -5,8 +5,13 @@ angular.module('mediaMogulApp')
 
       self.LockService = LockService;
 
-      self.series = {};
-      self.tvdb_matches = [];
+      self.allMatches = [];
+      self.showsInSystem = [];
+      self.showsNotInSystem = [];
+
+      self.fullDataLoaded = false;
+      EpisodeService.updateMyShowsListIfDoesntExist().then(() => self.fullDataLoaded = true);
+
       self.used_tvdb_ids = [];
 
       self.searchString = $stateParams.initial_search;
@@ -18,47 +23,98 @@ angular.module('mediaMogulApp')
 
       self.showExists = false;
 
-      self.updateTVDBIDs = function() {
-        $http.get('/api/tvdbIDs').then(function(results) {
-          ArrayService.refreshArray(self.used_tvdb_ids, results.data);
-        });
-      };
-      self.updateTVDBIDs();
+      self.searchStarted = false;
+
+      let loading = false;
 
       self.updateTVDBMatches = function() {
         self.alternateText = "Retrieving matches...";
+        loading = true;
+        self.searchStarted = true;
         $http.get('/api/tvdbMatches', {params: {series_name: self.searchString}}).then(function(results) {
-          ArrayService.refreshArray(self.tvdb_matches, results.data);
-          if (self.tvdb_matches.length > 0) {
+          ArrayService.refreshArray(self.allMatches, results.data);
+
+          self.showsInSystem = _.filter(results.data, TVDBIDAlreadyExists);
+          self.showsNotInSystem = _.difference(results.data, self.showsInSystem);
+
+          let i = 1;
+          _.each(self.showsNotInSystem, show => {
+            show.incomingOrder = i;
+            i++;
+          });
+
+          if (self.allMatches.length > 0) {
             self.alternateText = null;
-            self.selectedShow = _.find(self.tvdb_matches, function(show) {
-              return !TVDBIDAlreadyExists(show);
+            self.selectedShow = _.find(self.allMatches, function(show) {
+              return !TVDBIDAlreadyExists(show.tvdb_series_ext_id);
             });
           } else {
             self.alternateText = "No matches found.";
           }
+
+          loading = false;
         });
       };
 
       function TVDBIDAlreadyExists(show) {
-        const existingMatch = _.findWhere(self.used_tvdb_ids, {tvdb_series_ext_id: show.tvdb_series_ext_id});
+        const existingMatch = EpisodeService.findSeriesWithTVDBID(show.tvdb_series_ext_id);
         return ArrayService.exists(existingMatch);
       }
 
-      function textOverlay(show) {
-        return TVDBIDAlreadyExists(show) ? 'Already Added' : null;
+      function isInMyShows(show) {
+        return ArrayService.exists(show.personSeries);
       }
 
-      self.posterInfo = {
-        clickOverride: updateSelectedShow,
-        extraStyles: posterStyle,
-        textOverlay: textOverlay
+      function textOverlay(show) {
+        return isInMyShows(show) ? 'Already Added' : null;
+      }
+
+      self.getShowsInSystem = function() {
+        return self.showsInSystem;
+      };
+
+      self.getShowsNotInSystem = function() {
+        return self.showsNotInSystem;
+      };
+
+      self.showLoading = function() {
+        return loading;
+      };
+
+      self.inSystemPanel = {
+        headerText: 'Existing Shows',
+        sort: {
+          field: 'tvdb_series_ext_id',
+          direction: 'asc'
+        },
+        showEmpty: true,
+        seriesFunction: self.getShowsInSystem,
+        posterSize: 'large',
+        pageLimit: 12,
+        showLoading: self.showLoading,
+        textOverlay: textOverlay,
+        clickOverride: () => {}
+      };
+
+      self.externalPanel = {
+        headerText: 'TVDB Shows',
+        sort: {
+          field: 'incomingOrder',
+          direction: 'asc'
+        },
+        showEmpty: true,
+        seriesFunction: self.getShowsNotInSystem,
+        posterSize: 'large',
+        pageLimit: 12,
+        showLoading: self.showLoading,
+        textOverlay: textOverlay,
+        clickOverride: () => {}
       };
 
       function posterStyle(match) {
         let styleObject = {};
 
-        if (TVDBIDAlreadyExists(match)) {
+        if (isInMyShows(match)) {
           styleObject["opacity"] = "0.5";
           styleObject['border'] = "solid black";
         } else if (match === self.selectedShow) {
@@ -70,12 +126,6 @@ angular.module('mediaMogulApp')
         return styleObject;
       }
 
-      function updateSelectedShow(show) {
-        if (!TVDBIDAlreadyExists(show)) {
-          self.selectedShow = show;
-        }
-      }
-
       self.getLocButtonClass = function(location) {
         if (self.selectedLocation === null) {
           return "btn btn-primary";
@@ -84,22 +134,4 @@ angular.module('mediaMogulApp')
       };
 
 
-      self.ok = function() {
-        self.series.date_added = new Date;
-        self.series.person_id = LockService.person_id;
-        self.series.tvdb_series_ext_id = self.selectedShow.tvdb_series_ext_id;
-        self.series.poster = self.selectedShow.poster;
-        self.series.title = self.selectedShow.title;
-
-        EpisodeService.addSeries(self.series).then(function(result) {
-          self.series.id = result.data.seriesId;
-          self.series.tvdb_match_status = 'Match Confirmed';
-          EpisodeService.addToPendingShows(self.series);
-          $uibModalInstance.close();
-        });
-      };
-
-      self.cancel = function() {
-        $uibModalInstance.close();
-      }
     }]);

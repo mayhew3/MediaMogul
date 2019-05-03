@@ -298,6 +298,7 @@ function getCommonShowsQuery(personId) {
       "  AND er.rating_pending = $9" +
       "  AND er.person_id = $1) as rating_pending_episodes, " +
       "s.tvdb_series_id, " +
+      "s.tvdb_series_ext_id, " +
       "s.tvdb_manual_queue, " +
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
@@ -484,6 +485,7 @@ exports.getSeriesDetailInfo = function(request, response) {
     "    and e.air_date IS NOT NULL" +
     "    and e.air_date < NOW()) as aired_episodes, " +
     "s.tvdb_series_id, " +
+    "s.tvdb_series_ext_id, " +
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +
     "s.last_tvdb_error, " +
@@ -1132,7 +1134,8 @@ exports.getNotMyShows = function(request, response) {
   const sql = "SELECT s.id," +
     "s.title, " +
     "s.poster," +
-    "s.cloud_poster " +
+    "s.cloud_poster," +
+    "s.tvdb_series_ext_id " +
     "FROM series s " +
     "WHERE id NOT IN (SELECT ps.series_id " +
     "                 FROM person_series ps " +
