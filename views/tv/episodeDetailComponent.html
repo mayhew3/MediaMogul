@@ -36,6 +36,9 @@
       </div>
     </div>
 
+    <div class="alert alert-info"
+         ng-if="ctrl.isUnaired()">Episode airs {{ctrl.airedFromNow()}}.</div>
+
     <!-- Mark Watched -->
     <checkmark-button label="'Mark Watched'"
                       checked-label="'Watched'"
