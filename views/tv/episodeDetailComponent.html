@@ -30,11 +30,18 @@
 
     <!-- Air Date -->
 
-    <div class="row" ng-show="!ctrl.LockService.isAdmin()" style="margin-top: 15px">
+    <div class="row seriesDetailElement" ng-show="!ctrl.LockService.isAdmin()" style="margin-top: 15px">
       <div class="col-lg-12">
         Air Date: <span ng-bind="ctrl.getAirDate()"></span>
       </div>
     </div>
+
+    <!-- Mark Watched -->
+    <checkmark-button label="'Mark Watched'"
+                      checked-label="'Watched'"
+                      button-class="ctrl.getWatchButtonClass"
+                      button-is-toggled="ctrl.isWatched"
+                      on-click="ctrl.toggleWatched"></checkmark-button>
 
   </div>
 
@@ -43,15 +50,6 @@
          ng-src="{{ctrl.getEpisodeImage()}}"
          width="100%"
          alt="episode image"/>
-  </div>
-
-  <!-- Mark Watched -->
-  <div class="col-md-3 col-sm-4 col-xs-6">
-    <checkmark-button label="'Mark Watched'"
-                      checked-label="'Watched'"
-                      unchecked-theme="'success'"
-                      button-is-toggled="ctrl.isWatched"
-                      on-click="ctrl.toggleWatched"></checkmark-button>
   </div>
 
 </div>
