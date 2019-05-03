@@ -39,7 +39,7 @@
     <div class="alert alert-info"
          ng-if="ctrl.isUnaired()">Episode airs {{ctrl.airedFromNow()}}.</div>
 
-    <div class="row">
+    <div class="row" ng-if="ctrl.isInViewerCollection()">
       <div class="col-lg-6">
 
         <div class="seriesDetailElement">

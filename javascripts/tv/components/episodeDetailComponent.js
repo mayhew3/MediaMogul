@@ -7,7 +7,8 @@ angular.module('mediaMogulApp')
     bindings: {
       episode: '=',
       postRatingCallback: '<',
-      viewer: '<'
+      viewer: '<',
+      isInViewerCollection: '<'
     }
   });
 
