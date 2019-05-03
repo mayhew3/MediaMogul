@@ -33,6 +33,10 @@ angular.module('mediaMogulApp')
         return _.findWhere(allShows, {id: series_id});
       };
 
+      self.findSeriesWithTVDBID = function(tvdb_series_ext_id) {
+        return _.findWhere(allShows, {tvdb_series_ext_id: tvdb_series_ext_id});
+      };
+
       self.updateMyShowsList = function() {
         self.uninitialized = false;
         self.loadingQueue = true;
@@ -340,6 +344,9 @@ angular.module('mediaMogulApp')
         }
         if (show.metacritic !== null) {
           show.metacritic = parseInt(show.metacritic);
+        }
+        if (ArrayService.exists(show.tvdb_series_ext_id)) {
+          show.tvdb_series_ext_id = parseInt(show.tvdb_series_ext_id);
         }
       };
 
