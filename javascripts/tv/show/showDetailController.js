@@ -73,7 +73,8 @@ angular.module('mediaMogulApp')
     GroupService.updateMyGroupsListIfDoesntExist().then(groups => {
       _.each(groups, group => {
         const groupObj = {
-          label: group.name
+          label: group.name,
+          id: group.id
         };
         self.groups.push(groupObj);
       });
@@ -160,6 +161,16 @@ angular.module('mediaMogulApp')
       } else {
         addShow();
       }
+    };
+
+    self.hasGroup = function(group) {
+      return GroupService.groupHasSeries(self.series, group.id);
+    };
+
+    self.addToGroup = function(group) {
+      EpisodeService.addToGroupShows(self.series, group.id).then(() => {
+
+      });
     };
 
     self.getGroups = function() {
