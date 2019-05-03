@@ -90,7 +90,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           }
         })
         .state('tv.show.episode', {
-          url: '/:episode_id',
+          url: '/episode/:episode_id',
           templateUrl: 'views/tv/show/episodeDetail.html'
         })
         .state('tv.rate', {
