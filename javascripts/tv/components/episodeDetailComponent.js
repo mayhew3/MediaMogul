@@ -69,12 +69,22 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     });
   }
 
+  self.airedFromNow = function() {
+    return ArrayService.exists(self.episode.air_time) ?
+      moment(self.episode.air_time).fromNow() :
+      '';
+  };
+
+  self.isUnaired = function() {
+    return EpisodeService.isUnaired(self.episode)
+  };
+
   self.getWatchButtonClass = function() {
     const selectors = ['btn-lg', 'checkmarkButtonLarge'];
 
     if (self.isWatched()) {
       selectors.push('btn-primary');
-    } else if (EpisodeService.isUnaired(self.episode)) {
+    } else if (self.isUnaired()) {
       selectors.push('btn-info');
     } else {
       selectors.push('btn-success');
