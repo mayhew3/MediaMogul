@@ -40,7 +40,7 @@
          ng-if="ctrl.isUnaired()">Episode airs {{ctrl.airedFromNow()}}.</div>
 
     <div class="row" ng-if="ctrl.isInViewerCollection()">
-      <div class="col-lg-6">
+      <div class="watchedButton">
 
         <div class="seriesDetailElement">
           <!-- Mark Watched -->
@@ -85,7 +85,7 @@
 
   </div>
 
-  <div class="col-md-4 col-sm-6 col-xs-12 seriesDetailElement">
+  <div class="col-md-4 col-sm-12 col-xs-12 seriesDetailElement">
     <img class="img-rounded"
          ng-src="{{ctrl.getEpisodeImage()}}"
          width="100%"
