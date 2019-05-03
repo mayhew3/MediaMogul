@@ -47,6 +47,7 @@ angular.module('mediaMogulApp')
 
     self.firstUnwatchedNumber = null;
     self.nextUp = null;
+    self.watchedAll = false;
 
     self.selectedAddingEpisodes = 'None';
     self.selectedLastWatchedEpisode = null;
@@ -199,6 +200,15 @@ angular.module('mediaMogulApp')
     function goToNextUp() {
       if (ArrayService.exists(self.nextUp)) {
         self.goToEpisode(self.nextUp);
+      } else if (self.watchedAll) {
+        goToFirstEpisode();
+      }
+    }
+
+    function goToFirstEpisode() {
+      const eligibleEpisodes = getEligibleEpisodes();
+      if (eligibleEpisodes.length > 0) {
+        self.goToEpisode(eligibleEpisodes[0]);
       }
     }
 
@@ -342,6 +352,9 @@ angular.module('mediaMogulApp')
 
       if (unwatchedEpisodes.length > 0) {
         self.nextUp = unwatchedEpisodes[0];
+        self.watchedAll = false;
+      } else {
+        self.watchedAll = true;
       }
     }
 

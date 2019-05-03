@@ -55,8 +55,8 @@
 
         <!-- Watched Date Input-->
         <div ng-if="!ctrl.isWatched()">
-          <label for="watchedDateInput">On</label>
           <p class="input-group">
+            <span class="input-group-addon" id="basic-addon1">On</span>
             <input type="text"
                    id="watchedDateInput"
                    class="form-control"
@@ -77,7 +77,7 @@
 
 
         <!-- Watched Date Readonly -->
-        <span ng-if="ctrl.isWatched()">On {{ctrl.getWatchedDateForDisplay()}}</span>
+        <span ng-if="ctrl.isWatched() && ctrl.hasWatchedDate()">On {{ctrl.getWatchedDateForDisplay()}}</span>
 
       </div>
     </div>
