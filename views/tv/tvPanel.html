@@ -48,6 +48,19 @@
           <h5 ng-bind="ctrl.subtitle(show)"></h5>
         </div>
 
+        <!-- BUTTON (optional) -->
+
+        <div align="center" ng-if="ctrl.hasButtonInfo()">
+          <button type="button"
+                  class="btn"
+                  ng-class="ctrl.getButtonClass()"
+                  ng-click="ctrl.doButtonAction(show)">
+            {{ctrl.getButtonLabel()}}
+          </button>
+        </div>
+
+
+
       </div>
     </div>
 
