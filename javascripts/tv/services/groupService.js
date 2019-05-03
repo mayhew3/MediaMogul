@@ -46,6 +46,10 @@ angular.module('mediaMogulApp')
           return groups;
         };
 
+        self.groupHasSeries = function(series, tv_group_id) {
+          return ArrayService.exists(self.getGroupSeries(series, tv_group_id));
+        };
+
         self.getGroupSeries = function(series, tv_group_id) {
           return _.findWhere(series.groups, {tv_group_id: tv_group_id});
         };

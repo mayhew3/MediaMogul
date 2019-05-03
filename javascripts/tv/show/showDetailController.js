@@ -244,12 +244,14 @@ angular.module('mediaMogulApp')
 
     self.getTileClass = function(episode) {
       const selectors = [];
-      if (shouldCountAsUnwatched(episode) && !self.isUnaired(episode)) {
-        selectors.push('tile-ready');
-      } else if (isWatched(episode)) {
-        selectors.push('tile-watched');
-      } else if (self.isUnaired(episode)) {
-        selectors.push('tile-unaired');
+      if (self.isInViewerCollection()) {
+        if (shouldCountAsUnwatched(episode) && !self.isUnaired(episode)) {
+          selectors.push('tile-ready');
+        } else if (isWatched(episode)) {
+          selectors.push('tile-watched');
+        } else if (self.isUnaired(episode)) {
+          selectors.push('tile-unaired');
+        }
       }
 
       if (isSelectedEpisode(episode)) {
@@ -259,10 +261,20 @@ angular.module('mediaMogulApp')
       return selectors.join(' ');
     };
 
+    function getEpisodeViewerObject(episode) {
+      if (isInGroupMode()) {
+        return GroupService.getGroupEpisode(episode, getOptionalGroupID());
+      } else {
+        return episode.personEpisode;
+      }
+    }
+
     function isWatched(episode) {
-      return isInGroupMode() ?
-        GroupService.getGroupEpisode(episode, getOptionalGroupID()).watched :
-        episode.personEpisode.watched;
+      const episodeViewer = getEpisodeViewerObject(episode);
+
+      return ArrayService.exists(episodeViewer) ?
+        episodeViewer.watched :
+        false;
     }
 
     function shouldCountAsUnwatched(episode) {
@@ -342,6 +354,14 @@ angular.module('mediaMogulApp')
       updateNextUpProjected();
     };
 
+    self.isInViewerCollection = function() {
+      if (isInGroupMode()) {
+        const group_id = getOptionalGroupID();
+        return GroupService.groupHasSeries(self.series, group_id);
+      } else {
+        return self.isInMyShows();
+      }
+    };
 
     function updateNextUp() {
       self.nextUp = null;
