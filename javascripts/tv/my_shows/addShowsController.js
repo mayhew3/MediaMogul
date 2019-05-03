@@ -26,6 +26,9 @@ angular.module('mediaMogulApp')
 
       self.searchStarted = false;
 
+      self.requestsLoaded = false;
+      SeriesRequestService.fetchMyPendingRequests().then(() => self.requestsLoaded = true);
+
       let loading = false;
 
       self.updateTVDBMatches = function() {
@@ -107,8 +110,35 @@ angular.module('mediaMogulApp')
 
       self.initiateSeriesRequest = function(show) {
         show.person_id = self.LockService.person_id;
-        SeriesRequestService.initiateSeriesRequest(show);
+        show.request_processing = true;
+        SeriesRequestService.initiateSeriesRequest(show).then(() => delete show.request_processing);
       };
+
+      function hasRequest(show) {
+        return SeriesRequestService.hasSeriesRequest(show.tvdb_series_ext_id);
+      }
+
+      function getLabel(show) {
+        return hasRequest(show) ?
+          'Request Pending' :
+          'Add Request';
+      }
+
+      function getButtonClass(show) {
+        const selectors = ['btn-block'];
+
+        if (hasRequest(show)) {
+          selectors.push('btn-default');
+        } else {
+          selectors.push('btn-primary');
+        }
+
+        if (!!show.request_processing) {
+          selectors.push('loadingButton');
+        }
+
+        return selectors.join(' ');
+      }
 
       self.inSystemPanel = {
         headerText: 'Existing Shows',
@@ -137,8 +167,8 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         pageLimit: 12,
         buttonInfo: {
-          label: 'Add Request',
-          buttonClass: 'btn-primary btn-block',
+          getLabel: getLabel,
+          getButtonClass: getButtonClass,
           onClick: self.initiateSeriesRequest
         },
         showLoading: self.showLoading,
@@ -154,13 +184,6 @@ angular.module('mediaMogulApp')
 
         return styleObject;
       }
-
-      self.getLocButtonClass = function(location) {
-        if (self.selectedLocation === null) {
-          return "btn btn-primary";
-        }
-        return self.selectedLocation.name === location.name ? "btn btn-success" : "btn btn-primary";
-      };
 
 
     }]);

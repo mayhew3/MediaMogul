@@ -50,12 +50,12 @@
 
         <!-- BUTTON (optional) -->
 
-        <div align="center" ng-if="ctrl.hasButtonInfo()">
+        <div align="center" ng-if="ctrl.hasButtonInfo()" style="margin-top: 10px">
           <button type="button"
                   class="btn"
-                  ng-class="ctrl.getButtonClass()"
+                  ng-class="ctrl.getButtonClass(show)"
                   ng-click="ctrl.doButtonAction(show)">
-            {{ctrl.getButtonLabel()}}
+            {{ctrl.getButtonLabel(show)}}
           </button>
         </div>
 
