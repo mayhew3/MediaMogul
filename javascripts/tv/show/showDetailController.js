@@ -79,7 +79,7 @@ angular.module('mediaMogulApp')
 
     self.hasSelectedEpisode = function() {
       return ArrayService.exists(self.selectedEpisodeId) &&
-        ArrayService.exists(self.episodes);
+        self.episodes.length > 0;
     };
 
     self.getSelectedEpisode = function() {

@@ -42,14 +42,26 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return self.episode ? EpisodeService.getImageResolved(self.episode) : '';
   };
 
-  self.getAirDate = function() {
+  function formatDateObjectForDisplay(dateObject) {
     const options = {
       year: "numeric", month: "2-digit",
       day: "2-digit", timeZone: "America/Los_Angeles"
     };
 
-    return self.episode.air_date === null ? null :
-      new Date(self.episode.air_date).toLocaleDateString("en-US", options);
+    return dateObject === null ? null :
+      dateObject.toLocaleDateString("en-US", options);
+  }
+
+  function formatDateStringForDisplay(dateStr) {
+    return formatDateObjectForDisplay(new Date(dateStr));
+  }
+
+  self.getAirDate = function() {
+    return formatDateStringForDisplay(self.episode.air_date);
+  };
+
+  self.getWatchedDateForDisplay = function() {
+    return moment(self.watchedDate);
   };
 
   function hasRating() {
@@ -73,21 +85,6 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       getGroupEpisode().watched :
       self.episode.personEpisode.watched;
   };
-
-  function updateExistingRating(resolve) {
-    const episode = self.episode;
-    const personEpisode = episode.personEpisode;
-    const watchedDate = self.isWatched() ? null : DateService.formatDateForDatabase(new Date());
-    const changedFields = {
-      watched: !self.isWatched(),
-      watched_date: watchedDate
-    };
-    EpisodeService.updateMyEpisodeRating(changedFields, episode.personEpisode.rating_id, episode.series_id).then(function (result) {
-      personEpisode.watched = !self.isWatched();
-      personEpisode.watched_date = watchedDate;
-      resolve(result);
-    });
-  }
 
   // Datepicker
 
@@ -130,13 +127,28 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return selectors.join(' ');
   };
 
+  function updateExistingRating(resolve) {
+    const episode = self.episode;
+    const personEpisode = episode.personEpisode;
+    const watchedDate = self.isWatched() ? null : DateService.formatDateForDatabase(self.watchedDate);
+    const changedFields = {
+      watched: !self.isWatched(),
+      watched_date: watchedDate
+    };
+    EpisodeService.updateMyEpisodeRating(changedFields, episode.personEpisode.rating_id, episode.series_id).then(function (result) {
+      personEpisode.watched = !self.isWatched();
+      personEpisode.watched_date = watchedDate;
+      resolve(result);
+    });
+  }
+
   function addRating(resolve) {
     const episode = self.episode;
     const ratingFields = {
       episode_id: episode.id,
       person_id: LockService.person_id,
       watched: !self.isWatched(),
-      watched_date: self.isWatched() ? null : DateService.formatDateForDatabase(new Date()),
+      watched_date: self.isWatched() ? null : DateService.formatDateForDatabase(self.watchedDate),
       rating_value: null,
       review: null,
       rating_pending: false
@@ -168,7 +180,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   }
 
   function updateOrAddGroupRating() {
-    const watchedDate = DateService.formatDateForDatabase(new Date());
+    const watchedDate = DateService.formatDateForDatabase(self.watchedDate);
     const groupEpisode = getGroupEpisode();
 
     const payload = createPayload(watchedDate);
