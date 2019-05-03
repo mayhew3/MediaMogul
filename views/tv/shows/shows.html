@@ -35,8 +35,7 @@
       <button type="button"
               class="btn btn-lg btn-success"
               ng-click="ctrl.addSeries()"
-              ng-show="ctrl.LockService.isAdmin()"
-              ng-disabled="!ctrl.LockService.isAuthenticated">
+              ng-disabled="!ctrl.EpisodeService.isFinishedLoadingAllShows()">
         +
       </button>
 
@@ -46,8 +45,8 @@
              placeholder="Quick Find..."
              ng-model="ctrl.quickFindResult"
              ng-disabled="!ctrl.EpisodeService.isFinishedLoadingAllShows()"
-             uib-typeahead="show as show.title for show in ctrl.EpisodeService.getAllShows() | filter:{title:$viewValue} | limitTo:5"
-             typeahead-on-select="ctrl.goTo(ctrl.quickFindResult)"
+             uib-typeahead="show as show.title for show in ctrl.getQuickFindShows() | showQuickFilter:$viewValue | limitTo:5"
+             typeahead-on-select="ctrl.handleQuickFind(ctrl.quickFindResult)"
              class="form-control input-lg">
     </div>
   </div>

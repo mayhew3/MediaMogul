@@ -1,177 +1,105 @@
 angular.module('mediaMogulApp')
-  .controller('addShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter', '$http',
-                                      'ArrayService', '$scope',
-    function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope) {
+  .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService', '$stateParams',
+    function($log, LockService, $http, ArrayService, EpisodeService, $stateParams) {
       const self = this;
 
       self.LockService = LockService;
-      self.EpisodeService = EpisodeService;
 
-      self.series = [];
-      self.added = [];
+      self.series = {};
+      self.tvdb_matches = [];
+      self.used_tvdb_ids = [];
 
-      self.selectedPill = "Main";
+      self.searchString = $stateParams.initial_search;
 
-      self.mySeriesRequests = [];
+      self.selectedLocation = null;
+      self.selectedShow = null;
 
-      self.currentPage = 1;
-      self.pageSize = 12;
+      self.alternateText = null;
 
-      self.titleSearch = undefined;
-      self.totalItems = 0;
+      self.showExists = false;
 
-      self.getNotMyShows = function() {
-        return EpisodeService.getNotMyShows()
+      self.updateTVDBIDs = function() {
+        $http.get('/api/tvdbIDs').then(function(results) {
+          ArrayService.refreshArray(self.used_tvdb_ids, results.data);
+        });
       };
+      self.updateTVDBIDs();
 
-      self.updateNumItems = function() {
-        var filteredShows = $filter('filterByTitle')(self.series, self.titleSearch);
-        self.totalItems = filteredShows.length;
-      };
-
-      $scope.$on("$destroy", function() {
-        self.EpisodeService.removeFromNotMyShows(self.added);
-      });
-
-      self.updateTitleSearch = function() {
-        self.updateNumItems();
-      };
-
-      self.isActive = function(pillName) {
-        return (pillName === self.selectedPill) ? "active" : null;
-      };
-
-      self.seriesRequestPanel = {
-        headerText: 'Open Series Requests',
-        sort: {
-          field: 'title',
-          direction: 'asc'
-        },
-        panelFormat: 'panel-info',
-        posterSize: 'large',
-        showEmpty: false
-      };
-
-      self.countWhere = function(filter) {
-        return self.series.filter(filter).length;
-      };
-
-      self.orderByRating = function(series) {
-        return 0 - series.personSeries.dynamic_rating;
-      };
-
-      self.addToMyShows = function(show) {
-        $uibModal.open({
-          templateUrl: 'views/tv/seriesDetailPopup.html',
-          controller: 'mySeriesDetailPopupController as ctrl',
-          size: 'lg',
-          resolve: {
-            series: function() {
-              return show;
-            },
-            owned: function() {
-              return false;
-            },
-            adding: function() {
-              return true;
-            },
-            addSeriesCallback: function () {
-              return self.addSeriesCallback;
-            }
+      self.updateTVDBMatches = function() {
+        self.alternateText = "Retrieving matches...";
+        $http.get('/api/tvdbMatches', {params: {series_name: self.searchString}}).then(function(results) {
+          ArrayService.refreshArray(self.tvdb_matches, results.data);
+          if (self.tvdb_matches.length > 0) {
+            self.alternateText = null;
+            self.selectedShow = _.find(self.tvdb_matches, function(show) {
+              return !TVDBIDAlreadyExists(show);
+            });
+          } else {
+            self.alternateText = "No matches found.";
           }
         });
       };
 
-      self.showLoading = function() {
-        return self.EpisodeService.loadingNotMyShows;
-      };
-
-      function textOverlay(show) {
-        return _.contains(self.added, show) ? 'Added!' : null;
+      function TVDBIDAlreadyExists(show) {
+        const existingMatch = _.findWhere(self.used_tvdb_ids, {tvdb_series_ext_id: show.tvdb_series_ext_id});
+        return ArrayService.exists(existingMatch);
       }
 
-      self.addShowsPanel = {
-        headerText: 'Add Shows',
-        sort: {
-          field: 'title',
-          direction: 'asc'
-        },
-        showEmpty: true,
-        seriesFunction: self.getNotMyShows,
-        posterSize: 'large',
-        pageLimit: 12,
-        showLoading: self.showLoading,
-        extraStyles: posterStyle,
-        textOverlay: textOverlay,
-        showQuickFilter: true
-      };
-
-      $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(function(results) {
-        ArrayService.refreshArray(self.mySeriesRequests, results.data);
-      });
-
-      function posterStyle(series) {
-        if (self.addedRecently(series)) {
-          return {"opacity": "0.5"}
-        } else {
-          return {};
-        }
+      function textOverlay(show) {
+        return TVDBIDAlreadyExists(show) ? 'Already Added' : null;
       }
 
       self.posterInfo = {
-        extraStyles: posterStyle
+        clickOverride: updateSelectedShow,
+        extraStyles: posterStyle,
+        textOverlay: textOverlay
       };
 
-      self.addSeriesCallback = function(show) {
-        self.added.push(show);
+      function posterStyle(match) {
+        let styleObject = {};
+
+        if (TVDBIDAlreadyExists(match)) {
+          styleObject["opacity"] = "0.5";
+          styleObject['border'] = "solid black";
+        } else if (match === self.selectedShow) {
+          styleObject['border'] = "solid limegreen";
+        } else {
+          styleObject['border'] = "solid gray";
+        }
+
+        return styleObject;
+      }
+
+      function updateSelectedShow(show) {
+        if (!TVDBIDAlreadyExists(show)) {
+          self.selectedShow = show;
+        }
+      }
+
+      self.getLocButtonClass = function(location) {
+        if (self.selectedLocation === null) {
+          return "btn btn-primary";
+        }
+        return self.selectedLocation.name === location.name ? "btn btn-success" : "btn btn-primary";
       };
 
-      self.addedRecently = function(series) {
-        return _.findWhere(self.added, {id: series.id});
-      };
 
-      self.open = function(series) {
-        $uibModal.open({
-          templateUrl: 'views/tv/seriesDetailPopup.html',
-          controller: 'mySeriesDetailPopupController as ctrl',
-          size: 'lg',
-          resolve: {
-            series: function() {
-              return series;
-            },
-            owned: function() {
-              return false;
-            },
-            adding: function() {
-              return false;
-            },
-            addSeriesCallback: function() {
-              return undefined;
-            }
-          }
+      self.ok = function() {
+        self.series.date_added = new Date;
+        self.series.person_id = LockService.person_id;
+        self.series.tvdb_series_ext_id = self.selectedShow.tvdb_series_ext_id;
+        self.series.poster = self.selectedShow.poster;
+        self.series.title = self.selectedShow.title;
+
+        EpisodeService.addSeries(self.series).then(function(result) {
+          self.series.id = result.data.seriesId;
+          self.series.tvdb_match_status = 'Match Confirmed';
+          EpisodeService.addToPendingShows(self.series);
+          $uibModalInstance.close();
         });
       };
 
-
-      self.seriesRequest = function() {
-        $uibModal.open({
-          templateUrl: 'views/tv/addSeries.html',
-          controller: 'addSeriesController as ctrl',
-          size: 'lg',
-          resolve: {
-            addSeriesCallback: function() {
-              return function(seriesRequest) {
-                return $http.post('/api/seriesRequest', {seriesRequest: seriesRequest});
-              };
-            },
-            postAddCallback: function() {
-              return function(seriesRequest) {
-                self.mySeriesRequests.push(seriesRequest);
-              };
-            }
-          }
-        });
-      };
-
-    }
-  ]);
+      self.cancel = function() {
+        $uibModalInstance.close();
+      }
+    }]);

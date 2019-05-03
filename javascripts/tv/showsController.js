@@ -199,6 +199,14 @@ angular.module('mediaMogulApp')
         return YearlyRatingService.getNumberOfShowsToRate();
       };
 
+      self.handleQuickFind = function(series) {
+        if (!!series.fakeCatchAll) {
+          $state.go('tv.addShows.initial', {initial_search: series.inputValue});
+        } else {
+          self.goTo(series);
+        }
+      };
+
       self.goTo = function(series) {
         $state.transitionTo('tv.show',
           {
@@ -215,12 +223,16 @@ angular.module('mediaMogulApp')
         );
       };
 
+      self.getQuickFindShows = function() {
+        const catchAll = [{
+          title: '(Search for more....)',
+          fakeCatchAll: true
+        }];
+        return self.EpisodeService.getAllShows().concat(catchAll);
+      };
+
       self.addSeries = function() {
-        $uibModal.open({
-          templateUrl: 'views/tv/addSeries.html',
-          controller: 'addSeriesController as ctrl',
-          size: 'lg'
-        });
+        $state.go('tv.addShows');
       };
 
       self.open = function(series) {
