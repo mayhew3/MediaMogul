@@ -21,9 +21,14 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   };
 
   function initWatchedDate() {
-    return self.isWatched() ?
-      new Date(getWatchedDateFromEpisode()) :
-      new Date();
+    const watchedDateFromEpisode = getWatchedDateFromEpisode();
+    if (self.isWatched()) {
+      return ArrayService.exists(watchedDateFromEpisode) ?
+        new Date(watchedDateFromEpisode) :
+        null;
+    } else {
+      return new Date();
+    }
   }
 
   function getWatchedDateFromEpisode() {
@@ -32,12 +37,6 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     } else {
       return self.episode.personEpisode.watched_date;
     }
-  }
-
-  function hasWatchedDate() {
-    return ArrayService.exists(self.episode) &&
-      ArrayService.exists(self.episode.personEpisode) &&
-      ArrayService.exists(self.episode.personEpisode.watched_date);
   }
 
   self.getEpisodeImage = function() {
@@ -60,6 +59,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   self.getAirDate = function() {
     return formatDateStringForDisplay(self.episode.air_date);
+  };
+
+  self.hasWatchedDate = function() {
+    return ArrayService.exists(self.watchedDate);
   };
 
   self.getWatchedDateForDisplay = function() {

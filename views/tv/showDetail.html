@@ -153,34 +153,49 @@
 
           <div class="row" ng-if="ctrl.episodes">
 
-            <div class="col-lg-9 col-md-8 col-sm-6 col-xs-12">
-              <div ui-view></div>
-            </div>
+            <div class="col-lg-12">
 
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
-
-              <div class="row seriesDetailElement" ng-show="ctrl.shouldDisplaySeasonList() && ctrl.shouldDisplayEpisodeList()">
-                <div class="col-xs-12">
-                  <drop-down dynamic-value="ctrl.getSelectedSeason"
-                             possible-values="ctrl.possibleSeasons"
-                             format-function="ctrl.getSeasonLabel"
-                             badge-value-function="ctrl.getUnwatchedForSeason"
-                             on-change-callback="ctrl.selectSeason"></drop-down>
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="alert alert-info"
+                       ng-if="ctrl.watchedAll">All episodes watched!</div>
                 </div>
               </div>
 
               <div class="row">
-                <div class="col-xs-12">
-                  <episode-summary-tile ng-repeat="episode in ctrl.episodes |
+
+                <div class="col-lg-9 col-md-8 col-sm-6 col-xs-12">
+                  <div ui-view></div>
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+
+                  <div class="row seriesDetailElement" ng-show="ctrl.shouldDisplaySeasonList() && ctrl.shouldDisplayEpisodeList()">
+                    <div class="col-xs-12">
+                      <drop-down dynamic-value="ctrl.getSelectedSeason"
+                                 possible-values="ctrl.possibleSeasons"
+                                 format-function="ctrl.getSeasonLabel"
+                                 badge-value-function="ctrl.getUnwatchedForSeason"
+                                 on-change-callback="ctrl.selectSeason"></drop-down>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-xs-12">
+                      <episode-summary-tile ng-repeat="episode in ctrl.episodes |
                                     filter:ctrl.episodeFilter |
                                     orderBy:['absolute_number']"
-                                        episode="episode"
-                                        on-click="ctrl.goToEpisode"
-                                        tile-class="ctrl.getTileClass">
-                  </episode-summary-tile>
-                </div>
-              </div>
+                                            episode="episode"
+                                            on-click="ctrl.goToEpisode"
+                                            tile-class="ctrl.getTileClass">
+                      </episode-summary-tile>
+                    </div>
+                  </div>
 
+
+                </div>
+
+              </div>
 
             </div>
 
