@@ -19,6 +19,8 @@ angular.module('mediaMogulApp')
       self.errorTierOne = false;
       self.errorTierTwo = false;
 
+      let finishedAllShows = false;
+
       const myShowObservers = [];
 
       const dataPresentCallbacks = [];
@@ -57,6 +59,7 @@ angular.module('mediaMogulApp')
                 // NOT MY SHOWS
                 self.updateNotMyShowsList().then(() => {
                   self.loadingNotMyShows = false;
+                  finishedAllShows = true;
                   validateShowArrays();
                   executeEligibleCallbacks();
                   resolve();
@@ -86,6 +89,10 @@ angular.module('mediaMogulApp')
                 updateAllShowObservers();
               });
         });
+      };
+
+      self.isFinishedLoadingAllShows = function() {
+        return finishedAllShows;
       };
 
       function validateShowArrays() {
@@ -619,6 +626,10 @@ angular.module('mediaMogulApp')
 
       self.getNotMyShows = function() {
         return notMyShows;
+      };
+
+      self.getAllShows = function() {
+        return allShows;
       };
 
       self.getNotGroupShows = function(tv_group_id) {
