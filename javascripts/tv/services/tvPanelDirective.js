@@ -45,6 +45,28 @@
       return !!ArrayService.exists(self.panelInfo.showQuickFilter);
     };
 
+    function getButtonInfo() {
+      return self.panelInfo.buttonInfo;
+    }
+
+    self.hasButtonInfo = function() {
+      return ArrayService.exists(getButtonInfo());
+    };
+
+    self.getButtonLabel = function() {
+      return self.hasButtonInfo() ? getButtonInfo().label : null;
+    };
+
+    self.getButtonClass = function() {
+      return self.hasButtonInfo() ? getButtonInfo().buttonClass : null;
+    };
+
+    self.doButtonAction = function(show) {
+      if (self.hasButtonInfo()) {
+        getButtonInfo().onClick(show);
+      }
+    };
+
     self.showPanel = function() {
       return self.showLoading() ||
           self.showError() ||

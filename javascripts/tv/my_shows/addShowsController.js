@@ -104,6 +104,10 @@ angular.module('mediaMogulApp')
         return loading;
       };
 
+      self.initiateSeriesRequest = function(show) {
+        console.log("NOTHING IMPLEMENTED YET");
+      };
+
       self.inSystemPanel = {
         headerText: 'Existing Shows',
         sort: {
@@ -130,6 +134,11 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getShowsNotInSystem,
         posterSize: 'large',
         pageLimit: 12,
+        buttonInfo: {
+          label: 'Add Request',
+          buttonClass: 'btn-primary btn-block',
+          onClick: self.initiateSeriesRequest
+        },
         showLoading: self.showLoading,
         clickOverride: () => {}
       };
