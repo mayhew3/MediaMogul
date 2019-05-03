@@ -57,6 +57,14 @@ h1 {
   /*width: 240px;*/
 }
 
+.watchedButton {
+  width: 240px;
+}
+
+.watchedDateInput {
+  width: 240px;
+}
+
 .loadingButton {
   opacity: 0.5;
 }
