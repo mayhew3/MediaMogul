@@ -107,7 +107,7 @@ angular.module('mediaMogulApp')
 
       self.initiateSeriesRequest = function(show) {
         show.person_id = self.LockService.person_id;
-
+        SeriesRequestService.initiateSeriesRequest(show);
       };
 
       self.inSystemPanel = {
