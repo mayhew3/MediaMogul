@@ -39,12 +39,36 @@
     <div class="alert alert-info"
          ng-if="ctrl.isUnaired()">Episode airs {{ctrl.airedFromNow()}}.</div>
 
-    <!-- Mark Watched -->
-    <checkmark-button label="'Mark Watched'"
-                      checked-label="'Watched'"
-                      button-class="ctrl.getWatchButtonClass"
-                      button-is-toggled="ctrl.isWatched"
-                      on-click="ctrl.toggleWatched"></checkmark-button>
+    <div class="row">
+      <div class="col-lg-6">
+        <!-- Mark Watched -->
+        <checkmark-button label="'Mark Watched'"
+                          checked-label="'Watched'"
+                          button-class="ctrl.getWatchButtonClass"
+                          button-is-toggled="ctrl.isWatched"
+                          on-click="ctrl.toggleWatched"></checkmark-button>
+      </div>
+
+      <div class="col-lg-6">
+        <p class="input-group">
+          <input type="text"
+                 class="form-control"
+                 uib-datepicker-popup="{{'dd-MMMM-yyyy'}}"
+                 ng-model="ctrl.watchedDate"
+                 is-open="ctrl.popup.opened"
+                 datepicker-options="ctrl.dateOptions"
+                 ng-required="false"
+                 close-text="Close"
+                 alt-input-formats="ctrl.altInputFormats" />
+          <span class="input-group-btn">
+            <button type="button"
+                    class="btn btn-default"
+                    ng-click="ctrl.open()"><i class="glyphicon glyphicon-calendar"></i></button>
+          </span>
+        </p>
+      </div>
+    </div>
+
 
   </div>
 
