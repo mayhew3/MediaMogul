@@ -45,7 +45,8 @@
       <input type="text"
              placeholder="Quick Find..."
              ng-model="ctrl.quickFindResult"
-             uib-typeahead="show as show.title for show in ctrl.EpisodeService.getMyShows() | filter:{title:$viewValue} | limitTo:5"
+             ng-disabled="!ctrl.EpisodeService.isFinishedLoadingAllShows()"
+             uib-typeahead="show as show.title for show in ctrl.EpisodeService.getAllShows() | filter:{title:$viewValue} | limitTo:5"
              typeahead-on-select="ctrl.goTo(ctrl.quickFindResult)"
              class="form-control input-lg">
     </div>
