@@ -78,11 +78,18 @@
               <li role="menuitem"
                   ng-repeat="group in ctrl.groups">
                 <a href="#"
-                   style="padding-left: 7px;">
+                   style="padding-left: 7px;"
+                   ng-click="ctrl.addToGroup(group)">
                   <div class="dropdownLeftAlign">
+                    <img src="../images/Checkmark.svg"
+                         width="20"
+                         height="18"
+                         ng-if="ctrl.hasGroup(group)"
+                         alt="checked">
                     <img src="../images/NoCheckmark.svg"
-                         width="24"
-                         height="24"
+                         width="20"
+                         height="18"
+                         ng-if="!ctrl.hasGroup(group)"
                          alt="unchecked">
                     {{group.label}}
                   </div>
