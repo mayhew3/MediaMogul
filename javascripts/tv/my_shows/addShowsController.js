@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService', '$stateParams',
-    function($log, LockService, $http, ArrayService, EpisodeService, $stateParams) {
+  .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService', '$state', '$stateParams',
+    function($log, LockService, $http, ArrayService, EpisodeService, $state, $stateParams) {
       const self = this;
 
       self.LockService = LockService;
@@ -45,9 +45,6 @@ angular.module('mediaMogulApp')
 
           if (self.allMatches.length > 0) {
             self.alternateText = null;
-            self.selectedShow = _.find(self.allMatches, function(show) {
-              return !TVDBIDAlreadyExists(show.tvdb_series_ext_id);
-            });
           } else {
             self.alternateText = "No matches found.";
           }
@@ -56,10 +53,36 @@ angular.module('mediaMogulApp')
         });
       };
 
+      /**
+       * @return {boolean}
+       */
       function TVDBIDAlreadyExists(show) {
         const existingMatch = EpisodeService.findSeriesWithTVDBID(show.tvdb_series_ext_id);
-        return ArrayService.exists(existingMatch);
+        if (ArrayService.exists(existingMatch)) {
+          show.id = existingMatch.id;
+          show.personSeries = existingMatch.personSeries;
+          return true;
+        } else {
+          return false;
+        }
       }
+
+      self.goTo = function(series) {
+        $state.transitionTo('tv.show',
+          {
+            series_id: series.id,
+            viewer: {
+              type: 'my',
+              group_id: null
+            }
+          },
+          {
+            reload: true,
+            inherit: false,
+            notify: true
+          }
+        );
+      };
 
       function isInMyShows(show) {
         return ArrayService.exists(show.personSeries);
@@ -92,8 +115,9 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         pageLimit: 12,
         showLoading: self.showLoading,
+        extraStyles: posterStyle,
         textOverlay: textOverlay,
-        clickOverride: () => {}
+        clickOverride: (show) => self.goTo(show)
       };
 
       self.externalPanel = {
@@ -107,7 +131,6 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         pageLimit: 12,
         showLoading: self.showLoading,
-        textOverlay: textOverlay,
         clickOverride: () => {}
       };
 
@@ -116,11 +139,6 @@ angular.module('mediaMogulApp')
 
         if (isInMyShows(match)) {
           styleObject["opacity"] = "0.5";
-          styleObject['border'] = "solid black";
-        } else if (match === self.selectedShow) {
-          styleObject['border'] = "solid limegreen";
-        } else {
-          styleObject['border'] = "solid gray";
         }
 
         return styleObject;
