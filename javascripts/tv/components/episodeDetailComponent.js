@@ -61,7 +61,9 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   };
 
   self.getWatchedDateForDisplay = function() {
-    return moment(self.watchedDate);
+    return ArrayService.exists(self.watchedDate) ?
+      moment(self.watchedDate).format('MMMM Do, YYYY') :
+      'No date';
   };
 
   function hasRating() {
