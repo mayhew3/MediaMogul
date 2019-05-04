@@ -822,6 +822,23 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.removeFromGroupShows = function(show, tv_group_id) {
+        return $q((resolve, reject) => {
+          $http.post('/api/removeGroupShow', {series_id: show.id, tv_group_id: tv_group_id}).then(() => {
+
+            GroupService.removeGroupFromSeries(show, tv_group_id);
+
+            const groupList = self.getOrCreateGroupShowList(tv_group_id);
+            ArrayService.removeFromArray(groupList, show);
+
+            resolve();
+          }, function(errResponse) {
+            $log.debug("Error adding to group shows: " + errResponse);
+            reject(errResponse);
+          });
+        });
+      };
+
       self.addMyEpisodeRating = function(episodeRating, seriesId) {
         $log.debug("Adding new episode rating.");
         return $http.post('/api/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});

@@ -167,10 +167,12 @@ angular.module('mediaMogulApp')
       return GroupService.groupHasSeries(self.series, group.id);
     };
 
-    self.addToGroup = function(group) {
-      EpisodeService.addToGroupShows(self.series, group.id).then(() => {
-
-      });
+    self.toggleGroupMembership = function(group) {
+      if (self.hasGroup(group)) {
+        EpisodeService.removeFromGroupShows(self.series, group.id);
+      } else {
+        EpisodeService.addToGroupShows(self.series, group.id);
+      }
     };
 
     self.getGroups = function() {
