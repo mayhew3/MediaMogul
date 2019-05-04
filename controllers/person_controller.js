@@ -824,6 +824,24 @@ exports.getNextAiredInfo = function(request, response) {
   });
 };
 
+exports.pinToDashboard = function(request, response) {
+  const series_id = request.query.series_id;
+  const person_id = request.query.person_id;
+  const pinned = request.query.pinned;
+
+  const sql = "UPDATE person_series " +
+    "SET pinned = $1 " +
+    "WHERE person_id = $2 " +
+    "AND series_id = $3 " +
+    "AND retired = $4 ";
+
+  const values = [
+    pinned, person_id, series_id, 0
+  ];
+
+  db.executeQueryNoResults(response, sql, values);
+};
+
 exports.seriesRequest = function(request, response) {
   const series_request = request.body.seriesRequest;
 

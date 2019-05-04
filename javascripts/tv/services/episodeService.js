@@ -843,6 +843,16 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.pinToDashboard = function(series, pinned) {
+        $http.post('/api/pinToDashboard', {
+          series_id: series.id,
+          person_id: LockService.personSeries,
+          pinned: pinned
+        }).then(() => {
+           series.personSeries.pinned = pinned;
+        });
+      };
+
       self.addMyEpisodeRating = function(episodeRating, seriesId) {
         $log.debug("Adding new episode rating.");
         return $http.post('/api/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});

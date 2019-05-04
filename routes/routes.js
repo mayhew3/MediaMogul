@@ -83,6 +83,7 @@ module.exports = function(app) {
   app.post('/api/revertYear', authCheck, persons.revertYear);
   app.post('/api/seriesRequest', authCheck, persons.seriesRequest);
   app.post('/api/markEpisodesWatched', authCheck, persons.markEpisodesWatched);
+  app.post('/api/pinToDashboard', authCheck, persons.pinToDashboard);
 
   // GROUPS
   app.get('/api/myGroups', authCheck, groups.getMyGroups);
