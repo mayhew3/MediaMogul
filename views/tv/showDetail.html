@@ -102,7 +102,8 @@
         </div>
 
         <!-- ACTIONS DROPDOWN -->
-        <div class="col-xs-11 seriesDetailElement">
+        <div class="col-xs-11 seriesDetailElement"
+             ng-if="ctrl.isInMyShows() || ctrl.LockService.isAdmin()">
           <div class="btn-group btn-block"
                uib-dropdown
                is-open="ctrl.actionDropdownOpen">
@@ -118,14 +119,19 @@
             </button>
             <ul uib-dropdown-menu role="menu">
               <li role="menuitem">
-                <a href="#" style="padding-left: 15px;">
+                <a href="#"
+                   style="padding-left: 15px;"
+                   ng-if="ctrl.canPin()"
+                   ng-click="ctrl.pinToDashboard()">
                   <div class="dropdownLeftAlign">
-                    Pin to Dashboard
+                    {{ctrl.getPinnedText()}}
                   </div>
                 </a>
               </li>
               <li role="menuitem">
-                <a href="#" style="padding-left: 15px;">
+                <a href="#"
+                   style="padding-left: 15px;"
+                   ng-if="ctrl.isInMyShows()">
                   <div class="dropdownLeftAlign">
                     Move to Backlog
                   </div>

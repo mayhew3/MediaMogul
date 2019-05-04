@@ -7,6 +7,7 @@ angular.module('mediaMogulApp')
     const self = this;
 
     self.LockService = LockService;
+    self.EpisodeService = EpisodeService;
 
     self.series_id = parseInt($stateParams.series_id);
     self.viewer = $stateParams.viewer ?
@@ -141,6 +142,10 @@ angular.module('mediaMogulApp')
 
     self.isInMyShows = function() {
       return ArrayService.exists(self.series.personSeries);
+    };
+
+    self.canPin = function() {
+      return self.isInMyShows() && self.series.personSeries.my_tier === 1;
     };
 
     self.getMyShowsButtonClass = function() {
@@ -282,6 +287,19 @@ angular.module('mediaMogulApp')
         return episode.personEpisode;
       }
     }
+
+    self.isPinned = function() {
+      return self.series.personSeries.pinned;
+    };
+
+    self.pinToDashboard = function() {
+      const currentPin = self.isPinned();
+      self.EpisodeService.pinToDashboard(self.series, !currentPin);
+    };
+
+    self.getPinnedText = function() {
+      return self.isPinned() ? 'Unpin from Dashboard' : 'Pin to Dashboard';
+    };
 
     function isWatched(episode) {
       const episodeViewer = getEpisodeViewerObject(episode);
