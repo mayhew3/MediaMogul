@@ -54,6 +54,16 @@ angular.module('mediaMogulApp')
           return _.findWhere(series.groups, {tv_group_id: tv_group_id});
         };
 
+        self.removeGroupFromSeries = function(series, tv_group_id) {
+          const groups = series.groups;
+          if (!!groups) {
+            const matching = _.findWhere(groups, {tv_group_id: tv_group_id});
+            if (!!matching) {
+              ArrayService.removeFromArray(groups, matching);
+            }
+          }
+        };
+
         self.getGroupEpisode = function(episode, tv_group_id) {
           return episode.groups ?
             _.findWhere(episode.groups, {tv_group_id: tv_group_id}) :

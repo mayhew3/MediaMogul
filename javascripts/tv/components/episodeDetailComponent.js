@@ -33,11 +33,11 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   }
 
   function getWatchedDateFromEpisode() {
-    if (isInGroupMode()) {
-      return getGroupEpisode().watched_date;
-    } else {
-      return self.episode.personEpisode.watched_date;
-    }
+    const episodeViewer = getEpisodeViewerObject(self.episode);
+
+    return !!episodeViewer ?
+      episodeViewer.watched_date :
+      undefined;
   }
 
   self.getEpisodeImage = function() {
@@ -88,10 +88,20 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return GroupService.getGroupEpisode(self.episode, getOptionalGroupID());
   }
 
+  function getEpisodeViewerObject(episode) {
+    if (isInGroupMode()) {
+      return GroupService.getGroupEpisode(episode, getOptionalGroupID());
+    } else {
+      return episode.personEpisode;
+    }
+  }
+
   self.isWatched = function() {
-    return isInGroupMode() ?
-      getGroupEpisode().watched :
-      self.episode.personEpisode.watched;
+    const episodeViewer = getEpisodeViewerObject(self.episode);
+
+    return !!episodeViewer ?
+      episodeViewer.watched :
+      false;
   };
 
   // Datepicker

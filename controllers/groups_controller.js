@@ -114,12 +114,12 @@ exports.getGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
 
   const sql = "SELECT s.id, " +
-      "s.title, " +
-      "s.metacritic, " +
-      "s.poster, " +
-      "s.cloud_poster, " +
-      "tgs.date_added, " +
-      "tgs.id as tv_group_series_id, " +
+    "s.title, " +
+    "s.metacritic, " +
+    "s.poster, " +
+    "s.cloud_poster, " +
+    "tgs.date_added, " +
+    "tgs.id as tv_group_series_id, " +
     "s.metacritic AS group_score, " +
     "s.trailer_link, " +
     "(SELECT COUNT(1) " +
@@ -159,6 +159,7 @@ exports.getGroupShows = function(request, response) {
       "                   WHERE tge.tv_group_id = $3 " +
       "                   AND (tge.watched = $4 OR tge.skipped = $5)) " +
       "AND tgs.tv_group_id = $6 " +
+      "AND tgs.retired = $1 " +
       "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
 
     const values = [
@@ -222,10 +223,58 @@ function extractGroupSeries(seriesResults, tv_group_id) {
   _.each(seriesResults, series => extractSingleGroupSeries(series, tv_group_id));
 }
 
-exports.addToGroupShows = function(request, response) {
+exports.removeFromGroupShows = function(request, response) {
   const tv_group_id = request.body.tv_group_id;
   const series_id = request.body.series_id;
 
+  const sql = "UPDATE tv_group_series " +
+    "SET retired = id " +
+    "WHERE series_id = $1 " +
+    "AND tv_group_id = $2 " +
+    "AND retired = $3 ";
+
+  const values = [
+    series_id, tv_group_id, 0
+  ];
+
+  db.executeQueryNoResults(response, sql, values);
+};
+
+
+function hasRetiredGroupSeries(series_id, tv_group_id) {
+  return new Promise(resolve => {
+
+    const sql = "SELECT id " +
+      "FROM tv_group_series " +
+      "WHERE tv_group_id = $1 " +
+      "AND series_id = $2 " +
+      "AND retired <> $3 ";
+
+    const values = [tv_group_id, series_id, 0];
+
+    db.selectWithJSON(sql, values).then(results => {
+      if (results.length > 0) {
+        resolve(results[0].id);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+function addOrRestoreGroupSeries(series_id, tv_group_id) {
+  return new Promise(resolve => {
+    hasRetiredGroupSeries(series_id, tv_group_id).then(existingId => {
+      if (!!existingId) {
+        restoreGroupSeries(existingId, resolve);
+      } else {
+        addGroupSeries(series_id, tv_group_id, resolve);
+      }
+    });
+  });
+}
+
+function addGroupSeries(series_id, tv_group_id, resolve) {
   const sql = "INSERT INTO tv_group_series " +
     "(tv_group_id, series_id) " +
     "VALUES ($1, $2) " +
@@ -234,8 +283,28 @@ exports.addToGroupShows = function(request, response) {
     tv_group_id, series_id
   ];
 
-  db.selectWithJSON(sql, values).then(results => {
-    const tv_group_series_id = results[0].id;
+  db.selectWithJSON(sql, values).then(results => resolve(results[0].id));
+}
+
+function restoreGroupSeries(tv_group_series_id, resolve) {
+
+  const sql = "UPDATE tv_group_series " +
+    "SET retired = $2 " +
+    "WHERE id = $1 " +
+    "AND retired <> $2 ";
+
+  const values = [
+    tv_group_series_id, 0
+  ];
+
+  db.updateNoJSON(sql, values).then(() => resolve(tv_group_series_id));
+}
+
+exports.addToGroupShows = function(request, response) {
+  const tv_group_id = request.body.tv_group_id;
+  const series_id = request.body.series_id;
+
+  addOrRestoreGroupSeries(series_id, tv_group_id).then(tv_group_series_id => {
 
     const sql = "SELECT s.id, " +
       "s.title, " +
@@ -257,10 +326,11 @@ exports.addToGroupShows = function(request, response) {
       "INNER JOIN tv_group_series tgs " +
       "  ON tgs.series_id = s.id " +
       "WHERE tgs.id = $3 " +
-      "AND s.retired = $4 ";
+      "AND s.retired = $1 " +
+      "AND tgs.retired = $1";
 
     const values = [
-      0, 0, tv_group_series_id, 0
+      0, 0, tv_group_series_id
     ];
 
     db.selectWithJSON(sql, values).then(seriesResults => {
@@ -278,6 +348,7 @@ exports.addToGroupShows = function(request, response) {
         "                   WHERE tge.tv_group_id = $3 " +
         "                   AND (tge.watched = $4 OR tge.skipped = $5)) " +
         "AND tgs.id = $6 " +
+        "AND tgs.retired = $1 " +
         "ORDER BY e.air_time, e.season, e.episode_number ";
 
       const values = [
