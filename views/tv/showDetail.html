@@ -139,9 +139,10 @@
               <li role="menuitem">
                 <a href="#"
                    style="padding-left: 15px;"
-                   ng-if="ctrl.isInMyShows()">
+                   ng-if="ctrl.isInMyShows()"
+                   ng-click="ctrl.toggleActive()">
                   <div class="dropdownLeftAlign">
-                    Move to Backlog
+                    {{ctrl.getBacklogChoiceLabel()}}
                   </div>
                 </a>
               </li>

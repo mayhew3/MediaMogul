@@ -209,6 +209,27 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.changeTier = function(tier) {
+      EpisodeService.changeMyTier(self.series.id, tier).then(function() {
+        self.series.personSeries.my_tier = tier;
+      });
+    };
+
+    self.getBacklogChoiceLabel = function() {
+      if (self.series.personSeries.my_tier === 1) {
+        return 'Move to Backlog';
+      } else {
+        return 'Promote to Active';
+      }
+    };
+
+    self.toggleActive = function() {
+      if (self.series.personSeries.my_tier === 1) {
+        self.changeTier(2);
+      } else {
+        self.changeTier(1);
+      }
+    };
 
     function startDetailUpdate() {
       return $q(resolve => {
@@ -726,14 +747,6 @@ angular.module('mediaMogulApp')
         }
       }
       return 'yyyy.M.d';
-    };
-
-    self.changeTier = function(tier) {
-      addShow().then(() => {
-        EpisodeService.changeMyTier(self.series.id, tier).then(function() {
-          self.series.personSeries.my_tier = tier;
-        });
-      });
     };
 
     function addShow() {
