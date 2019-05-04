@@ -64,6 +64,8 @@ angular.module('mediaMogulApp')
     self.pageSize = 15;
     self.currentPage = 1;
 
+    self.detailReady = false;
+
     self.watchMultiple = false;
 
     self.groupDropdownLabel = {
@@ -184,6 +186,30 @@ angular.module('mediaMogulApp')
       return GroupService.getMyGroups();
     };
 
+    self.hasAnyGroup = function() {
+      return self.series.groups.length > 0;
+    };
+
+    self.getGroupButtonLabel = function() {
+      const numGroups = self.series.groups.length;
+      if (numGroups === 0) {
+        return 'Groups';
+      } else if (numGroups === 1) {
+        return '1 Group';
+      } else {
+        return numGroups + ' Groups';
+      }
+    };
+
+    self.getMyGroupsButtonClass = function() {
+      if (self.hasAnyGroup()) {
+        return 'btn-primary';
+      } else {
+        return 'btn-default';
+      }
+    };
+
+
     function startDetailUpdate() {
       return $q(resolve => {
         SeriesDetailService.getSeriesDetailInfo(self.series_id).then(function (results) {
@@ -201,6 +227,7 @@ angular.module('mediaMogulApp')
             self.series.last_tvdb_update;
 
           loading = false;
+          self.detailReady = true;
         }).then(function () {
           updateNextUp();
           goToNextUpIfNotOnEpisodeAlready();

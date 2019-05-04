@@ -56,23 +56,31 @@
         </div>
 
         <!-- GROUP COLLECTION DROPDOWN -->
-        <div class="col-xs-11 seriesDetailElement">
+        <div class="col-xs-11 seriesDetailElement"
+             ng-if="ctrl.detailReady">
           <div class="btn-group btn-block"
                uib-dropdown
                auto-close="disabled"
                is-open="ctrl.groupDropdownOpen">
 
             <button type="button"
-                    class="btn btn-block btn-default"
+                    class="btn btn-block"
                     uib-dropdown-toggle
+                    ng-class="ctrl.getMyGroupsButtonClass()"
                     ng-disabled="disabled"
                     style="padding-left: 7px">
               <div class="text-left">
                 <img src="../images/NoCheckmark.svg"
                      width="24"
                      height="24"
+                     ng-if="!ctrl.hasAnyGroup()"
                      alt="unchecked">
-                Groups <span class="caret dropdownCaretSmall"></span>
+                <img src="../images/Checkmark.svg"
+                     width="24"
+                     height="24"
+                     ng-if="ctrl.hasAnyGroup()"
+                     alt="unchecked">
+                {{ctrl.getGroupButtonLabel()}} <span class="caret dropdownCaretSmall"></span>
               </div>
             </button>
             <ul uib-dropdown-menu role="menu">
