@@ -811,8 +811,10 @@ angular.module('mediaMogulApp')
             groupSeries.ballots = [];
             groupSeries.last_watched = undefined;
 
-            const groupList = self.getOrCreateGroupShowList(tv_group_id);
-            groupList.push(show);
+            const groupList = self.getExistingGroupShowList(tv_group_id);
+            if (!!groupList) {
+              groupList.push(show);
+            }
 
             resolve();
           }, function(errResponse) {
@@ -828,8 +830,10 @@ angular.module('mediaMogulApp')
 
             GroupService.removeGroupFromSeries(show, tv_group_id);
 
-            const groupList = self.getOrCreateGroupShowList(tv_group_id);
-            ArrayService.removeFromArray(groupList, show);
+            const groupList = self.getExistingGroupShowList(tv_group_id);
+            if (!!groupList) {
+              ArrayService.removeFromArray(groupList, show);
+            }
 
             resolve();
           }, function(errResponse) {
