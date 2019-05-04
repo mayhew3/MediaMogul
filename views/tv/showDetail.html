@@ -147,14 +147,19 @@
                 </a>
               </li>
               <li role="menuitem" ng-if="ctrl.LockService.isAdmin()">
-                <a href="#" style="padding-left: 15px;">
+                <a href="#"
+                   style="padding-left: 15px;"
+                   ng-if="ctrl.LockService.isAdmin()"
+                   ng-click="ctrl.openEditSeries()">
                   <div class="dropdownLeftAlign">
                     Edit
                   </div>
                 </a>
               </li>
               <li role="menuitem" ng-if="ctrl.LockService.isAdmin()">
-                <a href="#" style="padding-left: 15px;">
+                <a href="#"
+                   style="padding-left: 15px;"
+                   ng-if="ctrl.LockService.isAdmin()">
                   <div class="dropdownLeftAlign">
                     Update TVDB
                   </div>
