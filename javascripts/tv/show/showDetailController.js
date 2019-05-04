@@ -231,6 +231,16 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.getTVDBUpdateLabel = function() {
+      if (self.series.tvdb_manual_queue) {
+        return "(Update in Progress)"
+      } else {
+        return 'Update TVDB' + (self.lastUpdate ?
+          ' (' + moment(self.lastUpdate).fromNow() + ')' :
+          '');
+      }
+    };
+
     function startDetailUpdate() {
       return $q(resolve => {
         SeriesDetailService.getSeriesDetailInfo(self.series_id).then(function (results) {
