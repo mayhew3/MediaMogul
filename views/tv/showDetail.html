@@ -148,6 +148,15 @@
                   </div>
                 </a>
               </li>
+              <li role="menuitem">
+                <a href="#"
+                   style="padding-left: 15px;"
+                   ng-click="ctrl.queueForManualUpdate()">
+                  <div class="dropdownLeftAlign">
+                    {{ctrl.getTVDBUpdateLabel()}}
+                  </div>
+                </a>
+              </li>
               <li role="menuitem"
                   class="adminMenuOption"
                   ng-if="ctrl.LockService.isAdmin()">
@@ -159,12 +168,14 @@
                   </div>
                 </a>
               </li>
-              <li role="menuitem">
+              <li role="menuitem"
+                  class="adminMenuOption"
+                  ng-if="ctrl.LockService.isAdmin() && ctrl.isInGroupMode()">
                 <a href="#"
                    style="padding-left: 15px;"
-                   ng-click="ctrl.queueForManualUpdate()">
+                   ng-click="ctrl.addBallot()">
                   <div class="dropdownLeftAlign">
-                    {{ctrl.getTVDBUpdateLabel()}}
+                    Add Ballot
                   </div>
                 </a>
               </li>
