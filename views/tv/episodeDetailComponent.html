@@ -50,12 +50,22 @@
                               button-class="ctrl.getWatchButtonClass"
                               button-is-toggled="ctrl.isWatched"
                               on-click="ctrl.toggleWatched"
-                              is-updating="ctrl.isUpdating"></checkmark-button>
+                              ng-disabled="ctrl.isUpdating()"></checkmark-button>
+          </div>
+
+          <div class="seriesDetailElement" ng-if="ctrl.isInGroupMode()">
+            <!-- Mark Skipped -->
+            <checkmark-button label="'Mark Skipped'"
+                              checked-label="'Skipped'"
+                              button-class="ctrl.getSkipButtonClass"
+                              button-is-toggled="ctrl.isSkipped"
+                              on-click="ctrl.toggleSkipped"
+                              ng-disabled="ctrl.isUpdating()"></checkmark-button>
           </div>
 
 
           <!-- Watched Date Input-->
-          <div ng-if="!ctrl.isWatched()">
+          <div ng-if="!ctrl.isWatchedOrSkipped()">
             <p class="input-group">
               <span class="input-group-addon" id="basic-addon1">On</span>
               <input type="text"

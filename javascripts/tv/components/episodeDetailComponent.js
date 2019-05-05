@@ -23,17 +23,16 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   function initWatchedDate() {
     const watchedDateFromEpisode = getWatchedDateFromEpisode();
-    if (self.isWatched()) {
-      return ArrayService.exists(watchedDateFromEpisode) ?
-        new Date(watchedDateFromEpisode) :
-        null;
-    } else {
+    if (!watchedDateFromEpisode && !hasRating()) {
       return new Date();
     }
+    return ArrayService.exists(watchedDateFromEpisode) ?
+      new Date(watchedDateFromEpisode) :
+      null;
   }
 
   function getWatchedDateFromEpisode() {
-    const episodeViewer = getEpisodeViewerObject(self.episode);
+    const episodeViewer = getEpisodeViewerObject();
 
     return !!episodeViewer ?
       episodeViewer.watched_date :
@@ -80,9 +79,17 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return ArrayService.exists(self.episode.personEpisode.rating_id);
   }
 
-  function isInGroupMode() {
-    return self.viewer.type === 'group';
+  function hasRating() {
+    if (self.isInGroupMode()) {
+      return GroupService.getGroupEpisode(self.episode, getOptionalGroupID()).tv_group_episode_id;
+    } else {
+      return !!self.episode.personEpisode.rating_id;
+    }
   }
+
+  self.isInGroupMode = function() {
+    return self.viewer.type === 'group';
+  };
 
   function getOptionalGroupID() {
     return self.viewer.group_id;
@@ -92,20 +99,32 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return GroupService.getGroupEpisode(self.episode, getOptionalGroupID());
   }
 
-  function getEpisodeViewerObject(episode) {
-    if (isInGroupMode()) {
-      return GroupService.getGroupEpisode(episode, getOptionalGroupID());
+  function getEpisodeViewerObject() {
+    if (self.isInGroupMode()) {
+      return GroupService.getGroupEpisode(self.episode, getOptionalGroupID());
     } else {
-      return episode.personEpisode;
+      return self.episode.personEpisode;
     }
   }
 
   self.isWatched = function() {
-    const episodeViewer = getEpisodeViewerObject(self.episode);
+    const episodeViewer = getEpisodeViewerObject();
 
     return !!episodeViewer ?
       episodeViewer.watched :
       false;
+  };
+
+  self.isSkipped = function() {
+    const episodeViewer = getEpisodeViewerObject();
+
+    return !!episodeViewer ?
+      episodeViewer.skipped :
+      false;
+  };
+
+  self.isWatchedOrSkipped = function() {
+    return self.isWatched() || self.isSkipped();
   };
 
   // Datepicker
@@ -157,17 +176,39 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return selectors.join(' ');
   };
 
+  self.getSkipButtonClass = function() {
+    const selectors = ['btn-lg', 'btn-block', 'checkmarkButtonLarge'];
+
+    if (self.isSkipped()) {
+      selectors.push('btn-primary');
+    } else if (self.isUnaired()) {
+      selectors.push('btn-info');
+    } else {
+      selectors.push('btn-warning');
+    }
+
+    if (self.isUpdating()) {
+      selectors.push('loadingButton')
+    }
+
+    return selectors.join(' ');
+  };
+
   function updateExistingRating(resolve) {
     const episode = self.episode;
     const personEpisode = episode.personEpisode;
-    const watchedDate = self.isWatched() ? null : DateService.formatDateForDatabase(self.watchedDate);
+    const watchedDate = DateService.formatDateForDatabase(self.watchedDate);
     const changedFields = {
-      watched: !self.isWatched(),
-      watched_date: watchedDate
+      watched: !self.isWatched()
     };
+    if (!self.isWatched()) {
+      changedFields.watched_date = watchedDate;
+    }
     EpisodeService.updateMyEpisodeRating(changedFields, episode.personEpisode.rating_id, episode.series_id).then(function (result) {
       personEpisode.watched = !self.isWatched();
-      personEpisode.watched_date = watchedDate;
+      if (self.isWatched()) {
+        personEpisode.watched_date = watchedDate;
+      }
       resolve(result);
     });
   }
@@ -225,6 +266,33 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     });
   }
 
+  function updateOrAddSkipRating() {
+    const groupEpisode = getGroupEpisode();
+    const payload = {
+      changedFields: {
+        skipped: !self.isSkipped(),
+        watched: false,
+        watched_date: null
+      },
+      member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
+      episode_id: self.episode.id
+    };
+    if (_.isNumber(groupEpisode.tv_group_episode_id)) {
+      payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
+    } else {
+      payload.changedFields.tv_group_id = self.viewer.group_id;
+      payload.changedFields.episode_id = self.episode.id;
+    }
+
+    $http.post('/api/groupWatchEpisode', {payload: payload}).then(function(response) {
+      groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
+      groupEpisode.watched = false;
+      groupEpisode.skipped = !self.isSkipped();
+      self.updating = false;
+      self.postRatingCallback(self.episode, null);
+    });
+  }
+
   function updateOrAddMyRating() {
     return $q(resolve => {
       if (hasMyRating()) {
@@ -237,7 +305,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   self.addOrUpdateRating = function() {
     self.updating = true;
-    if (isInGroupMode()) {
+    if (self.isInGroupMode()) {
       updateOrAddGroupRating();
     } else {
       updateOrAddMyRating().then(response => {
@@ -255,6 +323,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   self.toggleWatched = function() {
     self.addOrUpdateRating();
+  };
+
+  self.toggleSkipped = function() {
+    updateOrAddSkipRating();
   };
 
 }

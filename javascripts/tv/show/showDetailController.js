@@ -324,6 +324,8 @@ angular.module('mediaMogulApp')
       if (self.isInViewerCollection()) {
         if (shouldCountAsUnwatched(episode) && !self.isUnaired(episode)) {
           selectors.push('tile-ready');
+        } else if (isSkipped(episode)) {
+          selectors.push('tile-skipped');
         } else if (isWatched(episode)) {
           selectors.push('tile-watched');
         } else if (self.isUnaired(episode)) {
@@ -359,18 +361,30 @@ angular.module('mediaMogulApp')
       return self.isPinned() ? 'Unpin from Dashboard' : 'Pin to Dashboard';
     };
 
+    function isWatchedOrSkipped(episode) {
+      return isWatched(episode) || isSkipped(episode);
+    }
+
     function isWatched(episode) {
       const episodeViewer = getEpisodeViewerObject(episode);
 
       return ArrayService.exists(episodeViewer) ?
-        episodeViewer.watched :
+        !!episodeViewer.watched :
+        false;
+    }
+
+    function isSkipped(episode) {
+      const episodeViewer = getEpisodeViewerObject(episode);
+
+      return ArrayService.exists(episodeViewer) ?
+        !!episodeViewer.skipped :
         false;
     }
 
     function shouldCountAsUnwatched(episode) {
       if (self.selectedLastWatchedEpisode === null) {
         return episode.season !== null && episode.season > 0 &&
-          !isWatched(episode) &&
+          !isWatchedOrSkipped(episode) &&
           !self.shouldHide(episode);
       } else {
         return episode.absolute_number > self.selectedLastWatchedEpisode.absolute_number;
