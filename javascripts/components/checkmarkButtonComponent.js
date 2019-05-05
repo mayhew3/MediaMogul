@@ -6,6 +6,7 @@ angular.module('mediaMogulApp')
     bindings: {
       label: '<',
       checkedLabel: '<',
+      getLabel: '<',
       buttonIsToggled: '<',
       onClick: '<',
       buttonClass: '<'
@@ -23,8 +24,10 @@ function checkmarkButtonController(ArrayService) {
     }
   };
 
-  self.getLabel = function() {
-    if (hasCheckedLabelAndIsToggled()) {
+  self.getButtonLabel = function() {
+    if (!!self.getLabel) {
+      return self.getLabel();
+    } else if (hasCheckedLabelAndIsToggled()) {
       return self.checkedLabel;
     } else {
       return self.label;

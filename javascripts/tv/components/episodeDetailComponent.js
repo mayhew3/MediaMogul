@@ -334,6 +334,14 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     }
   };
 
+  self.getWatchButtonLabel = function() {
+    if (self.hasPreviousUnwatched()) {
+      return 'Mark ' + (self.previousUnwatchedCount() + 1) + ' Watched';
+    } else {
+      return 'Mark Watched';
+    }
+  };
+
   function getLastUnwatched() {
     if (self.isWatched() && self.hasPreviousUnwatched()) {
       return self.episode.absolute_number;
