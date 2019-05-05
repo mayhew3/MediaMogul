@@ -22,7 +22,7 @@
                  name="newSeriesTitle"
                  placeholder="Series Name"
                  ng-required="true"
-                 ng-model-options="{ updateOn: 'blur' }"
+                 ng-enter="ctrl.updateTVDBMatches()"
                  ng-model="ctrl.searchString"/>
           <span class="input-group-btn">
               <input type="button"
