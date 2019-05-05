@@ -303,9 +303,9 @@ angular.module('mediaMogulApp')
       return episode.air_time === null;
     };
 
-    function isInGroupMode() {
+    self.isInGroupMode = function() {
       return self.viewer.type === 'group';
-    }
+    };
 
     function getOptionalGroupID() {
       return self.viewer.group_id;
@@ -339,7 +339,7 @@ angular.module('mediaMogulApp')
     };
 
     function getEpisodeViewerObject(episode) {
-      if (isInGroupMode()) {
+      if (self.isInGroupMode()) {
         return GroupService.getGroupEpisode(episode, getOptionalGroupID());
       } else {
         return episode.personEpisode;
@@ -445,7 +445,7 @@ angular.module('mediaMogulApp')
     };
 
     self.isInViewerCollection = function() {
-      if (isInGroupMode()) {
+      if (self.isInGroupMode()) {
         const group_id = getOptionalGroupID();
         return GroupService.groupHasSeries(self.series, group_id);
       } else {
@@ -793,7 +793,7 @@ angular.module('mediaMogulApp')
         }
         self.series.personSeries.dynamic_rating = dynamic_rating;
       }
-      if (isInGroupMode()) {
+      if (self.isInGroupMode()) {
         EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
         updateNextUp();
         goToNextUpAfterPause();
@@ -977,6 +977,37 @@ angular.module('mediaMogulApp')
           }
         }
       })
+    };
+
+    function addBallot(ballot) {
+      const groupSeries = getGroupSeries();
+      if (!_.isArray(groupSeries.ballots)) {
+        groupSeries.ballots = [ballot];
+      } else {
+        groupSeries.ballots.push(ballot);
+      }
+    }
+
+    self.addBallot = function() {
+      if (self.LockService.isAdmin()) {
+        $uibModal.open({
+          templateUrl: 'views/tv/groups/addBallot.html',
+          controller: 'addBallotController',
+          controllerAs: 'ctrl',
+          size: 'lg',
+          resolve: {
+            series: function () {
+              return self.series;
+            },
+            addBallotCallback: function() {
+              return addBallot;
+            },
+            groupSeries: function () {
+              return getGroupSeries();
+            }
+          }
+        });
+      }
     };
 
     self.submitSeriesAdded = function() {
