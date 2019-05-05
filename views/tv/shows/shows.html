@@ -9,22 +9,22 @@
 
 <div style="margin-top: 10px">
 
-  <div class="row" style="margin-bottom: 10px;">
-    <div class="col-sm-3 col-xs-6" style="padding-right: 2px">
+  <div class="row" style="margin: 0 0 10px 0;">
+    <div class="col-sm-3 col-xs-6" style="padding: 0 2px 0 2px">
 
       <drop-down dynamic-value="ctrl.getSelectedCategory"
                  dynamic-possible-values="ctrl.getCategories"
                  on-change-callback="ctrl.onCategoryChange"></drop-down>
 
     </div>
-    <div class="col-md-2 col-sm-3 col-xs-6" style="padding-right: 2px">
+    <div class="col-md-2 col-sm-3 col-xs-6" style="padding: 0 2px 0 2px">
 
       <drop-down dynamic-value="ctrl.getSelectedSubCategory"
                  possible-values="ctrl.subCategories"
                  on-change-callback="ctrl.onSubCategoryChange"></drop-down>
 
     </div>
-    <div class="col-md-2 col-sm-3 col-xs-5" style="padding-left: 2px; padding-right: 0">
+    <div class="col-md-2 col-sm-3 col-xs-5" style="padding: 0 2px 0 2px">
 
       <button type="button"
               class="btn btn-lg btn-default"
@@ -40,7 +40,7 @@
       </button>
 
     </div>
-    <div class="col-md-5 col-sm-3 col-xs-7 custom-typeahead">
+    <div class="col-md-5 col-sm-3 col-xs-7 custom-typeahead" style="padding: 0 4px 0 4px">
       <input type="text"
              placeholder="Quick Find..."
              ng-model="ctrl.quickFindResult"
