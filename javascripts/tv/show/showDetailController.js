@@ -311,6 +311,22 @@ angular.module('mediaMogulApp')
       return self.viewer.group_id;
     }
 
+    self.hasPreviousUnwatched = function(episode) {
+      return self.getPreviousUnwatched(episode).length > 0;
+    };
+
+    self.previousUnwatchedCount = function(episode) {
+      return self.getPreviousUnwatched(episode).length;
+    };
+
+    self.getWatchButtonLabel = function(episode) {
+      if (self.hasPreviousUnwatched(episode)) {
+        return 'Mark ' + self.previousUnwatchedCount(episode) + ' Watched';
+      } else {
+        return 'Mark Watched';
+      }
+    };
+
     self.getBackButtonLabel = function() {
       if (self.from_sref.includes('tv.shows.my')) {
         return 'Back to My Shows'
