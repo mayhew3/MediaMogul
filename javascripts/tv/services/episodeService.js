@@ -930,7 +930,7 @@ angular.module('mediaMogulApp')
             episodes.forEach(function(episode) {
               $log.debug(lastWatched + ", " + episode.absolute_number);
               if (episode.absolute_number !== null && episode.absolute_number <= lastWatched && episode.season !== 0) {
-                episode.personSeries.watched = true;
+                episode.personEpisode.watched = true;
               }
             });
             resolve();

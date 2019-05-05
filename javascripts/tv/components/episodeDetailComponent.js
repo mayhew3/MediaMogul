@@ -32,6 +32,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       null;
   }
 
+  self.hasPreviousUnwatched = function() {
+    return self.getPreviousUnwatched().length > 0;
+  };
+
   self.previousUnwatchedCount = function() {
     return self.getPreviousUnwatched().length;
   };
@@ -271,7 +275,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.watched_date = watchedDate;
       groupEpisode.skipped = false;
       self.updating = false;
-      self.postRatingCallback(self.episode, null);
+      self.postRatingCallback(null, null);
     });
   }
 
@@ -298,7 +302,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.watched = false;
       groupEpisode.skipped = !self.isSkipped();
       self.updating = false;
-      self.postRatingCallback(self.episode, null);
+      self.postRatingCallback(null, null);
     });
   }
 
@@ -325,10 +329,18 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
           dynamicRating = response.data.dynamic_rating;
         }
         self.updating = false;
-        self.postRatingCallback(self.episode, dynamicRating);
+        self.postRatingCallback(dynamicRating, getLastUnwatched());
       });
     }
   };
+
+  function getLastUnwatched() {
+    if (self.isWatched() && self.hasPreviousUnwatched()) {
+      return self.episode.absolute_number;
+    } else {
+      return null;
+    }
+  }
 
   self.toggleWatched = function() {
     self.addOrUpdateRating();
