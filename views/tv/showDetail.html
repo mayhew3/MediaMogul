@@ -170,7 +170,7 @@
               </li>
               <li role="menuitem"
                   class="adminMenuOption"
-                  ng-if="ctrl.LockService.isAdmin() && ctrl.isInGroupMode()">
+                  ng-if="ctrl.LockService.isAdmin() && !ctrl.hasOpenBallot()">
                 <a href="#"
                    style="padding-left: 15px;"
                    ng-click="ctrl.addBallot()">
