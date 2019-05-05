@@ -979,6 +979,25 @@ angular.module('mediaMogulApp')
       })
     };
 
+    function getBallotForShow() {
+      if (self.isInGroupMode()) {
+        return _.findWhere(getGroupSeries().ballots, {voting_closed: null});
+      } else {
+        return null;
+      }
+    }
+
+    self.getOutstandingVoteCount = function() {
+      const ballot = getBallotForShow();
+      return ArrayService.exists(ballot) ?
+        group.members.length - ballot.votes.length :
+        0;
+    };
+
+    self.hasOpenBallot = function() {
+      return ArrayService.exists(getBallotForShow());
+    };
+
     function addBallot(ballot) {
       const groupSeries = getGroupSeries();
       if (!_.isArray(groupSeries.ballots)) {
