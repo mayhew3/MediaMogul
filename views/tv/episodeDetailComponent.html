@@ -2,13 +2,6 @@
 
   <div class="col-md-8 col-sm-6 col-xs-12">
 
-    <!-- Title -->
-    <div class="row">
-      <div class="col-lg-12">
-        <h2 style="margin-top: 0" ng-bind="ctrl.episode.title"></h2>
-      </div>
-    </div>
-
     <!-- Episode Number -->
     <div class="row">
       <div class="col-lg-12">
@@ -21,10 +14,10 @@
       </div>
     </div>
 
-    <!-- Episode Summary -->
+    <!-- Title -->
     <div class="row">
       <div class="col-lg-12">
-        <span ng-bind="ctrl.episode.tvdb_overview"></span>
+        <span style="margin-top: 0; font-size: 24pt; font-weight: bold" ng-bind="ctrl.episode.title"></span>
       </div>
     </div>
 
@@ -32,7 +25,14 @@
 
     <div class="row seriesDetailElement" ng-show="!ctrl.LockService.isAdmin()" style="margin-top: 15px">
       <div class="col-lg-12">
-        Air Date: <span ng-bind="ctrl.getAirDate()"></span>
+        Aired: <span ng-bind="ctrl.getAirDate()"></span>
+      </div>
+    </div>
+
+    <!-- Episode Summary -->
+    <div class="row seriesDetailElement">
+      <div class="col-lg-12">
+        <span ng-bind="ctrl.episode.tvdb_overview"></span>
       </div>
     </div>
 
@@ -40,45 +40,47 @@
          ng-if="ctrl.isUnaired()">Episode airs {{ctrl.airedFromNow()}}.</div>
 
     <div class="row" ng-if="ctrl.isInViewerCollection()">
-      <div class="watchedButton">
+      <div class="col-lg-12">
+        <div class="watchedButton">
 
-        <div class="seriesDetailElement">
-          <!-- Mark Watched -->
-          <checkmark-button label="'Mark Watched'"
-                            checked-label="'Watched'"
-                            button-class="ctrl.getWatchButtonClass"
-                            button-is-toggled="ctrl.isWatched"
-                            on-click="ctrl.toggleWatched"
-                            is-updating="ctrl.isUpdating"></checkmark-button>
-        </div>
+          <div class="seriesDetailElement">
+            <!-- Mark Watched -->
+            <checkmark-button label="'Mark Watched'"
+                              checked-label="'Watched'"
+                              button-class="ctrl.getWatchButtonClass"
+                              button-is-toggled="ctrl.isWatched"
+                              on-click="ctrl.toggleWatched"
+                              is-updating="ctrl.isUpdating"></checkmark-button>
+          </div>
 
 
-        <!-- Watched Date Input-->
-        <div ng-if="!ctrl.isWatched()">
-          <p class="input-group">
-            <span class="input-group-addon" id="basic-addon1">On</span>
-            <input type="text"
-                   id="watchedDateInput"
-                   class="form-control"
-                   uib-datepicker-popup="{{'dd-MMMM-yyyy'}}"
-                   ng-model="ctrl.watchedDate"
-                   is-open="ctrl.popup.opened"
-                   datepicker-options="ctrl.dateOptions"
-                   ng-required="false"
-                   close-text="Close"
-                   alt-input-formats="ctrl.altInputFormats" />
-            <span class="input-group-btn">
+          <!-- Watched Date Input-->
+          <div ng-if="!ctrl.isWatched()">
+            <p class="input-group">
+              <span class="input-group-addon" id="basic-addon1">On</span>
+              <input type="text"
+                     id="watchedDateInput"
+                     class="form-control"
+                     uib-datepicker-popup="{{'dd-MMMM-yyyy'}}"
+                     ng-model="ctrl.watchedDate"
+                     is-open="ctrl.popup.opened"
+                     datepicker-options="ctrl.dateOptions"
+                     ng-required="false"
+                     close-text="Close"
+                     alt-input-formats="ctrl.altInputFormats" />
+              <span class="input-group-btn">
             <button type="button"
                     class="btn btn-default"
                     ng-click="ctrl.open()"><i class="glyphicon glyphicon-calendar"></i></button>
           </span>
-          </p>
+            </p>
+          </div>
+
+
+          <!-- Watched Date Readonly -->
+          <span ng-if="ctrl.isWatched() && ctrl.hasWatchedDate()">On {{ctrl.getWatchedDateForDisplay()}}</span>
+
         </div>
-
-
-        <!-- Watched Date Readonly -->
-        <span ng-if="ctrl.isWatched() && ctrl.hasWatchedDate()">On {{ctrl.getWatchedDateForDisplay()}}</span>
-
       </div>
     </div>
 
@@ -87,6 +89,7 @@
 
   <div class="col-md-4 col-sm-12 col-xs-12 seriesDetailElement">
     <img class="img-rounded"
+         ng-if="ctrl.showEpisodeImage()"
          ng-src="{{ctrl.getEpisodeImage()}}"
          width="100%"
          alt="episode image"/>
