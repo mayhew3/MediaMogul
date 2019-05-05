@@ -4,55 +4,46 @@
 
 <div class="modal-body clearfix">
 
-  <div class="col-lg-3">
+  <div class="col-md-3 col-sm-4 col-xs-5 seriesDetailElement">
     <tv-poster show="ctrl.series"
                poster-info="{}"></tv-poster>
   </div>
 
-  <div class="col-lg-9">
 
-    <div class="row">
-      <div class="col-lg-4">
-        <span class="visible-lg-block">Open Date</span>
-        <span class="largeLabel" ng-bind="ctrl.getOpenDate()"></span>
-      </div>
-      <div class="col-lg-8">
-        <span class="visible-lg-block">Reason</span>
-        <span class="mediumLabel" ng-bind="ctrl.tv_group_ballot.reason"></span>
-      </div>
-    </div>
-
-    <div class="row" style="margin-top: 10px;">
-      <div class="col-lg-4">
-        <span class="visible-lg-block"
-        style="margin-bottom: 5px">Metacritic</span>
-        <rating-box value="ctrl.series.metacritic"
-                    max-value="100"></rating-box>
-      </div>
-
-      <div class="col-lg-8" ng-show="ctrl.series.trailer_link">
-        <span class="visible-lg-block"
-              style="margin-bottom: 5px">Trailer</span>
-        <a class="mediumLabel" href="{{ctrl.series.trailer_link}}" target="_blank">View Trailer</a>
-        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-             width="14" height="14"
-             viewBox="0 0 224 224"
-             style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><path d="M0,224v-224h224v224z" fill="none"></path><g id="original-icon" fill="#cccccc"><path d="M46.66667,28c-10.20192,0 -18.66667,8.46475 -18.66667,18.66667v130.66667c0,10.20192 8.46475,18.66667 18.66667,18.66667h130.66667c10.20192,0 18.66667,-8.46475 18.66667,-18.66667v-65.33333h-18.66667v65.33333h-130.66667v-130.66667h65.33333v-18.66667zM130.66667,28v18.66667h33.46875l-86.73438,86.73438l13.19792,13.19791l86.73438,-86.73437v33.46875h18.66667v-65.33333z"></path></g></g></svg>
-      </div>
-
-      <div class="col-lg-4">
-        <span class="visible-lg-block"
-              style="margin-bottom: 5px">Vote</span>
-        <!--suppress HtmlFormInputWithoutLabel -->
-        <input type="number"
-               class="form-control input-lg"
-               ng-model="ctrl.selectedVote"
-               min="1"
-               max="100">
-      </div>
-    </div>
-
+  <div class="col-md-4 col-sm-5 col-xs-7 seriesDetailElement">
+    <span>Open Date</span><br>
+    <span class="mediumLabel" ng-bind="ctrl.getOpenDate()"></span>
   </div>
+
+  <div class="col-md-4 col-sm-5 col-xs-7 seriesDetailElement">
+    <span>Reason</span><br>
+    <span class="mediumLabel" ng-bind="ctrl.tv_group_ballot.reason"></span>
+  </div>
+
+  <div class="col-md-4 col-sm-5 col-xs-7 seriesDetailElement" ng-if="!!ctrl.series.metacritic">
+    <span style="margin-bottom: 5px">Metacritic</span>
+    <rating-box value="ctrl.series.metacritic"
+                max-value="100"></rating-box>
+  </div>
+
+  <div class="col-md-4 col-sm-5 col-xs-7 seriesDetailElement" ng-show="ctrl.series.trailer_link">
+    <a class="mediumLabel" href="{{ctrl.series.trailer_link}}" target="_blank">View Trailer</a>
+    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+         width="14" height="14"
+         viewBox="0 0 224 224"
+         style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><path d="M0,224v-224h224v224z" fill="none"></path><g id="original-icon" fill="#cccccc"><path d="M46.66667,28c-10.20192,0 -18.66667,8.46475 -18.66667,18.66667v130.66667c0,10.20192 8.46475,18.66667 18.66667,18.66667h130.66667c10.20192,0 18.66667,-8.46475 18.66667,-18.66667v-65.33333h-18.66667v65.33333h-130.66667v-130.66667h65.33333v-18.66667zM130.66667,28v18.66667h33.46875l-86.73438,86.73438l13.19792,13.19791l86.73438,-86.73437v33.46875h18.66667v-65.33333z"></path></g></g></svg>
+  </div>
+
+  <div class="col-md-3 col-sm-4 col-xs-6 seriesDetailElement">
+    <span style="margin-bottom: 5px">Vote (1-100)</span>
+    <!--suppress HtmlFormInputWithoutLabel -->
+    <input type="number"
+           class="form-control input-lg"
+           ng-model="ctrl.selectedVote"
+           min="1"
+           max="100">
+  </div>
+
 
 </div>
 
