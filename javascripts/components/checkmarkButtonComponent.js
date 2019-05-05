@@ -8,17 +8,12 @@ angular.module('mediaMogulApp')
       checkedLabel: '<',
       buttonIsToggled: '<',
       onClick: '<',
-      buttonClass: '<',
-      isUpdating: '<'
+      buttonClass: '<'
     }
   });
 
 function checkmarkButtonController(ArrayService) {
   const self = this;
-
-  function hasUpdatingMethodAndIsUpdating() {
-    return ArrayService.exists(self.isUpdating) && self.isUpdating();
-  }
 
   self.getButtonClass = function() {
     if (ArrayService.exists(self.buttonClass)) {
