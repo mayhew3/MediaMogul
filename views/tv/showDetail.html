@@ -5,8 +5,9 @@
 <div ng-if="!ctrl.isLoading()">
 
   <div class="page-header" style="margin-top: 60px" >
-    <div class="row">
-      <div class="col-lg-8">
+
+    <div class="row seriesDetailElement">
+      <div class="col-xs-6">
         <button type="button"
                 class="btn btn-sm btn-primary backButton"
                 ng-if="ctrl.from_sref"
@@ -15,13 +16,14 @@
                                               height="16"
                                               alt="back"> {{ctrl.getBackButtonLabel()}}</button>
       </div>
-      <div class="col-lg-4 text-right">
-        <h4>Viewer: {{ctrl.getViewerName()}}</h4>
+      <div class="col-xs-6 text-right">
+        <span>Viewer: {{ctrl.getViewerName()}}</span>
       </div>
     </div>
+
     <div class="row">
       <div class="col-lg-12">
-        <h1 ng-bind="ctrl.series.title"></h1>
+        <h3 ng-bind="ctrl.series.title"></h3>
       </div>
     </div>
   </div>
@@ -29,25 +31,25 @@
   <div class="row seriesDetailElement">
 
     <!--  LEFT SIDE -->
-    <div class="col-md-2 col-sm-3 col-xs-5">
+    <div class="col-md-2 col-sm-3 col-xs-12">
 
       <div class="row">
 
         <!-- POSTER -->
-        <div class="col-xs-12 seriesDetailElement">
+        <div class="col-sm-12 col-xs-5 seriesDetailElement">
           <tv-poster show="ctrl.series"
                      poster-info="{}"
                      on-click="ctrl.openChangePoster"></tv-poster>
         </div>
 
         <!-- DYNAMIC RATING -->
-        <div class="col-xs-12 seriesDetailElement" ng-if="ctrl.isInViewerCollection()">
+        <div class="col-sm-12 col-xs-6 seriesDetailElement" ng-if="ctrl.isInViewerCollection()">
           <rating-box value="ctrl.series.personSeries.dynamic_rating"
                       max-value="100"></rating-box>
         </div>
 
         <!-- MY SHOWS TOGGLE -->
-        <div class="col-xs-11 seriesDetailElement">
+        <div class="col-sm-11 col-xs-6 seriesDetailElement">
           <checkmark-button
               label="'My Shows'"
               button-is-toggled="ctrl.isInMyShows"
@@ -56,7 +58,7 @@
         </div>
 
         <!-- GROUP COLLECTION DROPDOWN -->
-        <div class="col-xs-11 seriesDetailElement"
+        <div class="col-sm-11 col-xs-6 seriesDetailElement"
              ng-if="ctrl.detailReady">
           <div class="btn-group btn-block"
                uib-dropdown
@@ -110,7 +112,7 @@
         </div>
 
         <!-- ACTIONS DROPDOWN -->
-        <div class="col-xs-11 seriesDetailElement"
+        <div class="col-sm-11 col-xs-6 seriesDetailElement"
              ng-if="ctrl.isInMyShows() || ctrl.LockService.isAdmin()">
           <div class="btn-group btn-block"
                uib-dropdown
@@ -194,12 +196,12 @@
 
               <div class="row">
 
-                <div class="col-lg-9 col-md-8 col-sm-12 col-xs-12">
+                <div class="col-lg-9 col-md-8 col-sm-12 col-xs-12" style="padding: 0">
                   <div ui-view></div>
                 </div>
 
                 <!-- EPISODE LIST -->
-                <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12">
+                <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12" style="padding-right: 17px">
 
                   <!-- SEASON SELECT -->
                   <div class="row seriesDetailElement" ng-show="ctrl.shouldDisplaySeasonList() && ctrl.shouldDisplayEpisodeList()">

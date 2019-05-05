@@ -40,6 +40,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       undefined;
   }
 
+  self.showEpisodeImage = function() {
+    return !!self.episode.tvdb_filename;
+  };
+
   self.getEpisodeImage = function() {
     return self.episode ? EpisodeService.getImageResolved(self.episode) : '';
   };
