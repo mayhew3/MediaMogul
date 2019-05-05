@@ -808,8 +808,33 @@ angular.module('mediaMogulApp')
       return GroupService.getGroupSeries(self.series, getOptionalGroupID());
     }
 
-    self.afterRatingChange = function(episode, dynamic_rating) {
-      if (ArrayService.exists(dynamic_rating)) {
+    function updateDenormsAndGoToNext() {
+      EpisodeService.updateMySeriesDenorms(
+        self.series,
+        self.episodes,
+        updatePersonSeriesInDatabase,
+        self.series.personSeries)
+        .then(function () {
+          if (LockService.isAdmin()) {
+            YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
+          }
+          updateNextUp();
+          goToNextUpAfterPause();
+        });
+    }
+
+    function maybeMarkPastUnwatched(optionalLastUnwatched) {
+      return $q(resolve => {
+        if (!optionalLastUnwatched) {
+          resolve();
+        } else {
+          markMyPastWatched(optionalLastUnwatched).then(() => resolve());
+        }
+      });
+    }
+
+    self.afterRatingChange = function(dynamic_rating, optionalLastUnwatched) {
+      if (!!dynamic_rating) {
         if (!self.series.personSeries) {
           self.series.personSeries = {};
         }
@@ -820,18 +845,9 @@ angular.module('mediaMogulApp')
         updateNextUp();
         goToNextUpAfterPause();
       } else {
-        EpisodeService.updateMySeriesDenorms(
-          self.series,
-          self.episodes,
-          updatePersonSeriesInDatabase,
-          self.series.personSeries)
-          .then(function () {
-            if (LockService.isAdmin()) {
-              YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
-            }
-            updateNextUp();
-            goToNextUpAfterPause();
-          });
+        maybeMarkPastUnwatched(optionalLastUnwatched).then(() => {
+          updateDenormsAndGoToNext();
+        });
       }
     };
 
