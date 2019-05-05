@@ -340,6 +340,14 @@ angular.module('mediaMogulApp')
       return selectors.join(' ');
     };
 
+    self.getPreviousUnwatched = function(episode) {
+      const unwatchedPrevious = _.filter(self.episodes, unwatched => {
+        return shouldCountAsUnwatched(unwatched) &&
+          unwatched.absolute_number < episode.absolute_number;
+      });
+      return unwatchedPrevious;
+    };
+
     function getEpisodeViewerObject(episode) {
       if (self.isInGroupMode()) {
         return GroupService.getGroupEpisode(episode, getOptionalGroupID());

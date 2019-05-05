@@ -8,7 +8,8 @@ angular.module('mediaMogulApp')
       episode: '=',
       postRatingCallback: '<',
       viewer: '<',
-      isInViewerCollection: '<'
+      isInViewerCollection: '<',
+      previousUnwatched: '<'
     }
   });
 
@@ -30,6 +31,14 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       new Date(watchedDateFromEpisode) :
       null;
   }
+
+  self.previousUnwatchedCount = function() {
+    return self.getPreviousUnwatched().length;
+  };
+
+  self.getPreviousUnwatched = function() {
+    return self.previousUnwatched(self.episode);
+  };
 
   function getWatchedDateFromEpisode() {
     const episodeViewer = getEpisodeViewerObject();
