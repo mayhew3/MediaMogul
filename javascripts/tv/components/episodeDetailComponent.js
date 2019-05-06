@@ -24,7 +24,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   function initWatchedDate() {
     const watchedDateFromEpisode = getWatchedDateFromEpisode();
-    if (!watchedDateFromEpisode && !hasRating()) {
+    if (!watchedDateFromEpisode && !self.isWatched()) {
       return new Date();
     }
     return ArrayService.exists(watchedDateFromEpisode) ?
