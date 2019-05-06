@@ -1525,11 +1525,12 @@ exports.revertYear = function(request, response) {
   });
 };
 
-exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications) {
+exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications, episodes) {
   return new Promise(function(resolve) {
-    var series_id = payload.series_id;
-    var last_watched = payload.last_watched;
-    var person_ids = payload.person_ids;
+    const series_id = payload.series_id;
+    const last_watched = payload.last_watched;
+    const person_ids = payload.person_ids;
+    const person_id = payload.person_id;
 
     if (person_ids.length < 1 || payload.skipped) {
       return resolve();
@@ -1543,7 +1544,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
 
     console.log("Updating episodes as Watched, before episode " + last_watched);
 
-    var sql = 'UPDATE episode_rating ' +
+    const sql = 'UPDATE episode_rating ' +
       'SET watched = $1 ' +
       ratingClause +
       'WHERE watched <> $2 ' +
@@ -1556,7 +1557,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
       'AND retired = $6) ' +
       'AND person_id IN (' + db.createInlineVariableList(person_ids.length, 7) + ") ";
 
-    var values = [true, // watched
+    const values = [true, // watched
       true,             // !watched
       series_id,         // series_id
       last_watched,      // absolute_number <
@@ -1571,7 +1572,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
         'p.rating_notifications ' :
         '$7 ';
 
-      var values = [
+      const values = [
         true,        // watched
         series_id,    // series
         0,           // retired
@@ -1584,7 +1585,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
         values.push(false);
       }
 
-      var sql = "INSERT INTO episode_rating (episode_id, person_id, watched, date_added, rating_pending) " +
+      const sql = "INSERT INTO episode_rating (episode_id, person_id, watched, date_added, rating_pending) " +
         "SELECT e.id, p.id, $1, now(), " + ratingClause +
         "FROM episode e, person p " +
         "WHERE e.series_id = $2 " +
@@ -1596,12 +1597,24 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
         "FROM episode_rating er " +
         "WHERE er.retired = $6 " +
         "AND er.person_id = p.id) " +
-        "AND p.id IN (" + db.createInlineVariableList(person_ids.length, values.length + 1) + ") ";
+        "AND p.id IN (" + db.createInlineVariableList(person_ids.length, values.length + 1) + ") " +
+        "RETURNING episode_id, id as rating_id, person_id ";
 
       ArrayService.addToArray(values, person_ids);
 
-      db.updateNoJSON(sql, values).then(function() {
-        return resolve();
+      db.selectWithJSON(sql, values).then(episodeRatings => {
+        const myRatings = _.where(episodeRatings, {person_id: person_id});
+        _.each(myRatings, episodeRating => {
+          const matching = _.findWhere(episodes, {
+            episode_id: episodeRating.episode_id
+          });
+          if (!matching) {
+            episodes.push(episodeRating);
+          } else {
+            matching.rating_id = episodeRating.rating_id;
+          }
+        });
+        return resolve(episodes);
       });
     });
   });

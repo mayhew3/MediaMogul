@@ -37,7 +37,7 @@
     </div>
 
     <div class="alert alert-success"
-         ng-if="ctrl.hasPreviousUnwatched()">{{ctrl.previousUnwatchedCount()}} previous episodes are unwatched.</div>
+         ng-if="ctrl.hasPreviousUnwatched() && !ctrl.isWatched()">{{ctrl.previousUnwatchedCount()}} previous episodes are unwatched.</div>
 
     <div class="alert alert-info"
          ng-if="ctrl.isUnaired()">Episode airs {{ctrl.airedFromNow()}}.</div>
