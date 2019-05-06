@@ -47,9 +47,9 @@
       if (envName === null || envName === 'heroku') {
         return 'navbar-default';
       } else if (envName === 'heroku-staging') {
-        return 'stagingNavbar';
+        return 'navbar-default stagingNavbar';
       } else {
-        return 'localNavbar';
+        return 'navbar-default localNavbar';
       }
     };
 
