@@ -825,9 +825,9 @@ exports.getNextAiredInfo = function(request, response) {
 };
 
 exports.pinToDashboard = function(request, response) {
-  const series_id = request.query.series_id;
-  const person_id = request.query.person_id;
-  const pinned = request.query.pinned;
+  const series_id = request.body.series_id;
+  const person_id = request.body.person_id;
+  const pinned = request.body.pinned;
 
   const sql = "UPDATE person_series " +
     "SET pinned = $1 " +

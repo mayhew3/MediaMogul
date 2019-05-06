@@ -850,7 +850,7 @@ angular.module('mediaMogulApp')
       self.pinToDashboard = function(series, pinned) {
         $http.post('/api/pinToDashboard', {
           series_id: series.id,
-          person_id: LockService.personSeries,
+          person_id: LockService.person_id,
           pinned: pinned
         }).then(() => {
            series.personSeries.pinned = pinned;
