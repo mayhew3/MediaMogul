@@ -654,13 +654,36 @@ function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
 
 
 exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
-  Promise.all([
-    updateTVGroupEpisodesAllPastWatched(request.body),
-    person_controller.updateEpisodeRatingsAllPastWatched(request.body, true)
-  ]).then(function() {
-    response.json({msg: "Success!"});
+  updateTVGroupEpisodesAllPastWatched(request.body)
+    .then(episodes => {
+    person_controller.updateEpisodeRatingsAllPastWatched(request.body, true, episodes)
+      .then(episodes => response.json(episodes));
   });
 };
+
+function getEpisodesThatWillBeUpdated(series_id, tv_group_id, lastWatched) {
+  const sql = 'SELECT e.id AS episode_id, (SELECT id  ' +
+    '                            FROM tv_group_episode  ' +
+    '                            WHERE episode_id = e.id ' +
+    '                            AND tv_group_id = $3 ' +
+    '                            AND retired = $1) AS tv_group_episode_id ' +
+    'FROM episode e ' +
+    'WHERE e.retired = $1 ' +
+    'AND e.series_id = $2 ' +
+    'AND e.season <> $6 ' +
+    'AND e.absolute_number IS NOT NULL ' +
+    'AND e.absolute_number < $4 ' +
+    'AND e.id NOT IN (SELECT episode_id ' +
+    '                 FROM tv_group_episode ' +
+    '                 WHERE retired = $1 ' +
+    '                 AND tv_group_id = $3 ' +
+    '                 AND (watched = $5 OR skipped = $5)) ' +
+    'ORDER BY e.absolute_number';
+
+  const values = [0, series_id, tv_group_id, lastWatched, true, 0];
+
+  return db.selectWithJSON(sql, values);
+}
 
 function updateTVGroupEpisodesAllPastWatched(payload) {
   return new Promise(function(resolve) {
@@ -710,9 +733,11 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
         'AND e.absolute_number < $7 ' +
         'AND e.season <> $8 ' +
         "AND e.id NOT IN (SELECT tge.episode_id " +
-        "FROM tv_group_episode tge " +
-        "WHERE tge.tv_group_id = $9" +
-        "AND tge.retired = $4)";
+        "                 FROM tv_group_episode tge " +
+        "                 WHERE tge.tv_group_id = $9" +
+        "                 AND tge.retired = $4)" +
+        "ORDER BY e.absolute_number " +
+        "RETURNING episode_id, id AS tv_group_episode_id ";
       const values = [
         tv_group_id,                         // person
         watched,  // watched
@@ -725,8 +750,8 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
         tv_group_id                         // person
       ];
 
-      db.updateNoJSON(sql, values).then(function() {
-        return resolve();
+      db.selectWithJSON(sql, values).then(groupEpisodes => {
+        resolve(groupEpisodes);
       });
     });
   });

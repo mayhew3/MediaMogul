@@ -335,7 +335,9 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   };
 
   self.getWatchButtonLabel = function() {
-    if (self.hasPreviousUnwatched()) {
+    if (self.isWatched()) {
+      return 'Watched';
+    } else if (self.hasPreviousUnwatched()) {
       return 'Mark ' + (self.previousUnwatchedCount() + 1) + ' Watched';
     } else {
       return 'Mark Watched';

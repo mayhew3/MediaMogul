@@ -87,6 +87,7 @@ angular.module('mediaMogulApp')
           return _.pluck(group.members, 'person_id');
         };
 
+        // todo: get new ids back and attach to group episodes.
         self.markPastGroupEpisodesWatched = function(series_id, tv_group_id, lastWatched, watched) {
           return $http.post('/api/watchPastGroupEpisodes', {
             series_id: series_id,
@@ -94,7 +95,8 @@ angular.module('mediaMogulApp')
             tv_group_id: tv_group_id,
             watched: watched,
             skipped: !watched,
-            person_ids: self.getMemberIDs(tv_group_id)
+            person_ids: self.getMemberIDs(tv_group_id),
+            person_id: self.LockService.person_id
           });
         };
 
