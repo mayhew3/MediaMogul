@@ -344,8 +344,18 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     }
   };
 
+  self.getSkipButtonLabel = function() {
+    if (self.isSkipped()) {
+      return 'Skipped';
+    } else if (self.hasPreviousUnwatched()) {
+      return 'Mark ' + (self.previousUnwatchedCount() + 1) + ' Skipped';
+    } else {
+      return 'Mark Skipped';
+    }
+  };
+
   function getLastUnwatched() {
-    if (self.isWatched() && self.hasPreviousUnwatched()) {
+    if ((self.isWatched() || self.isSkipped()) && self.hasPreviousUnwatched()) {
       return self.episode.absolute_number;
     } else {
       return null;

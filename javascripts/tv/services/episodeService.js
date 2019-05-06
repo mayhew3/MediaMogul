@@ -1026,10 +1026,6 @@ angular.module('mediaMogulApp')
 
         $log.debug("Found " + unwatchedEpisodesList.length + " unwatched episodes:");
 
-        unwatchedEpisodesList.forEach(function(episode) {
-          $log.debug(" - " + episode.season + "x" + episode.episode_number + ": " + episode.title);
-        });
-
         unwatchedEpisodes = unwatchedEpisodesList.length;
         firstUnwatched = unwatchedEpisodes === 0 ? null : _.first(unwatchedEpisodesList).air_time;
 

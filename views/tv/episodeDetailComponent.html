@@ -48,9 +48,7 @@
 
           <div class="seriesDetailElement">
             <!-- Mark Watched -->
-            <checkmark-button label="'Mark Watched'"
-                              checked-label="'Watched'"
-                              get-label="ctrl.getWatchButtonLabel"
+            <checkmark-button get-label="ctrl.getWatchButtonLabel"
                               button-class="ctrl.getWatchButtonClass"
                               button-is-toggled="ctrl.isWatched"
                               on-click="ctrl.toggleWatched"
@@ -92,8 +90,7 @@
 
           <!-- Mark Skipped -->
           <div class="seriesDetailElement" ng-if="ctrl.isInGroupMode()">
-            <checkmark-button label="'Mark Skipped'"
-                              checked-label="'Skipped'"
+            <checkmark-button get-label="ctrl.getSkipButtonLabel"
                               button-class="ctrl.getSkipButtonClass"
                               button-is-toggled="ctrl.isSkipped"
                               on-click="ctrl.toggleSkipped"
