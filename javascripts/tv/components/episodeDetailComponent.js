@@ -20,6 +20,19 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   self.$onInit = function() {
     self.watchedDate = initWatchedDate();
+    self.original_rating_value = initRating();
+    self.rating_value = initRating();
+  };
+
+  function initRating() {
+    const ratingFromEpisode = getRatingFromEpisode();
+    return !!ratingFromEpisode ?
+      ratingFromEpisode :
+      null;
+  }
+
+  self.ratingIsChanged = function() {
+    return self.original_rating_value !== self.rating_value;
   };
 
   function initWatchedDate() {
@@ -49,6 +62,14 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
     return !!episodeViewer ?
       episodeViewer.watched_date :
+      undefined;
+  }
+
+  function getRatingFromEpisode() {
+    const episodeViewer = getEpisodeViewerObject();
+
+    return !!episodeViewer ?
+      episodeViewer.rating_value :
       undefined;
   }
 
@@ -88,9 +109,9 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       'No date';
   };
 
-  function hasMyRating() {
+  self.hasMyRating = function() {
     return ArrayService.exists(self.episode.personEpisode.rating_id);
-  }
+  };
 
   function hasRating() {
     if (self.isInGroupMode()) {
@@ -216,11 +237,13 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     };
     if (!self.isWatched()) {
       changedFields.watched_date = watchedDate;
+      changedFields.rating_value = self.rating_value;
     }
     EpisodeService.updateMyEpisodeRating(changedFields, episode.personEpisode.rating_id, episode.series_id).then(function (result) {
       personEpisode.watched = !self.isWatched();
       if (self.isWatched()) {
         personEpisode.watched_date = watchedDate;
+        personEpisode.rating_value = self.rating_value;
       }
       resolve(result);
     });
@@ -233,7 +256,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       person_id: LockService.person_id,
       watched: !self.isWatched(),
       watched_date: self.isWatched() ? null : DateService.formatDateForDatabase(self.watchedDate),
-      rating_value: null,
+      rating_value: self.rating_value,
       review: null,
       rating_pending: false
     };
@@ -308,7 +331,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   function updateOrAddMyRating() {
     return $q(resolve => {
-      if (hasMyRating()) {
+      if (self.hasMyRating()) {
         updateExistingRating(resolve);
       } else {
         addRating(resolve);
@@ -370,5 +393,18 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     updateOrAddSkipRating();
   };
 
+  self.updateMyRating = function() {
+    self.updating = true;
+    const changedFields = {
+      rating_value: self.rating_value,
+      rating_pending: false
+    };
+    EpisodeService.updateMyEpisodeRating(changedFields, self.episode.personEpisode.rating_id, self.episode.series_id).then(function (result) {
+      self.episode.personEpisode.rating_value = self.rating_value;
+      self.episode.personEpisode.rating_pending = false;
+      self.original_rating_value = self.rating_value;
+      self.updating = false;
+    });
+  };
 }
 

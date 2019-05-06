@@ -85,7 +85,32 @@
           </div>
 
           <!-- Watched Date Readonly -->
-          <span ng-if="ctrl.isWatched() && ctrl.hasWatchedDate()">On {{ctrl.getWatchedDateForDisplay()}}</span>
+          <div class="seriesDetailElement"
+               ng-if="ctrl.isWatched() && ctrl.hasWatchedDate()">
+            On {{ctrl.getWatchedDateForDisplay()}}
+          </div>
+
+          <!-- Rating -->
+          <div ng-if="!ctrl.isInGroupMode()">
+            <p class="input-group">
+              <span class="input-group-addon">Rating</span>
+              <input type="number"
+                     class="form-control"
+                     id="ratingValue"
+                     name="ratingValue"
+                     min="1"
+                     max="100"
+                     ng-model="ctrl.rating_value"/>
+              <span ng-if="ctrl.hasMyRating() && ctrl.ratingIsChanged()"
+                  class="input-group-btn">
+                <button type="button"
+                        class="btn btn-default"
+                        ng-disabled="ctrl.updating"
+                        ng-click="ctrl.updateMyRating()">Update</button>
+              </span>
+            </p>
+
+          </div>
 
 
           <!-- Mark Skipped -->
