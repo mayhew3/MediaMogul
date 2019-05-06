@@ -234,24 +234,28 @@ angular.module('mediaMogulApp')
             const nextAirDate = new Date(results.data.air_time);
             const delay = nextAirDate - Date.now();
 
-            console.log("Adding timeout for " + self.nextShowsToUpdate.length + " shows, " + formatAirTime(nextAirDate));
+            if (delay < 2147483647) {
 
-            self.nextTimeout = $timeout(function() {
-              console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
-              _.forEach(self.nextShowsToUpdate, function(show) {
-                const series_id = parseInt(show.series_id);
-                const series = _.findWhere(myShows, {id: series_id});
-                console.log(' - Updating show ' + series.title);
-                series.personSeries.unwatched_all += show.episode_count;
-                series.personSeries.first_unwatched = nextAirDate;
-                series.nextAirDate = show.next_air_time ? new Date(show.next_air_time) : undefined;
-              });
-              $timeout.cancel(self.nextTimeout);
-              self.nextTimeout = undefined;
-              self.nextShowsToUpdate = [];
-              addTimerForNextAirDate();
-            }, delay);
+              console.log("Adding timeout for " + self.nextShowsToUpdate.length + " shows, " + moment(nextAirDate).fromNow());
 
+              self.nextTimeout = $timeout(function () {
+                console.log(formatAirTime(Date.now()) + ": timeout reached! Updating shows: ");
+                _.forEach(self.nextShowsToUpdate, function (show) {
+                  const series_id = parseInt(show.series_id);
+                  const series = _.findWhere(myShows, {id: series_id});
+                  console.log(' - Updating show ' + series.title);
+                  series.personSeries.unwatched_all += show.episode_count;
+                  series.personSeries.first_unwatched = nextAirDate;
+                  series.nextAirDate = show.next_air_time ? new Date(show.next_air_time) : undefined;
+                });
+                $timeout.cancel(self.nextTimeout);
+                self.nextTimeout = undefined;
+                self.nextShowsToUpdate = [];
+                addTimerForNextAirDate();
+              }, delay);
+            } else {
+              console.log("No timeout because nearest air date is " + moment(nextAirDate).fromNow());
+            }
           } else {
             console.log("No shows in collection found with upcoming air time!");
           }
