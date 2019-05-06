@@ -275,7 +275,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.watched_date = watchedDate;
       groupEpisode.skipped = false;
       self.updating = false;
-      self.postRatingCallback(null, null);
+      self.postRatingCallback(null, getLastUnwatched(), self.isWatched());
     });
   }
 
@@ -302,7 +302,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.watched = false;
       groupEpisode.skipped = !self.isSkipped();
       self.updating = false;
-      self.postRatingCallback(null, null);
+      self.postRatingCallback(null, getLastUnwatched(), self.isWatched());
     });
   }
 
