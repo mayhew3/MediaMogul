@@ -846,8 +846,10 @@ angular.module('mediaMogulApp')
         } else {
           if (self.isInGroupMode()) {
             const tv_group_id = getOptionalGroupID();
-            GroupService.markMyPastWatched(self.series.id, tv_group_id).then(() => {
+            GroupService.markPastGroupEpisodesWatched(self.series.id, tv_group_id, optionalLastUnwatched, watched)
+              .then(() => {
               markAllPreviousGroupWatched(optionalLastUnwatched, watched);
+              resolve();
             });
           } else {
             markMyPastWatched(optionalLastUnwatched).then(() => resolve());
@@ -864,15 +866,15 @@ angular.module('mediaMogulApp')
         }
         self.series.personSeries.dynamic_rating = dynamic_rating;
       }
-      if (self.isInGroupMode()) {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
-        updateNextUp();
-        goToNextUpAfterPause();
-      } else {
-        maybeMarkPastUnwatched(optionalLastUnwatched, watched).then(() => {
+      maybeMarkPastUnwatched(optionalLastUnwatched, watched).then(() => {
+        if (self.isInGroupMode()) {
+          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
+          updateNextUp();
+          goToNextUpAfterPause();
+        } else {
           updateDenormsAndGoToNext();
-        });
-      }
+        }
+      });
     };
 
     function markAllPreviousGroupWatched(lastWatchedNumber, watched) {
