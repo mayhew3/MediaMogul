@@ -87,4 +87,15 @@ angular.module('mediaMogulApp')
           return _.pluck(group.members, 'person_id');
         };
 
+        self.markPastGroupEpisodesWatched = function(series_id, tv_group_id, lastWatched, watched) {
+          return $http.post('/api/watchPastGroupEpisodes', {
+            series_id: series_id,
+            last_watched: lastWatched,
+            tv_group_id: tv_group_id,
+            watched: watched,
+            skipped: !watched,
+            person_ids: self.getMemberIDs(tv_group_id)
+          });
+        };
+
       }]);

@@ -839,17 +839,25 @@ angular.module('mediaMogulApp')
         });
     }
 
-    function maybeMarkPastUnwatched(optionalLastUnwatched) {
+    function maybeMarkPastUnwatched(optionalLastUnwatched, watched) {
       return $q(resolve => {
         if (!optionalLastUnwatched) {
           resolve();
         } else {
-          markMyPastWatched(optionalLastUnwatched).then(() => resolve());
+          if (self.isInGroupMode()) {
+            const tv_group_id = getOptionalGroupID();
+            GroupService.markMyPastWatched(self.series.id, tv_group_id).then(() => {
+              markAllPreviousGroupWatched(optionalLastUnwatched, watched);
+            });
+          } else {
+            markMyPastWatched(optionalLastUnwatched).then(() => resolve());
+          }
         }
       });
+
     }
 
-    self.afterRatingChange = function(dynamic_rating, optionalLastUnwatched) {
+    self.afterRatingChange = function(dynamic_rating, optionalLastUnwatched, watched) {
       if (!!dynamic_rating) {
         if (!self.series.personSeries) {
           self.series.personSeries = {};
@@ -861,11 +869,24 @@ angular.module('mediaMogulApp')
         updateNextUp();
         goToNextUpAfterPause();
       } else {
-        maybeMarkPastUnwatched(optionalLastUnwatched).then(() => {
+        maybeMarkPastUnwatched(optionalLastUnwatched, watched).then(() => {
           updateDenormsAndGoToNext();
         });
       }
     };
+
+    function markAllPreviousGroupWatched(lastWatchedNumber, watched) {
+      self.episodes.forEach(function(episode) {
+        if (episode.absolute_number < lastWatchedNumber) {
+          const episodeGroup = getEpisodeViewerObject(episode);
+          if (!episodeGroup.watched && !episodeGroup.skipped) {
+            episodeGroup.watched = watched;
+            episodeGroup.watched_date = null;
+            episodeGroup.skipped = !watched;
+          }
+        }
+      });
+    }
 
     self.markAllPastWatched = function() {
 
