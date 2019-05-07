@@ -307,6 +307,10 @@ angular.module('mediaMogulApp')
       return self.viewer.type === 'group';
     };
 
+    self.isInGroupShows = function() {
+      return self.isInGroupMode() && self.isInViewerCollection();
+    };
+
     function getOptionalGroupID() {
       return self.viewer.group_id;
     }
@@ -847,15 +851,19 @@ angular.module('mediaMogulApp')
           resolve();
         } else {
           if (self.isInGroupMode()) {
-            const tv_group_id = getOptionalGroupID();
-            GroupService.markPastGroupEpisodesWatched(self.series.id, tv_group_id, optionalLastUnwatched, watched)
-              .then(results => {
-                updateRatingIDsAfterBulkWatch(results.data);
-                markAllPreviousGroupWatched(optionalLastUnwatched, watched);
-                resolve();
-              });
+            if (self.isInGroupShows()) {
+              const tv_group_id = getOptionalGroupID();
+              GroupService.markPastGroupEpisodesWatched(self.series.id, tv_group_id, optionalLastUnwatched, watched)
+                .then(results => {
+                  updateRatingIDsAfterBulkWatch(results.data);
+                  markAllPreviousGroupWatched(optionalLastUnwatched, watched);
+                  resolve();
+                });
+            }
           } else {
-            markMyPastWatched(optionalLastUnwatched).then(() => resolve());
+            if (self.isInMyShows()) {
+              markMyPastWatched(optionalLastUnwatched).then(() => resolve());
+            }
           }
         }
       });
@@ -1075,7 +1083,7 @@ angular.module('mediaMogulApp')
     };
 
     function getBallotForShow() {
-      if (self.isInGroupMode()) {
+      if (self.isInGroupShows()) {
         return _.findWhere(getGroupSeries().ballots, {voting_closed: null});
       } else {
         return null;
