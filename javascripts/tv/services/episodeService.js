@@ -824,7 +824,12 @@ angular.module('mediaMogulApp')
 
             const groupList = self.getExistingGroupShowList(tv_group_id);
             if (!!groupList) {
-              groupList.push(show);
+              const existingGroupShow = _.findWhere(groupList, {id: show.id});
+              if (!existingGroupShow) {
+                groupList.push(show);
+              } else {
+                console.log("Trying to add existing show '" + show.title + "' to group " + tv_group_id);
+              }
             }
 
             resolve();

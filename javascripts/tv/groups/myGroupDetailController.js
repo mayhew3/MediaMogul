@@ -31,7 +31,7 @@ angular.module('mediaMogulApp')
 
     function getBallots(series) {
       const groupSeries = getGroupSeries(series);
-      return groupSeries.ballots;
+      return !groupSeries ? [] : groupSeries.ballots;
     }
 
     function getLastWatched(series) {
