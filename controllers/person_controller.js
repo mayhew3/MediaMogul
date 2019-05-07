@@ -640,16 +640,21 @@ exports.getSeriesDetailInfo = function(request, response) {
           db.selectWithJSON(sql, values).then(groupResults => {
             series.groups = groupResults;
 
-            const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped, tge.tv_group_id " +
+            const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped, tge.tv_group_id  " +
               "FROM tv_group_episode tge " +
               "INNER JOIN episode e " +
-              "  ON tge.episode_id = e.id " +
-              "WHERE e.series_id = $1 " +
+              " ON tge.episode_id = e.id " +
+              "INNER JOIN tv_group tg " +
+              " ON tge.tv_group_id = tg.id " +
+              "INNER JOIN tv_group_person tgp " +
+              " ON tgp.tv_group_id = tg.id " +
+              "WHERE tgp.person_id = $3 " +
+              "AND e.series_id = $1 " +
               "AND e.retired = $2 " +
               "AND tge.retired = $2 " +
-              "ORDER BY tge.tv_group_id, e.absolute_number ";
+              "ORDER BY tge.tv_group_id, e.absolute_number";
 
-            const values = [series_id, 0];
+            const values = [series_id, 0, person_id];
 
             db.selectWithJSON(sql, values).then(groupEpisodeResults => {
 

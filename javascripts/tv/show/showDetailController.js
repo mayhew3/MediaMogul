@@ -343,16 +343,19 @@ angular.module('mediaMogulApp')
 
     self.getTileClass = function(episode) {
       const selectors = [];
-      if (self.isInViewerCollection()) {
-        if (shouldCountAsUnwatched(episode) && !self.isUnaired(episode)) {
-          selectors.push('tile-ready');
-        } else if (isSkipped(episode)) {
-          selectors.push('tile-skipped');
-        } else if (isWatched(episode)) {
-          selectors.push('tile-watched');
-        } else if (self.isUnaired(episode)) {
-          selectors.push('tile-unaired');
-        }
+
+      if (self.isInViewerCollection() && shouldCountAsUnwatched(episode) && !self.isUnaired(episode)) {
+        selectors.push('tile-ready');
+      }
+
+      if (isSkipped(episode)) {
+        selectors.push('tile-skipped');
+      } else if (isWatched(episode)) {
+        selectors.push('tile-watched');
+      } else if (self.isUnaired(episode)) {
+        selectors.push('tile-unaired');
+      } else if (self.isInViewerCollection() && shouldCountAsUnwatched(episode)) {
+        selectors.push('tile-ready');
       }
 
       if (isSelectedEpisode(episode)) {
