@@ -243,7 +243,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       self.sendHome = function(event) {
         event.preventDefault();
         onRouteChangeOff();
-        $location.path('/');
+        $state.go('home');
       };
 
       self.callbackBase = function() {

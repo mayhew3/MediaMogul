@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper', '__env',
-    '$q', 'ArrayService',
-    function ($log, $http, store, $location, jwtHelper, __env, $q, ArrayService) {
+    '$q', 'ArrayService', '$state',
+    function ($log, $http, store, $location, jwtHelper, __env, $q, ArrayService, $state) {
 
       const self = this;
       self.user_role = 'none';
@@ -62,7 +62,7 @@ angular.module('mediaMogulApp')
           self.isAuthenticated = true;
           self.setSession(authResult, function() {
             executeAfterLoginCallbacks();
-            $location.path('/tv/shows/dashboard');
+            $state.go('tv.shows.my.dashboard')
           });
         }
       });
