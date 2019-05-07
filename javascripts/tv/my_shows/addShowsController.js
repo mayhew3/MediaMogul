@@ -152,6 +152,7 @@ angular.module('mediaMogulApp')
         pageLimit: 12,
         showLoading: self.showLoading,
         extraStyles: posterStyle,
+        subtitle: show => show.title,
         textOverlay: textOverlay,
         clickOverride: (show) => self.goTo(show)
       };
@@ -171,6 +172,7 @@ angular.module('mediaMogulApp')
           getButtonClass: getButtonClass,
           onClick: self.initiateSeriesRequest
         },
+        subtitle: show => show.title,
         showLoading: self.showLoading,
         clickOverride: () => {}
       };
