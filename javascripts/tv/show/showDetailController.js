@@ -178,7 +178,7 @@ angular.module('mediaMogulApp')
       if (self.hasGroup(group)) {
         EpisodeService.removeFromGroupShows(self.series, group.id);
       } else {
-        EpisodeService.addToGroupShows(self.series, group.id);
+        EpisodeService.addToGroupShows(self.series, group.id, self.episodes);
       }
     };
 

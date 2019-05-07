@@ -732,29 +732,32 @@ angular.module('mediaMogulApp')
 
       function addInfoForUnwatchedEpisodes(series, episodes) {
         episodes.forEach( function(episode) {
-
           // my episodes
           self.updateRatingFields(episode);
-
-          // group episodes
-          if (!episode.groups) {
-            episode.groups = [];
-          }
-
-          _.each(series.groups, group => {
-
-            const existing = GroupService.getGroupEpisode(episode, group.tv_group_id);
-            if (!existing) {
-              const groupEpisode = {
-                tv_group_id: group.tv_group_id,
-                watched: false,
-                skipped: false
-              };
-              episode.groups.push(groupEpisode);
-            }
-          });
         });
 
+        // group episodes
+        _.each(series.groups, group => addInfoForUnwatchedEpisodesSingleGroup(group.tv_group_id, episodes));
+      }
+
+      function addInfoForUnwatchedEpisodesSingleGroup(tv_group_id, episodes) {
+        episodes.forEach(episode => addInfoForUnwatchedEpisode(tv_group_id, episode));
+      }
+
+      function addInfoForUnwatchedEpisode(tv_group_id, episode) {
+        if (!episode.groups) {
+          episode.groups = [];
+        }
+
+        const existing = GroupService.getGroupEpisode(episode, tv_group_id);
+        if (!existing) {
+          const groupEpisode = {
+            tv_group_id: tv_group_id,
+            watched: false,
+            skipped: false
+          };
+          episode.groups.push(groupEpisode);
+        }
       }
 
       self.updateEpisode = function(episodeId, changedFields) {
@@ -803,7 +806,7 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.addToGroupShows = function(show, tv_group_id) {
+      self.addToGroupShows = function(show, tv_group_id, episodes) {
         return $q((resolve, reject) => {
           $http.post('/api/addGroupShow', {series_id: show.id, tv_group_id: tv_group_id}).then(function(resultShow) {
             const incomingShow = resultShow.data;
@@ -814,6 +817,10 @@ angular.module('mediaMogulApp')
             const groupSeries = GroupService.getGroupSeries(show, tv_group_id);
             groupSeries.ballots = [];
             groupSeries.last_watched = undefined;
+
+            if (!!episodes) {
+              addInfoForUnwatchedEpisodesSingleGroup(tv_group_id, episodes);
+            }
 
             const groupList = self.getExistingGroupShowList(tv_group_id);
             if (!!groupList) {
