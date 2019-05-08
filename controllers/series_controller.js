@@ -357,7 +357,7 @@ function getTopPoster(seriesObj) {
         if (posterData.length === 0) {
           resolve();
         } else {
-          seriesObj.poster = posterData[0].fileName;
+          seriesObj.poster = _.last(posterData).fileName;
           resolve();
         }
       }
