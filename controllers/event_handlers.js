@@ -2,6 +2,7 @@ const pg = require('pg');
 const EventEmitter = require('events');
 const util = require('util');
 const socket = require('../bin/www');
+const person_controller = require('./person_controller');
 
 
 // Build and instantiate our custom event emitter
@@ -18,14 +19,21 @@ dbEventEmitter.on('ext_service_notifications', (msg) => {
   console.log('Ext service change: ' + JSON.stringify(msg) + ". ");
   console.log('Updating ' + socket.clients.length + ' clients.');
 
-  socket.clients.forEach(client => {
-    client.emit('ext_service_update', msg);
-  });
+  sendToAllClients('ext_service_update', msg);
 });
 
 dbEventEmitter.on('tvdb_match_notifications', (msg) => {
   console.log('TVDB Match Status change: "' + msg.tvdb_match_status + '"');
+  person_controller.getUpdatedSingleSeries(msg.id, msg.person_id)
+    .then(result => {
+      result.person_id = msg.person_id;
+      sendToAllClients('tvdb_match_update', result);
+  })
 });
+
+function sendToAllClients(channel, msg) {
+  socket.clients.forEach(client => client.emit(channel, msg));
+}
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL
