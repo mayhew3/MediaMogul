@@ -37,8 +37,7 @@ angular.module('mediaMogulApp')
     };
 
     self.showFetchingEpisodes = function(series) {
-      const showEpisodes = self.LockService.isAdmin() ||
-        (series.person_id && series.person_id === self.LockService.person_id);
+      const showEpisodes = (series.person_id && series.person_id === self.LockService.person_id);
       return showEpisodes;
     };
 

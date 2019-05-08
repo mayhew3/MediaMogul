@@ -8,6 +8,7 @@ angular.module('mediaMogulApp')
       const groupShows = [];
 
       const self = this;
+      self.LockService = LockService;
       self.uninitialized = true;
       const groupsLoading = [];
       self.loadingQueue = true;
@@ -65,6 +66,7 @@ angular.module('mediaMogulApp')
                   self.loadingNotMyShows = false;
                   finishedAllShows = true;
                   validateShowArrays();
+                  listenForTVDBComplete();
                   executeEligibleCallbacks();
                   resolve();
                 });
@@ -325,6 +327,26 @@ angular.module('mediaMogulApp')
           console.error('Error while fetching series list: ' + errResponse);
         });
       };
+
+      function listenForTVDBComplete() {
+        io().on('tvdb_match_update', updatedSeries => {
+          const existing = _.findWhere(myPendingShows, {id: updatedSeries.id});
+          if (!!existing) {
+            ArrayService.removeFromArray(myPendingShows, existing);
+          }
+
+          formatIncomingShow(updatedSeries);
+          if (updatedSeries.person_id === self.LockService.person_id) {
+            myShows.push(updatedSeries);
+            addTimerForNextAirDate();
+          } else {
+            delete updatedSeries.personSeries;
+            notMyShows.push(updatedSeries);
+          }
+
+          allShows.push(updatedSeries);
+        });
+      }
 
       self.updateNotMyShowsList = function() {
         return $http.get('/api/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
@@ -786,6 +808,14 @@ angular.module('mediaMogulApp')
         return $http.post('/api/addSeries', {series: series});
       };
 
+      function transformIncomingShowAndAddToArrays(incomingShow) {
+        formatIncomingShow(incomingShow);
+        const show = addPersonShowToAllShowsList(incomingShow);
+        myShows.push(show);
+        addTimerForNextAirDate();
+        return show;
+      }
+
       self.addToMyShows = function(show, lastWatched) {
         return $q((resolve, reject) => {
           $http.post('/api/addToMyShows', {
@@ -794,10 +824,7 @@ angular.module('mediaMogulApp')
             LastWatched: lastWatched
           }).then(function (resultShow) {
             const incomingShow = resultShow.data;
-            formatIncomingShow(incomingShow);
-            const show = addPersonShowToAllShowsList(incomingShow);
-            myShows.push(show);
-            addTimerForNextAirDate();
+            const show = transformIncomingShowAndAddToArrays(incomingShow);
             resolve(show);
           }, function(errResponse) {
             $log.debug("Error adding to my shows: " + errResponse);
