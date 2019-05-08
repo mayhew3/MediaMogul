@@ -306,7 +306,11 @@ exports.getTVDBMatches = function(request, response) {
           return {
             title: seriesObj.seriesName,
             tvdb_series_ext_id: seriesObj.id,
-            poster: null
+            poster: null,
+            first_aired: seriesObj.firstAired,
+            network: seriesObj.network,
+            overview: seriesObj.overview,
+            status: seriesObj.status
           };
         });
 

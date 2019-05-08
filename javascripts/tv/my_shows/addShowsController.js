@@ -29,7 +29,14 @@ angular.module('mediaMogulApp')
       self.requestsLoaded = false;
       SeriesRequestService.fetchMyPendingRequests().then(() => self.requestsLoaded = true);
 
+      self.currentPageTVDB = 1;
+      self.pageSize = 6;
+
       let loading = false;
+
+      self.totalItems = function() {
+        return self.getShowsNotInSystem().length;
+      };
 
       self.updateTVDBMatches = function() {
         self.alternateText = "Retrieving matches...";
