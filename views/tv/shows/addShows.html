@@ -38,7 +38,57 @@
 
   <div ng-if="ctrl.searchStarted">
     <tv-panel panel-info="ctrl.inSystemPanel"></tv-panel>
-    <tv-panel panel-info="ctrl.externalPanel"></tv-panel>
+
+    <!-- GROUP HEADER -->
+    <div class="panel-heading">
+      <div class="row">
+        <div class="col-md-8 col-sm-6 col-xs-12">
+          <h3>TVDB Matches</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-body" style="padding-bottom: 0">
+
+        <div class="row" ng-if="ctrl.showLoading()">
+          <div class="col-xs-9 col-lg-6" style="text-align: center; padding-bottom: 20px">
+            <h2>Loading...</h2>
+          </div>
+        </div>
+
+        <div class="row" ng-if="!ctrl.showLoading()">
+          <div class="col-lg-6 fade-repeat posterRow"
+               ng-repeat="show in ctrl.getShowsNotInSystem()">
+
+            <div class="col-lg-4">
+              <tv-poster show="show"
+                         poster-info="{}"></tv-poster>
+              <div style="height: 30px">
+                <h5 ng-bind="show.title"></h5>
+              </div>
+
+              <div align="center" style="margin-top: 10px">
+                <button type="button"
+                        class="btn"
+                        ng-class="ctrl.getButtonClass(show)"
+                        ng-click="ctrl.initiateSeriesRequest(show)">
+                  {{ctrl.getButtonLabel(show)}}
+                </button>
+              </div>
+
+            </div>
+
+
+
+          </div>
+
+
+        </div>
+
+      </div>
+    </div>
+
   </div>
 
 </div>

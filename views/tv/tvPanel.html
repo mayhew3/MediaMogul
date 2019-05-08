@@ -31,7 +31,9 @@
     </div>
 
     <div class="row" ng-hide="ctrl.showLoading()">
-      <div class="fade-repeat posterRow" ng-class="ctrl.imageColumnClass()" ng-repeat="show in ctrl.getShows() |
+      <div class="fade-repeat posterRow"
+           ng-class="ctrl.imageColumnClass()"
+           ng-repeat="show in ctrl.getShows() |
                     orderBy: ctrl.orderBy() : ctrl.reverseSort() |
                     filter: ctrl.allFilter |
                     limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
