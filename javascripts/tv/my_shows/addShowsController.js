@@ -121,20 +121,37 @@ angular.module('mediaMogulApp')
         SeriesRequestService.initiateSeriesRequest(show).then(() => delete show.request_processing);
       };
 
+      self.addSeries = function(show) {
+        show.request_processing = true;
+        show.date_added = new Date;
+        show.person_id = self.LockService.person_id;
+
+        EpisodeService.addSeries(show).then(function(result) {
+          show.id = result.data.seriesId;
+          show.tvdb_match_status = 'Match Confirmed';
+          EpisodeService.addToPendingShows(show);
+          delete show.request_processing;
+        });
+      };
+
+      function isAdded(show) {
+        return !!show.id;
+      }
+
       function hasRequest(show) {
         return SeriesRequestService.hasSeriesRequest(show.tvdb_series_ext_id);
       }
 
       self.getButtonLabel = function(show) {
-        return hasRequest(show) ?
-          'Request Pending' :
-          'Add Request';
+        return isAdded(show) ?
+          'Fetching Episodes' :
+          'Add Show';
       };
 
       self.getButtonClass = function(show) {
         const selectors = ['btn-block'];
 
-        if (hasRequest(show)) {
+        if (isAdded(show)) {
           selectors.push('btn-default');
         } else {
           selectors.push('btn-primary');
