@@ -23,6 +23,10 @@ dbEventEmitter.on('ext_service_notifications', (msg) => {
   });
 });
 
+dbEventEmitter.on('tvdb_match_notifications', (msg) => {
+  console.log('TVDB Match Status change: "' + msg.tvdb_match_status + '"');
+});
+
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL
 });
@@ -42,4 +46,5 @@ pool.connect(function(err, client) {
 
   // Designate which channels we are listening on. Add additional channels with multiple lines.
   client.query('LISTEN ext_service_notifications');
+  client.query('LISTEN tvdb_match_notifications');
 });
