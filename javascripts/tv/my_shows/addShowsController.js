@@ -118,13 +118,13 @@ angular.module('mediaMogulApp')
         return SeriesRequestService.hasSeriesRequest(show.tvdb_series_ext_id);
       }
 
-      function getLabel(show) {
+      self.getButtonLabel = function(show) {
         return hasRequest(show) ?
           'Request Pending' :
           'Add Request';
-      }
+      };
 
-      function getButtonClass(show) {
+      self.getButtonClass = function(show) {
         const selectors = ['btn-block'];
 
         if (hasRequest(show)) {
@@ -138,7 +138,7 @@ angular.module('mediaMogulApp')
         }
 
         return selectors.join(' ');
-      }
+      };
 
       self.inSystemPanel = {
         headerText: 'Existing Shows',
@@ -155,26 +155,6 @@ angular.module('mediaMogulApp')
         subtitle: show => show.title,
         textOverlay: textOverlay,
         clickOverride: (show) => self.goTo(show)
-      };
-
-      self.externalPanel = {
-        headerText: 'TVDB Shows',
-        sort: {
-          field: 'incomingOrder',
-          direction: 'asc'
-        },
-        showEmpty: true,
-        seriesFunction: self.getShowsNotInSystem,
-        posterSize: 'large',
-        pageLimit: 12,
-        buttonInfo: {
-          getLabel: getLabel,
-          getButtonClass: getButtonClass,
-          onClick: self.initiateSeriesRequest
-        },
-        subtitle: show => show.title,
-        showLoading: self.showLoading,
-        clickOverride: () => {}
       };
 
       function posterStyle(match) {
