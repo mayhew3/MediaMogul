@@ -480,7 +480,11 @@ function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response) {
 
   insertObject('series', series).then(seriesWithId => {
     addPersonSeries(seriesWithId, personId).then(personSeries => {
+      personSeries.unwatched_all = 10;
+      personSeries.my_tier = personSeries.tier;
+      delete personSeries.tier;
       seriesWithId.personSeries = personSeries;
+      updateMatchCompleted(seriesWithId);
       response.json(seriesWithId);
     });
   });
@@ -494,6 +498,17 @@ function addPersonSeries(series, personId) {
   };
 
   return insertObject('person_series', personSeries);
+}
+
+function updateMatchCompleted(series) {
+  const sql = 'UPDATE series ' +
+    'SET tvdb_match_status = $1 ' +
+    'WHERE id = $2 ';
+
+  const values = ['Match Completed', series.id];
+
+  series.tvdb_match_status = 'Match Completed';
+  return db.updateNoJSON(sql, values);
 }
 
 function updateLastPoster(tvdbSeries) {
@@ -528,7 +543,7 @@ function insertObject(tableName, object) {
       'VALUES (' + db.createInlineVariableList(fieldNames.length, 1) + ') ' +
       'RETURNING id ';
 
-    const values = _.values(object);
+    const values = _.map(_.values(object), value => value === '' ? null : value);
 
     db.selectWithJSON(sql, values).then(result => {
       object.id = result[0].id;
