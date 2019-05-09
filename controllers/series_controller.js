@@ -14,7 +14,7 @@ exports.getNumberOfShowsToRate = function(request, response) {
   'and (watched = aired or watched > $2) ' +
   'and rating is null ';
 
-  return db.executeQueryWithResults(response, sql, [year, 4]);
+  return db.selectSendResponse(response, sql, [year, 4]);
 };
 
 exports.getEpisodeGroupRating = function(request, response) {
@@ -29,7 +29,7 @@ exports.getEpisodeGroupRating = function(request, response) {
     'AND retired = $2 ' +
     'AND series_id = $3 ';
 
-  return db.executeQueryWithResults(response, sql, [year, 0, seriesId]);
+  return db.selectSendResponse(response, sql, [year, 0, seriesId]);
 };
 
 exports.getEpisodeGroupRatings = function(request, response) {
@@ -42,7 +42,7 @@ exports.getEpisodeGroupRatings = function(request, response) {
     'WHERE year = $1 ' +
     'AND s.retired = $2 ';
 
-  return db.executeQueryWithResults(response, sql, [year, 0]);
+  return db.selectSendResponse(response, sql, [year, 0]);
 };
 
 exports.getAllRatingYears = function(request, response) {
@@ -51,7 +51,7 @@ exports.getAllRatingYears = function(request, response) {
     'WHERE retired = $1 ' +
     'ORDER BY year DESC ';
 
-  return db.executeQueryWithResults(response, sql, [0]);
+  return db.selectSendResponse(response, sql, [0]);
 };
 
 exports.getEpisodesForRating = function(req, response) {
@@ -93,7 +93,7 @@ exports.getEpisodesForRating = function(req, response) {
     year
   ];
 
-  db.selectWithJSON(sql, values).then(results => {
+  db.selectNoResponse(sql, values).then(results => {
     _.forEach(results, episode => {
       extractSinglePersonEpisode(episode);
     });
@@ -121,7 +121,7 @@ exports.getViewingLocations = function(req, response) {
 
   var sql = 'SELECT * FROM viewing_location';
 
-  return db.executeQueryWithResults(response, sql, []);
+  return db.selectSendResponse(response, sql, []);
 };
 
 exports.getAllPosters = function(req, response) {
@@ -133,7 +133,7 @@ exports.getAllPosters = function(req, response) {
     'WHERE tvdb_series_id = $1 ' +
     'AND retired = $2 ' +
     'ORDER BY id ';
-  return db.executeQueryWithResults(response, sql, [tvdbSeriesId, 0]);
+  return db.selectSendResponse(response, sql, [tvdbSeriesId, 0]);
 };
 
 exports.getPrimeTV = function(req, response) {
@@ -157,7 +157,7 @@ exports.getPrimeTV = function(req, response) {
     'AND ps.person_id = $5 ' +
     'ORDER BY CASE WHEN ps.rating IS NULL THEN s.metacritic ELSE ps.rating END DESC NULLS LAST';
 
-  return db.executeQueryWithResults(response, sql, [1, 0, 'Match Completed', 0, 1])
+  return db.selectSendResponse(response, sql, [1, 0, 'Match Completed', 0, 1])
 };
 
 exports.getPrimeSeriesInfo = function(req, response) {
@@ -190,7 +190,7 @@ exports.getPrimeSeriesInfo = function(req, response) {
     'ORDER BY e.season, e.episode_number ' +
     'LIMIT 1 ';
 
-  return db.executeQueryWithResults(response, sql, [
+  return db.selectSendResponse(response, sql, [
     req.query.SeriesId,
     0,    // e.retired
     0,    // te.retired
@@ -208,7 +208,7 @@ exports.changeTier = function(req, response) {
 
   var sql = "UPDATE series SET tier = $1 WHERE id = $2";
 
-  db.executeQueryNoResults(response, sql, [tier, seriesId]);
+  db.updateSendResponse(response, sql, [tier, seriesId]);
 };
 
 
@@ -227,7 +227,7 @@ exports.getMatchedTVDBIDs = function(request, response) {
     0
   ];
 
-  db.executeQueryWithResults(response, sql, values);
+  db.selectSendResponse(response, sql, values);
 };
 
 exports.handleSeriesRequest = function(request, response) {
@@ -269,7 +269,7 @@ function maybeAddSeries(tvdb_series_ext_id) {
       0
     ];
 
-    db.selectWithJSON(sql, values).then(function (requestResults) {
+    db.selectNoResponse(sql, values).then(function (requestResults) {
       const person_ids = _.pluck(requestResults, 'person_id');
       const seriesRequest = requestResults[0];
 
@@ -286,7 +286,7 @@ function maybeAddSeries(tvdb_series_ext_id) {
 
         ArrayService.addToArray(values, person_ids);
 
-        db.updateNoJSON(sql, values).then(() => resolve());
+        db.updateNoResponse(sql, values).then(() => resolve());
       });
     });
   });
@@ -306,7 +306,7 @@ function getOrInsertNewSeries(tvdb_series_ext_id, seriesRequest, person_id) {
       0
     ];
 
-    db.selectWithJSON(sql, values).then(existingSeries => {
+    db.selectNoResponse(sql, values).then(existingSeries => {
       if (existingSeries.length > 0) {
         const existing_id = existingSeries[0].id;
         resolve(existing_id);
@@ -329,7 +329,7 @@ function getOrInsertNewSeries(tvdb_series_ext_id, seriesRequest, person_id) {
           seriesRequest.poster
         ];
 
-        db.selectWithJSON(sql, values).then(seriesResults => {
+        db.selectNoResponse(sql, values).then(seriesResults => {
           resolve(seriesResults[0].id);
         });
       }
@@ -351,7 +351,7 @@ function updateSeriesRequest(handling, tvdb_series_ext_id, response) {
     tvdb_series_ext_id
   ];
 
-  db.executeQueryNoResults(response, sql, values);
+  db.updateSendResponse(response, sql, values);
 }
 
 exports.addSeries = function(req, res) {
@@ -382,7 +382,7 @@ var insertSeries = function(series, response) {
     series.poster
   ];
 
-  db.selectWithJSON(sql, values).then(function (results) {
+  db.selectNoResponse(sql, values).then(function (results) {
     var seriesId = results[0].id;
     response.json({seriesId: seriesId})
   }, function(err) {
@@ -402,7 +402,7 @@ exports.getSeriesViewingLocations = function(req, response) {
       ' ON svl.viewing_location_id = vl.id ' +
       'WHERE svl.series_id = $1';
 
-  return db.executeQueryWithResults(response, sql, [seriesId]);
+  return db.selectSendResponse(response, sql, [seriesId]);
 };
 
 exports.addViewingLocation = function(req, response) {
@@ -416,7 +416,7 @@ exports.removeViewingLocation = function(req, response) {
   var sql = "DELETE FROM series_viewing_location " +
       "WHERE series_id = $1 AND viewing_location_id = $2";
 
-  return db.executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
+  return db.updateSendResponse(response, sql, [seriesId, viewingLocationId]);
 };
 
 var insertSeriesViewingLocation = function(seriesId, viewingLocationId, response) {
@@ -426,7 +426,7 @@ var insertSeriesViewingLocation = function(seriesId, viewingLocationId, response
   var sql = 'INSERT INTO series_viewing_location (series_id, viewing_location_id, date_added) ' +
       'VALUES ($1, $2, now())';
 
-  return db.executeQueryNoResults(response, sql, [seriesId, viewingLocationId]);
+  return db.updateSendResponse(response, sql, [seriesId, viewingLocationId]);
 };
 
 exports.updateSeries = function(req, response) {
@@ -437,7 +437,7 @@ exports.updateSeries = function(req, response) {
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.updateSendResponse(response, queryConfig.text, queryConfig.values);
 };
 
 exports.updateEpisode = function(req, response) {
@@ -448,7 +448,7 @@ exports.updateEpisode = function(req, response) {
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.updateSendResponse(response, queryConfig.text, queryConfig.values);
 };
 
 exports.updateEpisodeGroupRating = function(req, response) {
@@ -459,7 +459,7 @@ exports.updateEpisodeGroupRating = function(req, response) {
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.updateSendResponse(response, queryConfig.text, queryConfig.values);
 };
 
 exports.addEpisodeGroupRating = function(request, response) {
@@ -495,7 +495,7 @@ exports.addEpisodeGroupRating = function(request, response) {
     episodeGroupRating.post_update_episodes
   ];
 
-  return db.executeQueryWithResults(response, sql, values);
+  return db.selectSendResponse(response, sql, values);
 };
 
 
@@ -512,5 +512,5 @@ exports.getUpcomingEpisodes = function(req, response) {
       "and e.retired = $4 " +
       "order by e.air_time asc;";
 
-  return db.executeQueryWithResults(response, sql, [1, false, 0, 0]);
+  return db.selectSendResponse(response, sql, [1, false, 0, 0]);
 };

@@ -416,7 +416,7 @@ function updateMatchCompleted(series) {
   const values = ['Match Completed', series.id];
 
   series.tvdb_match_status = 'Match Completed';
-  return db.updateNoJSON(sql, values);
+  return db.updateNoResponse(sql, values);
 }
 
 function updateLastPoster(tvdbSeries) {
@@ -426,7 +426,7 @@ function updateLastPoster(tvdbSeries) {
 
   const values = [tvdbSeries.last_poster, tvdbSeries.id];
 
-  return db.updateNoJSON(sql, values);
+  return db.updateNoResponse(sql, values);
 }
 
 function addPoster(tvdbSeriesId, fileName) {
@@ -453,7 +453,7 @@ function insertObject(tableName, object) {
 
     const values = _.map(_.values(object), value => value === '' ? null : value);
 
-    db.selectWithJSON(sql, values).then(result => {
+    db.selectNoResponse(sql, values).then(result => {
       object.id = result[0].id;
       resolve(object);
     }).catch(err => {
