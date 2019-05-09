@@ -33,6 +33,8 @@
         return 'https://res.cloudinary.com/media-mogul/image/upload/' + self.show.cloud_poster;
       } else if (self.show.poster) {
         return 'https://thetvdb.com/banners/' + self.show.poster;
+      } else if (self.show.poster_path) {
+        return 'https://thetvdb.com/banners/' + self.show.poster_path;
       } else {
         return 'images/GenericSeries.gif';
       }
