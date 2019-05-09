@@ -21,6 +21,7 @@ dbEventEmitter.on('ext_service_notifications', (msg) => {
 
   sendToAllClients('ext_service_update', msg);
 });
+/*
 
 dbEventEmitter.on('tvdb_match_notifications', (msg) => {
   console.log('TVDB Match Status change: "' + msg.tvdb_match_status + '"');
@@ -30,6 +31,7 @@ dbEventEmitter.on('tvdb_match_notifications', (msg) => {
       sendToAllClients('tvdb_match_update', result);
   })
 });
+*/
 
 function sendToAllClients(channel, msg) {
   socket.clients.forEach(client => client.emit(channel, msg));
@@ -54,5 +56,5 @@ pool.connect(function(err, client) {
 
   // Designate which channels we are listening on. Add additional channels with multiple lines.
   client.query('LISTEN ext_service_notifications');
-  client.query('LISTEN tvdb_match_notifications');
+  // client.query('LISTEN tvdb_match_notifications');
 });

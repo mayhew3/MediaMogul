@@ -408,6 +408,7 @@ exports.beginEpisodeFetch = function(request, response) {
           runtime: tvdbSeriesObj.runtime,
           status: tvdbSeriesObj.status,
           banner: tvdbSeriesObj.banner,
+          api_version: 2,
           last_updated: tvdbSeriesObj.lastUpdated,
           imdb_id: tvdbSeriesObj.imdbId,
           zap2it_id: tvdbSeriesObj.zap2itId
@@ -475,6 +476,7 @@ function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response) {
     metacritic_new: true,
     tvdb_match_status: 'Match Confirmed',
     tvdb_series_ext_id: tvdbSeries.tvdb_series_ext_id,
+    tvdb_series_id: tvdbSeries.id,
     tvdb_confirm_date: new Date
   };
 
@@ -485,8 +487,109 @@ function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response) {
       delete personSeries.tier;
       seriesWithId.personSeries = personSeries;
       updateMatchCompleted(seriesWithId);
+
+      updateEpisodes(seriesWithId);
+
       response.json(seriesWithId);
     });
+  });
+}
+
+function getEpisodesForPage(tvdbSeriesExtId, pageNumber, token, callback) {
+  const options = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      'Accept-Language': 'en'
+    },
+    qs: {
+      'page': pageNumber
+    },
+    json: true
+  };
+
+  return requestLib('https://api.thetvdb.com/series/' + tvdbSeriesExtId + '/episodes', options, callback);
+}
+
+function updateEpisodesForPage(series, pageNumber, token, episodes, finalCallback) {
+  getEpisodesForPage(series.tvdb_series_ext_id, pageNumber, token, function(error, tvdb_response, body) {
+    if (error) {
+      console.log(error);
+    } else if (tvdb_response.statusCode !== 200) {
+      console.log("Invalid status code: " + tvdb_response.statusCode);
+    } else {
+      const lastPage = body.links.last;
+      console.log('Updating page ' + pageNumber + ' of ' + lastPage);
+      const episodeData = body.data;
+
+      _.each(episodeData, episode => addEpisode(episode, series, episodes));
+
+      if (pageNumber < lastPage) {
+        updateEpisodesForPage(series, (pageNumber+1), token, episodes, finalCallback);
+      } else {
+        finalCallback(episodes);
+      }
+    }
+  });
+}
+
+function updateEpisodes(series) {
+  maybeRefreshToken().then(token => {
+    const episodes = [];
+    updateEpisodesForPage(series, 1, token, episodes, episodes => {
+      // todo: update denorms
+    });
+
+  });
+
+}
+
+function addEpisode(tvdbEpisodeObj, series, episodes) {
+
+  const tvdbEpisode = {
+    tvdb_episode_ext_id: tvdbEpisodeObj.id,
+    season_number: tvdbEpisodeObj.airedSeason,
+    episode_number: tvdbEpisodeObj.airedEpisodeNumber,
+    name: tvdbEpisodeObj.episodeName,
+    first_aired: tvdbEpisodeObj.firstAired,
+    tvdb_series_id: series.tvdb_series_id,
+    overview: tvdbEpisodeObj.overview,
+    production_code: tvdbEpisodeObj.productionCode,
+    rating: tvdbEpisodeObj.siteRating,
+    rating_count: tvdbEpisodeObj.siteRatingCount,
+    director: tvdbEpisodeObj.director,
+    last_updated: tvdbEpisodeObj.lastUpdated,
+    tvdb_season_ext_id: tvdbEpisodeObj.airedSeasonID,
+    filename: tvdbEpisodeObj.filename,
+    airs_after_season: tvdbEpisodeObj.airsAfterSeason,
+    airs_before_season: tvdbEpisodeObj.airsBeforeSeason,
+    airs_before_episode: tvdbEpisodeObj.airsBeforeEpisode,
+    thumb_height: tvdbEpisodeObj.thumbHeight,
+    thumb_width: tvdbEpisodeObj.thumbWidth,
+    api_version: 2
+  };
+
+  const episode = {
+    series_id: series.id,
+    series_title: series.title,
+    streaming: true,
+    episode_number: tvdbEpisodeObj.airedEpisodeNumber,
+    absolute_number: tvdbEpisodeObj.absoluteNumber,
+    season: tvdbEpisodeObj.airedSeason,
+    title: tvdbEpisodeObj.episodeName,
+    air_date: tvdbEpisodeObj.firstAired,
+    air_time: tvdbEpisodeObj.firstAired
+  };
+
+  // todo: update air_time
+  // todo: update absolute_number -- ugh, best to wait until all tvdb_episodes are in, then insert episodes with updated absolutes?
+
+  episodes.push(episode);
+
+  insertObject('tvdb_episode', tvdbEpisode).then(tvdbEpisodeWithId => {
+    episode.tvdb_episode_id = tvdbEpisodeWithId.id;
+    insertObject('episode', episode);
   });
 }
 
