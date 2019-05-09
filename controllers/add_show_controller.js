@@ -109,11 +109,12 @@ exports.beginEpisodeFetch = function(request, response) {
 
     requestLib(seriesUrl, options, function (error, tvdb_response, body) {
       if (error) {
-        console.log("Error getting TVDB data: " + error);
-        response.send("Error getting TVDB data: " + error);
+        throwError("Error getting TVDB series: " + error, 'Error getting TVDB Data: ' + error, response);
       } else if (tvdb_response.statusCode !== 200) {
-        console.log("Unexpected status code from TVDB API: " + tvdb_response.statusCode + ", " + tvdb_response.statusText);
-        response.json([]);
+        throwError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
+          tvdb_response.statusText,
+          'Error fetching series from TVDB',
+          response);
       } else {
         const tvdbSeriesObj = body.data;
 
@@ -159,17 +160,27 @@ function updatePosters(tvdbSeries, tvdbSeriesObj, personId, response) {
 
     requestLib(postersUrl, options, function (error, tvdb_response, body) {
       if (error) {
-        console.log(error);
+        throwError("Error getting TVDB posters: " + error, 'Error getting TVDB Data: ' + error, response);
       } else if (tvdb_response.statusCode !== 200) {
-        console.log("Invalid status code: " + tvdb_response.statusCode);
+        throwError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
+          tvdb_response.statusText,
+          'Error fetching posters from TVDB',
+          response);
       } else {
         const posterData = body.data;
         if (posterData.length === 0) {
           resolve();
         } else {
           tvdbSeries.last_poster = _.last(posterData).fileName;
-          updateLastPoster(tvdbSeries);
-          _.each(posterData, posterObj => addPoster(tvdbSeries.id, posterObj.fileName));
+          updateLastPoster(tvdbSeries).catch(err => throwError(err,
+            'Update tvdb_series.last_poster',
+            'Error updating database',
+            response));
+          _.each(posterData, posterObj => addPoster(tvdbSeries.id, posterObj.fileName)
+            .catch(err => throwError(err,
+              'Add poster',
+              'Internal Database Error',
+              response)));
         }
       }
 
@@ -221,9 +232,12 @@ function getEpisodesForPage(tvdbSeriesExtId, pageNumber, options, callback) {
 function updateEpisodesForPage(series, pageNumber, options, addCallbacks, finalCallback) {
   getEpisodesForPage(series.tvdb_series_ext_id, pageNumber, options, function(error, tvdb_response, body) {
     if (error) {
-      console.log(error);
+      throwError("Error getting TVDB episodes: " + error, 'Error getting TVDB Data: ' + error, response);
     } else if (tvdb_response.statusCode !== 200) {
-      console.log("Invalid status code: " + tvdb_response.statusCode);
+      throwError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
+        tvdb_response.statusText,
+        'Error fetching episodes from TVDB',
+        response);
     } else {
       const lastPage = body.links.last;
       console.log('Updating page ' + pageNumber + ' of ' + lastPage);
@@ -253,12 +267,27 @@ function updateEpisodes(series, response) {
 
           updateMatchCompleted(series).then(() => {
             response.json(series);
-          });
-        });
-      });
+          }).catch(err => throwError(err,
+            'Marking series Match Completed',
+            'Error fetching episodes',
+            response));
+        }).catch(err => throwError(err,
+          'Commit episodes',
+          'Internal Database Error',
+          response));
+      }).catch(err => throwError(err,
+        'Commit tvdb_episodes',
+        'Internal Database Error',
+        response));
     });
   });
 
+}
+
+function throwError(error, consoleMsg, clientMsg, response) {
+  response.status(500);
+  response.json({ error: clientMsg });
+  throw new Error(consoleMsg + ': ' + error);
 }
 
 function commitEpisodes(episodes) {
@@ -282,7 +311,7 @@ function updateAbsoluteNumbers(episodes) {
 }
 
 function addTVDBEpisode(tvdbEpisodeObj, series) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     // noinspection JSUnresolvedVariable
     const tvdbEpisode = {
       tvdb_episode_ext_id: tvdbEpisodeObj.id,
@@ -327,7 +356,7 @@ function addTVDBEpisode(tvdbEpisodeObj, series) {
         tvdbEpisode: tvdbEpisodeWithId,
         episode: episode
       });
-    });
+    }).catch(err => reject(err));
   });
 
 }
@@ -414,7 +443,7 @@ function insertTVDBSeries(tvdbSeries) {
 }
 
 function insertObject(tableName, object) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const fieldNames = _.keys(object);
 
     const sql = 'INSERT INTO ' + tableName + ' ' +
@@ -428,7 +457,7 @@ function insertObject(tableName, object) {
       object.id = result[0].id;
       resolve(object);
     }).catch(err => {
-      throw new Error(err);
+      reject(err);
     });
   });
 }
