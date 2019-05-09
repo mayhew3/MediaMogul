@@ -16,3 +16,18 @@ exports.removeFromArray = function(arr, element) {
 exports.exists = function(object) {
   return !_.isUndefined(object) && !_.isNull(object);
 };
+
+exports.shallowCopy = function(sourceObj, destinationObj) {
+  for (let propertyName in sourceObj) {
+    if (sourceObj.hasOwnProperty(propertyName)) {
+      const originalProp = sourceObj[propertyName];
+      if (shouldCopy(originalProp)) {
+        destinationObj[propertyName] = originalProp;
+      }
+    }
+  }
+};
+
+function shouldCopy(propertyValue) {
+  return !_.isArray(propertyValue);
+}

@@ -1,13 +1,14 @@
 module.exports = function(app) {
-  var jwt = require('express-jwt');
-  var admin = require('../controllers/admin_controller');
-  var games = require('../controllers/games_controller');
-  var series = require('../controllers/series_controller');
-  var persons = require('../controllers/person_controller');
-  var groups = require('../controllers/groups_controller');
+  const jwt = require('express-jwt');
+  const admin = require('../controllers/admin_controller');
+  const games = require('../controllers/games_controller');
+  const series = require('../controllers/series_controller');
+  const persons = require('../controllers/person_controller');
+  const groups = require('../controllers/groups_controller');
+  const addShow = require('../controllers/add_show_controller');
   require('../controllers/event_handlers');
 
-  var authCheck = jwt({
+  const authCheck = jwt({
     secret: new Buffer(process.env.AUTH0_CLIENT_SECRET, 'base64'),
     audience: process.env.AUTH0_CLIENT_ID
   });
@@ -37,7 +38,7 @@ module.exports = function(app) {
   app.get('/api/upcomingEpisodes', authCheck, series.getUpcomingEpisodes);
   app.get('/api/ratingYears', authCheck, series.getAllRatingYears);
   app.get('/api/episodeListForRating', authCheck, series.getEpisodesForRating);
-  app.get('/api/tvdbMatches', authCheck, series.getTVDBMatches);
+  app.get('/api/tvdbMatches', authCheck, addShow.getTVDBMatches);
   app.get('/api/tvdbIDs', authCheck, series.getMatchedTVDBIDs);
 
   // ADMIN
@@ -50,7 +51,7 @@ module.exports = function(app) {
 
   app.post('/api/updateEpisode', authCheck, series.updateEpisode);
   app.post('/api/changeTier', authCheck, series.changeTier);
-  app.post('/api/addSeries', authCheck, series.beginEpisodeFetch);
+  app.post('/api/addSeries', authCheck, addShow.beginEpisodeFetch);
   app.post('/api/updateSeries', authCheck, series.updateSeries);
   app.post('/api/updateEpisodeGroupRating', authCheck, series.updateEpisodeGroupRating);
   app.post('/api/addEpisodeGroupRating', authCheck, series.addEpisodeGroupRating);
