@@ -121,6 +121,14 @@ angular.module('mediaMogulApp')
         SeriesRequestService.initiateSeriesRequest(show).then(() => delete show.request_processing);
       };
 
+      self.showButtonAction = function(show) {
+        if (isAdded(show)) {
+          self.goTo(show);
+        } else if (!show.request_processing) {
+          self.addSeries(show);
+        }
+      };
+
       self.addSeries = function(show) {
         show.request_processing = true;
         show.date_added = new Date;
@@ -129,6 +137,7 @@ angular.module('mediaMogulApp')
         EpisodeService.addSeries(show).then(results => {
           const incomingShow = results.data;
           EpisodeService.addRecentlyCompletedShow(incomingShow);
+          show.id = incomingShow.id;
           delete show.request_processing;
         });
       };
@@ -142,22 +151,24 @@ angular.module('mediaMogulApp')
       }
 
       self.getButtonLabel = function(show) {
-        return isAdded(show) ?
-          'Fetching Episodes' :
-          'Add Show';
+        if (isAdded(show)) {
+          return 'Go To';
+        } else if (!!show.request_processing) {
+          return 'Fetching Episodes';
+        } else {
+          return 'Add Show';
+        }
       };
 
       self.getButtonClass = function(show) {
         const selectors = ['btn-block'];
 
         if (isAdded(show)) {
+          selectors.push('btn-success');
+        } else if (!!show.request_processing) {
           selectors.push('btn-default');
         } else {
           selectors.push('btn-primary');
-        }
-
-        if (!!show.request_processing) {
-          selectors.push('loadingButton');
         }
 
         return selectors.join(' ');
