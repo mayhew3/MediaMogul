@@ -31,10 +31,11 @@
     "angular-jwt": "^0.1.10",
     "angular-ui-bootstrap": "^2.5.6",
     "bootstrap": "^3.4.0",
-    "moment": "^2.23.0",
+    "moment": "^2.24.0",
     "angular-storage": "^0.0.15",
     "jquery": "^3.3.1",
-    "socket.io-client": "^2.1.1"
+    "socket.io-client": "^2.1.1",
+    "fast-sort": "^1.5.6"
   },
   "engines": {
     "node": "8.11.2",

@@ -3,6 +3,9 @@ const requestLib = require('request');
 const _ = require('underscore');
 const ArrayService = require('./array_util');
 const tokens = require('./tvdb_token_service');
+const fast_sort = require('fast-sort');
+const moment = require('moment');
+const person_controller = require('./person_controller');
 
 /* GET POSSIBLE MATCHES */
 
@@ -113,6 +116,8 @@ exports.beginEpisodeFetch = function(request, response) {
         response.json([]);
       } else {
         const tvdbSeriesObj = body.data;
+
+        // noinspection JSUnresolvedVariable
         const tvdbSeries = {
           name: tvdbSeriesObj.seriesName,
           tvdb_series_ext_id: tvdbSeriesExtId,
@@ -129,7 +134,8 @@ exports.beginEpisodeFetch = function(request, response) {
           api_version: 2,
           last_updated: tvdbSeriesObj.lastUpdated,
           imdb_id: tvdbSeriesObj.imdbId,
-          zap2it_id: tvdbSeriesObj.zap2itId
+          zap2it_id: tvdbSeriesObj.zap2itId,
+          date_added: new Date
         };
 
         insertTVDBSeries(tvdbSeries).then(() => {
@@ -190,15 +196,13 @@ function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response) {
 
   insertObject('series', series).then(seriesWithId => {
     addPersonSeries(seriesWithId, personId).then(personSeries => {
-      personSeries.unwatched_all = 10;
       personSeries.my_tier = personSeries.tier;
+      personSeries.dynamic_rating = null;
       delete personSeries.tier;
+
       seriesWithId.personSeries = personSeries;
-      updateMatchCompleted(seriesWithId);
 
-      updateEpisodes(seriesWithId);
-
-      response.json(seriesWithId);
+      updateEpisodes(seriesWithId, response);
     });
   });
 }
@@ -214,7 +218,7 @@ function getEpisodesForPage(tvdbSeriesExtId, pageNumber, options, callback) {
   return requestLib('https://api.thetvdb.com/series/' + tvdbSeriesExtId + '/episodes', optionsCopy, callback);
 }
 
-function updateEpisodesForPage(series, pageNumber, options, episodes, finalCallback) {
+function updateEpisodesForPage(series, pageNumber, options, addCallbacks, finalCallback) {
   getEpisodesForPage(series.tvdb_series_ext_id, pageNumber, options, function(error, tvdb_response, body) {
     if (error) {
       console.log(error);
@@ -225,81 +229,151 @@ function updateEpisodesForPage(series, pageNumber, options, episodes, finalCallb
       console.log('Updating page ' + pageNumber + ' of ' + lastPage);
       const episodeData = body.data;
 
-      _.each(episodeData, episode => addEpisode(episode, series, episodes));
+      const tempCallbacks = _.map(episodeData, episode => addTVDBEpisode(episode, series));
+      ArrayService.addToArray(addCallbacks, tempCallbacks);
 
       if (pageNumber < lastPage) {
-        updateEpisodesForPage(series, (pageNumber+1), options, episodes, finalCallback);
+        updateEpisodesForPage(series, (pageNumber+1), options, addCallbacks, finalCallback);
       } else {
-        finalCallback(episodes);
+        finalCallback();
       }
     }
   });
 }
 
-function updateEpisodes(series) {
+function updateEpisodes(series, response) {
   tokens.getBaseOptions().then(options => {
-    const episodes = [];
-    updateEpisodesForPage(series, 1, options, episodes, episodes => {
-      // todo: update denorms
-    });
+    const addCallbacks = [];
+    updateEpisodesForPage(series, 1, options, addCallbacks, () => {
+      Promise.all(addCallbacks).then(results => {
+        const episodes = _.pluck(results, 'episode');
+        updateAbsoluteNumbers(episodes);
+        commitEpisodes(episodes).then(() => {
+          person_controller.calculateUnwatchedDenorms(series, series.personSeries, episodes);
 
+          updateMatchCompleted(series).then(() => {
+            response.json(series);
+          });
+        });
+      });
+    });
   });
 
 }
 
-function addEpisode(tvdbEpisodeObj, series, episodes) {
+function commitEpisodes(episodes) {
+  const episodeUpdates = _.map(episodes, episode => insertObject('episode', episode));
+  return Promise.all(episodeUpdates);
+}
 
-  const tvdbEpisode = {
-    tvdb_episode_ext_id: tvdbEpisodeObj.id,
-    season_number: tvdbEpisodeObj.airedSeason,
-    episode_number: tvdbEpisodeObj.airedEpisodeNumber,
-    name: tvdbEpisodeObj.episodeName,
-    first_aired: tvdbEpisodeObj.firstAired,
-    tvdb_series_id: series.tvdb_series_id,
-    overview: tvdbEpisodeObj.overview,
-    production_code: tvdbEpisodeObj.productionCode,
-    rating: tvdbEpisodeObj.siteRating,
-    rating_count: tvdbEpisodeObj.siteRatingCount,
-    director: tvdbEpisodeObj.director,
-    last_updated: tvdbEpisodeObj.lastUpdated,
-    tvdb_season_ext_id: tvdbEpisodeObj.airedSeasonID,
-    filename: tvdbEpisodeObj.filename,
-    airs_after_season: tvdbEpisodeObj.airsAfterSeason,
-    airs_before_season: tvdbEpisodeObj.airsBeforeSeason,
-    airs_before_episode: tvdbEpisodeObj.airsBeforeEpisode,
-    thumb_height: tvdbEpisodeObj.thumbHeight,
-    thumb_width: tvdbEpisodeObj.thumbWidth,
-    api_version: 2
-  };
-
-  const episode = {
-    series_id: series.id,
-    series_title: series.title,
-    streaming: true,
-    episode_number: tvdbEpisodeObj.airedEpisodeNumber,
-    absolute_number: tvdbEpisodeObj.absoluteNumber,
-    season: tvdbEpisodeObj.airedSeason,
-    title: tvdbEpisodeObj.episodeName,
-    air_date: tvdbEpisodeObj.firstAired,
-    air_time: tvdbEpisodeObj.firstAired
-  };
-
-  // todo: update air_time
-  // todo: update absolute_number -- ugh, best to wait until all tvdb_episodes are in, then insert episodes with updated absolutes?
-
-  episodes.push(episode);
-
-  insertObject('tvdb_episode', tvdbEpisode).then(tvdbEpisodeWithId => {
-    episode.tvdb_episode_id = tvdbEpisodeWithId.id;
-    insertObject('episode', episode);
+function updateAbsoluteNumbers(episodes) {
+  const dated = _.filter(episodes, episode => !!episode.air_date);
+  fast_sort(dated).asc([
+    episode => episode.season,
+    episode => episode.episode_number,
+    episode => episode.air_date
+  ]);
+  let index = 1;
+  _.each(dated, episode => {
+    episode.absolute_number = index;
+    index++;
   });
+  return dated;
+}
+
+function addTVDBEpisode(tvdbEpisodeObj, series) {
+  return new Promise(resolve => {
+    // noinspection JSUnresolvedVariable
+    const tvdbEpisode = {
+      tvdb_episode_ext_id: tvdbEpisodeObj.id,
+      season_number: tvdbEpisodeObj.airedSeason,
+      episode_number: tvdbEpisodeObj.airedEpisodeNumber,
+      name: tvdbEpisodeObj.episodeName,
+      first_aired: tvdbEpisodeObj.firstAired,
+      tvdb_series_id: series.tvdb_series_id,
+      overview: tvdbEpisodeObj.overview,
+      production_code: tvdbEpisodeObj.productionCode,
+      rating: tvdbEpisodeObj.siteRating,
+      rating_count: tvdbEpisodeObj.siteRatingCount,
+      director: tvdbEpisodeObj.director,
+      last_updated: tvdbEpisodeObj.lastUpdated,
+      tvdb_season_ext_id: tvdbEpisodeObj.airedSeasonID,
+      filename: tvdbEpisodeObj.filename,
+      airs_after_season: tvdbEpisodeObj.airsAfterSeason,
+      airs_before_season: tvdbEpisodeObj.airsBeforeSeason,
+      airs_before_episode: tvdbEpisodeObj.airsBeforeEpisode,
+      thumb_height: tvdbEpisodeObj.thumbHeight,
+      thumb_width: tvdbEpisodeObj.thumbWidth,
+      api_version: 2
+    };
+
+    // noinspection JSUnresolvedVariable
+    const episode = {
+      series_id: series.id,
+      series_title: series.title,
+      streaming: true,
+      episode_number: tvdbEpisodeObj.airedEpisodeNumber,
+      absolute_number: tvdbEpisodeObj.absoluteNumber,
+      season: tvdbEpisodeObj.airedSeason,
+      title: tvdbEpisodeObj.episodeName,
+      air_date: tvdbEpisodeObj.firstAired
+    };
+
+    updateAirTime(episode, series);
+
+    insertObject('tvdb_episode', tvdbEpisode).then(tvdbEpisodeWithId => {
+      episode.tvdb_episode_id = tvdbEpisodeWithId.id;
+      resolve({
+        tvdbEpisode: tvdbEpisodeWithId,
+        episode: episode
+      });
+    });
+  });
+
+}
+
+function updateAirTime(episode, series) {
+  const seriesAirTime = !series.air_time ? '12:00 AM' : series.air_time;
+  if (!episode.air_date || episode.air_date === '') {
+    episode.air_date = null;
+    episode.air_time = null;
+  } else {
+    const airDateMoment = moment(episode.air_date);
+    if (isInFuture(airDateMoment)) {
+      const airTimeFormatted = reformatTimeString(seriesAirTime);
+      const airTimeStr = episode.air_date + ' ' + airTimeFormatted;
+      episode.air_time = moment(airTimeStr).toDate();
+    } else {
+      episode.air_time = airDateMoment.toDate();
+    }
+    episode.air_date = airDateMoment.toDate();
+  }
+}
+
+function reformatTimeString(timeStr) {
+  const time = moment(timeStr, ["h:mm a",
+    "hh:mm a",
+    "hh:mma",
+    "h a",
+    "ha",
+    "h.mma",
+    "hh:mm a zzz",
+    "HH:mm",
+    "HHmm"]);
+  return time.format('HH:mm:ss');
+}
+
+function isInFuture(dateMoment) {
+  const today = moment().startOf('day');
+  return dateMoment.isAfter(today);
 }
 
 function addPersonSeries(series, personId) {
   const personSeries = {
     series_id: series.id,
     person_id: personId,
-    tier: 1
+    tier: 1,
+    date_added: new Date
   };
 
   return insertObject('person_series', personSeries);
@@ -353,6 +427,8 @@ function insertObject(tableName, object) {
     db.selectWithJSON(sql, values).then(result => {
       object.id = result[0].id;
       resolve(object);
-    })
+    }).catch(err => {
+      throw new Error(err);
+    });
   });
 }
