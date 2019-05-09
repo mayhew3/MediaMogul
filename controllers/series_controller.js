@@ -365,6 +365,179 @@ function getTopPoster(seriesObj) {
   });
 }
 
+function getOptions(url, token) {
+  return {
+    url: url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      'Accept-Language': 'en'
+    },
+    json: true
+  };
+}
+
+exports.beginEpisodeFetch = function(request, response) {
+  const tvdbSeriesExtId = request.body.series.tvdb_series_ext_id;
+  const personId = request.body.series.person_id;
+
+  maybeRefreshToken().then(function (token) {
+
+    const seriesUrl = 'https://api.thetvdb.com/series/' + tvdbSeriesExtId;
+
+    requestLib(getOptions(seriesUrl, token), function (error, tvdb_response, body) {
+      if (error) {
+        console.log("Error getting TVDB data: " + error);
+        response.send("Error getting TVDB data: " + error);
+      } else if (tvdb_response.statusCode !== 200) {
+        console.log("Unexpected status code from TVDB API: " + tvdb_response.statusCode + ", " + tvdb_response.statusText);
+        response.json([]);
+      } else {
+        const tvdbSeriesObj = body.data;
+        const tvdbSeries = {
+          name: tvdbSeriesObj.seriesName,
+          tvdb_series_ext_id: tvdbSeriesExtId,
+          airs_day_of_week: tvdbSeriesObj.airsDayOfWeek,
+          airs_time: tvdbSeriesObj.airsTime,
+          first_aired: tvdbSeriesObj.firstAired,
+          network: tvdbSeriesObj.network,
+          overview: tvdbSeriesObj.overview,
+          rating: tvdbSeriesObj.siteRating,
+          rating_count: tvdbSeriesObj.siteRatingCount,
+          runtime: tvdbSeriesObj.runtime,
+          status: tvdbSeriesObj.status,
+          banner: tvdbSeriesObj.banner,
+          last_updated: tvdbSeriesObj.lastUpdated,
+          imdb_id: tvdbSeriesObj.imdbId,
+          zap2it_id: tvdbSeriesObj.zap2itId
+        };
+
+        insertTVDBSeries(tvdbSeries).then(() => {
+          updatePosters(tvdbSeries, tvdbSeriesObj, personId, response);
+        });
+
+
+      }
+    });
+  });
+
+};
+
+function updatePosters(tvdbSeries, tvdbSeriesObj, personId, response) {
+  maybeRefreshToken().then(token => {
+    const postersUrl = "https://api.thetvdb.com/series/" + tvdbSeries.tvdb_series_ext_id + "/images/query";
+
+    const options = {
+      url: postersUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + token,
+        'Accept-Language': 'en'
+      },
+      qs: {
+        'keyType': 'poster'
+      },
+      json: true
+    };
+
+    requestLib(options, function (error, tvdb_response, body) {
+      if (error) {
+        console.log(error);
+      } else if (tvdb_response.statusCode !== 200) {
+        console.log("Invalid status code: " + tvdb_response.statusCode);
+      } else {
+        const posterData = body.data;
+        if (posterData.length === 0) {
+          resolve();
+        } else {
+          tvdbSeries.last_poster = _.last(posterData).fileName;
+          updateLastPoster(tvdbSeries);
+          _.each(posterData, posterObj => addPoster(tvdbSeries.id, posterObj.fileName));
+        }
+      }
+
+      updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response);
+
+    });
+  })
+}
+
+function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response) {
+  const series = {
+    air_time: tvdbSeries.airs_time,
+    poster: tvdbSeries.last_poster,
+    person_id: personId,
+    title: tvdbSeries.name,
+    date_added: new Date,
+    tvdb_new: true,
+    metacritic_new: true,
+    tvdb_match_status: 'Match Confirmed',
+    tvdb_series_ext_id: tvdbSeries.tvdb_series_ext_id,
+    tvdb_confirm_date: new Date
+  };
+
+  insertObject('series', series).then(seriesWithId => {
+    addPersonSeries(seriesWithId, personId).then(personSeries => {
+      seriesWithId.personSeries = personSeries;
+      response.json(seriesWithId);
+    });
+  });
+}
+
+function addPersonSeries(series, personId) {
+  const personSeries = {
+    series_id: series.id,
+    person_id: personId,
+    tier: 1
+  };
+
+  return insertObject('person_series', personSeries);
+}
+
+function updateLastPoster(tvdbSeries) {
+  const sql = 'UPDATE tvdb_series ' +
+    'SET last_poster = $1 ' +
+    'WHERE id = $2 ';
+
+  const values = [tvdbSeries.last_poster, tvdbSeries.id];
+
+  return db.updateNoJSON(sql, values);
+}
+
+function addPoster(tvdbSeriesId, fileName) {
+  const poster = {
+    poster_path: fileName,
+    tvdb_series_id: tvdbSeriesId
+  };
+
+  return insertObject('tvdb_poster', poster);
+}
+
+function insertTVDBSeries(tvdbSeries) {
+  return insertObject('tvdb_series', tvdbSeries);
+}
+
+function insertObject(tableName, object) {
+  return new Promise(resolve => {
+    const fieldNames = _.keys(object);
+
+    const sql = 'INSERT INTO ' + tableName + ' ' +
+      '(' + fieldNames.join(', ') + ') ' +
+      'VALUES (' + db.createInlineVariableList(fieldNames.length, 1) + ') ' +
+      'RETURNING id ';
+
+    const values = _.values(object);
+
+    db.selectWithJSON(sql, values).then(result => {
+      object.id = result[0].id;
+      resolve(object);
+    })
+  });
+}
+
+
 exports.getMatchedTVDBIDs = function(request, response) {
 
   const sql = 'SELECT s.id, ' +

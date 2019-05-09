@@ -50,7 +50,7 @@ module.exports = function(app) {
 
   app.post('/api/updateEpisode', authCheck, series.updateEpisode);
   app.post('/api/changeTier', authCheck, series.changeTier);
-  app.post('/api/addSeries', authCheck, series.addSeries);
+  app.post('/api/addSeries', authCheck, series.beginEpisodeFetch);
   app.post('/api/updateSeries', authCheck, series.updateSeries);
   app.post('/api/updateEpisodeGroupRating', authCheck, series.updateEpisodeGroupRating);
   app.post('/api/addEpisodeGroupRating', authCheck, series.addEpisodeGroupRating);

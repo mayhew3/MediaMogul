@@ -348,6 +348,20 @@ angular.module('mediaMogulApp')
         });
       }
 
+      self.addRecentlyCompletedShow = function(show) {
+
+        formatIncomingShow(show);
+        if (show.person_id === self.LockService.person_id) {
+          myShows.push(show);
+          addTimerForNextAirDate();
+        } else {
+          delete show.personSeries;
+          notMyShows.push(show);
+        }
+
+        allShows.push(show);
+      };
+
       self.updateNotMyShowsList = function() {
         return $http.get('/api/notMyShows', {params: {PersonId: LockService.person_id}}).then(function (response) {
           $log.debug("Shows returned " + response.data.length + " items.");
