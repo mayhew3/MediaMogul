@@ -18,7 +18,7 @@ exports.getGames = function (request, response) {
     'AND pg.retired = $2 ' +
     'ORDER BY g.metacritic DESC, pg.minutes_played DESC, g.date_added DESC';
 
-  return db.executeQueryWithResults(response, sql, [person_id, 0]);
+  return db.selectSendResponse(response, sql, [person_id, 0]);
 };
 
 exports.getGamesWithPossibleMatchInfo = function(request, response) {
@@ -33,7 +33,7 @@ exports.getGamesWithPossibleMatchInfo = function(request, response) {
     'AND g.igdb_ignored IS NULL ' +
     'ORDER BY g.title';
 
-  return db.executeQueryWithResults(response, sql, []);
+  return db.selectSendResponse(response, sql, []);
 };
 
 exports.getNotMyGames = function(request, response) {
@@ -51,15 +51,15 @@ exports.getNotMyGames = function(request, response) {
     personId, 0
   ];
 
-  return db.executeQueryWithResults(response, sql, values);
+  return db.selectSendResponse(response, sql, values);
 };
 
 exports.updateGame = function(request, response) {
-  db.updateObjectWithChangedFields(response, request.body.ChangedFields, "game", request.body.GameId);
+  db.updateObjectWithChangedFieldsSendResponse(response, request.body.ChangedFields, "game", request.body.GameId);
 };
 
 exports.updatePersonGame = function(request, response) {
-  db.updateObjectWithChangedFields(response, request.body.ChangedFields, "person_game", request.body.PersonGameId);
+  db.updateObjectWithChangedFieldsSendResponse(response, request.body.ChangedFields, "person_game", request.body.PersonGameId);
 };
 
 exports.addGame = function(request, response) {
@@ -78,7 +78,7 @@ exports.addGame = function(request, response) {
   console.log("SQL: " + sql);
   console.log("Values: " + values);
 
-  db.selectWithJSON(sql, values).then(function(results) {
+  db.selectNoResponse(sql, values).then(function(results) {
     var game_id = results[0].id;
 
     var sql = "INSERT INTO person_game (game_id, person_id, rating, tier, minutes_played)" +
@@ -86,7 +86,7 @@ exports.addGame = function(request, response) {
     var values = [
       game_id, person_id, game.rating, 2, 0
     ];
-    db.executeQueryNoResults(response, sql, values);
+    db.updateSendResponse(response, sql, values);
   });
 
 
@@ -103,7 +103,7 @@ exports.addToMyGames = function(request, response) {
     personId, gameId, 1, 0
   ];
 
-  return db.executeQueryNoResults(response, sql, values);
+  return db.updateSendResponse(response, sql, values);
 };
 
 exports.addGameplaySession = function(request, response) {
@@ -121,7 +121,7 @@ exports.addGameplaySession = function(request, response) {
   console.log("SQL: " + sql);
   console.log("Values: " + values);
 
-  db.executeQueryNoResults(response, sql, values);
+  db.updateSendResponse(response, sql, values);
 };
 
 exports.getPossibleGameMatches = function(req, response) {
@@ -132,6 +132,6 @@ exports.getPossibleGameMatches = function(req, response) {
     'WHERE pgm.game_id = $1 ' +
     'AND pgm.retired = $2 ';
 
-  return db.executeQueryWithResults(response, sql, [req.query.GameId, 0]);
+  return db.selectSendResponse(response, sql, [req.query.GameId, 0]);
 };
 

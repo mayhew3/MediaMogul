@@ -13,7 +13,7 @@ exports.getPersonInfo = function(request, response) {
           'WHERE p.email = $1 ' +
           'AND p.retired = $2 ';
 
-  return db.executeQueryWithResults(response, sql, [email, 0]);
+  return db.selectSendResponse(response, sql, [email, 0]);
 };
 
 exports.getPersons = function(request, response) {
@@ -23,7 +23,7 @@ exports.getPersons = function(request, response) {
     'FROM person p ' +
     'WHERE p.retired = $1 ';
 
-  return db.executeQueryWithResults(response, sql, [0]);
+  return db.selectSendResponse(response, sql, [0]);
 };
 
 exports.getMyPendingShows = function(request, response) {
@@ -47,7 +47,7 @@ exports.getMyPendingShows = function(request, response) {
     'Match Confirmed', 0
   ];
 
-  db.executeQueryWithResults(response, sql, values);
+  db.selectSendResponse(response, sql, values);
 };
 
 exports.getMyShows = function(request, response) {
@@ -65,7 +65,7 @@ exports.getMyShows = function(request, response) {
   const values = commonShowsQuery.values;
   values.push(tier);
 
-  db.selectWithJSON(sql, values).then(function (seriesResults) {
+  db.selectNoResponse(sql, values).then(function (seriesResults) {
     const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
       "INNER JOIN person_series ps " +
@@ -89,7 +89,7 @@ exports.getMyShows = function(request, response) {
       tier
     ];
 
-    db.selectWithJSON(sql, values).then(function(episodeResults) {
+    db.selectNoResponse(sql, values).then(function(episodeResults) {
 
       updateUnwatchedDenorms(seriesResults, episodeResults);
 
@@ -118,7 +118,7 @@ exports.getMyShows = function(request, response) {
         tier
       ];
 
-      db.selectWithJSON(sql, values).then(function(ratingResults) {
+      db.selectNoResponse(sql, values).then(function(ratingResults) {
 
         updateRatings(seriesResults, ratingResults);
 
@@ -184,7 +184,7 @@ exports.getMyQueueShows = function(request, response) {
   const values = commonShowsQuery.values;
   values.push(tier);
 
-  db.selectWithJSON(sql, values).then(function (seriesResults) {
+  db.selectNoResponse(sql, values).then(function (seriesResults) {
 
     if (seriesResults.length === 0) {
       response.json([]);
@@ -211,7 +211,7 @@ exports.getMyQueueShows = function(request, response) {
 
       ArrayService.addToArray(values, series_ids);
 
-      db.selectWithJSON(sql, values).then(function(episodeResults) {
+      db.selectNoResponse(sql, values).then(function(episodeResults) {
 
         updateUnwatchedDenorms(seriesResults, episodeResults);
 
@@ -235,7 +235,7 @@ exports.getMyQueueShows = function(request, response) {
 
         ArrayService.addToArray(values, series_ids);
 
-        db.selectWithJSON(sql, values).then(function(ratingResults) {
+        db.selectNoResponse(sql, values).then(function(ratingResults) {
 
           updateRatings(seriesResults, ratingResults);
 
@@ -401,7 +401,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
     const values = commonShowsQuery.values;
     values.push(series_id);
 
-    db.selectWithJSON(sql, values).then(function (seriesResults) {
+    db.selectNoResponse(sql, values).then(function (seriesResults) {
 
       if (seriesResults.length === 0) {
         reject("No person_series found with series_id: " + series_id + " and person_id: " + person_id);
@@ -432,7 +432,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
         series_id
       ];
 
-      db.selectWithJSON(sql, values).then(function(episodeResults) {
+      db.selectNoResponse(sql, values).then(function(episodeResults) {
 
         exports.calculateUnwatchedDenorms(series, series.personSeries, episodeResults);
 
@@ -455,7 +455,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
           series_id
         ];
 
-        db.selectWithJSON(sql, values).then(function(ratingResults) {
+        db.selectNoResponse(sql, values).then(function(ratingResults) {
 
           calculateRating(series, ratingResults);
 
@@ -500,7 +500,7 @@ exports.getSeriesDetailInfo = function(request, response) {
 
   const values = [0, 0, 'Match Completed', series_id];
 
-  db.selectWithJSON(sql, values).then(function (seriesResults) {
+  db.selectNoResponse(sql, values).then(function (seriesResults) {
 
     if (seriesResults.length === 0) {
       reject("No series found with series_id: " + series_id);
@@ -540,7 +540,7 @@ exports.getSeriesDetailInfo = function(request, response) {
       "AND ps.retired = $1 ";
     const values = [0, true, person_id, true, series_id];
 
-    db.selectWithJSON(sql, values).then(personResults => {
+    db.selectNoResponse(sql, values).then(personResults => {
 
       if (personResults.length > 0) {
         series.personSeries = personResults[0];
@@ -567,7 +567,7 @@ exports.getSeriesDetailInfo = function(request, response) {
         series_id
       ];
 
-      db.selectWithJSON(sql, values).then(function(episodeResults) {
+      db.selectNoResponse(sql, values).then(function(episodeResults) {
 
         series.episodes = episodeResults;
 
@@ -593,7 +593,7 @@ exports.getSeriesDetailInfo = function(request, response) {
           series_id
         ];
 
-        db.selectWithJSON(sql, values).then(function(ratingResults) {
+        db.selectNoResponse(sql, values).then(function(ratingResults) {
 
           if (ArrayService.exists(series.personSeries)) {
             calculateRating(series, ratingResults);
@@ -637,7 +637,7 @@ exports.getSeriesDetailInfo = function(request, response) {
 
           const values = [series_id, person_id, 0];
 
-          db.selectWithJSON(sql, values).then(groupResults => {
+          db.selectNoResponse(sql, values).then(groupResults => {
             series.groups = groupResults;
 
             const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped, tge.tv_group_id  " +
@@ -656,7 +656,7 @@ exports.getSeriesDetailInfo = function(request, response) {
 
             const values = [series_id, 0, person_id];
 
-            db.selectWithJSON(sql, values).then(groupEpisodeResults => {
+            db.selectNoResponse(sql, values).then(groupEpisodeResults => {
 
               _.each(groupEpisodeResults, groupEpisode => {
                 const episodeMatch = _.find(series.episodes, function (episode) {
@@ -733,7 +733,7 @@ function attachBallotsToGroupSeries(series, groupSeries) {
       0
     ];
 
-    db.selectWithJSON(sql, values).then(function (ballotResults) {
+    db.selectNoResponse(sql, values).then(function (ballotResults) {
       const sql = 'SELECT tgv.tv_group_ballot_id, tgv.person_id, tgv.vote_value ' +
         'FROM tv_group_vote tgv ' +
         'INNER JOIN tv_group_ballot tgb ' +
@@ -747,7 +747,7 @@ function attachBallotsToGroupSeries(series, groupSeries) {
         0, 0
       ];
 
-      db.selectWithJSON(sql, values).then(function (voteResults) {
+      db.selectNoResponse(sql, values).then(function (voteResults) {
 
         let groupedByBallot = _.groupBy(voteResults, 'tv_group_ballot_id');
 
@@ -788,7 +788,7 @@ exports.getNextAiredInfo = function(request, response) {
     'AND e.retired = $2 ' +
     'ORDER BY e.air_time ASC';
 
-  db.selectWithJSON(sql, [request.query.person_id, 0]).then(function (results) {
+  db.selectNoResponse(sql, [request.query.person_id, 0]).then(function (results) {
     if (results.length > 0) {
       const earliestTime = results[0].air_time;
       const earliestEpisodes = _.filter(results, episode => episode.air_time.getTime() === earliestTime.getTime());
@@ -844,7 +844,7 @@ exports.pinToDashboard = function(request, response) {
     pinned, person_id, series_id, 0
   ];
 
-  db.executeQueryNoResults(response, sql, values);
+  db.updateSendResponse(response, sql, values);
 };
 
 exports.seriesRequest = function(request, response) {
@@ -861,7 +861,7 @@ exports.seriesRequest = function(request, response) {
     series_request.poster
   ];
 
-  db.selectWithJSON(sql, values).then(function (results) {
+  db.selectNoResponse(sql, values).then(function (results) {
     response.json({seriesRequestId: results[0].id})
   }, function(err) {
     response.status(500).send(err);
@@ -877,7 +877,7 @@ exports.getAllOpenSeriesRequests = function(request, response) {
     'WHERE sr.approved IS NULL ' +
     'AND sr.rejected IS NULL ';
 
-  db.executeQueryWithResults(response, sql, []);
+  db.selectSendResponse(response, sql, []);
 };
 
 exports.getMySeriesRequests = function(request, response) {
@@ -890,7 +890,7 @@ exports.getMySeriesRequests = function(request, response) {
 
   const values = [request.query.person_id, 0];
 
-  db.selectWithJSON(sql, values).then(function(myRequests) {
+  db.selectNoResponse(sql, values).then(function(myRequests) {
     const sql = 'SELECT sr.id, sr2.approved, sr2.rejected ' +
       'FROM series_request sr ' +
       'INNER JOIN series_request sr2 ' +
@@ -903,7 +903,7 @@ exports.getMySeriesRequests = function(request, response) {
       'AND sr.rejected IS NULL ' +
       'AND (sr2.approved IS NOT NULL OR sr2.rejected IS NOT NULL) ';
 
-    db.selectWithJSON(sql, [request.query.person_id, 0]).then(function(dupeRequests) {
+    db.selectNoResponse(sql, [request.query.person_id, 0]).then(function(dupeRequests) {
       _.forEach(dupeRequests, dupeRequest => removeDuplicateRequest(myRequests, dupeRequest));
 
       const sql = 'SELECT sr.id ' +
@@ -919,7 +919,7 @@ exports.getMySeriesRequests = function(request, response) {
 
       const values = [request.query.person_id, 0, 'Match Completed'];
 
-      db.selectWithJSON(sql, values).then(function(completedRequests) {
+      db.selectNoResponse(sql, values).then(function(completedRequests) {
         _.forEach(completedRequests, completedRequest => completeCompletedRequests(myRequests, completedRequest));
 
         response.json(myRequests);
@@ -954,7 +954,7 @@ function markRequestResolved(myRequest, dupeRequest) {
   const sql = 'UPDATE series_request ' +
     'SET ' + resolution.type + ' = $1 ' +
     'WHERE id = $2 ';
-  db.updateNoJSON(sql, [resolution.resolution_date, myRequest.id]);
+  db.updateNoResponse(sql, [resolution.resolution_date, myRequest.id]);
 }
 
 // denorm helper
@@ -1116,7 +1116,7 @@ exports.addToMyShows = function(request, response) {
     personId, seriesId, 1, 0, seriesId, 0, personId, true
   ];
 
-  db.updateNoJSON(sql, values).then(() => {
+  db.updateNoResponse(sql, values).then(() => {
     const payload = {
       series_id: seriesId,
       last_watched: lastWatched,
@@ -1146,7 +1146,7 @@ exports.removeFromMyShows = function(request, response) {
     personId, seriesId
   ];
 
-  return db.executeQueryNoResults(response, sql, values);
+  return db.updateSendResponse(response, sql, values);
 };
 
 
@@ -1169,7 +1169,7 @@ exports.getNotMyShows = function(request, response) {
     personId, 0, 'Match Completed'
   ];
 
-  return db.executeQueryWithResults(response, sql, values);
+  return db.selectSendResponse(response, sql, values);
 };
 
 exports.rateMyShow = function(request, response) {
@@ -1186,7 +1186,7 @@ exports.rateMyShow = function(request, response) {
     rating, personId, seriesId
   ];
 
-  db.updateNoJSON(sql, values).then(function() {
+  db.updateNoResponse(sql, values).then(function() {
     updateSeriesRating(seriesId, personId).then(function(result) {
       if (_.isUndefined(result.my_rating)) {
         return response.json({
@@ -1227,7 +1227,7 @@ exports.getMyEpisodes = function(request, response) {
     'AND te.retired = $3 ' +
     'ORDER BY e.season, e.episode_number';
 
-  return db.selectWithJSON(sql, [seriesId, 0, 0]).then(function (episodeResult) {
+  return db.selectNoResponse(sql, [seriesId, 0, 0]).then(function (episodeResult) {
 
     var sql =
       'SELECT er.episode_id, ' +
@@ -1244,7 +1244,7 @@ exports.getMyEpisodes = function(request, response) {
       'AND e.retired = $2 ' +
       'AND er.person_id = $3 ';
 
-    return db.selectWithJSON(sql, [seriesId, 0, personId]).then(function (ratingResult) {
+    return db.selectNoResponse(sql, [seriesId, 0, personId]).then(function (ratingResult) {
 
       ratingResult.forEach(function (episodeRating) {
         const episodeMatch = _.find(episodeResult, function (episode) {
@@ -1325,7 +1325,7 @@ function updateSeriesRating(series_id, person_id) {
       series_id
     ];
 
-    db.selectWithJSON(sql, values).then(function (results) {
+    db.selectNoResponse(sql, values).then(function (results) {
       if (!_.isEmpty(results)) {
         var series = {
           id: series_id,
@@ -1361,7 +1361,7 @@ exports.updateMyShow = function(request, response) {
   console.log("SQL: " + queryConfig.text);
   console.log("Values: " + queryConfig.values);
 
-  return db.executeQueryNoResults(response, queryConfig.text, queryConfig.values);
+  return db.updateSendResponse(response, queryConfig.text, queryConfig.values);
 };
 
 function addRating(episodeRating) {
@@ -1385,11 +1385,11 @@ function addRating(episodeRating) {
   ];
 
   // return data because it contains the new row id. (RETURNING id is in the sql)
-  return db.selectWithJSON(sql, values);
+  return db.selectNoResponse(sql, values);
 }
 
 function editRating(changedFields, rating_id) {
-  return db.updateObjectWithChangedFieldsNoJSON(changedFields, "episode_rating", rating_id);
+  return db.updateObjectWithChangedFieldsSendResponse(changedFields, "episode_rating", rating_id);
 }
 
 
@@ -1423,7 +1423,7 @@ exports.markEpisodesWatched = function(request, response) {
       'AND episode_id IN (' + db.createInlineVariableList(all_episode_ids.length, 2) + ')';
   const existing_values = [person_id];
   ArrayService.addToArray(existing_values, all_episode_ids);
-  db.selectWithJSON(existing_sql, existing_values).then(results => {
+  db.selectNoResponse(existing_sql, existing_values).then(results => {
     const existing_ids = _.pluck(results, 'episode_id');
     const existing_watched_ids = _.intersection(watched_episode_ids, existing_ids);
     const existing_unwatched_ids = _.intersection(unwatched_episode_ids, existing_ids);
@@ -1439,7 +1439,7 @@ exports.markEpisodesWatched = function(request, response) {
           'AND episode_id IN (' + db.createInlineVariableList(existing_watched_ids.length, 3) + ')';
       const watched_values = [true, person_id];
       ArrayService.addToArray(watched_values, existing_watched_ids);
-      updates.push(db.updateNoJSON(watched_sql, watched_values));
+      updates.push(db.updateNoResponse(watched_sql, watched_values));
     }
 
     if (existing_unwatched_ids.length > 0) {
@@ -1449,7 +1449,7 @@ exports.markEpisodesWatched = function(request, response) {
           'AND episode_id IN (' + db.createInlineVariableList(existing_unwatched_ids.length, 3) + ')';
       const unwatched_values = [false, person_id];
       ArrayService.addToArray(unwatched_values, existing_unwatched_ids);
-      updates.push(db.updateNoJSON(unwatched_sql, unwatched_values));
+      updates.push(db.updateNoResponse(unwatched_sql, unwatched_values));
     }
 
     if (new_watched_ids.length > 0) {
@@ -1459,7 +1459,7 @@ exports.markEpisodesWatched = function(request, response) {
           'WHERE id IN (' + db.createInlineVariableList(new_watched_ids.length, 3) + ')';
       const new_watched_values = [person_id, true];
       ArrayService.addToArray(new_watched_values, new_watched_ids);
-      updates.push(db.updateNoJSON(new_watched_sql, new_watched_values));
+      updates.push(db.updateNoResponse(new_watched_sql, new_watched_values));
     }
 
     Promise.all(updates).then(function() {
@@ -1472,7 +1472,7 @@ exports.getSystemVars = function(request, response) {
   console.log("Getting system vars.");
 
   const sql = "SELECT * FROM system_vars";
-  db.selectWithJSON(sql, []).then(results => {
+  db.selectNoResponse(sql, []).then(results => {
     if (results.length !== 1) {
       response.error({msg: 'Unexpected number of system_vars.'});
       throw new Error("Should have exactly one row in system_vars.");
@@ -1489,7 +1489,7 @@ exports.increaseYear = function(request, response) {
   console.log("Incrementing rating year.");
 
   var sql = "SELECT rating_year FROM system_vars";
-  return db.selectWithJSON(sql, []).then(function (result) {
+  return db.selectNoResponse(sql, []).then(function (result) {
     var system_vars = result[0];
     var ratingYear = system_vars.rating_year;
     console.log("Current year: " + ratingYear);
@@ -1501,7 +1501,7 @@ exports.increaseYear = function(request, response) {
       var sql = "UPDATE system_vars " +
         "SET rating_year = $1, " +
         "    rating_end_date = NULL ";
-      return db.executeQueryNoResults(response, sql, [nextYear]);
+      return db.updateSendResponse(response, sql, [nextYear]);
     }
 
   });
@@ -1512,7 +1512,7 @@ exports.revertYear = function(request, response) {
   console.log("Reverting rating year increase with end date: " + endDate);
 
   var sql = "SELECT rating_year FROM system_vars";
-  return db.selectWithJSON(sql, []).then(function (result) {
+  return db.selectNoResponse(sql, []).then(function (result) {
     var system_vars = result[0];
     var ratingYear = system_vars.rating_year;
     console.log("Current year: " + ratingYear);
@@ -1524,7 +1524,7 @@ exports.revertYear = function(request, response) {
       var sql = "UPDATE system_vars " +
         "SET rating_year = $1, " +
         "    rating_end_date = $2 ";
-      return db.executeQueryNoResults(response, sql, [nextYear, endDate]);
+      return db.updateSendResponse(response, sql, [nextYear, endDate]);
     }
 
   });
@@ -1572,7 +1572,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
 
     ArrayService.addToArray(values, person_ids);
 
-    db.updateNoJSON(sql, values).then(function() {
+    db.updateNoResponse(sql, values).then(function() {
       const ratingClause = rating_notifications ?
         'p.rating_notifications ' :
         '$7 ';
@@ -1607,7 +1607,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
 
       ArrayService.addToArray(values, person_ids);
 
-      db.selectWithJSON(sql, values).then(episodeRatings => {
+      db.selectNoResponse(sql, values).then(episodeRatings => {
         const myRatings = _.where(episodeRatings, {person_id: person_id});
         _.each(myRatings, episodeRating => {
           const matching = _.findWhere(episodes, {

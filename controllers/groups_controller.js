@@ -16,7 +16,7 @@ exports.getMyGroups = function(request, response) {
     "             WHERE person_id = $1 " +
     "             AND retired = $2) " +
     "AND retired = $3 ";
-  db.selectWithJSON(sql, [person_id, 0, 0]).then(function(results) {
+  db.selectNoResponse(sql, [person_id, 0, 0]).then(function(results) {
     let groups = results;
     let group_ids = _.pluck(groups, 'id');
 
@@ -39,7 +39,7 @@ exports.getMyGroups = function(request, response) {
 
     ArrayService.addToArray(values, group_ids);
 
-    db.selectWithJSON(sql, values).then(function(personResults) {
+    db.selectNoResponse(sql, values).then(function(personResults) {
       let groupData = _.groupBy(personResults, "tv_group_id");
 
 
@@ -67,7 +67,7 @@ exports.createGroup = function(request, response) {
 
   const values = [group.name];
 
-  db.selectWithJSON(sql, values).then(function(groupResult) {
+  db.selectNoResponse(sql, values).then(function(groupResult) {
     const tv_group_id = groupResult[0].id;
     const person_ids = group.person_ids;
 
@@ -84,7 +84,7 @@ exports.createGroup = function(request, response) {
 
     ArrayService.addToArray(values, person_ids);
 
-    db.updateNoJSON(sql, values).then(function() {
+    db.updateNoResponse(sql, values).then(function() {
       response.json({tv_group_id: tv_group_id});
     });
   });
@@ -107,7 +107,7 @@ exports.getGroupPersons = function(request, response) {
     0
   ];
 
-  db.executeQueryWithResults(response, sql, values);
+  db.selectSendResponse(response, sql, values);
 };
 
 exports.getGroupShows = function(request, response) {
@@ -145,7 +145,7 @@ exports.getGroupShows = function(request, response) {
     "AND s.retired = $7 " +
     "AND s.tvdb_match_status = $8 ";
 
-  db.selectWithJSON(sql, [0, 0, 0, 0, tv_group_id, 0, 0, 'Match Completed']).then(function (seriesResults) {
+  db.selectNoResponse(sql, [0, 0, 0, 0, tv_group_id, 0, 0, 'Match Completed']).then(function (seriesResults) {
     extractGroupSeries(seriesResults, tv_group_id);
 
     const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
@@ -171,7 +171,7 @@ exports.getGroupShows = function(request, response) {
       tv_group_id
     ];
 
-    db.selectWithJSON(sql, values).then(function(episodeResults) {
+    db.selectNoResponse(sql, values).then(function(episodeResults) {
 
       let groupedBySeries = _.groupBy(episodeResults, "series_id");
       for (let seriesId in groupedBySeries) {
@@ -237,7 +237,7 @@ exports.removeFromGroupShows = function(request, response) {
     series_id, tv_group_id, 0
   ];
 
-  db.executeQueryNoResults(response, sql, values);
+  db.updateSendResponse(response, sql, values);
 };
 
 
@@ -252,7 +252,7 @@ function hasRetiredGroupSeries(series_id, tv_group_id) {
 
     const values = [tv_group_id, series_id, 0];
 
-    db.selectWithJSON(sql, values).then(results => {
+    db.selectNoResponse(sql, values).then(results => {
       if (results.length > 0) {
         resolve(results[0].id);
       } else {
@@ -283,7 +283,7 @@ function addGroupSeries(series_id, tv_group_id, resolve) {
     tv_group_id, series_id
   ];
 
-  db.selectWithJSON(sql, values).then(results => resolve(results[0].id));
+  db.selectNoResponse(sql, values).then(results => resolve(results[0].id));
 }
 
 function restoreGroupSeries(tv_group_series_id, resolve) {
@@ -297,7 +297,7 @@ function restoreGroupSeries(tv_group_series_id, resolve) {
     tv_group_series_id, 0
   ];
 
-  db.updateNoJSON(sql, values).then(() => resolve(tv_group_series_id));
+  db.updateNoResponse(sql, values).then(() => resolve(tv_group_series_id));
 }
 
 exports.addToGroupShows = function(request, response) {
@@ -333,7 +333,7 @@ exports.addToGroupShows = function(request, response) {
       0, 0, tv_group_series_id
     ];
 
-    db.selectWithJSON(sql, values).then(seriesResults => {
+    db.selectNoResponse(sql, values).then(seriesResults => {
       const series = seriesResults[0];
       const groupSeries = extractSingleGroupSeries(series, tv_group_id);
 
@@ -360,7 +360,7 @@ exports.addToGroupShows = function(request, response) {
         tv_group_series_id
       ];
 
-      db.selectWithJSON(sql, values).then(episodeResults =>  {
+      db.selectNoResponse(sql, values).then(episodeResults =>  {
         person_controller.calculateUnwatchedDenorms(series, groupSeries, episodeResults);
 
         response.json(series);
@@ -391,7 +391,7 @@ exports.getNotGroupShows = function(request, response) {
     0, 0, tv_group_id, 0, 'Match Completed'
   ];
 
-  return db.executeQueryWithResults(response, sql, values);
+  return db.selectSendResponse(response, sql, values);
 };
 
 exports.getGroupEpisodes = function(request, response) {
@@ -419,7 +419,7 @@ exports.getGroupEpisodes = function(request, response) {
     'AND te.retired = $3 ' +
     'ORDER BY e.season, e.episode_number';
 
-  db.selectWithJSON(sql, [series_id, 0, 0]).then(function (episodeResult) {
+  db.selectNoResponse(sql, [series_id, 0, 0]).then(function (episodeResult) {
     const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped " +
       "FROM tv_group_episode tge " +
       "INNER JOIN episode e " +
@@ -429,7 +429,7 @@ exports.getGroupEpisodes = function(request, response) {
       "AND tge.retired = $3 " +
       "AND tge.tv_group_id = $4 ";
 
-    db.selectWithJSON(sql, [series_id, 0, 0, tv_group_id]).then(function(groupResult) {
+    db.selectNoResponse(sql, [series_id, 0, 0, tv_group_id]).then(function(groupResult) {
 
       const sql = "SELECT er.episode_id, tgp.person_id " +
         "FROM episode_rating er " +
@@ -455,7 +455,7 @@ exports.getGroupEpisodes = function(request, response) {
         true
       ];
 
-      db.selectWithJSON(sql, values).then(function(personResult) {
+      db.selectNoResponse(sql, values).then(function(personResult) {
 
         groupResult.forEach(function(groupEpisode) {
           const episodeMatch = _.find(episodeResult, function (episode) {
@@ -537,7 +537,7 @@ function markEpisodeWatchedForPersons(request) {
 
   ArrayService.addToArray(values, member_ids);
 
-  return db.selectWithJSON(sql, values).then(function(personResults) {
+  return db.selectNoResponse(sql, values).then(function(personResults) {
     let existingRatings = _.pluck(personResults, 'person_id');
     let newRatingPersons = _.difference(member_ids, existingRatings);
 
@@ -575,7 +575,7 @@ function addRatingsForPersons(member_ids, episodeRatingInfo) {
 
   ArrayService.addToArray(values, member_ids);
 
-  return db.updateNoJSON(sql, values);
+  return db.updateNoResponse(sql, values);
 }
 
 function editRatingsForPersons(member_ids, episodeRatingInfo) {
@@ -603,7 +603,7 @@ function editRatingsForPersons(member_ids, episodeRatingInfo) {
 
   ArrayService.addToArray(values, member_ids);
 
-  return db.updateNoJSON(sql, values);
+  return db.updateNoResponse(sql, values);
 }
 
 
@@ -645,11 +645,11 @@ function addTVGroupEpisode(tv_group_episode) {
     new Date
   ];
 
-  return db.selectWithJSON(sql, values);
+  return db.selectNoResponse(sql, values);
 }
 
 function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
-  return db.updateObjectWithChangedFieldsNoJSON(tv_group_episode, "tv_group_episode", tv_group_episode_id);
+  return db.updateObjectWithChangedFieldsSendResponse(tv_group_episode, "tv_group_episode", tv_group_episode_id);
 }
 
 
@@ -682,7 +682,7 @@ function getEpisodesThatWillBeUpdated(series_id, tv_group_id, lastWatched) {
 
   const values = [0, series_id, tv_group_id, lastWatched, true, 0];
 
-  return db.selectWithJSON(sql, values);
+  return db.selectNoResponse(sql, values);
 }
 
 function updateTVGroupEpisodesAllPastWatched(payload) {
@@ -723,7 +723,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
       0                 // retired
     ];
 
-    return db.updateNoJSON(sql, values).then(function() {
+    return db.updateNoResponse(sql, values).then(function() {
       const sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, date_added) " +
         "SELECT e.id, $1, $2, $3, now() " +
         "FROM episode e " +
@@ -750,7 +750,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
         tv_group_id                         // person
       ];
 
-      db.selectWithJSON(sql, values).then(groupEpisodes => {
+      db.selectNoResponse(sql, values).then(groupEpisodes => {
         resolve(groupEpisodes);
       });
     });
@@ -780,7 +780,7 @@ exports.getBallots = function(tv_group_id, response, seriesResults) {
     0
   ];
 
-  db.selectWithJSON(sql, values).then(function(ballotResults) {
+  db.selectNoResponse(sql, values).then(function(ballotResults) {
     const sql = 'SELECT tgv.tv_group_ballot_id, tgv.person_id, tgv.vote_value ' +
       'FROM tv_group_vote tgv ' +
       'INNER JOIN tv_group_ballot tgb ' +
@@ -797,7 +797,7 @@ exports.getBallots = function(tv_group_id, response, seriesResults) {
       0, 0, 0
     ];
 
-    db.selectWithJSON(sql, values).then(function(voteResults) {
+    db.selectNoResponse(sql, values).then(function(voteResults) {
 
       let groupedByBallot = _.groupBy(voteResults, 'tv_group_ballot_id');
 
@@ -842,14 +842,14 @@ exports.addBallot = function(request, response) {
     tv_group_series_id
   ];
 
-  db.executeQueryWithResults(response, sql, values);
+  db.selectSendResponse(response, sql, values);
 };
 
 exports.editBallot = function(request, response) {
   const changedFields = request.body.changedFields;
   const tvGroupBallotId = request.body.tv_group_ballot_id;
 
-  db.updateObjectWithChangedFields(response, changedFields, "tv_group_ballot", tvGroupBallotId);
+  db.updateObjectWithChangedFieldsSendResponse(response, changedFields, "tv_group_ballot", tvGroupBallotId);
 };
 
 exports.submitVote = function(request, response) {
@@ -864,7 +864,7 @@ exports.submitVote = function(request, response) {
     vote.vote_value
   ];
 
-  db.updateNoJSON(sql, values).then(function() {
+  db.updateNoResponse(sql, values).then(function() {
     const sql = 'SELECT vote_value ' +
       'FROM tv_group_vote ' +
       'WHERE tv_group_ballot_id = $1 ' +
@@ -875,7 +875,7 @@ exports.submitVote = function(request, response) {
       0
     ];
 
-    db.selectWithJSON(sql, values).then(function(votesResult) {
+    db.selectNoResponse(sql, values).then(function(votesResult) {
       const group_score = exports.calculateGroupRating({votes: votesResult});
 
       response.json({group_score: group_score});

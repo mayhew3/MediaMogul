@@ -7,7 +7,7 @@ exports.getTVDBErrors = function(req, response) {
     'FROM tvdb_update_error ' +
     'ORDER BY id DESC ';
 
-  return db.executeQueryWithResults(response, sql, []);
+  return db.selectSendResponse(response, sql, []);
 };
 
 exports.getExternalServices = function(request, response) {
@@ -17,5 +17,5 @@ exports.getExternalServices = function(request, response) {
     'FROM external_service ' +
     'ORDER BY id DESC ';
 
-  return db.executeQueryWithResults(response, sql, []);
+  return db.selectSendResponse(response, sql, []);
 };
