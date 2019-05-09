@@ -126,10 +126,9 @@ angular.module('mediaMogulApp')
         show.date_added = new Date;
         show.person_id = self.LockService.person_id;
 
-        EpisodeService.addSeries(show).then(function(result) {
-          show.id = result.data.seriesId;
-          show.tvdb_match_status = 'Match Confirmed';
-          EpisodeService.addToPendingShows(show);
+        EpisodeService.addSeries(show).then(function(incomingShow) {
+          incomingShow.tvdb_match_status = 'Match Confirmed';
+          EpisodeService.addRecentlyCompletedShow(incomingShow);
           delete show.request_processing;
         });
       };
