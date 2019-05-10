@@ -45,7 +45,7 @@
     };
 
     self.showTitleOverPoster = function() {
-      return self.imageDoesNotExist || self.tvdbPosterPath() === 'images/GenericSeries.gif';
+      return !!self.show.imageDoesNotExist || self.tvdbPosterPath() === 'images/GenericSeries.gif';
     };
 
     self.textOverlay = function() {
