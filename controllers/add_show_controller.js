@@ -68,6 +68,36 @@ exports.getTVDBMatches = function(request, response) {
 
 };
 
+function urlExists(url) {
+  return new Promise(resolve => {
+    requestLib(url, function(error, response) {
+      resolve(!!response && response.statusCode < 400);
+    });
+  });
+}
+
+function tryPoster(posters, index, resolve, reject) {
+  const currPoster = posters[index];
+  const posterFileName = currPoster.fileName;
+  urlExists('https://thetvdb.com/banners/' + posterFileName).then(exists => {
+    if (!!exists) {
+      resolve(posters[index]);
+    } else if (index < posters.length - 1) {
+      console.log("Failed to find poster: " + posterFileName);
+      tryPoster(posters, index+1, resolve, reject);
+    } else {
+      console.error("Failed to find ANY posters! Returning final failing image in the list.");
+      reject();
+    }
+  });
+}
+
+function findFirstWorkingPoster(posters) {
+  return new Promise((resolve, reject) => {
+    tryPoster(posters, 0, resolve, reject);
+  });
+}
+
 function getTopPoster(seriesObj, options) {
   return new Promise(function(resolve) {
     const posterUrl = 'https://api.thetvdb.com/series/' + seriesObj.tvdb_series_ext_id + '/images/query';
@@ -89,8 +119,15 @@ function getTopPoster(seriesObj, options) {
         if (posterData.length === 0) {
           resolve();
         } else {
-          seriesObj.poster = _.last(posterData).fileName;
-          resolve();
+          findFirstWorkingPoster(posterData)
+            .then(poster => {
+              seriesObj.poster = poster.fileName;
+              resolve();
+            })
+            .catch(() => {
+              seriesObj.poster = _.last(posterData).fileName;
+              resolve();
+            });
         }
       }
     });
@@ -103,53 +140,64 @@ function getTopPoster(seriesObj, options) {
 exports.beginEpisodeFetch = function(request, response) {
   const tvdbSeriesExtId = request.body.series.tvdb_series_ext_id;
   const personId = request.body.series.person_id;
+  const selectedPoster = request.body.series.poster;
 
-  tokens.getBaseOptions().then(function (options) {
+  try {
 
-    response.json({msg: 'Fetch started.'});
+    tokens.getBaseOptions().then(function (options) {
 
-    const seriesUrl = 'https://api.thetvdb.com/series/' + tvdbSeriesExtId;
+      response.json({msg: 'Fetch started.'});
 
-    requestLib(seriesUrl, options, function (error, tvdb_response, body) {
-      if (error) {
-        throwFetchEpisodesError("Error getting TVDB series: " + error, 'Error getting TVDB Data: ' + error, personId);
-      } else if (tvdb_response.statusCode !== 200) {
-        throwFetchEpisodesError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
-          tvdb_response.statusText,
-          'Error fetching series from TVDB',
-          personId);
-      } else {
-        const tvdbSeriesObj = body.data;
+      const seriesUrl = 'https://api.thetvdb.com/series/' + tvdbSeriesExtId;
 
-        // noinspection JSUnresolvedVariable
-        const tvdbSeries = {
-          name: tvdbSeriesObj.seriesName,
-          tvdb_series_ext_id: tvdbSeriesExtId,
-          airs_day_of_week: tvdbSeriesObj.airsDayOfWeek,
-          airs_time: tvdbSeriesObj.airsTime,
-          first_aired: tvdbSeriesObj.firstAired,
-          network: tvdbSeriesObj.network,
-          overview: tvdbSeriesObj.overview,
-          rating: tvdbSeriesObj.siteRating,
-          rating_count: tvdbSeriesObj.siteRatingCount,
-          runtime: tvdbSeriesObj.runtime,
-          status: tvdbSeriesObj.status,
-          banner: tvdbSeriesObj.banner,
-          api_version: 2,
-          last_updated: tvdbSeriesObj.lastUpdated,
-          imdb_id: tvdbSeriesObj.imdbId,
-          zap2it_id: tvdbSeriesObj.zap2itId,
-          date_added: new Date
-        };
+      requestLib(seriesUrl, options, function (error, tvdb_response, body) {
+        if (error) {
+          throwFetchEpisodesError("Error getting TVDB series: " + error, 'Error getting TVDB Data: ' + error, personId);
+        } else if (tvdb_response.statusCode !== 200) {
+          throwFetchEpisodesError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
+            tvdb_response.statusText,
+            'Error fetching series from TVDB',
+            personId);
+        } else {
+          const tvdbSeriesObj = body.data;
 
-        insertTVDBSeries(tvdbSeries).then(() => {
-          updatePosters(tvdbSeries, tvdbSeriesObj, personId);
-        });
+          // noinspection JSUnresolvedVariable
+          const tvdbSeries = {
+            name: tvdbSeriesObj.seriesName,
+            tvdb_series_ext_id: tvdbSeriesExtId,
+            airs_day_of_week: tvdbSeriesObj.airsDayOfWeek,
+            airs_time: tvdbSeriesObj.airsTime,
+            first_aired: tvdbSeriesObj.firstAired,
+            network: tvdbSeriesObj.network,
+            overview: tvdbSeriesObj.overview,
+            rating: tvdbSeriesObj.siteRating,
+            rating_count: tvdbSeriesObj.siteRatingCount,
+            runtime: tvdbSeriesObj.runtime,
+            status: tvdbSeriesObj.status,
+            banner: tvdbSeriesObj.banner,
+            api_version: 2,
+            last_updated: tvdbSeriesObj.lastUpdated,
+            imdb_id: tvdbSeriesObj.imdbId,
+            zap2it_id: tvdbSeriesObj.zap2itId,
+            date_added: new Date,
+            last_poster: selectedPoster
+          };
+
+          insertTVDBSeries(tvdbSeries).then(() => {
+            updatePosters(tvdbSeries, tvdbSeriesObj, personId, selectedPoster);
+          }).catch(err => throwFetchEpisodesError(err,
+            'insert tvdb_series',
+            'Internal Database Error',
+            personId));
 
 
-      }
+        }
+      });
     });
-  });
+
+  } catch (err) {
+    console.error(err.message, err.stack);
+  }
 
 };
 
@@ -171,24 +219,15 @@ function updatePosters(tvdbSeries, tvdbSeriesObj, personId) {
           personId);
       } else {
         const posterData = body.data;
-        if (posterData.length === 0) {
-          resolve();
-        } else {
-          tvdbSeries.last_poster = _.last(posterData).fileName;
-          updateLastPoster(tvdbSeries).catch(err => throwFetchEpisodesError(err,
-            'Update tvdb_series.last_poster',
-            'Error updating database',
-            personId));
+        if (posterData.length > 0) {
           _.each(posterData, posterObj => addPoster(tvdbSeries.id, posterObj.fileName)
             .catch(err => throwFetchEpisodesError(err,
               'Add poster',
               'Internal Database Error',
               personId)));
         }
+        updateNewSeries(tvdbSeries, tvdbSeriesObj, personId);
       }
-
-      updateNewSeries(tvdbSeries, tvdbSeriesObj, personId);
-
     });
   })
 }
@@ -295,7 +334,7 @@ function updateEpisodes(series) {
 
 function throwFetchEpisodesError(error, consoleMsg, clientMsg, person_id) {
   sockets.emitToPerson(person_id, 'fetch_failed', clientMsg);
-  throw new Error(consoleMsg + ': ' + error);
+  console.error(consoleMsg + ': ' + error, error.stack);
 }
 
 function commitEpisodes(episodes) {
@@ -424,16 +463,6 @@ function updateMatchCompleted(series) {
   const values = ['Match Completed', series.id];
 
   series.tvdb_match_status = 'Match Completed';
-  return db.updateNoResponse(sql, values);
-}
-
-function updateLastPoster(tvdbSeries) {
-  const sql = 'UPDATE tvdb_series ' +
-    'SET last_poster = $1 ' +
-    'WHERE id = $2 ';
-
-  const values = [tvdbSeries.last_poster, tvdbSeries.id];
-
   return db.updateNoResponse(sql, values);
 }
 

@@ -1,10 +1,12 @@
 angular.module('mediaMogulApp')
   .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService',
-    'SeriesRequestService', '$state', '$stateParams', '$uibModal',
-    function($log, LockService, $http, ArrayService, EpisodeService, SeriesRequestService, $state, $stateParams, $uibModal) {
+    'SeriesRequestService', '$state', '$stateParams', '$uibModal', 'SocketService', '$scope',
+    function($log, LockService, $http, ArrayService, EpisodeService, SeriesRequestService, $state,
+             $stateParams, $uibModal, SocketService, $scope) {
       const self = this;
 
       self.LockService = LockService;
+      self.SocketService = SocketService;
 
       self.allMatches = [];
       self.showsInSystem = [];
@@ -137,6 +139,10 @@ angular.module('mediaMogulApp')
         show.person_id = self.LockService.person_id;
 
         EpisodeService.addSeries(show).then(() => {
+          self.SocketService.on('fetch_failed', err => {
+            show.error = err;
+            $scope.$apply();
+          });
           EpisodeService.addEpisodesFetchedCallback({
             tvdb_series_ext_id: show.tvdb_series_ext_id,
             callback: updateCompletedShow
