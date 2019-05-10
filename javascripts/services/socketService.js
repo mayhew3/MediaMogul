@@ -15,6 +15,12 @@ angular.module('mediaMogulApp')
               person_id: self.LockService.person_id
             }
           });
+
+          socket.on('reconnect_attempt', () => {
+            socket.io.opts.query = {
+              person_id: self.LockService.person_id
+            }
+          });
         });
       }
 
