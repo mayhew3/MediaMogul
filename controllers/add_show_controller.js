@@ -6,6 +6,7 @@ const tokens = require('./tvdb_token_service');
 const fast_sort = require('fast-sort');
 const moment = require('moment');
 const person_controller = require('./person_controller');
+const sockets = require('./sockets_controller');
 
 /* GET POSSIBLE MATCHES */
 
@@ -105,16 +106,18 @@ exports.beginEpisodeFetch = function(request, response) {
 
   tokens.getBaseOptions().then(function (options) {
 
+    response.json({msg: 'Fetch started.'});
+
     const seriesUrl = 'https://api.thetvdb.com/series/' + tvdbSeriesExtId;
 
     requestLib(seriesUrl, options, function (error, tvdb_response, body) {
       if (error) {
-        throwError("Error getting TVDB series: " + error, 'Error getting TVDB Data: ' + error, response);
+        throwFetchEpisodesError("Error getting TVDB series: " + error, 'Error getting TVDB Data: ' + error, personId);
       } else if (tvdb_response.statusCode !== 200) {
-        throwError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
+        throwFetchEpisodesError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
           tvdb_response.statusText,
           'Error fetching series from TVDB',
-          response);
+          personId);
       } else {
         const tvdbSeriesObj = body.data;
 
@@ -140,7 +143,7 @@ exports.beginEpisodeFetch = function(request, response) {
         };
 
         insertTVDBSeries(tvdbSeries).then(() => {
-          updatePosters(tvdbSeries, tvdbSeriesObj, personId, response);
+          updatePosters(tvdbSeries, tvdbSeriesObj, personId);
         });
 
 
@@ -150,7 +153,7 @@ exports.beginEpisodeFetch = function(request, response) {
 
 };
 
-function updatePosters(tvdbSeries, tvdbSeriesObj, personId, response) {
+function updatePosters(tvdbSeries, tvdbSeriesObj, personId) {
   tokens.getBaseOptions().then(options => {
     const postersUrl = "https://api.thetvdb.com/series/" + tvdbSeries.tvdb_series_ext_id + "/images/query";
 
@@ -160,37 +163,37 @@ function updatePosters(tvdbSeries, tvdbSeriesObj, personId, response) {
 
     requestLib(postersUrl, options, function (error, tvdb_response, body) {
       if (error) {
-        throwError("Error getting TVDB posters: " + error, 'Error getting TVDB Data: ' + error, response);
+        throwFetchEpisodesError("Error getting TVDB posters: " + error, 'Error getting TVDB Data: ' + error, personId);
       } else if (tvdb_response.statusCode !== 200) {
-        throwError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
+        throwFetchEpisodesError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
           tvdb_response.statusText,
           'Error fetching posters from TVDB',
-          response);
+          personId);
       } else {
         const posterData = body.data;
         if (posterData.length === 0) {
           resolve();
         } else {
           tvdbSeries.last_poster = _.last(posterData).fileName;
-          updateLastPoster(tvdbSeries).catch(err => throwError(err,
+          updateLastPoster(tvdbSeries).catch(err => throwFetchEpisodesError(err,
             'Update tvdb_series.last_poster',
             'Error updating database',
-            response));
+            personId));
           _.each(posterData, posterObj => addPoster(tvdbSeries.id, posterObj.fileName)
-            .catch(err => throwError(err,
+            .catch(err => throwFetchEpisodesError(err,
               'Add poster',
               'Internal Database Error',
-              response)));
+              personId)));
         }
       }
 
-      updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response);
+      updateNewSeries(tvdbSeries, tvdbSeriesObj, personId);
 
     });
   })
 }
 
-function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response) {
+function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId) {
   const series = {
     air_time: tvdbSeries.airs_time,
     poster: tvdbSeries.last_poster,
@@ -213,7 +216,7 @@ function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId, response) {
 
       seriesWithId.personSeries = personSeries;
 
-      updateEpisodes(seriesWithId, response);
+      updateEpisodes(seriesWithId);
     });
   });
 }
@@ -232,12 +235,12 @@ function getEpisodesForPage(tvdbSeriesExtId, pageNumber, options, callback) {
 function updateEpisodesForPage(series, pageNumber, options, addCallbacks, finalCallback) {
   getEpisodesForPage(series.tvdb_series_ext_id, pageNumber, options, function(error, tvdb_response, body) {
     if (error) {
-      throwError("Error getting TVDB episodes: " + error, 'Error getting TVDB Data: ' + error, response);
+      throwFetchEpisodesError("Error getting TVDB episodes: " + error, 'Error getting TVDB Data: ' + error, series.person_id);
     } else if (tvdb_response.statusCode !== 200) {
-      throwError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
+      throwFetchEpisodesError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
         tvdb_response.statusText,
         'Error fetching episodes from TVDB',
-        response);
+        series.person_id);
     } else {
       const lastPage = body.links.last;
       console.log('Updating page ' + pageNumber + ' of ' + lastPage);
@@ -255,7 +258,7 @@ function updateEpisodesForPage(series, pageNumber, options, addCallbacks, finalC
   });
 }
 
-function updateEpisodes(series, response) {
+function updateEpisodes(series) {
   tokens.getBaseOptions().then(options => {
     const addCallbacks = [];
     updateEpisodesForPage(series, 1, options, addCallbacks, () => {
@@ -266,27 +269,32 @@ function updateEpisodes(series, response) {
           person_controller.calculateUnwatchedDenorms(series, series.personSeries, episodes);
 
           updateMatchCompleted(series).then(() => {
-            response.json(series);
-          }).catch(err => throwError(err,
+            console.log('Successfully added all episodes for series "' + series.title + '"! Sending events.');
+
+            // OPERATION COMPLETE! SEND EVENT TO ALL CLIENTS THAT NEW SHOW IS READY.
+            sockets.emitToPerson(series.person_id, 'fetch_complete', series);
+            delete series.personSeries;
+            sockets.emitToAllExceptPerson(series.person_id, 'show_added', series);
+
+          }).catch(err => throwFetchEpisodesError(err,
             'Marking series Match Completed',
             'Error fetching episodes',
-            response));
-        }).catch(err => throwError(err,
+            series.person_id));
+        }).catch(err => throwFetchEpisodesError(err,
           'Commit episodes',
           'Internal Database Error',
-          response));
-      }).catch(err => throwError(err,
+          series.person_id));
+      }).catch(err => throwFetchEpisodesError(err,
         'Commit tvdb_episodes',
         'Internal Database Error',
-        response));
+        series.person_id));
     });
   });
 
 }
 
-function throwError(error, consoleMsg, clientMsg, response) {
-  response.status(500);
-  response.json({ error: clientMsg });
+function throwFetchEpisodesError(error, consoleMsg, clientMsg, person_id) {
+  sockets.emitToPerson(person_id, 'fetch_failed', clientMsg);
   throw new Error(consoleMsg + ': ' + error);
 }
 

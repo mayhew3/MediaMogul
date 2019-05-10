@@ -136,15 +136,21 @@ angular.module('mediaMogulApp')
         show.date_added = new Date;
         show.person_id = self.LockService.person_id;
 
-        EpisodeService.addSeries(show).then(results => {
-          const incomingShow = results.data;
-          EpisodeService.addRecentlyCompletedShow(incomingShow);
-          show.id = incomingShow.id;
-          delete show.request_processing;
-        }).catch(err => {
-          show.error = err;
+        EpisodeService.addSeries(show).then(() => {
+          EpisodeService.addEpisodesFetchedCallback({
+            tvdb_series_ext_id: show.tvdb_series_ext_id,
+            callback: updateCompletedShow
+          });
         });
       };
+
+      function updateCompletedShow(incomingShow) {
+        const existing = _.findWhere(self.showsNotInSystem, {tvdb_series_ext_id: incomingShow.tvdb_series_ext_id});
+        if (!!existing) {
+          existing.id = incomingShow.id;
+          delete existing.request_processing;
+        }
+      }
 
       function isAdded(show) {
         return !!show.id;

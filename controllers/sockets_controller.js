@@ -84,5 +84,7 @@ function getClientsForEveryoneExceptPerson(person_id) {
 }
 
 function emitToClients(clients, channel, msg) {
-  _.each(clients, client => client.emit(channel, msg));
+  _.each(clients, client => {
+    client.emit(channel, msg)
+  });
 }
