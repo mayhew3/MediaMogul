@@ -9,15 +9,17 @@ angular.module('mediaMogulApp')
       self.nextTimeout = undefined;
 
       self.updateExternalServices = function() {
-        return $http.get('/api/services').then(function(response) {
-          ArrayService.refreshArray(self.externalServices, response.data);
+        if (LockService.isAdmin()) {
+          return $http.get('/api/services').then(function (response) {
+            ArrayService.refreshArray(self.externalServices, response.data);
 
-          self.SocketService.on('ext_service_update', function(externalService) {
-            addOrReplaceExternalService(externalService);
-            self.scopes.forEach(scope => scope.$apply());
+            self.SocketService.on('ext_service_update', function (externalService) {
+              addOrReplaceExternalService(externalService);
+              self.scopes.forEach(scope => scope.$apply());
+            });
+
           });
-
-        });
+        }
       };
 
       LockService.addCallback(self.updateExternalServices);
