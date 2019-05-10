@@ -79,13 +79,11 @@ function ShowFilterService(ArrayService, DateService) {
   };
 
   self.allShows = function(series) {
-    return self.firstTier(series) &&
-      hasWatchedEpisodes(series);
+    return self.firstTier(series);
   };
 
   self.backlogShows = function(series) {
-    return self.secondTier(series) &&
-      hasWatchedEpisodes(series);
+    return self.secondTier(series);
   };
 
   self.continueBacklog = function(series) {
