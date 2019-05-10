@@ -1,14 +1,14 @@
 
 <!-- POSTER -->
 
-<div class="clickable">
+<div class="clickable"
+     ng-click="ctrl.click(ctrl.show)">
 
   <img class="img-rounded"
        ng-src="{{ctrl.tvdbPosterPath()}}"
        err-src="images/GenericSeries.gif"
        width="100%"
        ng-style="ctrl.extraStyles(ctrl.show)"
-       ng-click="ctrl.click(ctrl.show)"
        alt="{{ctrl.show.title}}"/>
 
   <!-- UNWATCHED BADGE -->

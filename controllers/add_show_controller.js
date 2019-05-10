@@ -152,10 +152,13 @@ exports.beginEpisodeFetch = function(request, response) {
 
       requestLib(seriesUrl, options, function (error, tvdb_response, body) {
         if (error) {
-          throwFetchEpisodesError("Error getting TVDB series: " + error, 'Error getting TVDB Data: ' + error, personId);
+          throwFetchEpisodesError(error,
+            "Error getting TVDB series.",
+            'Error getting TVDB Data. ',
+            personId);
         } else if (tvdb_response.statusCode !== 200) {
-          throwFetchEpisodesError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
-            tvdb_response.statusText,
+          throwFetchEpisodesError(new Error("Unexpected status code from TVDB API: " + tvdb_response.statusCode),
+            "Error fetching series data from TVDB: " + tvdb_response.statusText,
             'Error fetching series from TVDB',
             personId);
         } else {
@@ -184,12 +187,13 @@ exports.beginEpisodeFetch = function(request, response) {
           };
 
           insertTVDBSeries(tvdbSeries).then(() => {
-            updatePosters(tvdbSeries, tvdbSeriesObj, personId, selectedPoster);
+            updatePosters(tvdbSeries, tvdbSeriesObj, personId, selectedPoster).then(() => {
+              updateNewSeries(tvdbSeries, tvdbSeriesObj, personId);
+            }).catch(() => console.error('Skipping execution of rest of series due to fatal poster error.'));
           }).catch(err => throwFetchEpisodesError(err,
             'insert tvdb_series',
             'Internal Database Error',
             personId));
-
 
         }
       });
@@ -202,34 +206,46 @@ exports.beginEpisodeFetch = function(request, response) {
 };
 
 function updatePosters(tvdbSeries, tvdbSeriesObj, personId) {
-  tokens.getBaseOptions().then(options => {
-    const postersUrl = "https://api.thetvdb.com/series/" + tvdbSeries.tvdb_series_ext_id + "/images/query";
+  return new Promise((resolve, reject) => {
+    tokens.getBaseOptions().then(options => {
+      const postersUrl = "https://api.thetvdb.com/series/" + tvdbSeries.tvdb_series_ext_id + "/images/query";
 
-    options.qs = {
-      'keyType': 'poster'
-    };
+      options.qs = {
+        'keyType': 'poster'
+      };
 
-    requestLib(postersUrl, options, function (error, tvdb_response, body) {
-      if (error) {
-        throwFetchEpisodesError("Error getting TVDB posters: " + error, 'Error getting TVDB Data: ' + error, personId);
-      } else if (tvdb_response.statusCode !== 200) {
-        throwFetchEpisodesError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
-          tvdb_response.statusText,
-          'Error fetching posters from TVDB',
-          personId);
-      } else {
-        const posterData = body.data;
-        if (posterData.length > 0) {
-          _.each(posterData, posterObj => addPoster(tvdbSeries.id, posterObj.fileName)
-            .catch(err => throwFetchEpisodesError(err,
-              'Add poster',
-              'Internal Database Error',
-              personId)));
+      requestLib(postersUrl, options, function (error, tvdb_response, body) {
+        if (error) {
+          throwFetchEpisodesError(error,
+            "Error getting TVDB posters.",
+            'Error getting TVDB Data.',
+            personId);
+          reject();
+        } else if (tvdb_response.statusCode !== 200) {
+          if (!!body && body.Error === "No results for your query") {
+            console.log("No posters found for series '" + tvdbSeries.name + "'. Continuing with empty poster array.");
+            resolve();
+          } else {
+            throwFetchEpisodesError(new Error("Unexpected status code from TVDB API: " + tvdb_response.statusCode),
+              "Error fetching poster data from TVDB: " + tvdb_response.statusText,
+              'Error fetching poster data from TVDB',
+              personId);
+            reject();
+          }
+        } else {
+          const posterData = body.data;
+          if (posterData.length > 0) {
+            _.each(posterData, posterObj => addPoster(tvdbSeries.id, posterObj.fileName)
+              .catch(err => throwFetchEpisodesError(err,
+                'Add poster',
+                'Internal Database Error',
+                personId)));
+          }
+          resolve();
         }
-        updateNewSeries(tvdbSeries, tvdbSeriesObj, personId);
-      }
-    });
-  })
+      });
+    })
+  });
 }
 
 function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId) {
@@ -274,11 +290,14 @@ function getEpisodesForPage(tvdbSeriesExtId, pageNumber, options, callback) {
 function updateEpisodesForPage(series, pageNumber, options, addCallbacks, finalCallback) {
   getEpisodesForPage(series.tvdb_series_ext_id, pageNumber, options, function(error, tvdb_response, body) {
     if (error) {
-      throwFetchEpisodesError("Error getting TVDB episodes: " + error, 'Error getting TVDB Data: ' + error, series.person_id);
+      throwFetchEpisodesError(error,
+        "Error getting TVDB episodes.",
+        'Error getting TVDB episode data.',
+        series.person_id);
     } else if (tvdb_response.statusCode !== 200) {
-      throwFetchEpisodesError("Unexpected status code from TVDB API: " + tvdb_response.statusCode,
-        tvdb_response.statusText,
-        'Error fetching episodes from TVDB',
+      throwFetchEpisodesError(new Error("Unexpected status code from TVDB API: " + tvdb_response.statusCode),
+        "Error fetching episode data from TVDB: " + tvdb_response.statusText,
+        'Error fetching episode data from TVDB',
         series.person_id);
     } else {
       const lastPage = body.links.last;
