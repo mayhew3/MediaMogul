@@ -23,6 +23,29 @@ exports.initIO = function(in_io) {
   });
 };
 
+/* API */
+
+exports.getNumberOfClients = function() {
+  return clients.length;
+};
+
+exports.emitToAll = function(channel, msg) {
+  emitToClients(clients, channel, msg);
+};
+
+exports.emitToPerson = function(person_id, channel, msg) {
+  const clientsForPerson = getClientsForPerson(person_id);
+  emitToClients(clientsForPerson, channel, msg);
+};
+
+exports.emitToAllExceptPerson = function(person_id, channel, msg) {
+  const clientsForEveryoneExceptPerson = getClientsForEveryoneExceptPerson(person_id);
+  emitToClients(clientsForEveryoneExceptPerson, channel, msg);
+};
+
+
+/* PRIVATE METHODS */
+
 function addClientForPerson(person_id, client) {
   const existingArray = _.findWhere(persons, {person_id: person_id});
   if (!existingArray) {
@@ -44,10 +67,22 @@ function removeClientForPerson(person_id, client) {
   }
 }
 
-exports.getNumberOfClients = function() {
-  return clients.length;
-};
+function getClientsForPerson(person_id) {
+  const existingArray = _.findWhere(persons, {person_id: person_id});
+  if (!existingArray) {
+    return [];
+  } else {
+    return existingArray.clients;
+  }
+}
 
-exports.emitToAll = function(channel, msg) {
-  clients.forEach(client => client.emit(channel, msg));
-};
+function getClientsForEveryoneExceptPerson(person_id) {
+  const otherPersons = _.filter(persons, person => person_id !== person.person_id);
+  const clients = [];
+  _.each(otherPersons, person => arrayService.addToArray(clients, person.clients));
+  return clients;
+}
+
+function emitToClients(clients, channel, msg) {
+  _.each(clients, client => client.emit(channel, msg));
+}
