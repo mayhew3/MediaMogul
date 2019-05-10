@@ -28,6 +28,8 @@ angular.module('mediaMogulApp')
 
       const dataPresentCallbacks = [];
 
+      const fetchEpisodeCallbacks = [];
+
       self.nextTimeout = undefined;
       self.nextShowsToUpdate = [];
 
@@ -68,7 +70,8 @@ angular.module('mediaMogulApp')
                   self.loadingNotMyShows = false;
                   finishedAllShows = true;
                   validateShowArrays();
-                  listenForTVDBComplete();
+                  listenForShowsAddedBySomeoneElse();
+                  listenForMyTVDBComplete();
                   executeEligibleCallbacks();
                   resolve();
                 });
@@ -330,24 +333,40 @@ angular.module('mediaMogulApp')
         });
       };
 
-      function listenForTVDBComplete() {
-        self.SocketService.on('tvdb_match_update', updatedSeries => {
-          const existing = _.findWhere(myPendingShows, {id: updatedSeries.id});
-          if (!!existing) {
-            ArrayService.removeFromArray(myPendingShows, existing);
-          }
+      self.addEpisodesFetchedCallback = function(callback) {
+        fetchEpisodeCallbacks.push(callback);
+      };
 
-          formatIncomingShow(updatedSeries);
-          if (updatedSeries.person_id === self.LockService.person_id) {
-            myShows.push(updatedSeries);
-            addTimerForNextAirDate();
-          } else {
-            delete updatedSeries.personSeries;
-            notMyShows.push(updatedSeries);
-          }
+      function listenForShowsAddedBySomeoneElse() {
+        self.SocketService.on('show_added', addNewShowAddedExternally);
+      }
 
-          allShows.push(updatedSeries);
+      function listenForMyTVDBComplete() {
+        self.SocketService.on('fetch_complete', function(show) {
+          addNewShowAddedExternally(show);
+          const seriesCallbacks = _.where(fetchEpisodeCallbacks, {tvdb_series_ext_id: show.tvdb_series_ext_id});
+          _.each(seriesCallbacks, callbackObj => {
+            callbackObj.callback(show);
+            ArrayService.removeFromArray(fetchEpisodeCallbacks, callbackObj);
+          });
         });
+      }
+
+      function addNewShowAddedExternally(newlyAddedShow) {
+        const existing = _.findWhere(myPendingShows, {id: newlyAddedShow.id});
+        if (!!existing) {
+          ArrayService.removeFromArray(myPendingShows, existing);
+        }
+
+        formatIncomingShow(newlyAddedShow);
+        if (newlyAddedShow.person_id === self.LockService.person_id) {
+          addToMyShowsListIfDoesntExist(newlyAddedShow);
+          addPersonShowToAllShowsList(newlyAddedShow);
+          addTimerForNextAirDate();
+        } else {
+          addToNotMyShowsListIfDoesntExist(newlyAddedShow);
+          addShowWithNoViewerToAllShowsList(newlyAddedShow);
+        }
       }
 
       self.addRecentlyCompletedShow = function(show) {
@@ -516,6 +535,20 @@ angular.module('mediaMogulApp')
         const existing = _.findWhere(allShows, {id: show.id});
         if (!existing) {
           allShows.push(show);
+        }
+      }
+
+      function addToMyShowsListIfDoesntExist(show) {
+        const existing = _.findWhere(myShows, {id: show.id});
+        if (!existing) {
+          myShows.push(show);
+        }
+      }
+
+      function addToNotMyShowsListIfDoesntExist(show) {
+        const existing = _.findWhere(notMyShows, {id: show.id});
+        if (!existing) {
+          notMyShows.push(show);
         }
       }
 
