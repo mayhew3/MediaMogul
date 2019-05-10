@@ -3,7 +3,11 @@ angular.module('mediaMogulApp')
 
 function SocketService() {
   // io() is global function provided by socket.io, requires no import
-  const socket = io();
+  const socket = io({
+    query: {
+      person_id: 1
+    }
+  });
   const self = this;
 
   self.getSocket = function() {
