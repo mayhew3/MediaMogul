@@ -1,7 +1,8 @@
 angular.module('mediaMogulApp')
-  .service('ExternalServicesService', ['$log', '$http', 'ArrayService', 'LockService',
-    function($log, $http, ArrayService, LockService) {
+  .service('ExternalServicesService', ['$log', '$http', 'ArrayService', 'LockService', 'SocketService',
+    function($log, $http, ArrayService, LockService, SocketService) {
       const self = this;
+      self.SocketService = SocketService;
 
       self.externalServices = [];
       self.scopes = [];
@@ -11,8 +12,7 @@ angular.module('mediaMogulApp')
         return $http.get('/api/services').then(function(response) {
           ArrayService.refreshArray(self.externalServices, response.data);
 
-          // io() is global function provided by socket.io, requires no import
-          io().on('ext_service_update', function(externalService) {
+          self.SocketService.on('ext_service_update', function(externalService) {
             addOrReplaceExternalService(externalService);
             self.scopes.forEach(scope => scope.$apply());
           });

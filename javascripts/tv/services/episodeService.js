@@ -1,6 +1,7 @@
 angular.module('mediaMogulApp')
-  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService', '$timeout', 'GroupService',
-    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService) {
+  .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService',
+    '$timeout', 'GroupService', 'SocketService',
+    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService, SocketService) {
       const allShows = [];
       const myShows = [];
       const myPendingShows = [];
@@ -9,6 +10,7 @@ angular.module('mediaMogulApp')
 
       const self = this;
       self.LockService = LockService;
+      self.SocketService = SocketService;
       self.uninitialized = true;
       const groupsLoading = [];
       self.loadingQueue = true;
@@ -329,7 +331,7 @@ angular.module('mediaMogulApp')
       };
 
       function listenForTVDBComplete() {
-        io().on('tvdb_match_update', updatedSeries => {
+        self.SocketService.on('tvdb_match_update', updatedSeries => {
           const existing = _.findWhere(myPendingShows, {id: updatedSeries.id});
           if (!!existing) {
             ArrayService.removeFromArray(myPendingShows, existing);
