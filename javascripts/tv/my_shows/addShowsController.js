@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService',
-    'SeriesRequestService', '$state', '$stateParams',
-    function($log, LockService, $http, ArrayService, EpisodeService, SeriesRequestService, $state, $stateParams) {
+    'SeriesRequestService', '$state', '$stateParams', '$uibModal',
+    function($log, LockService, $http, ArrayService, EpisodeService, SeriesRequestService, $state, $stateParams, $uibModal) {
       const self = this;
 
       self.LockService = LockService;
@@ -208,6 +208,15 @@ angular.module('mediaMogulApp')
 
         return styleObject;
       }
+
+      self.createGroup = function() {
+        $uibModal.open({
+          templateUrl: 'views/tv/groups/createGroup.html',
+          controller: 'createGroupController',
+          controllerAs: 'ctrl',
+          size: 'lg'
+        });
+      };
 
 
     }]);

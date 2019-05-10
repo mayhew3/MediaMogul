@@ -46,6 +46,13 @@ angular.module('mediaMogulApp')
           return groups;
         };
 
+        self.addToMyGroups = function(group) {
+          const matching = self.getGroupWithID(group.id);
+          if (!matching) {
+            groups.push(group);
+          }
+        };
+
         self.groupHasSeries = function(series, tv_group_id) {
           return ArrayService.exists(self.getGroupSeries(series, tv_group_id));
         };

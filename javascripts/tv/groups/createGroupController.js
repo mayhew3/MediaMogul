@@ -1,6 +1,7 @@
 angular.module('mediaMogulApp')
-  .controller('createGroupController', ['$http', 'createGroupCallback', 'LockService', '$uibModalInstance', 'ArrayService',
-    function createGroupController($http, createGroupCallback, LockService, $uibModalInstance, ArrayService) {
+  .controller('createGroupController', ['$http', 'LockService', '$uibModalInstance', 'ArrayService',
+    'GroupService',
+    function createGroupController($http, LockService, $uibModalInstance, ArrayService, GroupService) {
       const self = this;
 
       self.name = null;
@@ -42,8 +43,8 @@ angular.module('mediaMogulApp')
           }
         };
         $http.post('/api/createGroup', data).then(function(result) {
-          const tv_group_id = result.data.tv_group_id;
-          createGroupController(data, tv_group_id);
+          data.group.id = result.data.tv_group_id;
+          GroupService.addToMyGroups(data.group);
           $uibModalInstance.close();
         });
       };

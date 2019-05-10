@@ -11,7 +11,7 @@
 
   <div class="row" style="margin-top: 10px">
 
-    <div class="form-group col-lg-9">
+    <div class="form-group col-lg-10">
 
       <div class="col-lg-6">
 
@@ -33,6 +33,12 @@
             </span>
         </div>
       </div>
+    </div>
+
+    <div class="col-lg-2" ng-if="ctrl.LockService.isAdmin()">
+      <button type="button"
+              class="btn btn-primary btn-block"
+              ng-click="ctrl.createGroup()">Create Group</button>
     </div>
   </div>
 
