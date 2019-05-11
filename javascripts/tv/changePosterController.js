@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .controller('changePosterController', ['$log', '$http', 'EpisodeService', '$uibModalInstance', 'series', '$uibModal',
-    '$filter', 'LockService', 'ArrayService',
-    function($log, $http, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService, ArrayService) {
+    '$filter', 'LockService', 'ArrayService', '$q',
+    function($log, $http, EpisodeService, $uibModalInstance, series, $uibModal, $filter, LockService, ArrayService, $q) {
       const self = this;
 
       self.LockService = LockService;
@@ -17,8 +17,8 @@ angular.module('mediaMogulApp')
         const allPosters = response.data;
 
         self.defaultPoster = _.findWhere(allPosters, {poster_path: series.poster});
-        if (!!self.series.personSeries.poster) {
-          self.selectedPoster = _.findWhere(allPosters, {id: series.personSeries.poster.id});
+        if (!!self.series.my_poster) {
+          self.selectedPoster = _.findWhere(allPosters, {tvdb_poster_id: series.my_poster.tvdb_poster_id});
         } else {
           self.selectedPoster = self.defaultPoster;
         }
@@ -56,32 +56,42 @@ angular.module('mediaMogulApp')
       };
 
       function hasPreviousPoster() {
-        return !!self.series.personSeries && !!self.series.personSeries.poster;
+        return !!self.series.my_poster;
       }
 
       function getPreviousSelectedPoster() {
-        return hasPreviousPoster() ? self.series.personSeries.poster : self.defaultPoster;
+        return hasPreviousPoster() ? self.series.my_poster : self.defaultPoster;
       }
 
       function hasChangedFromPrevious() {
-        return self.selectedPoster.id !== getPreviousSelectedPoster().id;
+        return self.selectedPoster.tvdb_poster_id !== getPreviousSelectedPoster().tvdb_poster_id;
       }
 
       self.submitAndClose = function() {
-        if (hasChangedFromPrevious()) {
-          const changedFields = {
-            tvdb_poster_id: self.selectedPoster.id
-          };
-          EpisodeService.updatePersonSeries(series.id, changedFields).then(function() {
-            series.personSeries.poster = {
-              id: self.selectedPoster.id,
-              poster: self.selectedPoster.poster_path,
-              cloud_poster: self.selectedPoster.cloud_poster
-            };
-          });
-        }
-        $uibModalInstance.close();
+        addOrUpdatePoster().then(() => $uibModalInstance.close());
       };
+
+      function addOrUpdatePoster() {
+        return $q(resolve => {
+          if (hasChangedFromPrevious()) {
+            if (!!self.series.my_poster) {
+              EpisodeService.updateMyPoster(self.series.my_poster.id, self.selectedPoster.tvdb_poster_id).then(() => {
+                self.series.my_poster.tvdb_poster_id = self.selectedPoster.tvdb_poster_id;
+                resolve();
+              });
+            } else {
+              EpisodeService.addPoster(self.series.id, self.selectedPoster.tvdb_poster_id).then(results => {
+                const person_poster_id = results.data[0].id;
+                self.series.my_poster = self.selectedPoster;
+                self.series.my_poster.person_poster_id = person_poster_id;
+                resolve();
+              });
+            }
+          } else {
+            resolve();
+          }
+        });
+      }
 
       self.cancel = function() {
         $uibModalInstance.dismiss();

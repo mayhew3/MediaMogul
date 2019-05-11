@@ -85,6 +85,9 @@ module.exports = function(app) {
   app.post('/api/seriesRequest', authCheck, persons.seriesRequest);
   app.post('/api/markEpisodesWatched', authCheck, persons.markEpisodesWatched);
   app.post('/api/pinToDashboard', authCheck, persons.pinToDashboard);
+  app.post('/api/myPoster', authCheck, persons.addMyPoster);
+
+  app.patch('/api/myPoster', authCheck, persons.updateMyPoster);
 
   // GROUPS
   app.get('/api/myGroups', authCheck, groups.getMyGroups);
