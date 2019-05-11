@@ -26,6 +26,10 @@ angular.module('mediaMogulApp')
         ArrayService.refreshArray(self.allPosters, allPosters);
       });
 
+      self.posterFilter = function(poster) {
+        return !poster.imageDoesNotExist;
+      };
+
 
       self.posterStyle = function(poster) {
         if (poster === self.selectedPoster) {
@@ -35,8 +39,7 @@ angular.module('mediaMogulApp')
           };
         } else if (poster === self.defaultPoster) {
           return {
-            "border": "solid yellow",
-            "box-shadow": "0 0 10px yellow"
+            "border": "solid yellow"
           };
         } else {
           return {"border": "solid gray"};
