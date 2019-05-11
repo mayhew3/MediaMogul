@@ -16,7 +16,7 @@ angular.module('mediaMogulApp')
         $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
         const allPosters = response.data;
 
-        self.defaultPoster = _.findWhere(allPosters, {poster_path: series.poster});
+        self.defaultPoster = getDefaultPoster(allPosters);
         if (!!self.series.my_poster) {
           self.selectedPoster = _.findWhere(allPosters, {tvdb_poster_id: series.my_poster.tvdb_poster_id});
         } else {
@@ -30,6 +30,13 @@ angular.module('mediaMogulApp')
         return !poster.imageDoesNotExist;
       };
 
+      function getDefaultPoster(allPosters) {
+        if (self.series.cloud_poster) {
+          return _.findWhere(allPosters, {cloud_poster: series.cloud_poster});
+        } else {
+          return _.findWhere(allPosters, {poster: series.poster});
+        }
+      }
 
       self.posterStyle = function(poster) {
         if (poster === self.selectedPoster) {
@@ -76,7 +83,11 @@ angular.module('mediaMogulApp')
           if (hasChangedFromPrevious()) {
             if (!!self.series.my_poster) {
               EpisodeService.updateMyPoster(self.series.my_poster.id, self.selectedPoster.tvdb_poster_id).then(() => {
-                self.series.my_poster.tvdb_poster_id = self.selectedPoster.tvdb_poster_id;
+                const myPoster = self.series.my_poster;
+                myPoster.tvdb_poster_id = self.selectedPoster.tvdb_poster_id;
+                myPoster.poster = self.selectedPoster.poster;
+                myPoster.cloud_poster = self.selectedPoster.cloud_poster;
+
                 resolve();
               });
             } else {

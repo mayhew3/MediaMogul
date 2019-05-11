@@ -66,6 +66,9 @@ exports.getMyShows = function(request, response) {
   values.push(tier);
 
   db.selectNoResponse(sql, values).then(function (seriesResults) {
+
+    attachPosterInfoToSeriesObjects(seriesResults);
+
     const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
       "INNER JOIN person_series ps " +
@@ -415,6 +418,8 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
         return;
       }
 
+      attachPosterInfoToSeriesObjects(seriesResults);
+
       const series = seriesResults[0];
 
       extractSinglePersonSeries(series);
@@ -729,12 +734,12 @@ exports.getSeriesDetailInfo = function(request, response) {
 
 function attachPossiblePosterToSeries(series, personId) {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT pp.id, tp.id as tvdb_poster_id, tp.poster_path, tp.cloud_poster ' +
+    const sql = 'SELECT pp.id, tp.id as tvdb_poster_id, tp.poster_path as poster, tp.cloud_poster ' +
       'FROM tvdb_poster tp ' +
       'INNER JOIN person_poster pp ' +
       '  ON pp.tvdb_poster_id = tp.id ' +
-      'WHERE pp.series_id = ? ' +
-      'AND pp.person_id = ? ';
+      'WHERE pp.series_id = $1 ' +
+      'AND pp.person_id = $2 ';
     const values = [series.id, personId];
     db.selectNoResponse(sql, values).then(results => {
       if (results.length > 0) {
@@ -749,7 +754,7 @@ function attachPosterInfoToSeriesObjects(seriesObjs) {
   return new Promise(resolve => {
     const seriesWithCustom = _.filter(seriesObjs, series => !!series.poster_id);
     if (seriesWithCustom.length > 0) {
-      const sql = 'SELECT pp.id, tp.id as tvdb_poster_id, tp.poster_path, tp.cloud_poster ' +
+      const sql = 'SELECT pp.id, tp.id as tvdb_poster_id, tp.poster_path as poster, tp.cloud_poster ' +
         'FROM tvdb_poster tp ' +
         'INNER JOIN person_poster pp ' +
         '  ON pp.tvdb_poster_id = tp.id ' +
