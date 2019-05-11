@@ -28,15 +28,46 @@
       return ArrayService.exists(self.posterInfo.badgeValue) ? self.posterInfo.badgeValue(self.show) : null;
     };
 
+    function hasPersonPoster() {
+      return !!self.show.personSeries && !!self.show.personSeries.poster;
+    }
+
+    function getPersonPoster() {
+      return hasPersonPoster() ?
+        self.show.personSeries.poster :
+        null;
+    }
+
+    function getCloudinaryPrefix() {
+      return 'https://res.cloudinary.com/media-mogul/image/upload/';
+    }
+
+    function getTVDBPrefix() {
+      return 'https://thetvdb.com/banners/';
+    }
+
+    function getNoImageImage() {
+      return 'images/GenericSeries.gif';
+    }
+
     self.tvdbPosterPath = function() {
-      if (self.show.cloud_poster) {
-        return 'https://res.cloudinary.com/media-mogul/image/upload/' + self.show.cloud_poster;
+      if (hasPersonPoster()) {
+        const personPoster = getPersonPoster();
+        if (!!personPoster.cloud_poster) {
+          return getCloudinaryPrefix() + personPoster.cloud_poster;
+        } else if (!!personPoster.poster_path) {
+          return getTVDBPrefix() + personPoster.poster_path;
+        } else {
+          return getNoImageImage();
+        }
+      } else if (self.show.cloud_poster) {
+        return getCloudinaryPrefix() + self.show.cloud_poster;
       } else if (self.show.poster) {
-        return 'https://thetvdb.com/banners/' + self.show.poster;
+        return getTVDBPrefix() + self.show.poster;
       } else if (self.show.poster_path) {
-        return 'https://thetvdb.com/banners/' + self.show.poster_path;
+        return getTVDBPrefix() + self.show.poster_path;
       } else {
-        return 'images/GenericSeries.gif';
+        return getNoImageImage();
       }
     };
 

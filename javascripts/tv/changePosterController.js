@@ -10,16 +10,18 @@ angular.module('mediaMogulApp')
       self.allPosters = [];
 
       self.selectedPoster = null;
+      self.defaultPoster = null;
 
       $http.get('/api/allPosters', {params: {tvdb_series_id: series.tvdb_series_id}}).then(function(response) {
         $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
         const allPosters = response.data;
 
-        allPosters.forEach(function (poster) {
-          if (series.poster === poster.poster_path) {
-            self.selectedPoster = poster;
-          }
-        });
+        self.defaultPoster = _.findWhere(allPosters, {poster_path: series.poster});
+        if (!!self.series.personSeries.poster) {
+          self.selectedPoster = _.findWhere(allPosters, {id: series.personSeries.poster.id});
+        } else {
+          self.selectedPoster = self.defaultPoster;
+        }
 
         ArrayService.refreshArray(self.allPosters, allPosters);
       });
@@ -28,6 +30,8 @@ angular.module('mediaMogulApp')
       self.posterStyle = function(poster) {
         if (poster === self.selectedPoster) {
           return {"border": "solid limegreen"};
+        } else if (poster === self.defaultPoster) {
+          return {"border": "solid yellow"};
         } else {
           return {"border": "solid gray"};
         }
@@ -41,17 +45,29 @@ angular.module('mediaMogulApp')
         self.selectedPoster = poster;
       };
 
+      function hasPreviousPoster() {
+        return !!self.series.personSeries && !!self.series.personSeries.poster;
+      }
+
+      function getPreviousSelectedPoster() {
+        return hasPreviousPoster() ? self.series.personSeries.poster : self.defaultPoster;
+      }
+
+      function hasChangedFromPrevious() {
+        return self.selectedPoster.id !== getPreviousSelectedPoster().id;
+      }
 
       self.ok = function() {
-        if (self.selectedPoster.poster_path !== series.poster) {
-          var changedFields = {
-            poster: self.selectedPoster.poster_path,
-            cloud_poster: self.selectedPoster.cloud_poster
+        if (hasChangedFromPrevious()) {
+          const changedFields = {
+            tvdb_poster_id: self.selectedPoster.id
           };
-          EpisodeService.updateSeries(series.id, changedFields).then(function() {
-            series.poster = self.selectedPoster.poster_path;
-            series.cloud_poster = self.selectedPoster.cloud_poster;
-            series.imageDoesNotExist = !series.poster;
+          EpisodeService.updatePersonSeries(series.id, changedFields).then(function() {
+            series.personSeries.poster = {
+              id: self.selectedPoster.id,
+              poster: self.selectedPoster.poster_path,
+              cloud_poster: self.selectedPoster.cloud_poster
+            };
           });
         }
         $uibModalInstance.close();

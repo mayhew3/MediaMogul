@@ -1050,7 +1050,7 @@ angular.module('mediaMogulApp')
     };
 
     self.openChangePoster = function () {
-      if (LockService.isAdmin()) {
+      if (self.isInMyShows()) {
         $uibModal.open({
           templateUrl: 'views/tv/shows/changePoster.html',
           controller: 'changePosterController',
