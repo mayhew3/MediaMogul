@@ -29,9 +29,15 @@ angular.module('mediaMogulApp')
 
       self.posterStyle = function(poster) {
         if (poster === self.selectedPoster) {
-          return {"border": "solid limegreen"};
+          return {
+            "border": "solid limegreen",
+            "box-shadow": "0 0 30px limegreen"
+          };
         } else if (poster === self.defaultPoster) {
-          return {"border": "solid yellow"};
+          return {
+            "border": "solid yellow",
+            "box-shadow": "0 0 10px yellow"
+          };
         } else {
           return {"border": "solid gray"};
         }
@@ -43,6 +49,7 @@ angular.module('mediaMogulApp')
 
       self.selectPoster = function(poster) {
         self.selectedPoster = poster;
+        self.submitAndClose();
       };
 
       function hasPreviousPoster() {
@@ -57,7 +64,7 @@ angular.module('mediaMogulApp')
         return self.selectedPoster.id !== getPreviousSelectedPoster().id;
       }
 
-      self.ok = function() {
+      self.submitAndClose = function() {
         if (hasChangedFromPrevious()) {
           const changedFields = {
             tvdb_poster_id: self.selectedPoster.id
