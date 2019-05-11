@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService', 'DateService',
     '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
-    'SeriesDetailService',
+    'SeriesDetailService', '$scope',
   function($log, EpisodeService, $uibModal, $filter, LockService, DateService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService) {
+           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, $scope) {
     const self = this;
 
     self.LockService = LockService;
@@ -1050,19 +1050,17 @@ angular.module('mediaMogulApp')
     };
 
     self.openChangePoster = function () {
-      if (self.isInMyShows()) {
-        $uibModal.open({
-          templateUrl: 'views/tv/shows/changePoster.html',
-          controller: 'changePosterController',
-          controllerAs: 'ctrl',
-          size: 'lg',
-          resolve: {
-            series: function () {
-              return self.series;
-            }
+      $uibModal.open({
+        templateUrl: 'views/tv/shows/changePoster.html',
+        controller: 'changePosterController',
+        controllerAs: 'ctrl',
+        size: 'lg',
+        resolve: {
+          series: function () {
+            return self.series;
           }
-        })
-      }
+        }
+      });
     };
 
     self.openEditSeries = function() {
