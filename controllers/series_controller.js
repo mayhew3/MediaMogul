@@ -128,7 +128,7 @@ exports.getAllPosters = function(req, response) {
   var tvdbSeriesId = req.query.tvdb_series_id;
   console.log("All Posters call received. Params: {SeriesId: " + tvdbSeriesId + "}");
 
-  var sql = 'SELECT id, poster_path, cloud_poster ' +
+  var sql = 'SELECT id as tvdb_poster_id, poster_path, cloud_poster ' +
     'FROM tvdb_poster ' +
     'WHERE tvdb_series_id = $1 ' +
     'AND retired = $2 ' +

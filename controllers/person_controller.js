@@ -191,6 +191,8 @@ exports.getMyQueueShows = function(request, response) {
     } else {
       const series_ids = _.pluck(seriesResults, 'id');
 
+      attachPosterInfoToSeriesObjects(seriesResults);
+
       const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
           "FROM episode e " +
           "WHERE e.retired = $1 " +
@@ -311,6 +313,11 @@ function getCommonShowsQuery(personId) {
       "ps.tier AS my_tier, " +
       "ps.date_added, " +
       "ps.pinned, " +
+      "(SELECT id " +
+      "  FROM person_poster " +
+      "  WHERE series_id = s.id " +
+      "  AND person_id = $1 " +
+      "  AND retired = $4) as poster_id, " +
       "COALESCE(ps.rating, metacritic) AS dynamic_rating, " +
       "(SELECT MAX(er.watched_date) " +
       "  from episode_rating er " +
@@ -320,15 +327,10 @@ function getCommonShowsQuery(personId) {
       "  and er.retired = $5 " +
       "  and e.retired = $6 " +
       "  and er.person_id = $1 " +
-      "and er.watched = $2) as last_watched, " +
-      "tp.id as person_poster_id, " +
-      "tp.poster_path as person_poster, " +
-      "tp.cloud_poster as person_cloud_poster " +
+      "and er.watched = $2) as last_watched " +
       "FROM series s " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = s.id " +
-      "LEFT OUTER JOIN tvdb_poster tp " +
-      "  ON ps.tvdb_poster_id = tp.id " +
       "WHERE ps.person_id = $1 " +
       "AND s.tvdb_match_status = $3 " +
       "AND s.retired = $4 " +
@@ -353,17 +355,6 @@ function extractSinglePersonSeries(series) {
     series.personSeries[column] = series[column];
     delete series[column];
   });
-
-  if (!!series.person_poster_id) {
-    series.personSeries.poster = {
-      id: series.person_poster_id,
-      poster: series.person_poster,
-      cloud_poster: series.person_cloud_poster
-    };
-  }
-  delete series.person_poster_id;
-  delete series.person_poster;
-  delete series.person_cloud_poster;
 }
 
 function extractPersonSeries(seriesResults) {
@@ -525,6 +516,8 @@ exports.getSeriesDetailInfo = function(request, response) {
 
     const series = seriesResults[0];
 
+    attachPossiblePosterToSeries(series, person_id);
+
     const sql = "SELECT " +
       "ps.rating as my_rating, " +
       "ps.first_unwatched, " +
@@ -549,13 +542,8 @@ exports.getSeriesDetailInfo = function(request, response) {
       "  and er.retired = $1 " +
       "  and e.retired = $1 " +
       "  and er.person_id = $3 " +
-      "and er.watched = $4) as last_watched, " +
-      "tp.id as poster_id, " +
-      "tp.poster_path, " +
-      "tp.cloud_poster " +
+      "and er.watched = $4) as last_watched " +
       "FROM person_series ps " +
-      "LEFT OUTER JOIN tvdb_poster tp " +
-      "  ON ps.tvdb_poster_id = tp.id " +
       "WHERE ps.person_id = $3 " +
       "AND ps.series_id = $5 " +
       "AND ps.retired = $1 ";
@@ -565,17 +553,6 @@ exports.getSeriesDetailInfo = function(request, response) {
 
       if (personResults.length > 0) {
         series.personSeries = personResults[0];
-
-        if (!!series.personSeries.poster_id) {
-          series.personSeries.poster = {
-            id: series.personSeries.poster_id,
-            poster: series.personSeries.poster_path,
-            cloud_poster: series.personSeries.cloud_poster
-          };
-        }
-        delete series.personSeries.poster_id;
-        delete series.personSeries.poster_path;
-        delete series.personSeries.cloud_poster;
       }
 
       const sql = "SELECT e.id, " +
@@ -749,6 +726,49 @@ exports.getSeriesDetailInfo = function(request, response) {
 
 
 };
+
+function attachPossiblePosterToSeries(series, personId) {
+  return new Promise((resolve, reject) => {
+    const sql = 'SELECT pp.id, tp.id as tvdb_poster_id, tp.poster_path, tp.cloud_poster ' +
+      'FROM tvdb_poster tp ' +
+      'INNER JOIN person_poster pp ' +
+      '  ON pp.tvdb_poster_id = tp.id ' +
+      'WHERE pp.series_id = ? ' +
+      'AND pp.person_id = ? ';
+    const values = [series.id, personId];
+    db.selectNoResponse(sql, values).then(results => {
+      if (results.length > 0) {
+        series.my_poster = results[0];
+      }
+      resolve();
+    }).catch(err => reject(err));
+  });
+}
+
+function attachPosterInfoToSeriesObjects(seriesObjs) {
+  return new Promise(resolve => {
+    const seriesWithCustom = _.filter(seriesObjs, series => !!series.poster_id);
+    if (seriesWithCustom.length > 0) {
+      const sql = 'SELECT pp.id, tp.id as tvdb_poster_id, tp.poster_path, tp.cloud_poster ' +
+        'FROM tvdb_poster tp ' +
+        'INNER JOIN person_poster pp ' +
+        '  ON pp.tvdb_poster_id = tp.id ' +
+        'WHERE pp.id IN (' + db.createInlineVariableList(seriesWithCustom.length, 1) + ') ';
+      const values = _.pluck(seriesWithCustom, 'poster_id');
+
+      db.selectNoResponse(sql, values).then(results => {
+        _.each(results, poster => {
+          const series = _.findWhere(seriesWithCustom, {poster_id: poster.id});
+          series.my_poster = poster;
+          delete series.poster_id;
+        });
+      });
+    } else {
+      resolve();
+    }
+  });
+
+}
 
 function attachBallotsToGroupSeries(series, groupSeries) {
   return new Promise(resolve => {
@@ -1424,6 +1444,35 @@ function editRating(changedFields, rating_id) {
   return db.updateObjectWithChangedFieldsSendResponse(changedFields, "episode_rating", rating_id);
 }
 
+exports.addMyPoster = function(request, response) {
+  const series_id = request.body.series_id;
+  const person_id = request.body.person_id;
+  const tvdb_poster_id = request.body.tvdb_poster_id;
+
+  const sql = 'INSERT INTO person_poster (series_id, person_id, tvdb_poster_id) ' +
+    'VALUES ($1, $2, $3) ' +
+    'RETURNING id ';
+  const values = [series_id, person_id, tvdb_poster_id];
+  db.selectSendResponse(response, sql, values);
+};
+
+exports.updateMyPoster = function(request, response) {
+  const person_poster_id = request.body.person_poster_id;
+  const tvdb_poster_id = request.body.tvdb_poster_id;
+
+  const changedFields = {
+    tvdb_poster_id: tvdb_poster_id
+  };
+  db.updateObjectWithChangedFieldsSendResponse(response, changedFields, 'person_poster', person_poster_id);
+};
+
+function updateExistingPoster(posterObj, tvdb_poster_id, response) {
+
+}
+
+function addCustomPoster(series_id, person_id, tvdb_poster_id, response) {
+
+}
 
 // Mark All Watched
 

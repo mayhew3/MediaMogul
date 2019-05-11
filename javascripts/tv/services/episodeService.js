@@ -856,6 +856,14 @@ angular.module('mediaMogulApp')
         return $http.post('/api/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
       };
 
+      self.addPoster = function(series_id, tvdb_poster_id) {
+        return $http.post('/api/myPoster', {series_id: series_id, person_id: LockService.person_id, tvdb_poster_id: tvdb_poster_id});
+      };
+
+      self.updateMyPoster = function(person_poster_id, tvdb_poster_id) {
+        return $http.patch('/api/myPoster', {person_poster_id: person_poster_id, tvdb_poster_id: tvdb_poster_id});
+      };
+
       self.addSeries = function(series) {
         $log.debug("Adding series " + JSON.stringify(series));
         return $http.post('/api/addSeries', {series: series});

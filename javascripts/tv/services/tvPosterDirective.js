@@ -29,12 +29,12 @@
     };
 
     function hasPersonPoster() {
-      return !!self.show.personSeries && !!self.show.personSeries.poster;
+      return !!self.show.my_poster;
     }
 
     function getPersonPoster() {
       return hasPersonPoster() ?
-        self.show.personSeries.poster :
+        self.show.my_poster :
         null;
     }
 
@@ -55,8 +55,8 @@
         const personPoster = getPersonPoster();
         if (!!personPoster.cloud_poster) {
           return getCloudinaryPrefix() + personPoster.cloud_poster;
-        } else if (!!personPoster.poster_path) {
-          return getTVDBPrefix() + personPoster.poster_path;
+        } else if (!!personPoster.poster) {
+          return getTVDBPrefix() + personPoster.poster;
         } else {
           return getNoImageImage();
         }
