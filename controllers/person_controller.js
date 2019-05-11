@@ -355,15 +355,15 @@ function extractSinglePersonSeries(series) {
   });
 
   if (!!series.person_poster_id) {
-    series.personSeries.person_poster = {
+    series.personSeries.poster = {
       id: series.person_poster_id,
       poster: series.person_poster,
       cloud_poster: series.person_cloud_poster
     };
-    delete series.person_poster_id;
-    delete series.person_poster;
-    delete series.person_cloud_poster;
   }
+  delete series.person_poster_id;
+  delete series.person_poster;
+  delete series.person_cloud_poster;
 }
 
 function extractPersonSeries(seriesResults) {
@@ -550,7 +550,7 @@ exports.getSeriesDetailInfo = function(request, response) {
       "  and e.retired = $1 " +
       "  and er.person_id = $3 " +
       "and er.watched = $4) as last_watched, " +
-      "tp.id as poster_id, " + +
+      "tp.id as poster_id, " +
       "tp.poster_path, " +
       "tp.cloud_poster " +
       "FROM person_series ps " +
@@ -572,10 +572,10 @@ exports.getSeriesDetailInfo = function(request, response) {
             poster: series.personSeries.poster_path,
             cloud_poster: series.personSeries.cloud_poster
           };
-          delete series.personSeries.poster_id;
-          delete series.personSeries.poster_path;
-          delete series.personSeries.cloud_poster;
         }
+        delete series.personSeries.poster_id;
+        delete series.personSeries.poster_path;
+        delete series.personSeries.cloud_poster;
       }
 
       const sql = "SELECT e.id, " +

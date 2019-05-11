@@ -847,6 +847,10 @@ angular.module('mediaMogulApp')
         return $http.post('/api/updateMyShow', {SeriesId: SeriesId, PersonId: LockService.person_id, ChangedFields: changedFields});
       };
 
+      self.updatePersonSeries = function(series_id, changedFields) {
+        return $http.post('/api/updateMyShow', {SeriesId: series_id, PersonId: LockService.person_id, ChangedFields: changedFields});
+      };
+
       self.updateSeries = function(SeriesId, ChangedFields) {
         $log.debug('Received update for Series ' + SeriesId + " with data " + JSON.stringify(ChangedFields));
         return $http.post('/api/updateSeries', {SeriesId: SeriesId, ChangedFields: ChangedFields});
