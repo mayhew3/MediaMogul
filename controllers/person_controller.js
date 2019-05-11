@@ -320,10 +320,15 @@ function getCommonShowsQuery(personId) {
       "  and er.retired = $5 " +
       "  and e.retired = $6 " +
       "  and er.person_id = $1 " +
-      "and er.watched = $2) as last_watched " +
+      "and er.watched = $2) as last_watched, " +
+      "tp.id as person_poster_id, " +
+      "tp.poster_path as person_poster, " +
+      "tp.cloud_poster as person_cloud_poster " +
       "FROM series s " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = s.id " +
+      "LEFT OUTER JOIN tvdb_poster tp " +
+      "  ON ps.tvdb_poster_id = tp.id " +
       "WHERE ps.person_id = $1 " +
       "AND s.tvdb_match_status = $3 " +
       "AND s.retired = $4 " +
@@ -348,6 +353,17 @@ function extractSinglePersonSeries(series) {
     series.personSeries[column] = series[column];
     delete series[column];
   });
+
+  if (!!series.person_poster_id) {
+    series.personSeries.person_poster = {
+      id: series.person_poster_id,
+      poster: series.person_poster,
+      cloud_poster: series.person_cloud_poster
+    };
+    delete series.person_poster_id;
+    delete series.person_poster;
+    delete series.person_cloud_poster;
+  }
 }
 
 function extractPersonSeries(seriesResults) {
@@ -533,8 +549,13 @@ exports.getSeriesDetailInfo = function(request, response) {
       "  and er.retired = $1 " +
       "  and e.retired = $1 " +
       "  and er.person_id = $3 " +
-      "and er.watched = $4) as last_watched " +
+      "and er.watched = $4) as last_watched, " +
+      "tp.id as poster_id, " + +
+      "tp.poster_path, " +
+      "tp.cloud_poster " +
       "FROM person_series ps " +
+      "LEFT OUTER JOIN tvdb_poster tp " +
+      "  ON ps.tvdb_poster_id = tp.id " +
       "WHERE ps.person_id = $3 " +
       "AND ps.series_id = $5 " +
       "AND ps.retired = $1 ";
@@ -544,6 +565,17 @@ exports.getSeriesDetailInfo = function(request, response) {
 
       if (personResults.length > 0) {
         series.personSeries = personResults[0];
+
+        if (!!series.personSeries.poster_id) {
+          series.personSeries.poster = {
+            id: series.personSeries.poster_id,
+            poster: series.personSeries.poster_path,
+            cloud_poster: series.personSeries.cloud_poster
+          };
+          delete series.personSeries.poster_id;
+          delete series.personSeries.poster_path;
+          delete series.personSeries.cloud_poster;
+        }
       }
 
       const sql = "SELECT e.id, " +
