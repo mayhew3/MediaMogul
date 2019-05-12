@@ -35,14 +35,22 @@
 
     self.titleSearch = undefined;
 
+    self.showFilterBar = false;
+
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
     if (!$scope.shows) {
       self.EpisodeService.registerAsObserver($scope);
     }
 
+    self.showFilterToggle = () => {
+      return !!self.panelInfo.filters && self.panelInfo.filters.length > 0;
+    };
+
+    self.toggleFilterBar = () => self.showFilterBar = !self.showFilterBar;
+
     self.showQuickFilter = function() {
-      return !!ArrayService.exists(self.panelInfo.showQuickFilter);
+      return !!self.panelInfo.showQuickFilter;
     };
 
     function getButtonInfo() {

@@ -148,6 +148,7 @@ angular.module('mediaMogulApp')
       posterSize: 'large',
       badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,
+      filters: ['Genre'],
       showLoading: self.showLoadingTierOne,
       showError: self.showErrorTierOne
     };
