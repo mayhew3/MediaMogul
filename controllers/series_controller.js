@@ -35,7 +35,10 @@ exports.getEpisodeGroupRating = function(request, response) {
 exports.getEpisodeGroupRatings = function(request, response) {
   var year = request.query.Year;
 
-  var sql = 'SELECT s.title, s.poster, s.cloud_poster, egr.* ' +
+  var sql = 'SELECT s.title, ' +
+    's.poster, ' +
+    's.cloud_poster, ' +
+    'egr.* ' +
     'FROM episode_group_rating egr ' +
     'INNER JOIN series s ' +
     ' ON egr.series_id = s.id ' +

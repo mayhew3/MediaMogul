@@ -67,7 +67,7 @@ exports.getMyShows = function(request, response) {
 
   db.selectNoResponse(sql, values).then(function (seriesResults) {
 
-    attachPosterInfoToSeriesObjects(seriesResults);
+    exports.attachPosterInfoToSeriesObjects(seriesResults);
 
     const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
@@ -194,7 +194,7 @@ exports.getMyQueueShows = function(request, response) {
     } else {
       const series_ids = _.pluck(seriesResults, 'id');
 
-      attachPosterInfoToSeriesObjects(seriesResults);
+      exports.attachPosterInfoToSeriesObjects(seriesResults);
 
       const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
           "FROM episode e " +
@@ -418,7 +418,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
         return;
       }
 
-      attachPosterInfoToSeriesObjects(seriesResults);
+      exports.attachPosterInfoToSeriesObjects(seriesResults);
 
       const series = seriesResults[0];
 
@@ -521,7 +521,7 @@ exports.getSeriesDetailInfo = function(request, response) {
 
     const series = seriesResults[0];
 
-    attachPossiblePosterToSeries(series, person_id);
+    exports.attachPossiblePosterToSeries(series, person_id);
 
     const sql = "SELECT " +
       "ps.rating as my_rating, " +
@@ -732,7 +732,7 @@ exports.getSeriesDetailInfo = function(request, response) {
 
 };
 
-function attachPossiblePosterToSeries(series, personId) {
+exports.attachPossiblePosterToSeries = function(series, personId) {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT pp.id, tp.id as tvdb_poster_id, tp.poster_path as poster, tp.cloud_poster ' +
       'FROM tvdb_poster tp ' +
@@ -748,9 +748,9 @@ function attachPossiblePosterToSeries(series, personId) {
       resolve();
     }).catch(err => reject(err));
   });
-}
+};
 
-function attachPosterInfoToSeriesObjects(seriesObjs) {
+exports.attachPosterInfoToSeriesObjects = function(seriesObjs) {
   return new Promise(resolve => {
     const seriesWithCustom = _.filter(seriesObjs, series => !!series.poster_id);
     if (seriesWithCustom.length > 0) {
@@ -773,7 +773,7 @@ function attachPosterInfoToSeriesObjects(seriesObjs) {
     }
   });
 
-}
+};
 
 function attachBallotsToGroupSeries(series, groupSeries) {
   return new Promise(resolve => {
@@ -1214,6 +1214,11 @@ exports.getNotMyShows = function(request, response) {
   const sql = "SELECT s.id," +
     "s.title, " +
     "s.poster," +
+    "(SELECT id " +
+    "  FROM person_poster " +
+    "  WHERE series_id = s.id " +
+    "  AND person_id = $1 " +
+    "  AND retired = $2) as poster_id, " +
     "s.cloud_poster," +
     "s.tvdb_series_ext_id " +
     "FROM series s " +
@@ -1226,7 +1231,10 @@ exports.getNotMyShows = function(request, response) {
     personId, 0, 'Match Completed'
   ];
 
-  return db.selectSendResponse(response, sql, values);
+  db.selectNoResponse(sql, values).then(results => {
+    exports.attachPosterInfoToSeriesObjects(results);
+    response.json(results);
+  });
 };
 
 exports.rateMyShow = function(request, response) {

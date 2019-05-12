@@ -112,11 +112,17 @@ exports.getGroupPersons = function(request, response) {
 
 exports.getGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
+  const person_id = request.query.person_id;
 
   const sql = "SELECT s.id, " +
     "s.title, " +
     "s.metacritic, " +
     "s.poster, " +
+    "(SELECT id " +
+    "  FROM person_poster " +
+    "  WHERE series_id = s.id " +
+    "  AND person_id = $5 " +
+    "  AND retired = $1) as poster_id, " +
     "s.cloud_poster, " +
     "tgs.date_added, " +
     "tgs.id as tv_group_series_id, " +
@@ -134,19 +140,22 @@ exports.getGroupShows = function(request, response) {
     "  inner join episode e " +
     "   on tge.episode_id = e.id " +
     "  where e.series_id = s.id " +
-    "  and tge.retired = $3 " +
-    "  and e.retired = $4 " +
-    "  and tge.tv_group_id = $5) as last_watched " +
+    "  and tge.retired = $1 " +
+    "  and e.retired = $1 " +
+    "  and tge.tv_group_id = $3) as last_watched " +
     "FROM series s " +
     "INNER JOIN tv_group_series tgs " +
     "  ON tgs.series_id = s.id " +
-    "WHERE tgs.tv_group_id = $5 " +
-    "AND tgs.retired = $6 " +
-    "AND s.retired = $7 " +
-    "AND s.tvdb_match_status = $8 ";
+    "WHERE tgs.tv_group_id = $3 " +
+    "AND tgs.retired = $1 " +
+    "AND s.retired = $1 " +
+    "AND s.tvdb_match_status = $4 ";
 
-  db.selectNoResponse(sql, [0, 0, 0, 0, tv_group_id, 0, 0, 'Match Completed']).then(function (seriesResults) {
+  db.selectNoResponse(sql, [0, 0, tv_group_id, 'Match Completed', person_id])
+    .then(function (seriesResults) {
+
     extractGroupSeries(seriesResults, tv_group_id);
+    person_controller.attachPosterInfoToSeriesObjects(seriesResults);
 
     const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
       "FROM episode e " +
@@ -303,6 +312,7 @@ function restoreGroupSeries(tv_group_series_id, resolve) {
 exports.addToGroupShows = function(request, response) {
   const tv_group_id = request.body.tv_group_id;
   const series_id = request.body.series_id;
+  const person_id = request.body.person_id;
 
   addOrRestoreGroupSeries(series_id, tv_group_id).then(tv_group_series_id => {
 
@@ -337,6 +347,8 @@ exports.addToGroupShows = function(request, response) {
       const series = seriesResults[0];
       const groupSeries = extractSingleGroupSeries(series, tv_group_id);
 
+      person_controller.attachPossiblePosterToSeries(series, person_id);
+
       const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
         "FROM episode e " +
         "INNER JOIN tv_group_series tgs " +
@@ -367,31 +379,6 @@ exports.addToGroupShows = function(request, response) {
       });
     });
   });
-};
-
-exports.getNotGroupShows = function(request, response) {
-  const tv_group_id = request.query.tv_group_id;
-  console.log("Server call 'getNotGroupShows': Group " + tv_group_id);
-
-  const sql = "SELECT s.id, s.metacritic, s.title, s.poster, s.cloud_poster, s.tvdb_series_id, " +
-    "(SELECT COUNT(1) " +
-    "    from episode e " +
-    "    where e.series_id = s.id " +
-    "    and e.retired = $1" +
-    "    and e.season <> $2 " +
-    "    and e.air_date IS NOT NULL" +
-    "    and e.air_date < NOW()) as aired_episodes " +
-    "FROM series s " +
-    "WHERE id NOT IN (SELECT tgs.series_id " +
-    "                 FROM tv_group_series tgs " +
-    "                 WHERE tv_group_id = $3) " +
-    "AND s.retired = $4 " +
-    "AND s.tvdb_match_status = $5 ";
-  const values = [
-    0, 0, tv_group_id, 0, 'Match Completed'
-  ];
-
-  return db.selectSendResponse(response, sql, values);
 };
 
 exports.getGroupEpisodes = function(request, response) {
