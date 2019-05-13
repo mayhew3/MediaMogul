@@ -308,6 +308,12 @@ function getCommonShowsQuery(personId) {
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
       "s.poster, " +
+      "(select string_agg(g.name, '|') " +
+      "             from genre g " +
+      "             inner join series_genre sg " +
+      "               on sg.genre_id = g.id " +
+      "              where sg.series_id = s.id " +
+      "              and sg.retired = $4) as genres, " +
       "s.cloud_poster, " +
       "s.air_time, " +
       "s.trailer_link, " +
@@ -502,6 +508,12 @@ exports.getSeriesDetailInfo = function(request, response) {
     "s.last_tvdb_update, " +
     "s.last_tvdb_error, " +
     "s.poster, " +
+    "(select string_agg(g.name, '|') " +
+    "             from genre g " +
+    "             inner join series_genre sg " +
+    "               on sg.genre_id = g.id " +
+    "              where sg.series_id = s.id " +
+    "              and sg.retired = $1) as genres, " +
     "s.cloud_poster, " +
     "s.air_time, " +
     "s.trailer_link " +
@@ -1220,6 +1232,12 @@ exports.getNotMyShows = function(request, response) {
     "  AND person_id = $1 " +
     "  AND retired = $2) as poster_id, " +
     "s.cloud_poster," +
+    "(select string_agg(g.name, '|') " +
+    "             from genre g " +
+    "             inner join series_genre sg " +
+    "               on sg.genre_id = g.id " +
+    "              where sg.series_id = s.id " +
+    "              and sg.retired = $2) as genres, " +
     "s.tvdb_series_ext_id " +
     "FROM series s " +
     "WHERE id NOT IN (SELECT ps.series_id " +
