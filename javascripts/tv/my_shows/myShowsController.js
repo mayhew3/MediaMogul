@@ -148,9 +148,9 @@ angular.module('mediaMogulApp')
 
     ];
 
-    function getAllGenres() {
+    function getAllGenres(allShows) {
       const genres = [];
-      _.each(getMyShows(), show => {
+      _.each(allShows, show => {
         if (_.isArray(show.genres)) {
           _.each(show.genres, genre => {
             const existing = _.findWhere(genres, {valueLabel: genre});
