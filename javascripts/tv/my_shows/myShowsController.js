@@ -59,6 +59,10 @@ angular.module('mediaMogulApp')
       panelFormat: 'panel-warning'
     };
 
+    function getMyShows() {
+      return self.EpisodeService.getMyShows();
+    }
+
     self.dashboardInfos = [
       {
         headerText: "Ratings Pending",
@@ -68,7 +72,7 @@ angular.module('mediaMogulApp')
           field: 'title',
           direction: 'desc'
         },
-        seriesFunction: self.EpisodeService.getMyShows,
+        seriesFunction: getMyShows,
         panelFormat: 'panel-warning',
         badgeValue: ShowFilterService.getRatingsPending
       },
@@ -79,7 +83,7 @@ angular.module('mediaMogulApp')
           field: ShowFilterService.getDynamicRating,
           direction: 'desc'
         },
-        seriesFunction: self.EpisodeService.getMyShows,
+        seriesFunction: getMyShows,
         showEmpty: true,
         posterSize: 'large',
         badgeValue: ShowFilterService.getUnwatched,
@@ -93,7 +97,7 @@ angular.module('mediaMogulApp')
           field: ShowFilterService.getDynamicRating,
           direction: 'desc'
         },
-        seriesFunction: self.EpisodeService.getMyShows,
+        seriesFunction: getMyShows,
         showEmpty: false,
         posterSize: 'large',
         badgeValue: ShowFilterService.getUnwatched,
@@ -107,7 +111,7 @@ angular.module('mediaMogulApp')
           field: ShowFilterService.getDynamicRating,
           direction: 'desc'
         },
-        seriesFunction: self.EpisodeService.getMyShows,
+        seriesFunction: getMyShows,
         showEmpty: false,
         posterSize: 'large',
         badgeValue: ShowFilterService.getUnwatched,
@@ -121,7 +125,7 @@ angular.module('mediaMogulApp')
           field: ShowFilterService.getDynamicRating,
           direction: 'desc'
         },
-        seriesFunction: self.EpisodeService.getMyShows,
+        seriesFunction: getMyShows,
         showEmpty: false,
         posterSize: 'large',
         badgeValue: ShowFilterService.getUnwatched,
@@ -136,27 +140,40 @@ angular.module('mediaMogulApp')
           field: 'nextAirDate',
           direction: 'asc'
         },
-        seriesFunction: self.EpisodeService.getMyShows,
+        seriesFunction: getMyShows,
         subtitle: ShowFilterService.nextAirDate,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue
       }
 
     ];
-/*
 
-    function getAllFilters() {
+    function getAllGenres() {
       const genres = [];
-      _.each(self.)
+      _.each(getMyShows(), show => {
+        if (_.isArray(show.genres)) {
+          _.each(show.genres, genre => {
+            const existing = _.findWhere(genres, {valueLabel: genre});
+            if (!existing) {
+              genres.push({
+                valueLabel: genre,
+                valueCount: 1
+              });
+            } else {
+              existing.valueCount++;
+            }
+          });
+        }
+      });
+      return genres;
     }
 
     const filters = [
       {
         label: 'Genres',
-        possibleValues: getAllFilters
+        possibleValues: getAllGenres
       }
     ];
-*/
 
     self.allShowsPanel = {
       headerText: 'My Shows',
@@ -168,8 +185,8 @@ angular.module('mediaMogulApp')
       posterSize: 'large',
       badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,
-      seriesFunction: self.EpisodeService.getMyShows,
-      filters: ['Genre'],
+      seriesFunction: getMyShows,
+      filters: filters,
       showLoading: self.showLoadingTierOne,
       showError: self.showErrorTierOne
     };
@@ -184,7 +201,7 @@ angular.module('mediaMogulApp')
       posterSize: 'large',
       badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,
-      seriesFunction: self.EpisodeService.getMyShows,
+      seriesFunction: getMyShows,
       showLoading: self.showLoadingTierTwo,
       showError: self.showErrorTierTwo
     };
