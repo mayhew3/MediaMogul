@@ -22,9 +22,9 @@
     </div>
     <div class="row" ng-if="ctrl.showFilterBar">
       <div class="col-md-8 col-sm-6 col-xs-12">
-        <button type="button" class="btn btn-primary">Unwatched</button>
-        <button type="button" class="btn btn-primary">Genre</button>
-        <button type="button" class="btn btn-primary">New Shows</button>
+        <button type="button"
+                class="btn btn-primary"
+                ng-repeat="filter in ctrl.filters">{{filter.label}}</button>
       </div>
     </div>
   </div>
