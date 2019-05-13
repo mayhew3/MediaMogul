@@ -41,11 +41,11 @@
               class="dropdownMenuGenre">
             <li role="menuitem"
                 ng-repeat="filterOption in showFilter.cachedValues |
-                          orderBy: 'valueLabel'">
+                          orderBy: ['special', 'valueLabel']">
 
                 <a href="#"
                    style="padding-left: 7px; padding-right: 7px;"
-                   ng-click="ctrl.toggleActive(filterOption)">
+                   ng-click="ctrl.toggleActive(showFilter, filterOption)">
                   <div class="dropdownMenuItem">
                     <img src="../images/Checkmark.svg"
                          width="20"
