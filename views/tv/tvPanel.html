@@ -36,13 +36,34 @@
             </div>
           </button>
 
-          <ul uib-dropdown-menu role="menu">
+          <ul uib-dropdown-menu
+              role="menu"
+              class="dropdownMenuGenre">
             <li role="menuitem"
                 ng-repeat="filterOption in showFilter.cachedValues |
                           orderBy: 'valueLabel'">
-              <a href="#">
-                {{filterOption.valueLabel}} <span class="badge">{{filterOption.valueCount}}</span>
-              </a>
+
+                <a href="#"
+                   style="padding-left: 7px; padding-right: 7px;"
+                   ng-click="ctrl.toggleActive(filterOption)">
+                  <div class="dropdownMenuItem">
+                    <img src="../images/Checkmark.svg"
+                         width="20"
+                         height="18"
+                         ng-if="!!filterOption.isActive"
+                         alt="checked">
+                    <img src="../images/NoCheckmark.svg"
+                         width="20"
+                         height="18"
+                         ng-if="!filterOption.isActive"
+                         alt="unchecked">
+                    {{filterOption.valueLabel}} <span class="badge dropdownGenreBadge">{{filterOption.valueCount}}</span>
+<!--                    <span class="dropdownOnlyLink">only</span>-->
+                  </div>
+
+                </a>
+
+
             </li>
           </ul>
 

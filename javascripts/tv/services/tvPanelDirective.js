@@ -101,6 +101,10 @@
       callback: refreshCachedLabels
     });
 
+    self.toggleActive = function(filterOption) {
+      filterOption.isActive = !filterOption.isActive;
+    };
+
     self.imageColumnClass = function() {
       return (self.panelInfo.posterSize === 'small') ? 'col-xs-4 col-sm-2 col-md-2' : 'col-xs-6 col-sm-3 col-md-2';
     };

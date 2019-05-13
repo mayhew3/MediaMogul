@@ -73,9 +73,30 @@ h1 {
   opacity: 0.5;
 }
 
+.dropdownMenuGenre {
+  min-width: 200px;
+}
+
+.dropdownMenuItem {
+  padding: 7px;
+}
+
 .dropdownCaretSmall {
   float: right;
   margin: 9px 0 9px 15px !important;
+}
+
+.dropdownOnlyLink {
+  float: right;
+  font-size: 8pt;
+  margin: 2px 10px 2px 10px !important;
+}
+
+.dropdownGenreBadge {
+  float: right;
+  background-color: green !important;
+  color: white !important;
+  margin: 2px 10px 2px 10px !important;
 }
 
 .dropdownLeftAlign {
