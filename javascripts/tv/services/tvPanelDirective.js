@@ -37,6 +37,8 @@
 
     self.showFilterBar = false;
 
+    self.filters = self.panelInfo.filters;
+
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
     if (!$scope.shows) {
@@ -83,10 +85,7 @@
     };
 
     self.getShows = function() {
-      return self.shows ? self.shows : (
-        self.panelInfo.seriesFunction ? self.panelInfo.seriesFunction() :
-        self.EpisodeService.getMyShows()
-      );
+      return self.shows ? self.shows : self.panelInfo.seriesFunction();
     };
 
     self.imageColumnClass = function() {
