@@ -140,9 +140,14 @@ angular.module('mediaMogulApp')
       function executeEligibleCallbacks() {
         const executedCallbacks = [];
         _.each(dataPresentCallbacks, callbackObject => {
-          const existing = self.findSeriesWithId(callbackObject.series_id);
-          if (ArrayService.exists(existing)) {
-            callbackObject.callback(existing);
+          if (!!callbackObject.series_id) {
+            const existing = self.findSeriesWithId(callbackObject.series_id);
+            if (ArrayService.exists(existing)) {
+              callbackObject.callback(existing);
+              executedCallbacks.push(callbackObject);
+            }
+          } else if (finishedAllShows) {
+            callbackObject.callback();
             executedCallbacks.push(callbackObject);
           }
         });
