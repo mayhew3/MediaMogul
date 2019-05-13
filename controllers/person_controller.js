@@ -1454,7 +1454,7 @@ function addRating(episodeRating) {
 }
 
 function editRating(changedFields, rating_id) {
-  return db.updateObjectWithChangedFieldsSendResponse(changedFields, "episode_rating", rating_id);
+  return db.updateObjectWithChangedFieldsNoResponse(changedFields, "episode_rating", rating_id);
 }
 
 exports.addMyPoster = function(request, response) {
