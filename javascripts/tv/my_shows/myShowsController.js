@@ -158,7 +158,8 @@ angular.module('mediaMogulApp')
               genres.push({
                 valueLabel: genre,
                 valueCount: 1,
-                isActive: false,
+                isActive: true,
+                special: 0,
                 applyFilter: show => {
                   return _.isArray(show.genres) && _.contains(show.genres, genre);
                 }
@@ -175,7 +176,8 @@ angular.module('mediaMogulApp')
     const filters = [
       {
         label: 'Genres',
-        possibleValues: getAllGenres
+        possibleValues: getAllGenres,
+        allNone: true
       }
     ];
 

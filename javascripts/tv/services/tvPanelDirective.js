@@ -89,8 +89,15 @@
       callback: refreshCachedLabels
     });
 
-    self.toggleActive = function(filterOption) {
+    self.toggleActive = function(filter, filterOption) {
       filterOption.isActive = !filterOption.isActive;
+      if (!!filterOption.allSpecial) {
+        checkAllRegularOptions(filter);
+      } else if (!!filterOption.noneSpecial) {
+        uncheckAllRegularOptions(filter);
+      }
+      updateAllSpecialDenorm(filter);
+      updateNoneSpecialDenorm(filter);
     };
 
     self.imageColumnClass = function() {
@@ -180,11 +187,67 @@
       return self.titleSearch === undefined || show.title.toLowerCase().indexOf(self.titleSearch.toLowerCase()) > -1;
     }
 
+    function getRegularOptions(filter) {
+      return _.filter(filter.cachedValues, filterOption => !filterOption.allSpecial && !filterOption.noneSpecial);
+    }
+
+    function getAllSpecialOption(filter) {
+      return _.findWhere(filter.cachedValues, {allSpecial: true});
+    }
+
+    function getNoneSpecialOption(filter) {
+      return _.findWhere(filter.cachedValues, {noneSpecial: true});
+    }
+
+    function toggleAllRegularOptions(filter, isActive) {
+      _.each(getRegularOptions(filter), filterOption => {
+        filterOption.isActive = isActive;
+      });
+    }
+
+    function checkAllRegularOptions(filter) {
+      toggleAllRegularOptions(filter, true);
+    }
+
+    function uncheckAllRegularOptions(filter) {
+      toggleAllRegularOptions(filter, false);
+    }
+
+    function updateAllSpecialDenorm(filter) {
+      const allSpecial = getAllSpecialOption(filter);
+      const regulars = getRegularOptions(filter);
+
+      allSpecial.isActive = !_.findWhere(regulars, {isActive: false});
+    }
+
+    function updateNoneSpecialDenorm(filter) {
+      const noneSpecial = getNoneSpecialOption(filter);
+      const regulars = getRegularOptions(filter);
+
+      noneSpecial.isActive = !_.findWhere(regulars, {isActive: true});
+    }
+
     function refreshCachedLabels() {
       if (_.isArray(self.filters)) {
         _.each(self.filters, filter => {
           const filteredShows = _.filter(self.getShows(), self.allFilter);
           filter.cachedValues = filter.possibleValues(filteredShows);
+          if (!!filter.allNone) {
+            filter.cachedValues.push({
+              valueLabel: 'All',
+              isActive: true,
+              special: 1,
+              allSpecial: true,
+              applyFilter: () => false
+            });
+            filter.cachedValues.push({
+              valueLabel: 'None',
+              isActive: false,
+              special: 1,
+              noneSpecial: true,
+              applyFilter: () => false
+            });
+          }
         });
         if (self.filters.length > 0) {
           self.filtersReady = true;
