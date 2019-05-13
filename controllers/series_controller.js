@@ -38,6 +38,12 @@ exports.getEpisodeGroupRatings = function(request, response) {
   var sql = 'SELECT s.title, ' +
     's.poster, ' +
     's.cloud_poster, ' +
+    "(select string_agg(g.name, '|') " +
+    "             from genre g " +
+    "             inner join series_genre sg " +
+    "               on sg.genre_id = g.id " +
+    "              where sg.series_id = s.id " +
+    "              and sg.retired = $2) as genres, " +
     'egr.* ' +
     'FROM episode_group_rating egr ' +
     'INNER JOIN series s ' +

@@ -124,6 +124,12 @@ exports.getGroupShows = function(request, response) {
     "  AND person_id = $5 " +
     "  AND retired = $1) as poster_id, " +
     "s.cloud_poster, " +
+    "(select string_agg(g.name, '|') " +
+    "             from genre g " +
+    "             inner join series_genre sg " +
+    "               on sg.genre_id = g.id " +
+    "              where sg.series_id = s.id " +
+    "              and sg.retired = $1) as genres, " +
     "tgs.date_added, " +
     "tgs.id as tv_group_series_id, " +
     "s.metacritic AS group_score, " +
@@ -320,6 +326,12 @@ exports.addToGroupShows = function(request, response) {
       "s.title, " +
       "s.metacritic, " +
       "s.poster, " +
+      "(select string_agg(g.name, '|') " +
+      "             from genre g " +
+      "             inner join series_genre sg " +
+      "               on sg.genre_id = g.id " +
+      "              where sg.series_id = s.id " +
+      "              and sg.retired = $1) as genres, " +
       "s.cloud_poster, " +
       "tgs.date_added, " +
       "tgs.id as tv_group_series_id, " +
