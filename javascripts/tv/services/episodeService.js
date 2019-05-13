@@ -185,10 +185,18 @@ angular.module('mediaMogulApp')
         self.updateNumericFields(show);
         self.formatNextAirDate(show);
         formatSeriesGroups(show);
+        splitGenresIntoArray(show);
+      }
+
+      function splitGenresIntoArray(show) {
+        if (_.isString(show.genres)) {
+          const tempGenres = show.genres;
+          show.genres = tempGenres.split('|');
+        }
       }
 
       function formatSeriesGroups(show) {
-        if (ArrayService.exists(show.groups)) {
+        if (_.isArray(show.groups)) {
           _.each(show.groups, group => group.tv_group_id = parseInt(group.tv_group_id));
         }
       }
