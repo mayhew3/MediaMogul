@@ -636,7 +636,7 @@ function addTVGroupEpisode(tv_group_episode) {
 }
 
 function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
-  return db.updateObjectWithChangedFieldsSendResponse(tv_group_episode, "tv_group_episode", tv_group_episode_id);
+  return db.updateObjectWithChangedFieldsNoResponse(tv_group_episode, "tv_group_episode", tv_group_episode_id);
 }
 
 
