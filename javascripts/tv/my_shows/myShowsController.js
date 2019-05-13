@@ -158,7 +158,10 @@ angular.module('mediaMogulApp')
               genres.push({
                 valueLabel: genre,
                 valueCount: 1,
-                isActive: true
+                isActive: false,
+                applyFilter: show => {
+                  return _.isArray(show.genres) && _.contains(show.genres, genre);
+                }
               });
             } else {
               existing.valueCount++;
@@ -184,6 +187,7 @@ angular.module('mediaMogulApp')
       },
       tvFilter: ShowFilterService.allShows,
       posterSize: 'large',
+      showEmpty: true,
       badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,
       seriesFunction: getMyShows,
