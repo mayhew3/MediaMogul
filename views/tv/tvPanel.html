@@ -22,9 +22,26 @@
     </div>
     <div class="row" ng-if="ctrl.showFilterBar">
       <div class="col-md-8 col-sm-6 col-xs-12">
-        <button type="button"
-                class="btn btn-primary"
-                ng-repeat="filter in ctrl.filters">{{filter.label}}</button>
+        
+        <div class="btn-group"
+             uib-dropdown
+             ng-repeat="showFilter in ctrl.filters"
+             auto-close="disabled">
+
+          <button type="button"
+                  class="btn btn-primary"
+                  uib-dropdown-toggle>{{showFilter.label}}</button>
+
+          <ul uib-dropdown-menu role="menu">
+            <li role="menuitem"
+                ng-repeat="filterOption in showFilter.cachedValues">
+              <a href="#">
+                {{filterOption.valueLabel}} <span class="badge">{{filterOption.valueCount}}</span>
+              </a>
+            </li>
+          </ul>
+
+        </div>
       </div>
     </div>
   </div>
