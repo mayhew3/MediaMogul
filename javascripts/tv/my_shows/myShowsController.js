@@ -157,7 +157,8 @@ angular.module('mediaMogulApp')
             if (!existing) {
               genres.push({
                 valueLabel: genre,
-                valueCount: 1
+                valueCount: 1,
+                isActive: true
               });
             } else {
               existing.valueCount++;
