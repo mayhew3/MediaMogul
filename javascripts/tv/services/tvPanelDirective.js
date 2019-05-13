@@ -52,9 +52,9 @@
       return !!self.panelInfo.showQuickFilter;
     };
 
-    function getButtonInfo() {
-      return self.panelInfo.buttonInfo;
-    }
+    self.allFilter = function(show) {
+      return tvFilter(show) && titleFilter(show) && filterBarFilter(show);
+    };
 
     self.hasButtonInfo = function() {
       return ArrayService.exists(getButtonInfo());
@@ -85,18 +85,6 @@
       return self.shows ? self.shows : self.panelInfo.seriesFunction();
     };
 
-    function refreshCachedLabels() {
-      if (_.isArray(self.filters)) {
-        _.each(self.filters, filter => {
-          const filteredShows = _.filter(self.getShows(), self.allFilter);
-          filter.cachedValues = filter.possibleValues(filteredShows);
-        });
-        if (self.filters.length > 0) {
-          self.filtersReady = true;
-        }
-      }
-    }
-
     self.EpisodeService.registerDataPresentCallback({
       callback: refreshCachedLabels
     });
@@ -109,21 +97,9 @@
       return (self.panelInfo.posterSize === 'small') ? 'col-xs-4 col-sm-2 col-md-2' : 'col-xs-6 col-sm-3 col-md-2';
     };
 
-    self.allFilter = function(show) {
-      return self.tvFilter(show) && self.titleFilter(show);
-    };
-
-    self.tvFilter = function(show) {
-      return ArrayService.exists(self.panelInfo.tvFilter) ? self.panelInfo.tvFilter(show) : true;
-    };
-
-    self.titleFilter = function(show) {
-      return self.titleSearch === undefined || show.title.toLowerCase().indexOf(self.titleSearch.toLowerCase()) > -1;
-    };
-
     self.totalItems = function() {
       return self.getShows().length === 0 ? 0 :
-        self.getShows().filter(self.tvFilter).length;
+        self.getShows().filter(self.allFilter).length;
     };
 
     self.panelFormat = function() {
@@ -150,15 +126,6 @@
       return GroupService.getGroupSeries(series, self.group.id);
     };
 
-    function getFieldWithDirection() {
-      return self.panelInfo.sort;
-    }
-
-    function getFieldOnly() {
-      const sort = self.panelInfo.sort;
-      return sort.field;
-    }
-
     self.showEmpty = function() {
       return ArrayService.exists(self.panelInfo.showEmpty) ? self.panelInfo.showEmpty : false;
     };
@@ -173,6 +140,58 @@
       extraStyles: self.panelInfo.extraStyles,
       textOverlay: self.panelInfo.textOverlay
     };
+
+    // PRIVATE METHODS
+
+    function getButtonInfo() {
+      return self.panelInfo.buttonInfo;
+    }
+
+    function getFieldWithDirection() {
+      return self.panelInfo.sort;
+    }
+
+    function getFieldOnly() {
+      const sort = self.panelInfo.sort;
+      return sort.field;
+    }
+
+    function filterBarFilter(show) {
+      if (self.filtersReady) {
+        const filterResults = [];
+        _.each(self.filters, filter => {
+          const checkedValues = _.where(filter.cachedValues, {isActive: true});
+          const orFilter = checkedValues.some(cachedValue => {
+            return cachedValue.applyFilter(show);
+          });
+          filterResults.push(orFilter);
+        });
+        return filterResults.every(result => !!result);
+      } else {
+        return true;
+      }
+    }
+
+    function tvFilter(show) {
+      return ArrayService.exists(self.panelInfo.tvFilter) ? self.panelInfo.tvFilter(show) : true;
+    }
+
+    function titleFilter(show) {
+      return self.titleSearch === undefined || show.title.toLowerCase().indexOf(self.titleSearch.toLowerCase()) > -1;
+    }
+
+    function refreshCachedLabels() {
+      if (_.isArray(self.filters)) {
+        _.each(self.filters, filter => {
+          const filteredShows = _.filter(self.getShows(), self.allFilter);
+          filter.cachedValues = filter.possibleValues(filteredShows);
+        });
+        if (self.filters.length > 0) {
+          self.filtersReady = true;
+        }
+      }
+    }
+
 
     // COMPARATORS
 
