@@ -148,14 +148,35 @@ angular.module('mediaMogulApp')
 
     ];
 
-    function getAllGenres(allShows) {
-      const genres = [];
+    function getAllGenres() {
+      const genres = [
+        {
+          valueLabel: 'Drama',
+          isActive: true,
+          special: 0,
+          applyFilter: show => {
+            return _.isArray(show.genres) && _.contains(show.genres, 'Drama');
+          }
+        },
+        {
+          valueLabel: 'Comedy',
+          isActive: true,
+          special: 0,
+          applyFilter: show => {
+            return _.isArray(show.genres) && _.contains(show.genres, 'Comedy');
+          }
+        }
+      ];
+      return genres;
+    }
+
+    function updateGenreCounts(allShows, cachedValues) {
       _.each(allShows, show => {
         if (_.isArray(show.genres)) {
           _.each(show.genres, genre => {
-            const existing = _.findWhere(genres, {valueLabel: genre});
+            const existing = _.findWhere(cachedValues, {valueLabel: genre});
             if (!existing) {
-              genres.push({
+              cachedValues.push({
                 valueLabel: genre,
                 valueCount: 1,
                 isActive: true,
@@ -170,10 +191,30 @@ angular.module('mediaMogulApp')
           });
         }
       });
-      return genres;
+    }
+
+    function getAllWatchedStatuses() {
+      const statuses = [
+        {
+          valueLabel: 'Has Unwatched',
+          isActive: true,
+          applyFilter: show => show.personSeries.unwatched_all > 0
+        },
+        {
+          valueLabel: 'Up to Date',
+          isActive: false,
+          applyFilter: show => !show.personSeries.unwatched_all
+        }
+      ];
+      return statuses;
     }
 
     const filters = [
+      {
+        label: 'Unwatched',
+        possibleValues: getAllWatchedStatuses,
+        allNone: false
+      },
       {
         label: 'Genres',
         possibleValues: getAllGenres,

@@ -8,6 +8,10 @@ function ShowFilterService(ArrayService, DateService) {
       && hasUnwatchedEpisodes(series);
   };
 
+  self.firstTierIncludingWatched = function(series) {
+    return series.personSeries.my_tier === 1;
+  };
+
   self.secondTier = function(series) {
     return series.personSeries.my_tier === 2
       && hasUnwatchedEpisodes(series)
@@ -79,7 +83,7 @@ function ShowFilterService(ArrayService, DateService) {
   };
 
   self.allShows = function(series) {
-    return self.firstTier(series);
+    return self.firstTierIncludingWatched(series);
   };
 
   self.backlogShows = function(series) {

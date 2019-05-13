@@ -39,6 +39,7 @@
     self.filtersReady = false;
 
     self.filters = self.panelInfo.filters;
+    cachePossibleValues();
 
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
@@ -53,7 +54,8 @@
     };
 
     self.allFilter = function(show) {
-      return tvFilter(show) && titleFilter(show) && filterBarFilter(show);
+      const filters = allFilters();
+      return runThroughFilterArray(filters, show);
     };
 
     self.hasButtonInfo = function() {
@@ -98,6 +100,7 @@
       }
       updateAllSpecialDenorm(filter);
       updateNoneSpecialDenorm(filter);
+      refreshCachedLabels();
     };
 
     self.imageColumnClass = function() {
@@ -163,19 +166,37 @@
       return sort.field;
     }
 
-    function filterBarFilter(show) {
-      if (self.filtersReady) {
-        const filterResults = [];
-        _.each(self.filters, filter => {
+    function allFilters() {
+      const realFilters = getRealFilterBarFilters();
+      ArrayService.addToArray(realFilters, getBaseFilters());
+      return realFilters;
+    }
+
+    function allFiltersBut(filter) {
+      const myAllFilters = getBaseFilters();
+      const filtersToAdd = _.filter(self.filters, existingFilter => existingFilter !== filter);
+      ArrayService.addToArray(myAllFilters, _.map(filtersToAdd, getRealFilterFromFilter));
+      return myAllFilters;
+    }
+
+    function getBaseFilters() {
+      return [tvFilter, titleFilter];
+    }
+
+    function getRealFilterBarFilters() {
+      return _.map(self.filters, filter => getRealFilterFromFilter(filter));
+    }
+
+    function getRealFilterFromFilter(filter) {
+      return show => {
+        if (!!filter.cachedValues) {
           const checkedValues = _.where(filter.cachedValues, {isActive: true});
-          const orFilter = checkedValues.some(cachedValue => {
+          return checkedValues.some(cachedValue => {
             return cachedValue.applyFilter(show);
           });
-          filterResults.push(orFilter);
-        });
-        return filterResults.every(result => !!result);
-      } else {
-        return true;
+        } else {
+          return false;
+        }
       }
     }
 
@@ -213,25 +234,30 @@
       toggleAllRegularOptions(filter, false);
     }
 
+    function runThroughFilterArray(filters, show) {
+      return filters.every(filter => filter(show));
+    }
+
     function updateAllSpecialDenorm(filter) {
       const allSpecial = getAllSpecialOption(filter);
-      const regulars = getRegularOptions(filter);
-
-      allSpecial.isActive = !_.findWhere(regulars, {isActive: false});
+      if (!!allSpecial) {
+        const regulars = getRegularOptions(filter);
+        allSpecial.isActive = !_.findWhere(regulars, {isActive: false});
+      }
     }
 
     function updateNoneSpecialDenorm(filter) {
       const noneSpecial = getNoneSpecialOption(filter);
-      const regulars = getRegularOptions(filter);
-
-      noneSpecial.isActive = !_.findWhere(regulars, {isActive: true});
+      if (!!noneSpecial) {
+        const regulars = getRegularOptions(filter);
+        noneSpecial.isActive = !_.findWhere(regulars, {isActive: true});
+      }
     }
 
-    function refreshCachedLabels() {
+    function cachePossibleValues() {
       if (_.isArray(self.filters)) {
         _.each(self.filters, filter => {
-          const filteredShows = _.filter(self.getShows(), self.allFilter);
-          filter.cachedValues = filter.possibleValues(filteredShows);
+          filter.cachedValues = filter.possibleValues();
           if (!!filter.allNone) {
             filter.cachedValues.push({
               valueLabel: 'All',
@@ -248,6 +274,22 @@
               applyFilter: () => false
             });
           }
+        });
+        if (self.filters.length > 0) {
+          self.filtersReady = true;
+        }
+      }
+    }
+
+    function refreshCachedLabels() {
+      if (_.isArray(self.filters)) {
+        _.each(self.filters, filter => {
+          const otherFilters = allFiltersBut(filter);
+          const filteredShows = _.filter(self.getShows(), show => runThroughFilterArray(otherFilters, show));
+          _.each(filter.cachedValues, cachedValue => {
+            const withSubFilter = _.filter(filteredShows, cachedValue.applyFilter);
+            cachedValue.valueCount = withSubFilter.length;
+          });
         });
         if (self.filters.length > 0) {
           self.filtersReady = true;
