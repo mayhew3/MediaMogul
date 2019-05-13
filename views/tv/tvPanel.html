@@ -15,14 +15,14 @@
       </div>
       <div class="col-md-4 col-sm-6 col-xs-4 text-right">
         <button type="button"
-                ng-if="ctrl.showFilterToggle()"
+                ng-if="ctrl.filtersReady"
                 ng-click="ctrl.toggleFilterBar()"
                 class="btn btn-primary">Show Filters</button>
       </div>
     </div>
     <div class="row" ng-if="ctrl.showFilterBar">
       <div class="col-md-8 col-sm-6 col-xs-12">
-        
+
         <div class="btn-group"
              uib-dropdown
              ng-repeat="showFilter in ctrl.filters"
@@ -30,11 +30,16 @@
 
           <button type="button"
                   class="btn btn-primary"
-                  uib-dropdown-toggle>{{showFilter.label}}</button>
+                  uib-dropdown-toggle>
+            <div class="text-left">
+              {{showFilter.label}} <span class="caret dropdownCaretSmall"></span>
+            </div>
+          </button>
 
           <ul uib-dropdown-menu role="menu">
             <li role="menuitem"
-                ng-repeat="filterOption in showFilter.cachedValues">
+                ng-repeat="filterOption in showFilter.cachedValues |
+                          orderBy: 'valueLabel'">
               <a href="#">
                 {{filterOption.valueLabel}} <span class="badge">{{filterOption.valueCount}}</span>
               </a>

@@ -36,6 +36,7 @@
     self.titleSearch = undefined;
 
     self.showFilterBar = false;
+    self.filtersReady = false;
 
     self.filters = self.panelInfo.filters;
 
@@ -44,10 +45,6 @@
     if (!$scope.shows) {
       self.EpisodeService.registerAsObserver($scope);
     }
-
-    self.showFilterToggle = () => {
-      return !!self.panelInfo.filters && self.panelInfo.filters.length > 0;
-    };
 
     self.toggleFilterBar = () => self.showFilterBar = !self.showFilterBar;
 
@@ -89,11 +86,20 @@
     };
 
     function refreshCachedLabels() {
-      _.each(self.filters, filter => {
-        filter.cachedValues = filter.possibleValues(self.getShows());
-      });
+      if (_.isArray(self.filters)) {
+        _.each(self.filters, filter => {
+          const filteredShows = _.filter(self.getShows(), self.allFilter);
+          filter.cachedValues = filter.possibleValues(filteredShows);
+        });
+        if (self.filters.length > 0) {
+          self.filtersReady = true;
+        }
+      }
     }
-    refreshCachedLabels();
+
+    self.EpisodeService.registerDataPresentCallback({
+      callback: refreshCachedLabels
+    });
 
     self.imageColumnClass = function() {
       return (self.panelInfo.posterSize === 'small') ? 'col-xs-4 col-sm-2 col-md-2' : 'col-xs-6 col-sm-3 col-md-2';
