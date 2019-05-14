@@ -7,7 +7,7 @@
   function tvPanel() {
     return {
       templateUrl: 'views/tv/tvPanel.html',
-      controller: ['$scope', 'ArrayService', 'EpisodeService', 'GroupService', tvPanelController],
+      controller: ['$scope', 'ArrayService', 'EpisodeService', 'GroupService', '$q', tvPanelController],
       controllerAs: 'ctrl',
       scope: {
         shows: '=',
@@ -17,7 +17,7 @@
     }
   }
 
-  function tvPanelController($scope, ArrayService, EpisodeService, GroupService) {
+  function tvPanelController($scope, ArrayService, EpisodeService, GroupService, $q) {
     const self = this;
 
     self.EpisodeService = EpisodeService;
@@ -36,9 +36,9 @@
     self.titleSearch = undefined;
 
     self.showFilterBar = false;
-    self.filtersReady = false;
-
     self.filters = self.panelInfo.filters;
+
+    self.filtersCached = false;
     cachePossibleValues();
 
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
@@ -254,10 +254,10 @@
       }
     }
 
-    function cachePossibleValues() {
-      if (_.isArray(self.filters)) {
-        _.each(self.filters, filter => {
-          filter.cachedValues = filter.possibleValues();
+    function cacheValuesForFilter(filter) {
+      return $q(resolve => {
+        filter.possibleValues().then(values => {
+          filter.cachedValues = values;
           if (!!filter.allNone) {
             filter.cachedValues.push({
               valueLabel: 'All',
@@ -274,10 +274,17 @@
               applyFilter: () => false
             });
           }
+          resolve();
+        })
+      });
+    }
+
+    function cachePossibleValues() {
+      if (_.isArray(self.filters)) {
+        $q.all(_.map(self.filters, cacheValuesForFilter)).then(() => {
+          self.filtersCached = true;
+          refreshCachedLabels();
         });
-        if (self.filters.length > 0) {
-          self.filtersReady = true;
-        }
       }
     }
 
@@ -291,9 +298,6 @@
             cachedValue.valueCount = withSubFilter.length;
           });
         });
-        if (self.filters.length > 0) {
-          self.filtersReady = true;
-        }
       }
     }
 

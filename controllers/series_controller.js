@@ -133,6 +133,11 @@ exports.getViewingLocations = function(req, response) {
   return db.selectSendResponse(response, sql, []);
 };
 
+exports.getAllGenres = function(request, response) {
+  const sql = 'SELECT name FROM genre';
+  db.selectSendResponse(response, sql, []);
+};
+
 exports.getAllPosters = function(req, response) {
   var tvdbSeriesId = req.query.tvdb_series_id;
   console.log("All Posters call received. Params: {SeriesId: " + tvdbSeriesId + "}");

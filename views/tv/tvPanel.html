@@ -15,7 +15,8 @@
       </div>
       <div class="col-md-4 col-sm-6 col-xs-4 text-right">
         <button type="button"
-                ng-if="ctrl.filtersReady"
+                ng-if="!!ctrl.filters"
+                ng-disabled="!ctrl.filtersCached"
                 ng-click="ctrl.toggleFilterBar()"
                 class="btn btn-primary">Show Filters</button>
       </div>

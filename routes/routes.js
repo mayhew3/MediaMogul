@@ -105,6 +105,9 @@ module.exports = function(app) {
 
   app.patch('/api/ballots', authCheck, groups.editBallot);
 
+  // GENRES
+  app.get('/api/genres', authCheck, series.getAllGenres);
+
   // error handlers
 
   // development error handler
