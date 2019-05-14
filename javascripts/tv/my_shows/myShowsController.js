@@ -264,6 +264,7 @@ angular.module('mediaMogulApp')
       },
       tvFilter: ShowFilterService.backlogShows,
       posterSize: 'large',
+      showEmpty: true,
       badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,
       seriesFunction: getMyShows,

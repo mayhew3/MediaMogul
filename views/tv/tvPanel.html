@@ -6,9 +6,9 @@
       <div class="col-md-8 col-sm-6 col-xs-8">
         <h3 ng-bind="ctrl.panelInfo.headerText"></h3>
       </div>
-      <div class="col-md-4 col-sm-6 col-xs-12">
+      <div class="col-md-4 col-sm-6 col-xs-12"
+           ng-if="ctrl.showQuickFilter()">
         <input type="text"
-               ng-show="ctrl.showQuickFilter()"
                placeholder="Quick Find..."
                ng-model="ctrl.titleSearch"
                class="form-control input-lg">
@@ -42,7 +42,8 @@
 
           <ul uib-dropdown-menu
               role="menu"
-              class="dropdownMenuGenre">
+              class="dropdownMenuGenre"
+              ng-class="ctrl.getDropDownAlignmentClass(showFilter)">
             <li role="menuitem"
                 ng-repeat="filterOption in showFilter.cachedValues |
                           orderBy: ['special', 'valueLabel']"
