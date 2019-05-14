@@ -265,7 +265,7 @@
           if (!!filter.allNone) {
             filter.cachedValues.push({
               valueLabel: 'All',
-              isActive: true,
+              isActive: false,
               special: 1,
               allSpecial: true,
               applyFilter: () => true
@@ -277,6 +277,8 @@
               noneSpecial: true,
               applyFilter: () => false
             });
+            updateAllSpecialDenorm(filter);
+            updateNoneSpecialDenorm(filter);
           }
           resolve();
         })

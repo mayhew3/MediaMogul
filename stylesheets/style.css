@@ -74,16 +74,23 @@ h1 {
 }
 
 .dropdownMenuGenre {
-  min-width: 200px;
+  min-width: 210px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .dropdownMenuItem {
-  padding: 7px;
+  padding: 7px 3px 7px 5px;
 }
 
 .dropdownCaretSmall {
   float: right;
   margin: 9px 0 9px 15px !important;
+}
+
+.dropdownCaretXSmall {
+  float: right;
+  margin: 6px 0 5px 10px !important;
 }
 
 .dropdownOnlyLink {
