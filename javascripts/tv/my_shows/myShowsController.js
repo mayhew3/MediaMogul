@@ -176,11 +176,13 @@ angular.module('mediaMogulApp')
           {
             valueLabel: 'Has Unwatched',
             isActive: true,
+            special: 0,
             applyFilter: show => show.personSeries.unwatched_all > 0
           },
           {
             valueLabel: 'Up to Date',
             isActive: false,
+            special: 0,
             applyFilter: show => !show.personSeries.unwatched_all
           }
         ];
@@ -192,7 +194,7 @@ angular.module('mediaMogulApp')
       {
         label: 'Unwatched',
         possibleValues: getAllWatchedStatuses,
-        allNone: false
+        allNone: true
       },
       {
         label: 'Genres',
