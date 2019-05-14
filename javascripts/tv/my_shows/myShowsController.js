@@ -1,12 +1,13 @@
 angular.module('mediaMogulApp')
   .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService',
+    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService', 'GenreService', '$q',
   function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout,
-           $state, ShowFilterService) {
+           $state, ShowFilterService, GenreService, $q) {
     const self = this;
 
     self.LockService = LockService;
     self.EpisodeService = EpisodeService;
+    self.GenreService = GenreService;
 
     self.pendingShows = [];
 
@@ -44,6 +45,8 @@ angular.module('mediaMogulApp')
     self.orderByRating = function(series) {
       return (angular.isDefined(series.personSeries.dynamic_rating) ? -1: 0);
     };
+
+
 
     /* DASHBOARD INFOS */
 
@@ -149,64 +152,40 @@ angular.module('mediaMogulApp')
     ];
 
     function getAllGenres() {
-      const genres = [
-        {
-          valueLabel: 'Drama',
-          isActive: true,
-          special: 0,
-          applyFilter: show => {
-            return _.isArray(show.genres) && _.contains(show.genres, 'Drama');
-          }
-        },
-        {
-          valueLabel: 'Comedy',
-          isActive: true,
-          special: 0,
-          applyFilter: show => {
-            return _.isArray(show.genres) && _.contains(show.genres, 'Comedy');
-          }
-        }
-      ];
-      return genres;
+      return $q(resolve => {
+        self.GenreService.eventuallyGetGenres().then(genres => resolve(wrapGenresAsFilters(genres)));
+      });
     }
 
-    function updateGenreCounts(allShows, cachedValues) {
-      _.each(allShows, show => {
-        if (_.isArray(show.genres)) {
-          _.each(show.genres, genre => {
-            const existing = _.findWhere(cachedValues, {valueLabel: genre});
-            if (!existing) {
-              cachedValues.push({
-                valueLabel: genre,
-                valueCount: 1,
-                isActive: true,
-                special: 0,
-                applyFilter: show => {
-                  return _.isArray(show.genres) && _.contains(show.genres, genre);
-                }
-              });
-            } else {
-              existing.valueCount++;
-            }
-          });
+    function wrapGenresAsFilters(genres) {
+      return _.map(genres, genre => {
+        return {
+          valueLabel: genre.name,
+          isActive: true,
+          special: 0,
+          applyFilter: show => {
+            return _.isArray(show.genres) && _.contains(show.genres, genre.name);
+          }
         }
       });
     }
 
     function getAllWatchedStatuses() {
-      const statuses = [
-        {
-          valueLabel: 'Has Unwatched',
-          isActive: true,
-          applyFilter: show => show.personSeries.unwatched_all > 0
-        },
-        {
-          valueLabel: 'Up to Date',
-          isActive: false,
-          applyFilter: show => !show.personSeries.unwatched_all
-        }
-      ];
-      return statuses;
+      return $q(resolve => {
+        const statuses = [
+          {
+            valueLabel: 'Has Unwatched',
+            isActive: true,
+            applyFilter: show => show.personSeries.unwatched_all > 0
+          },
+          {
+            valueLabel: 'Up to Date',
+            isActive: false,
+            applyFilter: show => !show.personSeries.unwatched_all
+          }
+        ];
+        resolve(statuses);
+      });
     }
 
     const filters = [
