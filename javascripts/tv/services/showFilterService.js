@@ -18,6 +18,10 @@ function ShowFilterService(ArrayService, DateService) {
       ;
   };
 
+  self.secondTierIncludingWatched = function(series) {
+    return series.personSeries.my_tier === 2;
+  };
+
   self.upcomingSoon = function(series) {
     return DateService.dateIsInNextDays(series.nextAirDate, 7) &&
       (!hasUnwatchedEpisodes(series) ||
@@ -87,7 +91,7 @@ function ShowFilterService(ArrayService, DateService) {
   };
 
   self.backlogShows = function(series) {
-    return self.secondTier(series);
+    return self.secondTierIncludingWatched(series);
   };
 
   self.continueBacklog = function(series) {

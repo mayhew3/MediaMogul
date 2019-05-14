@@ -267,6 +267,7 @@ angular.module('mediaMogulApp')
       badgeValue: ShowFilterService.getUnwatched,
       pageLimit: 18,
       seriesFunction: getMyShows,
+      filters: filters,
       showLoading: self.showLoadingTierTwo,
       showError: self.showErrorTierTwo
     };
