@@ -91,6 +91,10 @@
       callback: refreshCachedLabels
     });
 
+    self.showFilterOption = function(filterOption) {
+      return !!filterOption.special || !!filterOption.valueCount;
+    };
+
     self.toggleActive = function(filter, filterOption) {
       filterOption.isActive = !filterOption.isActive;
       if (!!filterOption.allSpecial) {
@@ -264,7 +268,7 @@
               isActive: true,
               special: 1,
               allSpecial: true,
-              applyFilter: () => false
+              applyFilter: () => true
             });
             filter.cachedValues.push({
               valueLabel: 'None',

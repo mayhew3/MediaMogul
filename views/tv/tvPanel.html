@@ -42,7 +42,8 @@
               class="dropdownMenuGenre">
             <li role="menuitem"
                 ng-repeat="filterOption in showFilter.cachedValues |
-                          orderBy: ['special', 'valueLabel']">
+                          orderBy: ['special', 'valueLabel']"
+                ng-if="ctrl.showFilterOption(filterOption)">
 
                 <a style="padding-left: 7px; padding-right: 7px;"
                    ng-click="ctrl.toggleActive(showFilter, filterOption)">
