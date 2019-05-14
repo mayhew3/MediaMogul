@@ -170,6 +170,11 @@ angular.module('mediaMogulApp')
       });
     }
 
+    function hasWatchedEpisodes(series) {
+      const unwatched = !series.personSeries.unwatched_all ? 0 : series.personSeries.unwatched_all;
+      return series.aired_episodes > unwatched;
+    }
+
     function getAllWatchedStatuses() {
       return $q(resolve => {
         const statuses = [
@@ -190,10 +195,41 @@ angular.module('mediaMogulApp')
       });
     }
 
+    function getAllProgressStatuses() {
+      return $q(resolve => {
+        const statuses = [
+          {
+            valueLabel: 'Unstarted',
+            isActive: true,
+            special: 0,
+            applyFilter: show => !hasWatchedEpisodes(show)
+          },
+          {
+            valueLabel: 'Mid-Season',
+            isActive: true,
+            special: 0,
+            applyFilter: show => !!show.personSeries.midSeason && hasWatchedEpisodes(show)
+          },
+          {
+            valueLabel: 'Between Seasons',
+            isActive: true,
+            special: 0,
+            applyFilter: show => !show.personSeries.midSeason && hasWatchedEpisodes(show)
+          }
+        ];
+        resolve(statuses);
+      });
+    }
+
     const filters = [
       {
         label: 'Unwatched',
         possibleValues: getAllWatchedStatuses,
+        allNone: true
+      },
+      {
+        label: 'Progress',
+        possibleValues: getAllProgressStatuses,
         allNone: true
       },
       {

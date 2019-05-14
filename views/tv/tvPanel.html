@@ -18,22 +18,25 @@
                 ng-if="!!ctrl.filters"
                 ng-disabled="!ctrl.filtersCached"
                 ng-click="ctrl.toggleFilterBar()"
-                class="btn btn-primary">Show Filters</button>
+                class="btn btn-default"><i class="glyphicon glyphicon-filter"></i></button>
       </div>
     </div>
-    <div class="row" ng-if="ctrl.showFilterBar">
+    <div class="row"
+         ng-if="ctrl.showFilterBar"
+         style="margin-top: 9px">
       <div class="col-md-8 col-sm-6 col-xs-12">
 
         <div class="btn-group"
              uib-dropdown
              ng-repeat="showFilter in ctrl.filters"
-             auto-close="disabled">
+             style="margin-right: 5px"
+             auto-close="outsideClick">
 
           <button type="button"
-                  class="btn btn-primary"
+                  class="btn btn-sm btn-primary"
                   uib-dropdown-toggle>
             <div class="text-left">
-              {{showFilter.label}} <span class="caret dropdownCaretSmall"></span>
+              {{showFilter.label}} <span class="caret dropdownCaretXSmall"></span>
             </div>
           </button>
 
@@ -45,7 +48,7 @@
                           orderBy: ['special', 'valueLabel']"
                 ng-if="ctrl.showFilterOption(filterOption)">
 
-                <a style="padding-left: 7px; padding-right: 7px;"
+                <a style="padding-left: 4px; padding-right: 0;"
                    ng-click="ctrl.toggleActive(showFilter, filterOption)">
                   <div class="dropdownMenuItem">
                     <img src="../images/Checkmark.svg"
