@@ -110,6 +110,16 @@ h1 {
   text-align: left !important;
 }
 
+.headerLeft {
+  display: inline-block;
+}
+
+.headerRight {
+  display: inline-block;
+  float: right;
+  text-align: right;
+}
+
 .seriesDetailElement {
   margin-bottom: 15px;
 }
