@@ -259,9 +259,14 @@ angular.module('mediaMogulApp')
         pageLimit: 18,
         filters: filters,
         seriesFunction: self.EpisodeService.getNotMyShows,
+        subtitle: getTitle,
         showLoading: self.showLoadingBrowse,
         showError: self.showErrorBrowse
       };
+
+      function getTitle(show) {
+        return show.title;
+      }
 
       function posterStyle(match) {
         let styleObject = {};
