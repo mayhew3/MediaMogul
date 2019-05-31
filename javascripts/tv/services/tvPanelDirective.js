@@ -108,7 +108,7 @@
     };
 
     self.getDropDownAlignmentClass = function(filter) {
-      if (_.last(self.filters) === filter) {
+      if (self.filters.length > 1 && _.last(self.filters) === filter) {
         return 'dropdown-menu-right';
       } else {
         return 'dropdown-menu-left';
