@@ -912,6 +912,13 @@ angular.module('mediaMogulApp')
         return show;
       }
 
+      function maybeRemoveFromNotMyShows(series_id) {
+        const matching = _.findWhere(notMyShows, {id: series_id});
+        if (!!matching) {
+          ArrayService.removeFromArray(notMyShows, matching);
+        }
+      }
+
       self.addToMyShows = function(show, lastWatched) {
         return $q((resolve, reject) => {
           $http.post('/api/addToMyShows', {
@@ -921,6 +928,7 @@ angular.module('mediaMogulApp')
           }).then(function (resultShow) {
             const incomingShow = resultShow.data;
             const show = transformIncomingShowAndAddToArrays(incomingShow);
+            maybeRemoveFromNotMyShows(show.id);
             resolve(show);
           }, function(errResponse) {
             $log.debug("Error adding to my shows: " + errResponse);
