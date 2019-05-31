@@ -260,9 +260,26 @@ angular.module('mediaMogulApp')
         filters: filters,
         seriesFunction: self.EpisodeService.getNotMyShows,
         subtitle: getTitle,
+        buttonInfo: {
+          getButtonClass: getButtonClassForBrowse,
+          getLabel: getLabelForBrowse,
+          onClick: getOnClickForBrowse
+        },
         showLoading: self.showLoadingBrowse,
         showError: self.showErrorBrowse
       };
+
+      function getButtonClassForBrowse(show) {
+        return 'btn-primary';
+      }
+
+      function getOnClickForBrowse(show) {
+        return self.goTo(show);
+      }
+
+      function getLabelForBrowse(show) {
+        return 'Add Show';
+      }
 
       function getTitle(show) {
         return show.title;
