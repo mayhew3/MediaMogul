@@ -30,6 +30,8 @@ angular.module('mediaMogulApp')
 
       self.searchStarted = false;
 
+      const addedShows = [];
+
       self.requestsLoaded = false;
       SeriesRequestService.fetchMyPendingRequests().then(() => self.requestsLoaded = true);
 
@@ -248,6 +250,25 @@ angular.module('mediaMogulApp')
         }
       ];
 
+      function addedRecently(series) {
+        return _.findWhere(addedShows, {id: series.id});
+      }
+
+      function addExistingShow(show) {
+        show.request_processing = true;
+        return $q(resolve => {
+          EpisodeService.addToMyShows(show).then(() => {
+            delete show.request_processing;
+            addedShows.push(show);
+            resolve();
+          });
+        });
+      }
+
+      function getNotMyShows() {
+        return _.union(self.EpisodeService.getNotMyShows(), addedShows);
+      }
+
       self.browseShowsPanel = {
         headerText: 'Add Shows',
         sort: {
@@ -258,7 +279,7 @@ angular.module('mediaMogulApp')
         showEmpty: true,
         pageLimit: 18,
         filters: filters,
-        seriesFunction: self.EpisodeService.getNotMyShows,
+        seriesFunction: getNotMyShows,
         subtitle: getTitle,
         buttonInfo: {
           getButtonClass: getButtonClassForBrowse,
@@ -270,15 +291,39 @@ angular.module('mediaMogulApp')
       };
 
       function getButtonClassForBrowse(show) {
-        return 'btn-primary';
+        const selectors = ['btn-block'];
+
+        if (!!show.error) {
+          selectors.push('btn-danger');
+        } else if (addedRecently(show)) {
+          selectors.push('btn-success');
+        } else if (!!show.request_processing) {
+          selectors.push('btn-default');
+        } else {
+          selectors.push('btn-primary');
+        }
+
+        return selectors.join(' ');
       }
 
       function getOnClickForBrowse(show) {
-        return self.goTo(show);
+        if (addedRecently(show)) {
+          return self.goTo(show);
+        } else {
+          return addExistingShow(show);
+        }
       }
 
       function getLabelForBrowse(show) {
-        return 'Add Show';
+        if (!!show.error) {
+          return 'Error!';
+        } else if (addedRecently(show)) {
+          return 'Go To';
+        } else if (!!show.request_processing) {
+          return 'Adding';
+        } else {
+          return 'Add Show';
+        }
       }
 
       function getTitle(show) {
