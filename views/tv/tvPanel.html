@@ -109,15 +109,15 @@
 
         <!-- SUBTITLE (optional) -->
 
-        <div align="right" ng-show="ctrl.ArrayService.exists(ctrl.panelInfo.subtitle(show))" style="height: 30px">
+        <div align="right" ng-show="ctrl.ArrayService.exists(ctrl.panelInfo.subtitle(show))">
           <h5 ng-bind="ctrl.subtitle(show)"></h5>
         </div>
 
         <!-- BUTTON (optional) -->
 
-        <div align="center" ng-if="ctrl.hasButtonInfo()" style="margin-top: 10px">
+        <div align="center" ng-if="ctrl.hasButtonInfo()" style="margin-top: 10px; margin-bottom: 10px">
           <button type="button"
-                  class="btn"
+                  class="btn btn-block"
                   ng-class="ctrl.getButtonClass(show)"
                   ng-click="ctrl.doButtonAction(show)">
             {{ctrl.getButtonLabel(show)}}
