@@ -27,6 +27,11 @@ h1 {
   cursor: pointer;
 }
 
+.empty-header {
+  margin-bottom: 2px;
+  border: 0;
+}
+
 .btn-sm > li > a {
   font-size: 10pt;
   padding: 9px 12px;
