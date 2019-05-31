@@ -419,7 +419,7 @@ angular.module('mediaMogulApp')
           $log.debug("Shows returned " + response.data.length + " items.");
           let tempShows = response.data;
           tempShows.forEach(function (show) {
-            self.updateNumericFields(show);
+            formatIncomingShow(show);
             addShowWithNoViewerToAllShowsList(show);
           });
           $log.debug("Finished updating.");
