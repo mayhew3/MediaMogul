@@ -1,12 +1,14 @@
 angular.module('mediaMogulApp')
   .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService',
-    'SeriesRequestService', '$state', '$stateParams', '$uibModal', 'SocketService', '$scope',
+    'SeriesRequestService', '$state', '$stateParams', '$uibModal', 'SocketService', '$scope', '$q', 'GenreService',
     function($log, LockService, $http, ArrayService, EpisodeService, SeriesRequestService, $state,
-             $stateParams, $uibModal, SocketService, $scope) {
+             $stateParams, $uibModal, SocketService, $scope, $q, GenreService) {
       const self = this;
 
       self.LockService = LockService;
       self.SocketService = SocketService;
+      self.EpisodeService = EpisodeService;
+      self.GenreService = GenreService;
 
       self.allMatches = [];
       self.showsInSystem = [];
@@ -35,6 +37,14 @@ angular.module('mediaMogulApp')
       self.pageSize = 6;
 
       let loading = false;
+
+      self.showLoadingBrowse = function() {
+        return self.EpisodeService.loadingNotMyShows;
+      };
+
+      self.showErrorBrowse = function() {
+        return self.EpisodeService.errorNotMyShows;
+      };
 
       self.totalItems = function() {
         return self.getShowsNotInSystem().length;
@@ -209,6 +219,48 @@ angular.module('mediaMogulApp')
         subtitle: show => show.title,
         textOverlay: textOverlay,
         clickOverride: (show) => self.goTo(show)
+      };
+
+      function wrapGenresAsFilters(genres) {
+        return _.map(genres, genre => {
+          return {
+            valueLabel: genre.name,
+            isActive: true,
+            special: 0,
+            applyFilter: show => {
+              return _.isArray(show.genres) && _.contains(show.genres, genre.name);
+            }
+          }
+        });
+      }
+
+      function getAllGenres() {
+        return $q(resolve => {
+          self.GenreService.eventuallyGetGenres().then(genres => resolve(wrapGenresAsFilters(genres)));
+        });
+      }
+
+      const filters = [
+        {
+          label: 'Genres',
+          possibleValues: getAllGenres,
+          allNone: true
+        }
+      ];
+
+      self.browseShowsPanel = {
+        headerText: 'Add Shows',
+        sort: {
+          field: 'title',
+          direction: 'asc'
+        },
+        posterSize: 'large',
+        showEmpty: true,
+        pageLimit: 18,
+        filters: filters,
+        seriesFunction: self.EpisodeService.getNotMyShows,
+        showLoading: self.showLoadingBrowse,
+        showError: self.showErrorBrowse
       };
 
       function posterStyle(match) {

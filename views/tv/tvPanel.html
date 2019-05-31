@@ -81,13 +81,13 @@
 
   <div class="panel-body" style="padding-bottom: 0">
 
-    <div class="row" ng-show="ctrl.showLoading()">
+    <div class="row" ng-show="!!ctrl.showLoading()">
       <div class="col-xs-9 col-lg-6" style="text-align: center; padding-bottom: 20px">
         <h2>Loading...</h2>
       </div>
     </div>
 
-    <div class="row" ng-show="ctrl.showError()">
+    <div class="row" ng-show="!!ctrl.showError()">
       <div class="col-xs-9 col-lg-6" style="text-align: center; padding-bottom: 20px">
         <h2>Error fetching shows. Talk to Mayhew.</h2>
       </div>

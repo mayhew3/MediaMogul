@@ -21,6 +21,7 @@ angular.module('mediaMogulApp')
       self.errorQueue = false;
       self.errorTierOne = false;
       self.errorTierTwo = false;
+      self.errorNotMyShows = false;
 
       let finishedAllShows = false;
 
@@ -74,15 +75,22 @@ angular.module('mediaMogulApp')
                   listenForMyTVDBComplete();
                   executeEligibleCallbacks();
                   resolve();
+                }).catch(() => {
+                  self.errorNotMyShows = true;
+                  self.loadingNotMyShows = false;
                 });
               })
                 .catch(() => {
+                  self.errorNotMyShows = true;
+                  self.loadingNotMyShows = false;
                   self.errorTierTwo = true;
                   self.loadingTierTwo = false;
                   updateAllShowObservers();
                 });
             })
                 .catch(() => {
+                  self.errorNotMyShows = true;
+                  self.loadingNotMyShows = false;
                   self.errorTierOne = true;
                   self.errorTierTwo = true;
                   self.loadingTierOne = false;
@@ -91,6 +99,8 @@ angular.module('mediaMogulApp')
                 });
           })
               .catch(() => {
+                self.errorNotMyShows = true;
+                self.loadingNotMyShows = false;
                 self.errorQueue = true;
                 self.errorTierOne = true;
                 self.errorTierTwo = true;
