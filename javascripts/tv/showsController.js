@@ -201,7 +201,7 @@ angular.module('mediaMogulApp')
 
       self.handleQuickFind = function(series) {
         if (!!series.fakeCatchAll) {
-          $state.go('tv.addShows.initial', {initial_search: series.inputValue});
+          $state.go('tv.addShows.search.initial', {initial_search: series.inputValue});
         } else {
           self.goTo(series);
         }
@@ -232,7 +232,7 @@ angular.module('mediaMogulApp')
       };
 
       self.addSeries = function() {
-        $state.go('tv.addShows');
+        $state.go('tv.addShows.search');
       };
 
       self.open = function(series) {
