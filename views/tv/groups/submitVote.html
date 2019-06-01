@@ -20,9 +20,15 @@
     <span class="mediumLabel" ng-bind="ctrl.tv_group_ballot.reason"></span>
   </div>
 
-  <div class="col-md-4 col-sm-5 col-xs-7 seriesDetailElement" ng-if="!!ctrl.series.metacritic">
+  <div class="col-md-3 col-sm-4 col-xs-6 seriesDetailElement" ng-if="!!ctrl.series.metacritic">
     <span style="margin-bottom: 5px">Metacritic</span>
     <rating-box value="ctrl.series.metacritic"
+                max-value="100"></rating-box>
+  </div>
+
+  <div class="col-md-3 col-sm-4 col-xs-6 seriesDetailElement" ng-if="ctrl.showPersonalRating()">
+    <span style="margin-bottom: 5px">My Rating</span>
+    <rating-box value="ctrl.series.personSeries.my_rating"
                 max-value="100"></rating-box>
   </div>
 
