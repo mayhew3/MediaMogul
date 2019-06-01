@@ -34,34 +34,46 @@
          style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><path d="M0,224v-224h224v224z" fill="none"></path><g id="original-icon" fill="#cccccc"><path d="M46.66667,28c-10.20192,0 -18.66667,8.46475 -18.66667,18.66667v130.66667c0,10.20192 8.46475,18.66667 18.66667,18.66667h130.66667c10.20192,0 18.66667,-8.46475 18.66667,-18.66667v-65.33333h-18.66667v65.33333h-130.66667v-130.66667h65.33333v-18.66667zM130.66667,28v18.66667h33.46875l-86.73438,86.73438l13.19792,13.19791l86.73438,-86.73437v33.46875h18.66667v-65.33333z"></path></g></g></svg>
   </div>
 
-  <div class="col-md-3 col-sm-4 col-xs-6 seriesDetailElement">
+  <div class="col-md-4 col-sm-6 col-xs-8 seriesDetailElement">
     <span style="margin-bottom: 5px">Vote (1-100)</span>
     <!--suppress HtmlFormInputWithoutLabel -->
-    <input type="number"
-           class="form-control input-lg"
-           ng-model="ctrl.selectedVote"
-           min="1"
-           max="100">
+    <div class="input-group">
+      <input type="number"
+             class="form-control input-lg"
+             ng-model="ctrl.selectedVote"
+             min="1"
+             max="100">
+      <span class="input-group-btn">
+        <button type="button"
+               class="btn btn-lg btn-success"
+               ng-disabled="!ctrl.canSubmit()"
+               ng-click="ctrl.submitVote()">Submit</button>
+      </span>
+    </div>
   </div>
 
   <div ng-if="!ctrl.isLoading()"
-       class="col-lg-9">
+       class="col-xs-12 col-md-9">
     <h1>Past Votes</h1>
-    <div ng-repeat="voteInfo in ctrl.voteInfos"
-         class="row">
-      <div class="col-xs-12">
+    <div ng-repeat="voteInfo in ctrl.voteInfos">
+      <div class="col-xs-12 groupRow">
         <h3>{{voteInfo.groupName}}</h3>
         <div ng-repeat="ballot in voteInfo.ballots"
-             class="row seriesDetailElement">
-          <div ng-repeat="vote in ballot.votes"
-               class="col-xs-3">
-            <span ng-class="ctrl.getVoteTextClass(vote)">{{vote.voter}}:</span>
-            <rating-box value="vote.vote_value"
-                        max-value="100"
-                        extra-classes="ctrl.getVoteBoxClass(vote)"></rating-box>
-            <span ng-class="ctrl.getVoteTextClass(vote)">{{ctrl.displayAsTimeAgo(ballot.voting_closed)}}</span>
-            <br>
+             class="seriesDetailElement">
+          <div class="col-xs-12 ballotRow">
+            <div class="col-xs-12">
+              {{ballot.reason}} - {{ctrl.displayAsTimeAgo(ballot.voting_closed)}}
+            </div>
+            <div ng-repeat="vote in ballot.votes"
+                 class="col-xs-3">
+              <span ng-class="ctrl.getVoteTextClass(vote)">{{vote.voter}}:</span>
+              <rating-box value="vote.vote_value"
+                          max-value="100"
+                          extra-classes="ctrl.getVoteBoxClass(vote)"></rating-box>
+            </div>
+
           </div>
+
         </div>
       </div>
     </div>

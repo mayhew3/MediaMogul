@@ -139,12 +139,27 @@ h1 {
   text-align: center;
 }
 
+/* SUBMIT VOTES */
+
 .myVote {
   border: solid 1px white;
 }
 
 .youText {
   color: white;
+}
+
+.groupRow {
+  background-color: #1f2226;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.ballotRow {
+  background-color: #313a45;
+  border-radius: 3px;
+  padding: 5px 5px 10px 5px;
+  margin-top: 5px;
 }
 
 .gameRow {
