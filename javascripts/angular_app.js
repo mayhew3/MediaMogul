@@ -77,12 +77,16 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             },
             from_params: function($stateParams) {
               return $stateParams.from_params;
+            },
+            from_label: function($stateParams) {
+              return $stateParams.from_label;
             }
           },
           params: {
             viewer: null,
             from_sref: null,
-            from_params: null
+            from_params: null,
+            from_label: null
           }
         })
         .state('tv.show.episode', {

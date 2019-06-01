@@ -71,7 +71,9 @@ angular.module('mediaMogulApp')
       }
 
       function hasChangedFromPrevious() {
-        return self.selectedPoster.tvdb_poster_id !== getPreviousSelectedPoster().tvdb_poster_id;
+        const previousSelectedPoster = getPreviousSelectedPoster();
+        return !previousSelectedPoster ||
+          self.selectedPoster.tvdb_poster_id !== previousSelectedPoster.tvdb_poster_id;
       }
 
       self.submitAndClose = function() {

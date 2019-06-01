@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService', 'DateService',
     '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
-    'SeriesDetailService', '$scope',
+    'SeriesDetailService',
   function($log, EpisodeService, $uibModal, $filter, LockService, DateService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, $scope) {
+           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService) {
     const self = this;
 
     self.LockService = LockService;
@@ -19,8 +19,9 @@ angular.module('mediaMogulApp')
         type: 'my',
         group_id: null
       };
-    self.from_sref = $stateParams.from_sref ? $stateParams.from_sref : 'tv.shows.my.dashboard';
+    self.from_sref = !!$stateParams.from_sref ? $stateParams.from_sref : 'tv.shows.my.dashboard';
     self.from_params = $stateParams.from_params;
+    self.from_label = $stateParams.from_label;
 
     self.selectedEpisodeId = ArrayService.exists($stateParams.episode_id) ?
       parseInt($stateParams.episode_id) :
@@ -124,7 +125,8 @@ angular.module('mediaMogulApp')
           viewer: self.viewer,
           episode_id: episode.id,
           from_sref: self.from_sref,
-          from_params: self.from_params
+          from_params: self.from_params,
+          from_label: self.from_label
         },
         {
           reload: true,
@@ -333,12 +335,18 @@ angular.module('mediaMogulApp')
       }
     };
 
-    self.getBackButtonLabel = function() {
-      if (self.from_sref.includes('tv.shows.my')) {
-        return 'Back to My Shows'
+    function labelForPreviousPage() {
+      if (!!self.from_label) {
+        return self.from_label;
+      } else if (self.from_sref.includes('tv.shows.my')) {
+        return 'My Shows';
       } else {
-        return 'Back to ' + GroupService.getGroupWithID(getOptionalGroupID()).name + ' (Group)';
+        return GroupService.getGroupWithID(getOptionalGroupID()).name + ' (Group)';
       }
+    }
+
+    self.getBackButtonLabel = function() {
+      return 'Back to ' + labelForPreviousPage();
     };
 
     self.getTileClass = function(episode) {
