@@ -12,6 +12,7 @@ angular.module('mediaMogulApp')
     self.tv_group_ballot = tv_group_ballot;
 
     self.selectedVote = null;
+    self.showAllVotes = false;
     let loading = true;
 
     startDetailUpdate();
@@ -82,6 +83,7 @@ angular.module('mediaMogulApp')
 
     function getVoteInfos() {
       const voteInfos = [];
+      let firstUsed = false;
 
       _.each(self.series.groups, group => {
         const pastBallots = _.filter(group.ballots, ballot => !!ballot.voting_closed);
@@ -114,17 +116,39 @@ angular.module('mediaMogulApp')
               };
             });
             const compacted = _.compact(filteredBallots);
-            voteInfos.push({
-              group_id: group.tv_group_id,
-              groupName: fullGroupInfo.name,
-              ballots: compacted
-            });
+            if (compacted.length > 0) {
+              voteInfos.push({
+                group_id: group.tv_group_id,
+                groupName: fullGroupInfo.name,
+                ballots: compacted
+              });
+            }
           }
         }
       });
 
+      if (voteInfos.length > 0) {
+        const firstGroup = voteInfos[0];
+        firstGroup.alwaysShow = true;
+        if (firstGroup.ballots.length > 0) {
+          firstGroup.ballots[0].alwaysShow = true;
+        }
+      }
+
       return voteInfos;
     }
+
+    self.showGroupOrBallot = function(groupOrBallot) {
+      return self.showAllVotes || !!groupOrBallot.alwaysShow;
+    };
+
+    self.getShowAllToggleText = function() {
+      return self.showAllVotes ? '(show one)' : '(show all)';
+    };
+
+    self.toggleShowAll = function() {
+      self.showAllVotes = !self.showAllVotes;
+    };
 
     self.getOpenDate = function() {
       return getFormattedDate(self.tv_group_ballot.voting_open);

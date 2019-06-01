@@ -54,11 +54,15 @@
 
   <div ng-if="!ctrl.isLoading()"
        class="col-xs-12 col-md-9">
-    <h1>Past Votes</h1>
-    <div ng-repeat="voteInfo in ctrl.voteInfos">
+    <h1 style="display: inline">Previous Votes</h1>
+    <a style="cursor: pointer"
+       ng-click="ctrl.toggleShowAll()">{{ctrl.getShowAllToggleText()}}</a>
+    <div ng-repeat="voteInfo in ctrl.voteInfos"
+         ng-if="ctrl.showGroupOrBallot(voteInfo)">
       <div class="col-xs-12 groupRow">
         <h3>{{voteInfo.groupName}}</h3>
         <div ng-repeat="ballot in voteInfo.ballots"
+             ng-if="ctrl.showGroupOrBallot(ballot)"
              class="seriesDetailElement">
           <div class="col-xs-12 ballotRow">
             <div class="col-xs-12">
