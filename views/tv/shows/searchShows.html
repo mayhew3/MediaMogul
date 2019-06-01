@@ -3,7 +3,7 @@
 
   <div class="form-group col-lg-10">
 
-    <div class="col-lg-6">
+    <div class="col-lg-6 col-sm-8 col-xs-12">
 
       <div class="input-group">
         <input type="text"
@@ -25,7 +25,7 @@
     </div>
   </div>
 
-  <div class="col-lg-2" ng-if="ctrl.LockService.isAdmin()">
+  <div class="col-xs-6 col-sm-3 col-lg-2" ng-if="ctrl.LockService.isAdmin()">
     <button type="button"
             class="btn btn-primary btn-block"
             ng-click="ctrl.createGroup()">Create Group</button>
@@ -49,24 +49,28 @@
     <div class="panel-body" style="padding-bottom: 0">
 
       <div class="row" ng-if="ctrl.showLoading()">
-        <div class="col-xs-9 col-lg-6" style="text-align: center; padding-bottom: 20px">
+        <div class="col-xs-9 col-sm-6" style="text-align: center; padding-bottom: 20px">
           <h2>Loading...</h2>
         </div>
       </div>
 
       <div class="row" ng-if="!ctrl.showLoading()">
-        <div class="col-lg-6 fade-repeat posterRow"
+        <div class="col-xs-12 col-md-6 fade-repeat posterRow"
              ng-repeat="show in ctrl.getShowsNotInSystem() |
                           limitTo: ctrl.pageSize : (ctrl.currentPageTVDB - 1) * ctrl.pageSize">
 
           <!-- LEFT SIDE -->
-          <div class="col-lg-4">
+          <div class="col-md-4 col-sm-3 col-xs-12 no-horizontal-padding">
 
             <!-- POSTER -->
-            <tv-poster show="show"
-                       poster-info="{}"></tv-poster>
+            <div class="col-sm-12 col-xs-5 no-horizontal-padding">
+              <tv-poster show="show"
+                         poster-info="{}"></tv-poster>
+            </div>
 
-            <div align="center" style="margin-top: 10px">
+            <div align="center"
+                 class="col-sm-12 col-xs-7 no-horizontal-padding"
+                 style="margin-top: 10px">
               <button type="button"
                       class="btn"
                       ng-class="ctrl.getButtonClass(show)"
@@ -78,23 +82,23 @@
           </div>
 
           <!-- RIGHT SIDE -->
-          <div class="col-lg-8" style="text-align: left">
+          <div class="col-md-8 col-sm-9 col-xs-12" style="text-align: left">
 
 
             <div class="row">
-              <div class="col-lg-12 seriesDetailElement">
+              <div class="col-xs-12 seriesDetailElement">
                 <h3 ng-bind="show.title"></h3>
               </div>
-              <div class="col-lg-12 seriesDetailElement">
+              <div class="col-xs-12 seriesDetailElement">
                 First Aired: {{show.first_aired}}
               </div>
-              <div class="col-lg-12 seriesDetailElement">
+              <div class="col-xs-12 seriesDetailElement">
                 Network: {{show.network}}
               </div>
-              <div class="col-lg-12 seriesDetailElement">
+              <div class="col-xs-12 seriesDetailElement">
                 Overview: {{show.overview}}
               </div>
-              <div class="col-lg-12 seriesDetailElement">
+              <div class="col-xs-12 seriesDetailElement">
                 Status: {{show.status}}
               </div>
             </div>
@@ -110,7 +114,7 @@
       <!-- PAGE NUMBERS (optional) -->
 
       <div class="row">
-        <div class="col-lg-12" ng-show="ctrl.totalItems() > ctrl.pageSize">
+        <div class="col-xs-12" ng-show="ctrl.totalItems() > ctrl.pageSize">
           <ul uib-pagination
               total-items="ctrl.totalItems()"
               ng-model="ctrl.currentPageTVDB"
