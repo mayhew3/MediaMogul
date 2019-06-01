@@ -95,6 +95,7 @@ angular.module('mediaMogulApp')
               const voteObjs = _.map(ballot.votes, vote => transformToDisplayableVote(vote, group.tv_group_id));
               return {
                 voting_closed: ballot.voting_closed,
+                reason: ballot.reason,
                 votes: voteObjs
               }
             });
@@ -108,6 +109,7 @@ angular.module('mediaMogulApp')
               const myVote = _.findWhere(ballot.votes, vote => isMe(vote.person_id));
               return !myVote ? null : {
                 voting_closed: ballot.voting_closed,
+                reason: ballot.reason,
                 votes: [transformToDisplayableVote(myVote, group.tv_group_id)]
               };
             });
