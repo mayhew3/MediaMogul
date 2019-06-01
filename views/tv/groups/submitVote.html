@@ -54,9 +54,12 @@
 
   <div ng-if="!ctrl.isLoading()"
        class="col-xs-12 col-md-9">
+
     <h1 style="display: inline">Previous Votes</h1>
     <a style="cursor: pointer"
+       ng-if="ctrl.shouldShowToggle()"
        ng-click="ctrl.toggleShowAll()">{{ctrl.getShowAllToggleText()}}</a>
+
     <div ng-repeat="voteInfo in ctrl.voteInfos"
          ng-if="ctrl.showGroupOrBallot(voteInfo)">
       <div class="col-xs-12 groupRow">

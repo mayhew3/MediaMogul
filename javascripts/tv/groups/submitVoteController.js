@@ -142,6 +142,10 @@ angular.module('mediaMogulApp')
       return self.showAllVotes || !!groupOrBallot.alwaysShow;
     };
 
+    self.shouldShowToggle = function() {
+      return self.voteInfos.length > 1;
+    };
+
     self.getShowAllToggleText = function() {
       return self.showAllVotes ? '(show one)' : '(show all)';
     };
