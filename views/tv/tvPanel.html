@@ -107,12 +107,6 @@
                    poster-info="ctrl.posterInfo"
                    on-click="ctrl.onClick"></tv-poster>
 
-        <!-- SUBTITLE (optional) -->
-
-        <div align="right" ng-show="ctrl.ArrayService.exists(ctrl.panelInfo.subtitle(show))">
-          <h5 ng-bind="ctrl.subtitle(show)"></h5>
-        </div>
-
         <!-- BUTTON (optional) -->
 
         <div align="center" ng-if="ctrl.hasButtonInfo()" style="margin-top: 10px; margin-bottom: 10px">
@@ -124,6 +118,13 @@
           </button>
         </div>
 
+        <!-- SUBTITLE (optional) -->
+
+        <div align="right"
+             ng-show="ctrl.ArrayService.exists(ctrl.panelInfo.subtitle(show))"
+             style="height: 30px">
+          <h5 ng-bind="ctrl.subtitle(show)"></h5>
+        </div>
 
 
       </div>

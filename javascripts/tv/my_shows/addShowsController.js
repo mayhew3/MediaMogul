@@ -92,6 +92,17 @@ angular.module('mediaMogulApp')
         }
       }
 
+      function getAddShowsTab() {
+        const srefParts = $state.current.name.split('.');
+        if (srefParts.contains('search')) {
+          return 'search';
+        } else if (srefParts.contains('browse')) {
+          return 'browse';
+        } else {
+          return undefined;
+        }
+      }
+
       self.goTo = function(series) {
         $state.transitionTo('tv.show',
           {
@@ -99,10 +110,12 @@ angular.module('mediaMogulApp')
             viewer: {
               type: 'my',
               group_id: null
-            }
+            },
+            from_sref: $state.current.name,
+            from_label: 'Add Shows'
           },
           {
-            reload: true,
+            reload: false,
             inherit: false,
             notify: true
           }
