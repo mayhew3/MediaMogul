@@ -736,6 +736,23 @@ angular.module('mediaMogulApp')
       });
     };
 
+    function numericalViewerRating() {
+      if (self.isInViewerCollection()) {
+        if (self.isInGroupMode()) {
+          return getGroupSeries().group_score;
+        } else {
+          return self.series.personSeries.dynamic_rating;
+        }
+      } else {
+        return self.series.metacritic;
+      }
+    }
+
+    self.getViewerRating = function() {
+      const numericalRating = numericalViewerRating();
+      return !!numericalRating ? numericalRating : null;
+    };
+
     self.getUnwatchedForSeason = function(season) {
       const unwatched = _.filter(self.episodes, self.isAiredUnwatched);
       return _.filter(unwatched, {season: season.label}).length;

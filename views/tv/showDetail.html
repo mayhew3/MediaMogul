@@ -43,8 +43,8 @@
         </div>
 
         <!-- DYNAMIC RATING -->
-        <div class="col-sm-12 col-xs-6 seriesDetailElement" ng-if="ctrl.isInViewerCollection()">
-          <rating-box value="ctrl.series.personSeries.dynamic_rating"
+        <div class="col-sm-12 col-xs-6 seriesDetailElement">
+          <rating-box value="ctrl.getViewerRating()"
                       max-value="100"></rating-box>
         </div>
 
