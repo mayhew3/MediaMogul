@@ -57,6 +57,11 @@ h1 {
   padding: 7px 10px 7px 7px;
 }
 
+.no-horizontal-padding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .checkmarkButtonLarge {
   padding: 10px 20px 10px 10px;
   /*width: 240px;*/
