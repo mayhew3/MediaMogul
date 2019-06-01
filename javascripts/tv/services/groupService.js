@@ -94,6 +94,12 @@ angular.module('mediaMogulApp')
           return _.pluck(group.members, 'person_id');
         };
 
+        self.getMemberName = function(tv_group_id, person_id) {
+          const group = self.getGroupWithID(tv_group_id);
+          const member = _.findWhere(group.members, {person_id: person_id});
+          return member.first_name;
+        };
+
         // todo: get new ids back and attach to group episodes.
         self.markPastGroupEpisodesWatched = function(series_id, tv_group_id, lastWatched, watched) {
           return $http.post('/api/watchPastGroupEpisodes', {

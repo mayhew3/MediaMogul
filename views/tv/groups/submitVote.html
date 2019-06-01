@@ -44,6 +44,27 @@
            max="100">
   </div>
 
+  <div ng-if="!ctrl.isLoading()"
+       class="col-lg-9">
+    <h1>Past Votes</h1>
+    <div ng-repeat="voteInfo in ctrl.voteInfos"
+         class="row">
+      <div class="col-xs-12">
+        <h3>{{voteInfo.groupName}}</h3>
+        <div ng-repeat="ballot in voteInfo.ballots"
+             class="row seriesDetailElement">
+          <div ng-repeat="vote in ballot.votes"
+               class="col-xs-3">
+            {{vote.voter}}: <rating-box value="vote.vote_value"
+                                        max-value="100"></rating-box>
+            {{ctrl.displayAsTimeAgo(ballot.voting_closed)}}
+            <br>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 
 </div>
 
