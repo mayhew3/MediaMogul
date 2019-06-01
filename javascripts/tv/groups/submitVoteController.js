@@ -142,6 +142,10 @@ angular.module('mediaMogulApp')
       return self.showAllVotes || !!groupOrBallot.alwaysShow;
     };
 
+    self.showPersonalRating = function() {
+      return !!self.series.personSeries && !!self.series.personSeries.my_rating;
+    };
+
     self.shouldShowToggle = function() {
       return self.voteInfos.length > 1;
     };
