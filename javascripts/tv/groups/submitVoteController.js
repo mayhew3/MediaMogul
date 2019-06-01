@@ -56,6 +56,22 @@ angular.module('mediaMogulApp')
       }
     }
 
+    self.getVoteTextClass = function(vote) {
+      if (vote.voter === 'You') {
+        return 'youText';
+      } else {
+        return '';
+      }
+    };
+
+    self.getVoteBoxClass = function(vote) {
+      if (vote.voter === 'You') {
+        return 'myVote';
+      } else {
+        return '';
+      }
+    };
+
     function isMe(person_id) {
       return self.LockService.person_id === person_id;
     }

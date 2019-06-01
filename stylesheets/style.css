@@ -139,6 +139,14 @@ h1 {
   text-align: center;
 }
 
+.myVote {
+  border: solid 1px white;
+}
+
+.youText {
+  color: white;
+}
+
 .gameRow {
   margin-top: -15px;
   margin-bottom: -15px;
