@@ -55,9 +55,11 @@
              class="row seriesDetailElement">
           <div ng-repeat="vote in ballot.votes"
                class="col-xs-3">
-            {{vote.voter}}: <rating-box value="vote.vote_value"
-                                        max-value="100"></rating-box>
-            {{ctrl.displayAsTimeAgo(ballot.voting_closed)}}
+            <span ng-class="ctrl.getVoteTextClass(vote)">{{vote.voter}}:</span>
+            <rating-box value="vote.vote_value"
+                        max-value="100"
+                        extra-classes="ctrl.getVoteBoxClass(vote)"></rating-box>
+            <span ng-class="ctrl.getVoteTextClass(vote)">{{ctrl.displayAsTimeAgo(ballot.voting_closed)}}</span>
             <br>
           </div>
         </div>

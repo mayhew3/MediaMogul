@@ -11,7 +11,8 @@
       controllerAs: 'ctrl',
       scope: {
         value: '=',
-        maxValue: '='
+        maxValue: '=',
+        extraClasses: '='
       }
     }
   }
@@ -21,10 +22,14 @@
 
     self.value = $scope.value;
     self.maxValue = $scope.maxValue;
-
+    self.extraClasses = $scope.extraClasses;
 
     self.getValue = function() {
       return self.getFormattedNumber(self.value);
+    };
+
+    self.getBoxClasses = function() {
+      return !self.extraClasses ? '' : self.extraClasses;
     };
 
     self.getFormattedNumber = function(value) {
