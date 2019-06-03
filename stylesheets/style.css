@@ -473,7 +473,6 @@ div.gameCard {
   vertical-align: bottom;
   text-align: right;
   position: absolute;
-  background-color: forestgreen;
   margin-top: 0;
   padding: 0 5pt;
   border-radius: 3pt;
@@ -499,18 +498,12 @@ div.gameCard {
   border-radius: 3pt;
 }
 
+.posterBadgeGreen {
+  background-color: forestgreen;
+}
+
 .posterBadgeRed {
-  bottom: 0;
-  right: 11pt;
-  font-size: 18pt;
-  font-weight: bolder;
-  vertical-align: bottom;
-  text-align: right;
-  position: absolute;
   background-color: darkred;
-  margin-top: 0;
-  padding: 0 5pt;
-  border-radius: 3pt;
 }
 
 .pillTabRed {
