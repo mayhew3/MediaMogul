@@ -159,6 +159,7 @@
     self.posterInfo = {
       clickOverride: self.panelInfo.clickOverride,
       badgeValue: self.panelInfo.badgeValue,
+      badgeColor: self.panelInfo.badgeColor,
       extraStyles: self.panelInfo.extraStyles,
       textOverlay: self.panelInfo.textOverlay
     };

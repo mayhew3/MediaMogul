@@ -93,6 +93,7 @@ angular.module('mediaMogulApp')
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         badgeValue: getRemainingVoteCount,
+        badgeColor: 'posterBadgeRed',
         panelFormat: 'panel-info'
       },
       {

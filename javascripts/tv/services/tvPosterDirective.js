@@ -28,6 +28,10 @@
       return ArrayService.exists(self.posterInfo.badgeValue) ? self.posterInfo.badgeValue(self.show) : null;
     };
 
+    self.badgeColor = function() {
+      return !self.posterInfo.badgeColor ? 'posterBadgeGreen' : self.posterInfo.badgeColor;
+    };
+
     function hasPersonPoster() {
       return !!self.show.my_poster;
     }
