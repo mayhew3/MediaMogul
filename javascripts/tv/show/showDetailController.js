@@ -1133,25 +1133,23 @@ angular.module('mediaMogulApp')
     }
 
     self.addBallot = function() {
-      if (self.LockService.isAdmin()) {
-        $uibModal.open({
-          templateUrl: 'views/tv/groups/addBallot.html',
-          controller: 'addBallotController',
-          controllerAs: 'ctrl',
-          size: 'lg',
-          resolve: {
-            series: function () {
-              return self.series;
-            },
-            addBallotCallback: function() {
-              return addBallot;
-            },
-            groupSeries: function () {
-              return getGroupSeries();
-            }
+      $uibModal.open({
+        templateUrl: 'views/tv/groups/addBallot.html',
+        controller: 'addBallotController',
+        controllerAs: 'ctrl',
+        size: 'lg',
+        resolve: {
+          series: function () {
+            return self.series;
+          },
+          addBallotCallback: function() {
+            return addBallot;
+          },
+          groupSeries: function () {
+            return getGroupSeries();
           }
-        });
-      }
+        }
+      });
     };
 
     self.submitSeriesAdded = function() {
