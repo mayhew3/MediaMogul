@@ -92,6 +92,7 @@ angular.module('mediaMogulApp')
         },
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
+        badgeValue: getRemainingVoteCount,
         panelFormat: 'panel-info'
       },
       {
@@ -398,11 +399,14 @@ angular.module('mediaMogulApp')
     }
 
     function isAwaitingMyVote(series) {
-      const ballots = getBallots(series);
-      return _.filter(ballots, function(ballot) {
-        const peopleWhoHaveVoted = _.pluck(ballot.votes, 'person_id');
-        return !_.contains(peopleWhoHaveVoted, self.LockService.person_id);
-      }).length > 0;
+      const ballot = getOpenBallotForShow(series);
+      const peopleWhoHaveVoted = _.pluck(ballot.votes, 'person_id');
+      return !_.contains(peopleWhoHaveVoted, self.LockService.person_id);
+    }
+
+    function getRemainingVoteCount(series) {
+      const ballot = getOpenBallotForShow(series);
+      return self.group.members.length - ballot.votes.length;
     }
 
     function isMidSeason(series) {
@@ -411,13 +415,13 @@ angular.module('mediaMogulApp')
 
     // BALLOT HELPERS
 
-    function getBallotForShow(show) {
+    function getOpenBallotForShow(show) {
       const ballots = getBallots(show);
       return _.findWhere(ballots, {voting_closed: null});
     }
 
     function hasOpenBallots(series) {
-      return ArrayService.exists(getBallotForShow(series));
+      return ArrayService.exists(getOpenBallotForShow(series));
     }
 
 
@@ -542,7 +546,7 @@ angular.module('mediaMogulApp')
         size: 'lg',
         resolve: {
           tv_group_ballot: function() {
-            return getBallotForShow(show);
+            return getOpenBallotForShow(show);
           },
           series: function() {
             return show;
