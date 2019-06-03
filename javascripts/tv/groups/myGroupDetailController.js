@@ -400,8 +400,12 @@ angular.module('mediaMogulApp')
 
     function isAwaitingMyVote(series) {
       const ballot = getOpenBallotForShow(series);
-      const peopleWhoHaveVoted = _.pluck(ballot.votes, 'person_id');
-      return !_.contains(peopleWhoHaveVoted, self.LockService.person_id);
+      if (!!ballot) {
+        const peopleWhoHaveVoted = _.pluck(ballot.votes, 'person_id');
+        return !_.contains(peopleWhoHaveVoted, self.LockService.person_id);
+      } else {
+        return false;
+      }
     }
 
     function getRemainingVoteCount(series) {
