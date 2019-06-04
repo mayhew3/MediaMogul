@@ -169,12 +169,23 @@
               </li>
               <li role="menuitem"
                   class="adminMenuOption"
-                  ng-if="!ctrl.hasOpenBallot()">
+                  ng-if="!ctrl.hasOpenBallot() && ctrl.isInGroupShows()">
                 <a href="#"
                    style="padding-left: 15px;"
                    ng-click="ctrl.addBallot()">
                   <div class="dropdownLeftAlign">
                     Add Ballot
+                  </div>
+                </a>
+              </li>
+              <li role="menuitem"
+                  class="adminMenuOption"
+                  ng-if="ctrl.hasOpenBallot() && ctrl.isInGroupShows()">
+                <a href="#"
+                   style="padding-left: 15px;"
+                   ng-click="ctrl.closeBallot()">
+                  <div class="dropdownLeftAlign">
+                    Close Ballot
                   </div>
                 </a>
               </li>

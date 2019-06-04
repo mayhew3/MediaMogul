@@ -1,0 +1,44 @@
+<div class="modal-header">
+  <h1 ng-bind="ctrl.series.title"></h1>
+</div>
+
+<div class="modal-body clearfix">
+
+  <div class="col-md-3 col-sm-4 col-xs-5 seriesDetailElement">
+    <tv-poster show="ctrl.series"
+               poster-info="{}"></tv-poster>
+  </div>
+
+  <div class="col-md-9 col-sm-8 col-xs-7 seriesDetailElement">
+    <h3>Close Ballot</h3>
+  </div>
+
+  <div class="col-md-4 col-sm-5 col-xs-7 seriesDetailElement">
+    <span>Open Date</span><br>
+    <span class="mediumLabel" ng-bind="ctrl.getOpenDate()"></span>
+  </div>
+
+  <div class="col-md-4 col-sm-5 col-xs-7 seriesDetailElement">
+    <span>Reason</span><br>
+    <span class="mediumLabel" ng-bind="ctrl.tv_group_ballot.reason"></span>
+  </div>
+
+  <div class="col-md-4 col-sm-5 col-xs-7 seriesDetailElement">
+    <span>Votes Remaining</span><br>
+    <span class="mediumLabel">{{ctrl.getRemainingVoteCount()}} / {{ctrl.getTotalMembers()}}</span>
+  </div>
+
+</div>
+
+<div class="modal-footer">
+  <input type="button"
+         class="btn btn-success"
+         ng-click="ctrl.closeBallot()"
+         value="Close Ballot">
+  <input type="button"
+         class="btn btn-default"
+         ng-click="ctrl.cancel()"
+         value="Cancel">
+</div>
+
+

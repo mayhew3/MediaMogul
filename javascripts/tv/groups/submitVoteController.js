@@ -6,6 +6,7 @@ angular.module('mediaMogulApp')
            ArrayService, GroupService, SeriesDetailService, $q) {
     const self = this;
     self.LockService = LockService;
+    self.GroupService = GroupService;
     self.DateService = DateService;
     self.series = series;
     self.groupSeries = GroupService.getGroupSeries(series, tv_group.id);
@@ -146,8 +147,14 @@ angular.module('mediaMogulApp')
       return !!self.series.personSeries && !!self.series.personSeries.my_rating;
     };
 
+    function getBallotCount() {
+      const ballots = [];
+      _.each(self.voteInfos, voteInfo => ArrayService.addToArray(ballots, voteInfo.ballots));
+      return ballots.length;
+    }
+
     self.shouldShowToggle = function() {
-      return self.voteInfos.length > 1;
+      return getBallotCount() > 1;
     };
 
     self.getShowAllToggleText = function() {
@@ -192,16 +199,7 @@ angular.module('mediaMogulApp')
     function maybeCloseBallot() {
       return new Promise(resolve => {
         if (tv_group.members.length === tv_group_ballot.votes.length) {
-          const changedFields = {
-            voting_closed: new Date
-          };
-          $http.patch('api/ballots', {
-            changedFields: changedFields,
-            tv_group_ballot_id: tv_group_ballot.id
-          }).then(() => {
-            tv_group_ballot.voting_closed = new Date;
-            resolve();
-          });
+          self.GroupService.closeBallot(tv_group_ballot);
         } else {
           resolve();
         }

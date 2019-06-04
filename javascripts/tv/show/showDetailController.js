@@ -118,6 +118,11 @@ angular.module('mediaMogulApp')
       }
     };
 
+    function getOptionalGroup() {
+      const optionalGroupID = getOptionalGroupID();
+      return !optionalGroupID ? undefined : GroupService.getGroupWithID(optionalGroupID);
+    }
+
     self.goToEpisode = function(episode) {
       $state.transitionTo('tv.show.episode',
         {
@@ -1147,6 +1152,26 @@ angular.module('mediaMogulApp')
           },
           groupSeries: function () {
             return getGroupSeries();
+          }
+        }
+      });
+    };
+
+    self.closeBallot = function() {
+      $uibModal.open({
+        templateUrl: 'views/tv/groups/closeBallot.html',
+        controller: 'closeBallotController',
+        controllerAs: 'ctrl',
+        size: 'lg',
+        resolve: {
+          tv_group_ballot: function() {
+            return getBallotForShow();
+          },
+          series: function() {
+            return self.series;
+          },
+          tv_group: function() {
+            return getOptionalGroup();
           }
         }
       });
