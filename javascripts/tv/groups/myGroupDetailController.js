@@ -412,7 +412,8 @@ angular.module('mediaMogulApp')
     function getRemainingVoteCount(series) {
       const ballot = getOpenBallotForShow(series);
       const votes = !ballot.votes ? 0 : ballot.votes.length;
-      return self.group.members.length - votes;
+      const memberCount = !self.group.members ? 0 : self.group.members.length;
+      return memberCount - votes;
     }
 
     function isMidSeason(series) {
