@@ -1121,7 +1121,7 @@ angular.module('mediaMogulApp')
       })
     };
 
-    function getBallotForShow() {
+    function getOpenBallotForShow() {
       if (self.isInGroupShows()) {
         return _.findWhere(getGroupSeries().ballots, {voting_closed: null});
       } else {
@@ -1129,15 +1129,23 @@ angular.module('mediaMogulApp')
       }
     }
 
+    function getMostRecentClosedBallot() {
+      if (self.isInGroupShows()) {
+        return _.find(getGroupSeries().ballots, ballot => !!ballot.voting_closed);
+      } else {
+        return null;
+      }
+    }
+
     self.getOutstandingVoteCount = function() {
-      const ballot = getBallotForShow();
+      const ballot = getOpenBallotForShow();
       return ArrayService.exists(ballot) ?
         group.members.length - ballot.votes.length :
         0;
     };
 
     self.hasOpenBallot = function() {
-      return ArrayService.exists(getBallotForShow());
+      return ArrayService.exists(getOpenBallotForShow());
     };
 
     self.refreshVoteTooltips = function() {
@@ -1148,8 +1156,22 @@ angular.module('mediaMogulApp')
       });
     };
 
+    function formatVoteForTooltip(vote) {
+      const voterName = GroupService.getMemberName(getOptionalGroupID(), vote.person_id);
+      return voterName + ': ' + vote.vote_value;
+    }
+
     self.getVotesTooltipText = function() {
-      return 'Votes';
+      if (self.isInGroupMode()) {
+        const ballot = getMostRecentClosedBallot();
+        if (!ballot) {
+          return '';
+        }
+
+        const voteParts = _.map(ballot.votes, vote => formatVoteForTooltip(vote));
+
+        return voteParts.join('<br>');
+      }
     };
 
     function addBallot(ballot) {
@@ -1189,7 +1211,7 @@ angular.module('mediaMogulApp')
         size: 'lg',
         resolve: {
           tv_group_ballot: function() {
-            return getBallotForShow();
+            return getOpenBallotForShow();
           },
           series: function() {
             return self.series;
