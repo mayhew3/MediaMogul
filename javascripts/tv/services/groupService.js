@@ -113,4 +113,19 @@ angular.module('mediaMogulApp')
           });
         };
 
+        self.closeBallot = function(ballot) {
+          return $q((resolve, reject) => {
+            const changedFields = {
+              voting_closed: new Date
+            };
+            $http.patch('api/ballots', {
+              changedFields: changedFields,
+              tv_group_ballot_id: ballot.id
+            }).then(() => {
+              ballot.voting_closed = new Date;
+              resolve();
+            }).catch(err => reject(err));
+          });
+        };
+
       }]);
