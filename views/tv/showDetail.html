@@ -44,8 +44,11 @@
 
         <!-- DYNAMIC RATING -->
         <div class="col-sm-12 col-xs-6 seriesDetailElement">
-          <rating-box value="ctrl.getViewerRating()"
-                      max-value="100"></rating-box>
+          <div class="votesTooltip"
+               title="{{ctrl.getVotesTooltipText()}}">
+            <rating-box value="ctrl.getViewerRating()"
+                        max-value="100"></rating-box>
+          </div>
         </div>
 
         <!-- MY SHOWS TOGGLE -->

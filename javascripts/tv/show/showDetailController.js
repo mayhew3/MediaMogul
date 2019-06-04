@@ -82,7 +82,19 @@ angular.module('mediaMogulApp')
         };
         self.groups.push(groupObj);
       });
+      $timeout(function() {
+        console.log('Delay finished! Populating tooltips!');
+        refreshTooltips();
+      }, 100);
     });
+
+    function refreshTooltips() {
+      $('.votesTooltip').tooltip({
+        placement: 'top',
+        html: true,
+        animation: false
+      });
+    }
 
     self.hasSelectedEpisode = function() {
       return ArrayService.exists(self.selectedEpisodeId) &&
@@ -1126,6 +1138,18 @@ angular.module('mediaMogulApp')
 
     self.hasOpenBallot = function() {
       return ArrayService.exists(getBallotForShow());
+    };
+
+    self.refreshVoteTooltips = function() {
+      $('.votesTooltip').tooltip({
+        placement: 'left',
+        html: true,
+        animation: false
+      });
+    };
+
+    self.getVotesTooltipText = function() {
+      return 'Votes';
     };
 
     function addBallot(ballot) {
