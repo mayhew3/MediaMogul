@@ -68,7 +68,8 @@ angular.module('mediaMogulApp')
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-warning',
-        clickOverride: submitVotePopup
+        clickOverride: submitVotePopup,
+        pageLimit: 6
       },
       {
         headerText: "Needs First Vote",
@@ -82,7 +83,8 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
         clickOverride: clickBallotPosterToStart,
-        textOverlay: textOverlay
+        textOverlay: textOverlay,
+        pageLimit: 6
       },
       {
         headerText: "Needs Refresh Vote",
@@ -97,7 +99,8 @@ angular.module('mediaMogulApp')
         panelFormat: 'panel-info',
         subtitle: absenceRefreshSubtitle,
         clickOverride: clickBallotPosterAbsence,
-        textOverlay: textOverlay
+        textOverlay: textOverlay,
+        pageLimit: 6
       },
       {
         headerText: "Awaiting Votes",
@@ -111,7 +114,8 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         badgeValue: getRemainingVoteCount,
         badgeColor: 'posterBadgeRed',
-        panelFormat: 'panel-success'
+        panelFormat: 'panel-success',
+        pageLimit: 6
       },
       {
         headerText: "Top Queue",
@@ -451,7 +455,7 @@ angular.module('mediaMogulApp')
 
     function getAbsenceThreshold(series) {
       const score = getGroupScore(series);
-      const tempThreshold = (90-score) * 36.5;
+      const tempThreshold = (100-score) * 36.5;
       return tempThreshold < 365 ? 365 : tempThreshold;
     }
 
