@@ -1166,33 +1166,8 @@ angular.module('mediaMogulApp')
       }
     };
 
-    function addBallot(ballot) {
-      const groupSeries = getGroupSeries();
-      if (!_.isArray(groupSeries.ballots)) {
-        groupSeries.ballots = [ballot];
-      } else {
-        groupSeries.ballots.push(ballot);
-      }
-    }
-
     self.addBallot = function() {
-      $uibModal.open({
-        templateUrl: 'views/tv/groups/addBallot.html',
-        controller: 'addBallotController',
-        controllerAs: 'ctrl',
-        size: 'lg',
-        resolve: {
-          series: function () {
-            return self.series;
-          },
-          addBallotCallback: function() {
-            return addBallot;
-          },
-          groupSeries: function () {
-            return getGroupSeries();
-          }
-        }
-      });
+      BallotService.addBallotPopup(self.series, getOptionalGroupID(), 'To Start');
     };
 
     self.closeBallot = function() {
