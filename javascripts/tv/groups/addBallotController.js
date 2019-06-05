@@ -1,20 +1,20 @@
 angular.module('mediaMogulApp')
 .controller('addBallotController', ['$log', 'LockService', '$http', '$uibModalInstance',
-            'series', 'DateService', 'ArrayService', 'addBallotCallback', 'groupSeries',
+            'series', 'DateService', 'ArrayService', 'groupSeries', 'starting_reason',
   function($log, LockService, $http, $uibModalInstance, series, DateService, ArrayService,
-           addBallotCallback, groupSeries) {
+           groupSeries, starting_reason) {
     const self = this;
     self.LockService = LockService;
     self.DateService = DateService;
     self.series = series;
     self.groupSeries = groupSeries;
 
-    self.reason = "To Start";
+    self.reason = !starting_reason ? 'To Start' : starting_reason;
     self.possibleReasons = [
-      "To Start",
-      "Post-Buffet",
-      "New Season",
-      "Absence Refresh"
+      'To Start',
+      'Post-Buffet',
+      'New Season',
+      'Absence Refresh'
     ];
 
     self.canSubmit = function() {
@@ -35,7 +35,11 @@ angular.module('mediaMogulApp')
           reason: self.reason,
           votes: []
         };
-        addBallotCallback(ballot);
+        if (!_.isArray(self.groupSeries.ballots)) {
+          self.groupSeries.ballots = [ballot];
+        } else {
+          self.groupSeries.ballots.push(ballot);
+        }
         $uibModalInstance.close();
       });
     };

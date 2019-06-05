@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-    .service('BallotService', ['$http', 'ArrayService', 'LockService', '$q',
-      function ($http, ArrayService, LockService, $q) {
+    .service('BallotService', ['$http', 'ArrayService', 'LockService', '$q', 'GroupService', '$uibModal',
+      function ($http, ArrayService, LockService, $q, GroupService, $uibModal) {
         const self = this;
 
         self.LockService = LockService;
@@ -13,6 +13,27 @@ angular.module('mediaMogulApp')
         self.getLastVoteDate = function(groupSeries) {
           const lastBallot = self.getMostRecentClosedBallot(groupSeries);
           return !lastBallot ? null : lastBallot.voting_closed;
+        };
+
+        self.addBallotPopup = function(series, tv_group_id, starting_reason) {
+          const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
+          $uibModal.open({
+            templateUrl: 'views/tv/groups/addBallot.html',
+            controller: 'addBallotController',
+            controllerAs: 'ctrl',
+            size: 'lg',
+            resolve: {
+              series: function() {
+                return series;
+              },
+              groupSeries: function() {
+                return groupSeries;
+              },
+              starting_reason: function() {
+                return starting_reason;
+              }
+            }
+          });
         };
 
         self.closeBallot = function(ballot) {

@@ -81,6 +81,7 @@ angular.module('mediaMogulApp')
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
+        clickOverride: clickBallotPosterToStart,
         textOverlay: textOverlay
       },
       {
@@ -95,6 +96,7 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
         subtitle: absenceRefreshSubtitle,
+        clickOverride: clickBallotPosterAbsence,
         textOverlay: textOverlay
       },
       {
@@ -109,7 +111,7 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         badgeValue: getRemainingVoteCount,
         badgeColor: 'posterBadgeRed',
-        panelFormat: 'panel-info'
+        panelFormat: 'panel-success'
       },
       {
         headerText: "Top Queue",
@@ -449,7 +451,7 @@ angular.module('mediaMogulApp')
 
     function getAbsenceThreshold(series) {
       const score = getGroupScore(series);
-      const tempThreshold = (100-score) * 36.5;
+      const tempThreshold = (90-score) * 36.5;
       return tempThreshold < 365 ? 365 : tempThreshold;
     }
 
@@ -470,6 +472,17 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(getOpenBallotForShow(series));
     }
 
+    function clickBallotPosterToStart(series) {
+      clickBallotPoster(series, 'To Start');
+    }
+
+    function clickBallotPosterAbsence(series) {
+      clickBallotPoster(series, 'Absence Refresh');
+    }
+
+    function clickBallotPoster(series, starting_reason) {
+      BallotService.addBallotPopup(series, self.group.id, starting_reason);
+    }
 
     // DATE FORMAT
 
