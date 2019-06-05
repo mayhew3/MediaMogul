@@ -84,11 +84,11 @@ angular.module('mediaMogulApp')
       });
       $timeout(function() {
         console.log('Delay finished! Populating tooltips!');
-        refreshTooltips();
+        refreshVotesTooltip();
       }, 100);
     });
 
-    function refreshTooltips() {
+    function refreshVotesTooltip() {
       $('.votesTooltip').tooltip({
         placement: 'top',
         html: true,
@@ -1146,14 +1146,6 @@ angular.module('mediaMogulApp')
 
     self.hasOpenBallot = function() {
       return ArrayService.exists(getOpenBallotForShow());
-    };
-
-    self.refreshVoteTooltips = function() {
-      $('.votesTooltip').tooltip({
-        placement: 'left',
-        html: true,
-        animation: false
-      });
     };
 
     function formatVoteForTooltip(vote) {
