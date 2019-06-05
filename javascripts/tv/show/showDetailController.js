@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService', 'DateService',
     '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
-    'SeriesDetailService',
+    'SeriesDetailService', 'BallotService',
   function($log, EpisodeService, $uibModal, $filter, LockService, DateService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService) {
+           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService) {
     const self = this;
 
     self.LockService = LockService;
@@ -1131,7 +1131,7 @@ angular.module('mediaMogulApp')
 
     function getMostRecentClosedBallot() {
       if (self.isInGroupShows()) {
-        return _.find(getGroupSeries().ballots, ballot => !!ballot.voting_closed);
+        return BallotService.getMostRecentClosedBallot(getGroupSeries());
       } else {
         return null;
       }

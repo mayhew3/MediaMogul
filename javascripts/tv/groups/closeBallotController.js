@@ -1,11 +1,9 @@
 angular.module('mediaMogulApp')
 .controller('closeBallotController', ['$log', 'LockService', '$http', '$uibModalInstance',
-            'tv_group_ballot', 'series', 'DateService', 'GroupService', 'tv_group',
-  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, DateService,
-           GroupService, tv_group) {
+            'tv_group_ballot', 'series', 'DateService', 'tv_group', 'BallotService',
+  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, DateService, tv_group, BallotService) {
     const self = this;
     self.LockService = LockService;
-    self.GroupService = GroupService;
     self.DateService = DateService;
     self.series = series;
     self.tv_group = tv_group;
@@ -32,7 +30,7 @@ angular.module('mediaMogulApp')
     };
 
     self.closeBallot = function() {
-      self.GroupService.closeBallot(tv_group_ballot).then(() => $uibModalInstance.close());
+      BallotService.closeBallot(tv_group_ballot).then(() => $uibModalInstance.close());
     };
 
     self.cancel = function() {

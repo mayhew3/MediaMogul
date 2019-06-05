@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
 .controller('submitVoteController', ['$log', 'LockService', '$http', '$uibModalInstance',
             'tv_group_ballot', 'series', 'tv_group', 'DateService', 'ArrayService', 'GroupService',
-            'SeriesDetailService', '$q',
+            'SeriesDetailService', '$q', 'BallotService',
   function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, tv_group, DateService,
-           ArrayService, GroupService, SeriesDetailService, $q) {
+           ArrayService, GroupService, SeriesDetailService, $q, BallotService) {
     const self = this;
     self.LockService = LockService;
     self.GroupService = GroupService;
@@ -199,7 +199,7 @@ angular.module('mediaMogulApp')
     function maybeCloseBallot() {
       return new Promise(resolve => {
         if (tv_group.members.length === tv_group_ballot.votes.length) {
-          self.GroupService.closeBallot(tv_group_ballot);
+          BallotService.closeBallot(tv_group_ballot);
         } else {
           resolve();
         }

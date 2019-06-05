@@ -1,8 +1,9 @@
 angular.module('mediaMogulApp')
 .controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
             'NavHelperService', 'ArrayService', 'GroupService', 'EpisodeService', '$state', '$q', 'GenreService',
+            'BallotService', 'DateService',
   function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService, ArrayService,
-           GroupService, EpisodeService, $state, $q, GenreService) {
+           GroupService, EpisodeService, $state, $q, GenreService, BallotService, DateService) {
     const self = this;
 
     self.LockService = LockService;
@@ -80,6 +81,20 @@ angular.module('mediaMogulApp')
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
+        textOverlay: textOverlay
+      },
+      {
+        headerText: "Needs Refresh Vote",
+        tvFilter: needsAbsenceRefresh,
+        posterSize: 'large',
+        sort: {
+          field: 'title',
+          direction: 'desc'
+        },
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
+        panelFormat: 'panel-info',
+        subtitle: absenceRefreshSubtitle,
         textOverlay: textOverlay
       },
       {
@@ -318,11 +333,10 @@ angular.module('mediaMogulApp')
     }
 
     function inProgressFilter(series) {
-      const isInProgress = !hasOpenBallots(series) &&
+      return !hasOpenBallots(series) &&
         hasUnwatchedEpisodes(series) &&
         hasWatchedEpisodes(series) &&
         (airedRecently(series) || watchedRecently(series));
-      return isInProgress;
     }
 
     function upcomingFilter(series) {
@@ -391,7 +405,16 @@ angular.module('mediaMogulApp')
     }
 
     function needsFirstVote(series) {
-      return self.LockService.isAdmin() && hasNeverBeenVotedOn(series) && hasUnwatchedEpisodes(series);
+      return hasNeverBeenVotedOn(series) && hasUnwatchedEpisodes(series);
+    }
+
+    function needsAbsenceRefresh(series) {
+      return shouldGetAbsenceVote(series) && hasUnwatchedEpisodes(series) && !hasOpenBallots(series);
+    }
+
+    function absenceRefreshSubtitle(series) {
+      const lastVoteDate = getLastVoteDate(series);
+      return !lastVoteDate ? '' : moment(lastVoteDate).fromNow();
     }
 
     function hasNeverBeenVotedOn(series) {
@@ -418,6 +441,22 @@ angular.module('mediaMogulApp')
 
     function isMidSeason(series) {
       return !!getGroupSeries(series).midSeason;
+    }
+
+    function getLastVoteDate(series) {
+      return BallotService.getLastVoteDate(getGroupSeries(series));
+    }
+
+    function getAbsenceThreshold(series) {
+      const score = getGroupScore(series);
+      const tempThreshold = (100-score) * 36.5;
+      return tempThreshold < 365 ? 365 : tempThreshold;
+    }
+
+    function shouldGetAbsenceVote(series) {
+      const lastVoteDate = getLastVoteDate(series);
+      const showThreshold = getAbsenceThreshold(series);
+      return !!lastVoteDate && !DateService.dateIsWithinLastDays(lastVoteDate, showThreshold);
     }
 
     // BALLOT HELPERS
