@@ -147,6 +147,10 @@ angular.module('mediaMogulApp')
       return !!self.series.personSeries && !!self.series.personSeries.my_rating;
     };
 
+    self.showPreviousVotesSection = function() {
+      return !self.isLoading() && !!self.voteInfos && self.voteInfos.length > 0;
+    };
+
     function getBallotCount() {
       const ballots = [];
       _.each(self.voteInfos, voteInfo => ArrayService.addToArray(ballots, voteInfo.ballots));

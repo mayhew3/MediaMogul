@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
-.controller('addBallotController', ['$log', 'LockService', '$http', '$uibModalInstance',
-            'series', 'DateService', 'ArrayService', 'groupSeries', 'starting_reason',
+.controller('addBallotController', ['$log', 'LockService', '$http', '$uibModalInstance', 'series',
+            'DateService', 'ArrayService', 'groupSeries', 'starting_reason', 'EpisodeService', '$q',
   function($log, LockService, $http, $uibModalInstance, series, DateService, ArrayService,
-           groupSeries, starting_reason) {
+           groupSeries, starting_reason, EpisodeService, $q) {
     const self = this;
     self.LockService = LockService;
     self.DateService = DateService;
@@ -17,11 +17,35 @@ angular.module('mediaMogulApp')
       'Absence Refresh'
     ];
 
+    self.inputTrailer = null;
+
+    self.needsTrailer = function() {
+      return !self.series.trailer_link;
+    };
+
+    function maybeUpdateTrailer() {
+      return $q(resolve => {
+        if (!!self.inputTrailer) {
+          const changedFields = {
+            trailer_link: self.inputTrailer
+          };
+          EpisodeService.updateSeries(self.series.id, changedFields).then(() => {
+            self.series.trailer_link = self.inputTrailer;
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      });
+    }
+
     self.canSubmit = function() {
       return ArrayService.exists(self.reason);
     };
 
     self.addBallot = function() {
+      maybeUpdateTrailer();
+
       const payload = {
         reason: self.reason,
         tv_group_series_id: self.groupSeries.tv_group_series_id
