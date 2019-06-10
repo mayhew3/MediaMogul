@@ -32,6 +32,10 @@
       return !self.posterInfo.badgeColor ? 'posterBadgeGreen' : self.posterInfo.badgeColor;
     };
 
+    self.scoreValue = function() {
+      return !!self.posterInfo.scoreValue ? self.posterInfo.scoreValue(self.show) : null;
+    };
+
     function hasPersonPoster() {
       return !!self.show.my_poster;
     }
