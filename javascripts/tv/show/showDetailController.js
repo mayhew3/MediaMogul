@@ -1137,6 +1137,15 @@ angular.module('mediaMogulApp')
       }
     }
 
+    self.hasClosedBallot = function() {
+      return !!getMostRecentClosedBallot();
+    };
+
+    self.getLastVoteTimeAgo = function() {
+      const lastVoteDate = BallotService.getLastVoteDate(getGroupSeries());
+      return !lastVoteDate ? '' : moment(lastVoteDate).fromNow();
+    };
+
     self.getOutstandingVoteCount = function() {
       const ballot = getOpenBallotForShow();
       return ArrayService.exists(ballot) ?
