@@ -130,6 +130,14 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.getViewerNameShort = function() {
+      if (self.viewer.type === 'my') {
+        return 'Me';
+      } else {
+        return GroupService.getGroupWithID(getOptionalGroupID()).name;
+      }
+    };
+
     function getOptionalGroup() {
       const optionalGroupID = getOptionalGroupID();
       return !optionalGroupID ? undefined : GroupService.getGroupWithID(optionalGroupID);
