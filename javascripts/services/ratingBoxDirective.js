@@ -7,7 +7,7 @@
   function ratingBox() {
     return {
       templateUrl: 'views/ratingBox.html',
-      controller: ['$scope', '$filter', 'ArrayService', ratingBoxController],
+      controller: ['$scope', '$filter', 'ArrayService', 'ColorTransformService', ratingBoxController],
       controllerAs: 'ctrl',
       scope: {
         value: '=',
@@ -17,7 +17,7 @@
     }
   }
 
-  function ratingBoxController($scope, $filter, ArrayService) {
+  function ratingBoxController($scope, $filter, ArrayService, ColorTransformService) {
     const self = this;
 
     self.value = $scope.value;
@@ -48,17 +48,8 @@
 
 
     self.colorStyle = function() {
-      const scaledValue = self.value;
-      const halfVal = self.maxValue / 2;
-
-      let hue = (scaledValue <= halfVal) ? scaledValue * 0.5 : (halfVal * 0.5 + (scaledValue - halfVal) * 4.5);
-      let saturation = scaledValue === null ? '0%' : '50%';
-      return {
-        'background-color': 'hsla(' + hue + ', ' + saturation + ', 42%, 1)'
-      }
+      return ColorTransformService.colorStyle(self.value, self.maxValue);
     };
-
-
 
   }
 })();
