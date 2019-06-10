@@ -11,13 +11,24 @@
 
   <div class="col-md-9 col-sm-8 col-xs-7">
 
-    <div class="row">
+    <div class="row seriesDetailElement">
       <div class="col-md-8 col-sm-11 col-xs-12">
         <label for="reasonInput">Reason</label>
         <select id="reasonInput"
                 ng-model="ctrl.reason"
                 ng-options="x for x in ctrl.possibleReasons"
                 class="form-control darkInput"></select>
+      </div>
+    </div>
+
+    <div class="row seriesDetailElement" ng-if="ctrl.needsTrailer()">
+      <div class="col-md-8 col-sm-11 col-xs-12">
+        (Series has no trailer yet! Paste link to trailer video below to give voters a sense for the show!)<br><br>
+        <label for="trailerInput" class="control-label">Trailer Link:</label>
+        <input type="text"
+               class="form-control"
+               id="trailerInput"
+               ng-model="ctrl.inputTrailer"/>
       </div>
     </div>
 
