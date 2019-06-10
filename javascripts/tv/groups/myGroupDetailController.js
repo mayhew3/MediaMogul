@@ -124,7 +124,6 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         tvFilter: inProgressFilter,
-        showEmpty: true,
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         scoreValue: getGroupScore,
@@ -144,60 +143,18 @@ angular.module('mediaMogulApp')
         subtitle: nextAirDate
       },
       {
-        headerText: "Newly Added",
+        headerText: 'Voted On',
         sort: {
           field: getGroupScore,
           direction: 'desc'
         },
-        tvFilter: newlyAddedFilter,
-        posterSize: 'large',
+        tvFilter: readyToPullFilter,
         badgeValue: getUnwatched,
         scoreValue: getGroupScore,
+        showPanel: () => getActiveCount() < 2,
+        pageLimit: 6,
         showLoading: self.showLoading,
-        seriesFunction: self.getGroupShows,
-        pageLimit: 12
-      },
-      {
-        headerText: "Mid-Season",
-        sort: {
-          field: getGroupScore,
-          direction: 'desc'
-        },
-        tvFilter: droppedOffFilter,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        scoreValue: getGroupScore,
-        showLoading: self.showLoading,
-        seriesFunction: self.getGroupShows,
-        pageLimit: 12
-      },
-      {
-        headerText: "Between Seasons",
-        sort: {
-          field: getGroupScore,
-          direction: 'desc'
-        },
-        tvFilter: newSeasonFilter,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        scoreValue: getGroupScore,
-        showLoading: self.showLoading,
-        seriesFunction: self.getGroupShows,
-        pageLimit: 12
-      },
-      {
-        headerText: "To Start",
-        sort: {
-          field: getGroupScore,
-          direction: 'desc'
-        },
-        tvFilter: toStartFilter,
-        posterSize: 'large',
-        badgeValue: getUnwatched,
-        scoreValue: getGroupScore,
-        showLoading: self.showLoading,
-        seriesFunction: self.getGroupShows,
-        pageLimit: 12
+        seriesFunction: self.getGroupShows
       },
       {
         headerText: "Up to Date",
@@ -336,7 +293,13 @@ angular.module('mediaMogulApp')
     }
 
     function allVotedFilter(series) {
-      return !hasNeverBeenVotedOn(series);
+      return hasClosedBallot(series);
+    }
+
+    function readyToPullFilter(series) {
+      return hasClosedBallot(series) &&
+        hasUnwatchedEpisodes(series) &&
+        !inProgressFilter(series);
     }
 
     function awaitingVotesFilter(series) {
@@ -345,28 +308,28 @@ angular.module('mediaMogulApp')
     }
 
     function inProgressFilter(series) {
-      return !hasOpenBallots(series) &&
+      return hasClosedBallot(series) &&
         hasUnwatchedEpisodes(series) &&
         hasWatchedEpisodes(series) &&
-        (airedRecently(series) || watchedRecently(series));
+        (airedRecently(series) || watchedRecently(series) || newlyAddedFilter(series));
     }
 
     function upcomingFilter(series) {
-      return !hasOpenBallots(series) &&
+      return hasClosedBallot(series) &&
         dateIsInNextDays(series.nextAirDate, 8) &&
         (!hasUnwatchedEpisodes(series) ||
           inProgressFilter(series));
     }
 
     function newlyAddedFilter(series) {
-      return !hasOpenBallots(series) &&
+      return hasClosedBallot(series) &&
         hasUnwatchedEpisodes(series) &&
         addedRecently(series) &&
         !hasWatchedEpisodes(series);
     }
 
     function droppedOffFilter(series) {
-      return !hasOpenBallots(series) &&
+      return hasClosedBallot(series) &&
         hasUnwatchedEpisodes(series) &&
         isMidSeason(series) &&
         hasWatchedEpisodes(series) &&
@@ -374,7 +337,7 @@ angular.module('mediaMogulApp')
     }
 
     function newSeasonFilter(series) {
-      return !hasOpenBallots(series) &&
+      return hasClosedBallot(series) &&
         hasUnwatchedEpisodes(series) &&
         !isMidSeason(series) &&
         hasWatchedEpisodes(series) &&
@@ -382,15 +345,14 @@ angular.module('mediaMogulApp')
     }
 
     function toStartFilter(series) {
-      return !hasOpenBallots(series) &&
+      return hasClosedBallot(series) &&
         hasUnwatchedEpisodes(series) &&
         !hasWatchedEpisodes(series) &&
         !newlyAddedFilter(series);
     }
 
     function upToDateFilter(series) {
-      return !hasOpenBallots(series) &&
-        !hasUnwatchedEpisodes(series) &&
+      return !hasUnwatchedEpisodes(series) &&
         !upcomingFilter(series);
     }
 
@@ -434,6 +396,10 @@ angular.module('mediaMogulApp')
       return !ArrayService.exists(ballots) || ballots.length === 0;
     }
 
+    function hasClosedBallot(series) {
+      return !!BallotService.getMostRecentClosedBallot(getGroupSeries(series));
+    }
+
     function isAwaitingMyVote(series) {
       const ballot = getOpenBallotForShow(series);
       if (!!ballot) {
@@ -469,6 +435,12 @@ angular.module('mediaMogulApp')
       const lastVoteDate = getLastVoteDate(series);
       const showThreshold = getAbsenceThreshold(series);
       return !!lastVoteDate && !DateService.dateIsWithinLastDays(lastVoteDate, showThreshold);
+    }
+
+    function getActiveCount() {
+      const ourShows = self.getGroupShows();
+      const allFiltered = _.filter(ourShows, inProgressFilter);
+      return allFiltered.length;
     }
 
     // BALLOT HELPERS

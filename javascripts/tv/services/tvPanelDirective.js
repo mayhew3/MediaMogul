@@ -77,10 +77,11 @@
     };
 
     self.showPanel = function() {
-      return self.showLoading() ||
-          self.showError() ||
-          (self.showEmpty() && self.totalItems() === 0) ||
-          self.totalItems() > 0;
+      const baseCondition = self.showLoading() ||
+        self.showError() ||
+        (self.showEmpty() && self.totalItems() === 0) ||
+        self.totalItems() > 0;
+      return baseCondition && extraShowPanelCondition();
     };
 
     self.getShows = function() {
@@ -135,6 +136,10 @@
     self.reverseSort = function() {
       return self.panelInfo.sort.direction === 'desc';
     };
+
+    function extraShowPanelCondition() {
+      return !self.panelInfo.showPanel ? true : self.panelInfo.showPanel();
+    }
 
     self.getGroupSeries = function(series) {
       return GroupService.getGroupSeries(series, self.group.id);
