@@ -7,7 +7,7 @@
   function tvPoster() {
     return {
       templateUrl: 'views/tv/tvPoster.html',
-      controller: ['$scope', 'ArrayService', tvPosterController],
+      controller: ['$scope', 'ArrayService', 'ColorTransformService', tvPosterController],
       controllerAs: 'ctrl',
       scope: {
         show: '=',
@@ -17,7 +17,7 @@
     }
   }
 
-  function tvPosterController($scope, ArrayService) {
+  function tvPosterController($scope, ArrayService, ColorTransformService) {
     const self = this;
 
     self.show = $scope.show;
@@ -33,7 +33,15 @@
     };
 
     self.scoreValue = function() {
-      return !!self.posterInfo.scoreValue ? self.posterInfo.scoreValue(self.show) : null;
+      return !!self.posterInfo.scoreValue ? Math.round(self.posterInfo.scoreValue(self.show)) : null;
+    };
+
+    self.showScore = function() {
+      return !!self.posterInfo.scoreValue && self.posterInfo.scoreValue(self.show) > 0;
+    };
+
+    self.getScoreColor = function() {
+      return ColorTransformService.colorStyle(self.posterInfo.scoreValue(self.show), 100);
     };
 
     function hasPersonPoster() {
