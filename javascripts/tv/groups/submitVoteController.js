@@ -196,12 +196,15 @@ angular.module('mediaMogulApp')
 
         maybeCloseBallot().then(function() {
           $uibModalInstance.close();
+        }).catch((err) => {
+          console.error(err);
+          $uibModalInstance.close()
         });
       });
     };
 
     function maybeCloseBallot() {
-      return new Promise(resolve => {
+      return $q(resolve => {
         if (tv_group.members.length === tv_group_ballot.votes.length) {
           BallotService.closeBallot(tv_group_ballot);
         } else {
