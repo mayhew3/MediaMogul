@@ -51,6 +51,11 @@
           </div>
         </div>
 
+        <div ng-if="ctrl.hasClosedBallot()"
+            class="col-sm-12 col-xs-6 seriesDetailElement">
+          Last Vote: {{ctrl.getLastVoteTimeAgo()}}
+        </div>
+
         <!-- MY SHOWS TOGGLE -->
         <div class="col-sm-11 col-xs-6 seriesDetailElement">
           <checkmark-button
