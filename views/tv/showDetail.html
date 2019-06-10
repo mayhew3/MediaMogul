@@ -165,6 +165,26 @@
                 </a>
               </li>
               <li role="menuitem"
+                  ng-if="!ctrl.hasOpenBallot() && ctrl.isInGroupShows()">
+                <a href="#"
+                   style="padding-left: 15px;"
+                   ng-click="ctrl.addBallot()">
+                  <div class="dropdownLeftAlign">
+                    Add Ballot ({{ctrl.getViewerNameShort()}})
+                  </div>
+                </a>
+              </li>
+              <li role="menuitem"
+                  ng-if="ctrl.hasOpenBallot() && ctrl.isInGroupShows()">
+                <a href="#"
+                   style="padding-left: 15px;"
+                   ng-click="ctrl.closeBallot()">
+                  <div class="dropdownLeftAlign">
+                    Close Ballot ({{ctrl.getViewerNameShort()}})
+                  </div>
+                </a>
+              </li>
+              <li role="menuitem"
                   class="adminMenuOption"
                   ng-if="ctrl.LockService.isAdmin()">
                 <a href="#"
@@ -172,28 +192,6 @@
                    ng-click="ctrl.openEditSeries()">
                   <div class="dropdownLeftAlign">
                     Edit
-                  </div>
-                </a>
-              </li>
-              <li role="menuitem"
-                  class="adminMenuOption"
-                  ng-if="!ctrl.hasOpenBallot() && ctrl.isInGroupShows()">
-                <a href="#"
-                   style="padding-left: 15px;"
-                   ng-click="ctrl.addBallot()">
-                  <div class="dropdownLeftAlign">
-                    Add Ballot
-                  </div>
-                </a>
-              </li>
-              <li role="menuitem"
-                  class="adminMenuOption"
-                  ng-if="ctrl.hasOpenBallot() && ctrl.isInGroupShows()">
-                <a href="#"
-                   style="padding-left: 15px;"
-                   ng-click="ctrl.closeBallot()">
-                  <div class="dropdownLeftAlign">
-                    Close Ballot
                   </div>
                 </a>
               </li>
