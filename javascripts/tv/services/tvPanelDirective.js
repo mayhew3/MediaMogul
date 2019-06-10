@@ -160,6 +160,7 @@
       clickOverride: self.panelInfo.clickOverride,
       badgeValue: self.panelInfo.badgeValue,
       badgeColor: self.panelInfo.badgeColor,
+      scoreValue: self.panelInfo.scoreValue,
       extraStyles: self.panelInfo.extraStyles,
       textOverlay: self.panelInfo.textOverlay
     };

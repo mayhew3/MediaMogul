@@ -127,6 +127,7 @@ angular.module('mediaMogulApp')
         showEmpty: true,
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
+        scoreValue: getGroupScore,
         posterSize: 'large',
         badgeValue: getUnwatched
       },
@@ -151,6 +152,7 @@ angular.module('mediaMogulApp')
         tvFilter: newlyAddedFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        scoreValue: getGroupScore,
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         pageLimit: 12
@@ -164,6 +166,7 @@ angular.module('mediaMogulApp')
         tvFilter: droppedOffFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        scoreValue: getGroupScore,
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         pageLimit: 12
@@ -177,6 +180,7 @@ angular.module('mediaMogulApp')
         tvFilter: newSeasonFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        scoreValue: getGroupScore,
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         pageLimit: 12
@@ -190,6 +194,7 @@ angular.module('mediaMogulApp')
         tvFilter: toStartFilter,
         posterSize: 'large',
         badgeValue: getUnwatched,
+        scoreValue: getGroupScore,
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         pageLimit: 12
@@ -307,6 +312,7 @@ angular.module('mediaMogulApp')
       filters: filters,
       showEmpty: true,
       badgeValue: getUnwatched,
+      scoreValue: getGroupScore,
       pageLimit: 18,
       showLoading: self.showLoading,
       seriesFunction: self.getGroupShows
@@ -330,7 +336,7 @@ angular.module('mediaMogulApp')
     }
 
     function allVotedFilter(series) {
-      return !hasOpenBallots(series) && !hasNeverBeenVotedOn(series);
+      return !hasNeverBeenVotedOn(series);
     }
 
     function awaitingVotesFilter(series) {

@@ -19,6 +19,13 @@
     <span ng-bind="ctrl.badgeValue()"></span>
   </div>
 
+  <div class="posterScore"
+       ng-if="ctrl.showScore()"
+       ng-style="ctrl.getScoreColor()">
+    <span ng-bind="ctrl.scoreValue()"></span>
+  </div>
+
+
   <div class="centeredInFrame posterTitle" ng-show="ctrl.showTitleOverPoster()">
     <span ng-bind="ctrl.show.title"></span>
   </div>
