@@ -206,7 +206,7 @@ angular.module('mediaMogulApp')
     function maybeCloseBallot() {
       return $q(resolve => {
         if (tv_group.members.length === tv_group_ballot.votes.length) {
-          BallotService.closeBallot(tv_group_ballot);
+          BallotService.closeBallot(tv_group_ballot).then(() => resolve());
         } else {
           resolve();
         }
