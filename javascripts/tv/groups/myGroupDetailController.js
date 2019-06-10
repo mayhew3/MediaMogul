@@ -330,7 +330,7 @@ angular.module('mediaMogulApp')
     }
 
     function allVotedFilter(series) {
-      return !hasOpenBallots(series);
+      return !hasOpenBallots(series) && !hasNeverBeenVotedOn(series);
     }
 
     function awaitingVotesFilter(series) {
