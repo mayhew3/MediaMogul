@@ -192,9 +192,8 @@ angular.module('mediaMogulApp')
           vote_value: payload.vote_value,
           person_id: payload.person_id
         });
-        self.groupSeries.group_score = result.data.group_score;
 
-        maybeCloseBallot().then(function() {
+        maybeCloseBallot(result.data.group_score).then(function() {
           $uibModalInstance.close();
         }).catch((err) => {
           console.error(err);
@@ -203,10 +202,13 @@ angular.module('mediaMogulApp')
       });
     };
 
-    function maybeCloseBallot() {
+    function maybeCloseBallot(group_score) {
       return $q(resolve => {
         if (tv_group.members.length === tv_group_ballot.votes.length) {
-          BallotService.closeBallot(tv_group_ballot).then(() => resolve());
+          BallotService.closeBallot(tv_group_ballot).then(() => {
+            self.groupSeries.group_score = group_score;
+            resolve();
+          });
         } else {
           resolve();
         }
