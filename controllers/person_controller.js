@@ -828,15 +828,7 @@ function attachBallotsToGroupSeries(series, groupSeries) {
         });
 
         groupSeries.ballots = ballotResults;
-
-        const mostRecentBallot = ballotResults[0];
-
-        if (ArrayService.exists(mostRecentBallot)) {
-          const vote_score = groups_controller.calculateGroupRating(mostRecentBallot);
-          groupSeries.group_score = vote_score === null ? series.metacritic : vote_score;
-        } else {
-          groupSeries.group_score = null;
-        }
+        groupSeries.group_score = groups_controller.calculateGroupRatingForGroupSeries(groupSeries);
 
         resolve();
       });

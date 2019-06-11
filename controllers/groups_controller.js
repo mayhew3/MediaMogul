@@ -818,8 +818,7 @@ exports.getBallots = function(tv_group_id, response, seriesResults) {
 
           group.ballots = ballots;
 
-          const vote_score = exports.calculateGroupRating(ballots[0]);
-          group.group_score = vote_score === null ? series.metacritic : vote_score;
+          group.group_score = exports.calculateGroupRatingForGroupSeries(group);
         }
       }
 
@@ -882,6 +881,11 @@ exports.submitVote = function(request, response) {
   });
 };
 
+exports.calculateGroupRatingForGroupSeries = function(groupSeries) {
+  const lastBallot = getMostRecentClosedBallot(groupSeries.ballots);
+  return !lastBallot ? null : exports.calculateGroupRating(lastBallot);
+};
+
 exports.calculateGroupRating = function(ballot) {
   const votes = ballot.votes;
 
@@ -896,3 +900,8 @@ exports.calculateGroupRating = function(ballot) {
 
   return ((average * 2) + (minimum * 3)) / 5;
 };
+
+
+function getMostRecentClosedBallot(ballots) {
+  return _.find(ballots, ballot => !!ballot.voting_closed);
+}
