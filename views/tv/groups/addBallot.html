@@ -39,9 +39,12 @@
 <div class="modal-footer">
   <input type="button"
          class="btn btn-success"
-         ng-disabled="!ctrl.canSubmit()"
          ng-click="ctrl.addBallot()"
-         value="Submit">
+         value="Add Ballot">
+  <input type="button"
+         class="btn btn-warning"
+         ng-click="ctrl.skipBallot()"
+         value="Skip Ballot">
   <input type="button"
          class="btn btn-default"
          ng-click="ctrl.cancel()"
