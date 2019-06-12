@@ -57,6 +57,7 @@ angular.module('mediaMogulApp')
           voting_open: new Date,
           voting_closed: null,
           reason: self.reason,
+          skip: false,
           votes: []
         };
         if (!_.isArray(self.groupSeries.ballots)) {

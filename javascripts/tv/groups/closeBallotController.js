@@ -30,7 +30,11 @@ angular.module('mediaMogulApp')
     };
 
     self.closeBallot = function() {
-      BallotService.closeBallot(tv_group_ballot).then(() => $uibModalInstance.close());
+      BallotService.closeBallot(tv_group_ballot, false).then(() => $uibModalInstance.close());
+    };
+
+    self.skipBallot = function() {
+      BallotService.closeBallot(tv_group_ballot, true).then(() => $uibModalInstance.close());
     };
 
     self.cancel = function() {
