@@ -131,6 +131,34 @@ angular.module('mediaMogulApp')
         badgeValue: getUnwatched
       },
       {
+        headerText: 'Voted On',
+        sort: {
+          field: getGroupScore,
+          direction: 'desc'
+        },
+        tvFilter: votedOnFilter,
+        badgeValue: getUnwatched,
+        scoreValue: getGroupScore,
+        showPanel: () => getActiveCount() < 2,
+        pageLimit: 6,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows
+      },
+      {
+        headerText: 'Not Voted On',
+        sort: {
+          field: getGroupScore,
+          direction: 'desc'
+        },
+        tvFilter: notVotedOnFilter,
+        badgeValue: getUnwatched,
+        scoreValue: getGroupScore,
+        showPanel: () => getActiveCount() < 2,
+        pageLimit: 6,
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows
+      },
+      {
         headerText: "Recently Added",
         sort: {
           field: getGroupScore,
@@ -155,20 +183,6 @@ angular.module('mediaMogulApp')
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         subtitle: nextAirDate
-      },
-      {
-        headerText: 'Voted On',
-        sort: {
-          field: getGroupScore,
-          direction: 'desc'
-        },
-        tvFilter: readyToPullFilter,
-        badgeValue: getUnwatched,
-        scoreValue: getGroupScore,
-        showPanel: () => getActiveCount() < 2,
-        pageLimit: 6,
-        showLoading: self.showLoading,
-        seriesFunction: self.getGroupShows
       },
       {
         headerText: "Up to Date",
@@ -310,11 +324,19 @@ angular.module('mediaMogulApp')
       return doesntHaveOnlyOneOpenBallot(series);
     }
 
-    function readyToPullFilter(series) {
-      return doesntHaveOnlyOneOpenBallot(series) &&
+    function votedOnFilter(series) {
+      return hasClosedBallot(series) &&
         hasUnwatchedEpisodes(series) &&
         !topQueueFilter(series) &&
         !newlyAddedFilter(series);
+    }
+
+    function notVotedOnFilter(series) {
+      return doesntHaveOnlyOneOpenBallot(series) &&
+        hasUnwatchedEpisodes(series) &&
+        !topQueueFilter(series) &&
+        !newlyAddedFilter(series) &&
+        !votedOnFilter(series);
     }
 
     function awaitingVotesFilter(series) {
@@ -394,6 +416,10 @@ angular.module('mediaMogulApp')
     function hasNeverBeenVotedOn(series) {
       const ballots = getBallots(series);
       return !ArrayService.exists(ballots) || ballots.length === 0;
+    }
+
+    function hasClosedBallot(series) {
+      return !!BallotService.getMostRecentClosedBallot(getGroupSeries(series));
     }
 
     function isAwaitingMyVote(series) {
