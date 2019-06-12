@@ -336,7 +336,8 @@ angular.module('mediaMogulApp')
         hasUnwatchedEpisodes(series) &&
         !topQueueFilter(series) &&
         !newlyAddedFilter(series) &&
-        !votedOnFilter(series);
+        !votedOnFilter(series) &&
+        !needsFirstVote(series);
     }
 
     function awaitingVotesFilter(series) {
