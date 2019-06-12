@@ -132,7 +132,6 @@ exports.getGroupShows = function(request, response) {
     "              and sg.retired = $1) as genres, " +
     "tgs.date_added, " +
     "tgs.id as tv_group_series_id, " +
-    "s.metacritic AS group_score, " +
     "s.trailer_link, " +
     "(SELECT COUNT(1) " +
     "    from episode e " +
@@ -218,7 +217,6 @@ function extractSingleGroupSeries(series, tv_group_id) {
     'tv_group_series_id',
     'last_watched',
     'date_added',
-    'group_score',
     'first_unwatched'
   ];
   const group = {
@@ -335,7 +333,6 @@ exports.addToGroupShows = function(request, response) {
       "s.cloud_poster, " +
       "tgs.date_added, " +
       "tgs.id as tv_group_series_id, " +
-      "s.metacritic AS group_score, " +
       "s.trailer_link, " +
       "(SELECT COUNT(1) " +
       "    from episode e " +
