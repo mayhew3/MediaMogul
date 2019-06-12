@@ -830,14 +830,17 @@ exports.getBallots = function(tv_group_id, response, seriesResults) {
 exports.addBallot = function(request, response) {
   const tv_group_series_id = request.body.tv_group_series_id;
   const reason = request.body.reason;
+  const skip = request.body.skip;
 
-  const sql = 'INSERT INTO tv_group_ballot (voting_open, reason, tv_group_series_id) ' +
-    'VALUES (now(), $1, $2) ' +
+  const sql = 'INSERT INTO tv_group_ballot (voting_open, reason, tv_group_series_id, skip, voting_closed) ' +
+    'VALUES (now(), $1, $2, $3, $4) ' +
     'RETURNING id ';
 
   const values = [
     reason,
-    tv_group_series_id
+    tv_group_series_id,
+    skip,
+    !skip ? null : new Date()
   ];
 
   db.selectSendResponse(response, sql, values);

@@ -39,25 +39,31 @@ angular.module('mediaMogulApp')
       });
     }
 
-    self.canSubmit = function() {
-      return ArrayService.exists(self.reason);
+    self.skipBallot = function() {
+      addBallotWithSkipValue(true);
     };
 
     self.addBallot = function() {
+      addBallotWithSkipValue(false);
+    };
+
+    function addBallotWithSkipValue(skip) {
       maybeUpdateTrailer();
 
       const payload = {
         reason: self.reason,
-        tv_group_series_id: self.groupSeries.tv_group_series_id
+        tv_group_series_id: self.groupSeries.tv_group_series_id,
+        skip: skip
       };
 
       $http.post('/api/ballots', payload).then(function(result) {
+        const submitDate = new Date;
         const ballot = {
           id: result.data[0].id,
-          voting_open: new Date,
-          voting_closed: null,
+          voting_open: submitDate,
+          voting_closed: !skip ? null : submitDate,
           reason: self.reason,
-          skip: false,
+          skip: skip,
           votes: []
         };
         if (!_.isArray(self.groupSeries.ballots)) {
@@ -67,7 +73,7 @@ angular.module('mediaMogulApp')
         }
         $uibModalInstance.close();
       });
-    };
+    }
 
     self.cancel = function() {
       $uibModalInstance.dismiss();
