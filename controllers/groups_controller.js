@@ -906,5 +906,5 @@ exports.calculateGroupRating = function(ballot) {
 
 
 function getMostRecentClosedBallot(ballots) {
-  return _.find(ballots, ballot => !!ballot.voting_closed);
+  return _.find(ballots, ballot => !!ballot.voting_closed && !ballot.skip);
 }
