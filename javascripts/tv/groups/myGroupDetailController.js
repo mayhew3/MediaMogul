@@ -432,7 +432,7 @@ angular.module('mediaMogulApp')
     }
 
     function shouldGetAbsenceVote(series) {
-      const lastVoteDate = getLastVoteDate(series);
+      const lastVoteDate = BallotService.getLastVoteOrSkipDate(series);
       const showThreshold = getAbsenceThreshold(series);
       return !!lastVoteDate && !DateService.dateIsWithinLastDays(lastVoteDate, showThreshold);
     }

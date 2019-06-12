@@ -87,7 +87,7 @@ angular.module('mediaMogulApp')
       let firstUsed = false;
 
       _.each(self.series.groups, group => {
-        const pastBallots = _.filter(group.ballots, ballot => !!ballot.voting_closed);
+        const pastBallots = _.filter(group.ballots, ballot => !!ballot.voting_closed && !ballot.skip);
 
         if (pastBallots.length > 0) {
 
