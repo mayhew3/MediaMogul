@@ -1,0 +1,167 @@
+// Media_mogul 3.4.1
+// Bootswatch
+// -----------------------------------------------------
+
+@web-font-path: "https://fonts.googleapis.com/css?family=Open+Sans:600,800";
+
+.web-font(@path) {
+  @import (css) url("@{path}");
+}
+.web-font(@web-font-path);
+
+// Navbar =====================================================================
+
+.navbar {
+
+  &-default {
+
+    .badge {
+      background-color: #fff;
+      color: @navbar-default-bg;
+    }
+  }
+
+  &-inverse {
+
+    .badge {
+      background-color: #fff;
+      color: @navbar-inverse-bg;
+    }
+  }
+}
+
+@media (max-width: @grid-float-breakpoint-max) {
+
+  .navbar {
+
+    .dropdown-menu {
+      a {
+        color: #fff;
+      }
+    }
+  }
+}
+
+
+// Buttons ====================================================================
+
+.btn-tv-primary {
+  background-color: @btn-tv-primary-bg;
+
+  &:hover {
+    background-color: darken(@btn-tv-primary-bg, 10%);
+    color : @btn-tv-primary-color;
+  }
+
+  &:focus {
+    color : @btn-tv-primary-color;
+  }
+
+  color : @btn-tv-primary-color;
+}
+
+.btn {
+  &:focus {
+    outline: none;
+  }
+}
+
+.btn-default {
+  &:hover {
+    background-color: @gray;
+    border-color: @gray-light;
+  }
+
+  &:active {
+    background-color: @gray-dark;
+  }
+
+  &:focus {
+    background-color: @gray-dark;
+    border-color: @gray;
+  }
+}
+
+.btn-primary {
+  &:hover {
+    color: @gray-darker;
+    border-color: @white;
+  }
+
+  &:focus {
+    background-color: @gray-lighter;
+    border-color: @gray-light;
+  }
+}
+
+// Typography =================================================================
+
+// Tables =====================================================================
+
+// Forms ======================================================================
+
+// Navs =======================================================================
+
+.nav-tabs li  a{
+  color: @gray-lighter;
+}
+
+.nav-tabs li.active a {
+  background-color: @gray !important;
+}
+
+// Indicators =================================================================
+
+// Progress bars ==============================================================
+
+// Containers =================================================================
+
+.tile-watched {
+  background-color: fade(@wild-blue, 30%);
+  color: lighten(@wild-blue, 40%);
+
+  &:hover {
+    border-color: lighten(@wild-blue, 40%);
+  }
+}
+
+.tile-ready {
+  background-color: fade(@full-success, 30%);
+  color: lighten(@full-success, 40%);
+
+  &:hover {
+    border-color: lighten(@full-success, 40%);
+  }
+}
+
+.tile-unaired {
+  background-color: fade(@full-info, 30%);
+  color: lighten(@full-info, 40%);
+
+  &:hover {
+    border-color: lighten(@full-info, 40%);
+  }
+}
+
+.tile-skipped {
+  background-color: fade(@full-warning, 30%);
+  color: lighten(@full-warning, 40%);
+
+  &:hover {
+    border-color: lighten(@full-warning, 40%);
+  }
+}
+
+.selectedEpisodeTile {
+  border-color: @gray-lighter;
+  border-width: 2px;
+}
+
+.dropdown-menu > li > a {
+  &:focus {
+    color: @gray-dark;
+    text-decoration: none;
+    background-color: @gray-lighter;
+    outline: 0;
+  }
+}
