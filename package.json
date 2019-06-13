@@ -4,7 +4,8 @@
   "description": "Tame your media",
   "main": "index.js",
   "scripts": {
-    "start": "node bin/www.js"
+    "start": "node bin/www.js",
+    "postinstall": "grunt"
   },
   "dependencies": {
     "angular": "^1.7.5",
