@@ -7,3 +7,4 @@ sh.exe.stackdump
 bower_components
 javascripts/env_local.js
 npm-debug.log
+stylesheets/dist
