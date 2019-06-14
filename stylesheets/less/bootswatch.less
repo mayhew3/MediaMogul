@@ -152,6 +152,15 @@
   }
 }
 
+.tile-pending {
+  background-color: fade(@pending-purple, 30%);
+  color: lighten(@pending-purple, 40%);
+
+  &:hover {
+    border-color: lighten(@pending-purple, 40%);
+  }
+}
+
 .selectedEpisodeTile {
   border-color: @gray-lighter;
   border-width: 2px;
@@ -185,4 +194,15 @@
   border-radius: 3px;
   padding: 5px 5px 10px 5px;
   margin-top: 5px;
+}
+
+// PANELS
+
+.panel-pending {
+  border-color: rgba(0, 0, 0, 0.6);
+}
+
+.panel-pending > .panel-heading {
+  color: lighten(@pending-purple, 40%);
+  background-color: darken(@pending-purple, 5%);
 }

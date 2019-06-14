@@ -76,7 +76,7 @@ angular.module('mediaMogulApp')
           direction: 'desc'
         },
         seriesFunction: getMyShows,
-        panelFormat: 'panel-warning',
+        panelFormat: 'panel-pending',
         badgeValue: ShowFilterService.getRatingsPending
       },
       {

@@ -377,7 +377,9 @@ angular.module('mediaMogulApp')
     self.getTileClass = function(episode) {
       const selectors = [];
 
-      if (isSkipped(episode)) {
+      if (hasRatingPending(episode)) {
+        selectors.push('tile-pending');
+      } else if (isSkipped(episode)) {
         selectors.push('tile-skipped');
       } else if (isWatched(episode)) {
         selectors.push('tile-watched');
