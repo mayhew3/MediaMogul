@@ -7,10 +7,20 @@ module.exports = function(app) {
   const groups = require('../controllers/groups_controller');
   const addShow = require('../controllers/add_show_controller');
   require('../controllers/event_handlers');
+  const assert = require('assert');
+
+
+  const secret = process.env.AUTH0_CLIENT_SECRET;
+  const clientID = process.env.AUTH0_CLIENT_ID;
+  const database_url = process.env.DATABASE_URL;
+
+  assert(!!secret, "No environment variable: AUTH0_CLIENT_SECRET");
+  assert(!!clientID, "No environment variable: AUTH0_CLIENT_ID");
+  assert(!!database_url, "No environment variable: DATABASE_URL");
 
   const authCheck = jwt({
-    secret: new Buffer(process.env.AUTH0_CLIENT_SECRET, 'base64'),
-    audience: process.env.AUTH0_CLIENT_ID
+    secret: new Buffer(secret, 'base64'),
+    audience: clientID
   });
 
   // SYSTEM VARS

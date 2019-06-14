@@ -2,7 +2,7 @@
   "name": "media-mogul",
   "version": "0.2.0",
   "description": "Tame your media",
-  "main": "index.js",
+  "main": "bin/www.js",
   "scripts": {
     "start": "node bin/www.js",
     "postinstall": "grunt"
@@ -17,10 +17,12 @@
     "angular-storage": "0.0.15",
     "angular-ui-bootstrap": "2.5.6",
     "angular-ui-router": "1.0.22",
+    "assert": "2.0.0",
     "auth0-js": "9.10.1",
     "body-parser": "1.18.3",
     "bootstrap": "3.4.1",
     "bootstrap-datepicker": "1.8.0",
+    "concurrently": "4.1.0",
     "cookie-parser": "1.4.3",
     "debug": "4.0.1",
     "events": "3.0.0",
