@@ -38,6 +38,11 @@ exports.emitToPerson = function(person_id, channel, msg) {
   emitToClients(clientsForPerson, channel, msg);
 };
 
+exports.emitToPersons = function(person_ids, channel, msg) {
+  const clientsForPerson = getClientsForPerson(person_ids);
+  emitToClients(clientsForPerson, channel, msg);
+};
+
 exports.emitToAllExceptPerson = function(person_id, channel, msg) {
   const clientsForEveryoneExceptPerson = getClientsForEveryoneExceptPerson(person_id);
   emitToClients(clientsForEveryoneExceptPerson, channel, msg);
@@ -74,6 +79,12 @@ function getClientsForPerson(person_id) {
   } else {
     return existingArray.clients;
   }
+}
+
+function getClientsForPersons(person_ids) {
+  const allClients = [];
+  _.each(person_ids, person_id => arrayService.addToArray(allClients, getClientsForPerson(person_id)));
+  return allClients;
 }
 
 function getClientsForEveryoneExceptPerson(person_id) {

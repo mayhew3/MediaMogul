@@ -20,6 +20,15 @@ dbEventEmitter.on('ext_service_notifications', (msg) => {
 
   socket.emitToAll('ext_service_update', msg);
 });
+
+dbEventEmitter.on('group_episode_notifications', (msg) => {
+  // Custom logic for reacting to the event e.g. firing a webhook, writing a log entry etc
+  console.log('Group episode change: ' + JSON.stringify(msg) + ". ");
+  console.log('Updating ' + socket.getNumberOfClients() + ' clients.');
+
+  socket.emitToAll('group_episode_update', msg);
+});
+
 /*
 
 dbEventEmitter.on('tvdb_match_notifications', (msg) => {
@@ -51,5 +60,5 @@ pool.connect(function(err, client) {
 
   // Designate which channels we are listening on. Add additional channels with multiple lines.
   client.query('LISTEN ext_service_notifications');
-  // client.query('LISTEN tvdb_match_notifications');
+  client.query('LISTEN group_episode_notifications');
 });
