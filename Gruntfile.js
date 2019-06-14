@@ -45,7 +45,7 @@ module.exports = function(grunt) {
         files: [
           "stylesheets/less/*.less"
         ],
-        tasks: [ "less:dist" ]
+        tasks: [ "default" ]
       }
     },
   });
