@@ -103,11 +103,18 @@
                      ng-class="ctrl.ratingInputClass()"
                      ng-model="ctrl.rating_value"/>
               <span ng-if="ctrl.hasMyRating() && ctrl.ratingIsChanged()"
-                  class="input-group-btn">
+                    class="input-group-btn">
                 <button type="button"
                         class="btn btn-default"
                         ng-disabled="ctrl.updating"
                         ng-click="ctrl.updateMyRating()">Update</button>
+              </span>
+              <span ng-if="ctrl.showIgnoreButton()"
+                    class="input-group-btn">
+                <button type="button"
+                        class="btn btn-primary"
+                        ng-disabled="ctrl.updating"
+                        ng-click="ctrl.ignoreMyRating()">Ignore</button>
               </span>
             </p>
 
