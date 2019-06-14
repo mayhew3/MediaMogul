@@ -6,7 +6,8 @@ angular.module('mediaMogulApp')
     controllerAs: 'ctrl',
     bindings: {
       episode: '=',
-      postRatingCallback: '<',
+      postViewingCallback: '<',
+      postRatingChangeCallback: '<',
       viewer: '<',
       isInViewerCollection: '<',
       previousUnwatched: '<'
@@ -312,7 +313,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.watched_date = watchedDate;
       groupEpisode.skipped = false;
       self.updating = false;
-      self.postRatingCallback(null, getLastUnwatched(), self.isWatched());
+      self.postViewingCallback(null, getLastUnwatched(), self.isWatched());
     });
   }
 
@@ -339,7 +340,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.watched = false;
       groupEpisode.skipped = !self.isSkipped();
       self.updating = false;
-      self.postRatingCallback(null, getLastUnwatched(), self.isWatched());
+      self.postViewingCallback(null, getLastUnwatched(), self.isWatched());
     });
   }
 
@@ -366,7 +367,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
           dynamicRating = response.data.dynamic_rating;
         }
         self.updating = false;
-        self.postRatingCallback(dynamicRating, getLastUnwatched());
+        self.postViewingCallback(dynamicRating, getLastUnwatched());
       });
     }
   };
@@ -418,6 +419,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       self.episode.personEpisode.rating_pending = false;
       self.original_rating_value = self.rating_value;
       self.updating = false;
+      self.postRatingChangeCallback();
     });
   };
 }

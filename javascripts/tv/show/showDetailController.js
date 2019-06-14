@@ -925,7 +925,11 @@ angular.module('mediaMogulApp')
 
     }
 
-    self.afterRatingChange = function(dynamic_rating, optionalLastUnwatched, watched) {
+    self.afterRatingChangeOnly = function() {
+      updateDenormsAndGoToNext();
+    };
+
+    self.afterViewingChange = function(dynamic_rating, optionalLastUnwatched, watched) {
       if (!!dynamic_rating) {
         if (!self.series.personSeries) {
           self.series.personSeries = {};
@@ -935,11 +939,8 @@ angular.module('mediaMogulApp')
       maybeMarkPastUnwatched(optionalLastUnwatched, watched).then(() => {
         if (self.isInGroupMode()) {
           EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
-          updateNextUp();
-          goToNextUpAfterPause();
-        } else {
-          updateDenormsAndGoToNext();
         }
+        updateDenormsAndGoToNext();
       });
     };
 
