@@ -157,6 +157,8 @@
   border-width: 2px;
 }
 
+// Action Dropdowns
+
 .dropdown-menu > li > a {
   &:focus {
     color: @gray-dark;
@@ -164,4 +166,23 @@
     background-color: @gray-lighter;
     outline: 0;
   }
+}
+
+.adminMenuOption {
+  background-color: lighten(@admin-red, 25%);
+}
+
+// VOTING
+
+.groupRow {
+  background-color: darken(@gray-dark, 3%);
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.ballotRow {
+  background-color: darken(@gray-dark, 6%);
+  border-radius: 3px;
+  padding: 5px 5px 10px 5px;
+  margin-top: 5px;
 }
