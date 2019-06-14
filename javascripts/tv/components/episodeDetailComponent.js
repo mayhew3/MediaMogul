@@ -318,11 +318,13 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.skipped = false;
 
       const incomingPersonEpisode = response.data.person_episode;
-      personEpisode.rating_id = incomingPersonEpisode.rating_id;
-      personEpisode.watched = incomingPersonEpisode.watched;
-      personEpisode.watched_date = incomingPersonEpisode.watched_date;
-      personEpisode.rating_pending = incomingPersonEpisode.rating_pending;
-      
+      if (!!incomingPersonEpisode) {
+        personEpisode.rating_id = incomingPersonEpisode.rating_id;
+        personEpisode.watched = incomingPersonEpisode.watched;
+        personEpisode.watched_date = incomingPersonEpisode.watched_date;
+        personEpisode.rating_pending = incomingPersonEpisode.rating_pending;
+      }
+
       self.updating = false;
 
       self.postViewingCallback(null, getLastUnwatched(), self.isWatched());
