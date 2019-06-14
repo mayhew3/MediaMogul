@@ -2,6 +2,7 @@ angular.module('mediaMogulApp')
   .component('episodeDetail', {
     templateUrl: 'views/tv/episodeDetailComponent.html',
     controller: ['EpisodeService', 'ArrayService', 'LockService', 'DateService', '$scope', '$q', 'GroupService', '$http',
+      'SeriesDetailService',
       episodeDetailCompController],
     controllerAs: 'ctrl',
     bindings: {
@@ -14,7 +15,8 @@ angular.module('mediaMogulApp')
     }
   });
 
-function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService, $http) {
+function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService,
+                                     $http, SeriesDetailService) {
   const self = this;
 
   self.updating = false;
@@ -290,7 +292,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         skipped: false
       },
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
-      episode_id: self.episode.id
+      episode_id: self.episode.id,
+      person_id: LockService.person_id
     };
     if (_.isNumber(groupEpisode.tv_group_episode_id)) {
       payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
@@ -301,31 +304,26 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return payload;
   }
 
-  function updateRatingPending() {
-    const personEpisode = self.episode.personEpisode;
-    if (!!personEpisode && !personEpisode.watched) {
-      personEpisode.rating_pending = true;
-      personEpisode.watched = true;
-    }
-  }
-
   function updateOrAddGroupRating() {
     const watchedDate = DateService.formatDateForDatabase(self.watchedDate);
     const groupEpisode = getGroupEpisode();
+    const personEpisode = self.episode.personEpisode;
 
     const payload = createPayload(watchedDate);
 
     // todo: get rating_id for person_episode and attach it
-    $http.post('/api/groupWatchEpisode', {payload: payload}).then(function(response) {
+    $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
-
-      if (LockService.getsRatingNotifications() && !self.isWatched()) {
-        updateRatingPending();
-      }
-
       groupEpisode.watched = !self.isWatched();
       groupEpisode.watched_date = watchedDate;
       groupEpisode.skipped = false;
+
+      const incomingPersonEpisode = response.data.person_episode;
+      personEpisode.rating_id = incomingPersonEpisode.rating_id;
+      personEpisode.watched = incomingPersonEpisode.watched;
+      personEpisode.watched_date = incomingPersonEpisode.watched_date;
+      personEpisode.rating_pending = incomingPersonEpisode.rating_pending;
+      
       self.updating = false;
 
       self.postViewingCallback(null, getLastUnwatched(), self.isWatched());
@@ -350,7 +348,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       payload.changedFields.episode_id = self.episode.id;
     }
 
-    $http.post('/api/groupWatchEpisode', {payload: payload}).then(function(response) {
+    $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
       groupEpisode.watched = false;
       groupEpisode.skipped = !self.isSkipped();

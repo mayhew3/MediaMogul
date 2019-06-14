@@ -503,7 +503,10 @@ exports.getGroupEpisodes = function(request, response) {
 
 exports.markEpisodeWatchedByGroup = function(request, response) {
   addOrEditTVGroupEpisode(request).then(function (result) {
-    markEpisodeWatchedForPersons(request).then(function() {
+    markEpisodeWatchedForPersons(request).then(function(personResult) {
+      if (!!personResult && !!personResult[0]) {
+        result.person_episode = personResult[0];
+      }
       response.json(result);
     });
   });
@@ -517,6 +520,7 @@ function markEpisodeWatchedForPersons(request) {
     return Promise.resolve();
   }
 
+  const person_id = payload.person_id;
   const member_ids = payload.member_ids;
   const episode_id = payload.episode_id;
 
@@ -544,34 +548,40 @@ function markEpisodeWatchedForPersons(request) {
     };
 
     return Promise.all(
-      [addRatingsForPersons(newRatingPersons, episodeRatingInfo),
+      [addRatingsForPersons(newRatingPersons, episodeRatingInfo, person_id),
         editRatingsForPersons(existingRatings, episodeRatingInfo)]
     );
   });
 }
 
-function addRatingsForPersons(member_ids, episodeRatingInfo) {
-  if (member_ids.length < 1) {
-    return Promise.resolve();
-  }
+function addRatingsForPersons(member_ids, episodeRatingInfo, person_id) {
+  return new Promise(resolve => {
+    if (member_ids.length < 1) {
+      resolve();
+    }
 
-  const sql = "INSERT INTO episode_rating (person_id, episode_id, retired, watched, watched_date, rating_pending) " +
-    "SELECT p.id, $1, $2, $3, $4, rating_notifications " +
-    "FROM person p " +
-    "WHERE retired = $5 " +
-    "AND p.id IN (" + db.createInlineVariableList(member_ids.length, 6) + ") ";
+    const sql = "INSERT INTO episode_rating (person_id, episode_id, retired, watched, watched_date, rating_pending) " +
+      "SELECT p.id, $1, $2, $3, $4, rating_notifications " +
+      "FROM person p " +
+      "WHERE retired = $5 " +
+      "AND p.id IN (" + db.createInlineVariableList(member_ids.length, 6) + ") " +
+      "RETURNING id as rating_id, person_id, watched, watched_date, rating_pending ";
 
-  const values = [
-    episodeRatingInfo.episode_id,
-    0,
-    episodeRatingInfo.watched,
-    episodeRatingInfo.watched_date,
-    0
-  ];
+    const values = [
+      episodeRatingInfo.episode_id,
+      0,
+      episodeRatingInfo.watched,
+      episodeRatingInfo.watched_date,
+      0
+    ];
 
-  ArrayService.addToArray(values, member_ids);
+    ArrayService.addToArray(values, member_ids);
 
-  return db.updateNoResponse(sql, values);
+    db.selectNoResponse(sql, values).then(results => {
+      const matching = _.findWhere(results, {person_id: person_id});
+      resolve(matching);
+    });
+  });
 }
 
 function editRatingsForPersons(member_ids, episodeRatingInfo) {
