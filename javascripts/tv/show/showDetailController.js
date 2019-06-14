@@ -1165,6 +1165,10 @@ angular.module('mediaMogulApp')
       return ArrayService.exists(getOpenBallotForShow());
     };
 
+    function hasRatingPending(episode) {
+      return !self.isInGroupMode() && !!episode.personEpisode.rating_pending;
+    }
+    
     function formatVoteForTooltip(vote) {
       const voterName = GroupService.getMemberName(getOptionalGroupID(), vote.person_id);
       return voterName + ': ' + vote.vote_value;
