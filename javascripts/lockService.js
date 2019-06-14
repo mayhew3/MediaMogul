@@ -5,6 +5,7 @@ angular.module('mediaMogulApp')
 
       const self = this;
       self.user_role = 'none';
+      let rating_notifications = false;
       let tokenRenewalTimeout;
 
       const afterLoginCallbacks = [];
@@ -116,6 +117,7 @@ angular.module('mediaMogulApp')
         store.remove('person_id');
         store.remove('first_name');
         store.remove('user_role');
+        store.remove('rating_notifications');
         self.user_role = 'none';
         self.person_id = undefined;
         clearTimeout(tokenRenewalTimeout);
@@ -129,6 +131,7 @@ angular.module('mediaMogulApp')
 
         self.firstName = store.get('first_name');
         self.user_role = store.get('user_role');
+        rating_notifications = store.get('rating_notifications');
       }
 
       self.setSession = function(authResult, callback) {
@@ -156,6 +159,10 @@ angular.module('mediaMogulApp')
         return this.isAuthenticated && _.contains(['user', 'admin'], self.user_role);
       };
 
+      self.getsRatingNotifications = function() {
+        return rating_notifications;
+      };
+
       // user management functions
 
       function syncPersonWithDB(idTokenPayload, callback) {
@@ -178,7 +185,7 @@ angular.module('mediaMogulApp')
       }
 
       function copyPersonInfoToAuth(personData) {
-        var personInfo = personData[0];
+        const personInfo = personData[0];
         console.log("Successful login!");
         console.log("Name: " + personInfo.first_name + " " + personInfo.last_name);
         console.log("PersonID: " + personInfo.id);
@@ -187,11 +194,13 @@ angular.module('mediaMogulApp')
         self.lastName = personInfo.last_name;
         self.person_id = personInfo.id;
         self.user_role = personInfo.user_role;
+        rating_notifications = personInfo.rating_notifications;
 
         console.log("Setting store with person id: " + self.person_id);
         store.set('person_id', self.person_id);
         store.set('first_name', self.firstName);
         store.set('user_role', self.user_role);
+        store.set('rating_notifications', rating_notifications);
 /*
         $http.post('/api/updateUser', {
           user_id: idTokenPayload.sub,

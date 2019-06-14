@@ -301,18 +301,33 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return payload;
   }
 
+  function updateRatingPending() {
+    const personEpisode = self.episode.personEpisode;
+    if (!!personEpisode && !personEpisode.watched) {
+      personEpisode.rating_pending = true;
+      personEpisode.watched = true;
+    }
+  }
+
   function updateOrAddGroupRating() {
     const watchedDate = DateService.formatDateForDatabase(self.watchedDate);
     const groupEpisode = getGroupEpisode();
 
     const payload = createPayload(watchedDate);
 
+    // todo: get rating_id for person_episode and attach it
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(function(response) {
       groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
+
+      if (LockService.getsRatingNotifications() && !self.isWatched()) {
+        updateRatingPending();
+      }
+
       groupEpisode.watched = !self.isWatched();
       groupEpisode.watched_date = watchedDate;
       groupEpisode.skipped = false;
       self.updating = false;
+
       self.postViewingCallback(null, getLastUnwatched(), self.isWatched());
     });
   }
