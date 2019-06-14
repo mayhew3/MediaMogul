@@ -2,7 +2,6 @@ angular.module('mediaMogulApp')
   .component('episodeDetail', {
     templateUrl: 'views/tv/episodeDetailComponent.html',
     controller: ['EpisodeService', 'ArrayService', 'LockService', 'DateService', '$scope', '$q', 'GroupService', '$http',
-      'SeriesDetailService',
       episodeDetailCompController],
     controllerAs: 'ctrl',
     bindings: {
@@ -16,7 +15,7 @@ angular.module('mediaMogulApp')
   });
 
 function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService,
-                                     $http, SeriesDetailService) {
+                                     $http) {
   const self = this;
 
   self.updating = false;
@@ -367,6 +366,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     });
   }
 
+  self.showIgnoreButton = function() {
+    return self.hasMyRating() && !self.ratingIsChanged() && hasRatingPending();
+  };
+
   self.addOrUpdateRating = function() {
     self.updating = true;
     if (self.isInGroupMode()) {
@@ -429,6 +432,19 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     };
     EpisodeService.updateMyEpisodeRating(changedFields, self.episode.personEpisode.rating_id, self.episode.series_id).then(function (result) {
       self.episode.personEpisode.rating_value = self.rating_value;
+      self.episode.personEpisode.rating_pending = false;
+      self.original_rating_value = self.rating_value;
+      self.updating = false;
+      self.postRatingChangeCallback();
+    });
+  };
+
+  self.ignoreMyRating = function() {
+    self.updating = true;
+    const changedFields = {
+      rating_pending: false
+    };
+    EpisodeService.updateMyEpisodeRating(changedFields, self.episode.personEpisode.rating_id, self.episode.series_id).then(function (result) {
       self.episode.personEpisode.rating_pending = false;
       self.original_rating_value = self.rating_value;
       self.updating = false;
