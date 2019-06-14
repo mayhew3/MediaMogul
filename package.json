@@ -22,7 +22,6 @@
     "body-parser": "1.18.3",
     "bootstrap": "3.4.1",
     "bootstrap-datepicker": "1.8.0",
-    "concurrently": "4.1.0",
     "cookie-parser": "1.4.3",
     "debug": "4.0.1",
     "events": "3.0.0",
