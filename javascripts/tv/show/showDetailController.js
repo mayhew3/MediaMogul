@@ -534,12 +534,20 @@ angular.module('mediaMogulApp')
     function updateNextUp() {
       self.nextUp = null;
 
+      const ratingPendingEpisodes = _.filter(self.episodes, episode => hasRatingPending(episode));
+
       const unwatchedEpisodes = self.episodes.filter(function (episode) {
         return shouldCountAsUnwatched(episode);
       });
 
+      if (ratingPendingEpisodes.length > 0) {
+        self.nextUp = ratingPendingEpisodes[0];
+      }
+
       if (unwatchedEpisodes.length > 0) {
-        self.nextUp = unwatchedEpisodes[0];
+        if (!self.nextUp) {
+          self.nextUp = unwatchedEpisodes[0];
+        }
         self.watchedAll = false;
       } else {
         self.watchedAll = true;
