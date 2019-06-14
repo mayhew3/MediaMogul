@@ -65,6 +65,20 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       undefined;
   }
 
+  function hasRatingPending() {
+    return !self.isInGroupMode() && !!self.episode.personEpisode.rating_pending;
+  }
+
+  self.ratingInputClass = function() {
+    const selectors = [];
+
+    if (hasRatingPending()) {
+      selectors.push('ratingPendingInput');
+    }
+
+    return selectors.join(' ');
+  };
+
   function getRatingFromEpisode() {
     const episodeViewer = getEpisodeViewerObject();
 
