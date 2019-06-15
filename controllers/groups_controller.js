@@ -694,7 +694,7 @@ function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
 
 
 exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
-  updateTVGroupEpisodesAllPastWatched(request.body)
+  updateTVGroupEpisodesAllPastWatched(request.body, response)
     .then(episodes => {
     person_controller.updateEpisodeRatingsAllPastWatched(request.body, true, episodes)
       .then(episodes => response.json(episodes));
@@ -725,7 +725,7 @@ function getEpisodesThatWillBeUpdated(series_id, tv_group_id, lastWatched) {
   return db.selectNoResponse(sql, values);
 }
 
-function updateTVGroupEpisodesAllPastWatched(payload) {
+function updateTVGroupEpisodesAllPastWatched(payload, response) {
   return new Promise(function(resolve) {
     const series_id = payload.series_id;
     const lastWatched = payload.last_watched;
@@ -798,7 +798,8 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
 
         resolve(groupEpisodes);
       });
-    });
+    })
+      .catch(err => errs.throwError(err, 'Error updating group episodes', response));
   });
 }
 

@@ -1646,7 +1646,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
     const person_id = payload.person_id;
 
     if (person_ids.length < 1 || payload.skipped) {
-      return resolve();
+      return resolve(episodes);
     }
 
     const ratingClause = rating_notifications ?
