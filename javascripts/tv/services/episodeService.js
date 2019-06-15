@@ -139,9 +139,10 @@ angular.module('mediaMogulApp')
         }
       }
 
-      SocketService.on('group_episode_update', updateGroupEpisodesOnWatch);
+      SocketService.on('group_episode_update', updateGroupEpisodeOnWatch);
+      SocketService.on('multi_group_episode_update', updateGroupMultiWatch);
 
-      function updateGroupEpisodesOnWatch(payload) {
+      function updateGroupEpisodeOnWatch(payload) {
         const tv_group_id = payload.tv_group_id;
         const series_id = payload.series_id;
         const showList = self.getExistingGroupShowList(tv_group_id);
@@ -155,6 +156,21 @@ angular.module('mediaMogulApp')
               groupSeries.unwatched_all -= payload.episode_count;
             }
             SeriesDetailService.updateCacheWithGroupViewPayload(payload);
+          });
+        }
+      }
+
+      function updateGroupMultiWatch(payload) {
+        const tv_group_id = payload.tv_group_id;
+        const series_id = payload.series_id;
+        const groupEpisodes = payload.groupEpisodes;
+        const showList = self.getExistingGroupShowList(tv_group_id);
+        if (!!showList) {
+          $rootScope.$apply(() => {
+            const series = self.findSeriesWithId(series_id);
+            const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
+            groupSeries.unwatched_all -= groupEpisodes.length;
+            SeriesDetailService.updateCacheWithMultiGroupViewPayload(payload);
           });
         }
       }
