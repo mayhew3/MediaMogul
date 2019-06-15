@@ -192,7 +192,7 @@ angular.module('mediaMogulApp')
       };
 
       $http.post('/api/votes', payload).then(function(result) {
-        GroupService.addVoteToBallot(payload, tv_group_ballot);
+        GroupService.addVoteToBallot(vote, tv_group_ballot);
 
         maybeCloseBallot(result.data.group_score).then(function() {
           $uibModalInstance.close();
