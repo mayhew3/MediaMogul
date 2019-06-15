@@ -911,7 +911,7 @@ angular.module('mediaMogulApp')
               GroupService.markPastGroupEpisodesWatched(self.series.id, tv_group_id, optionalLastUnwatched, watched)
                 .then(results => {
                   updateRatingIDsAfterBulkWatch(results.data);
-                  markAllPreviousGroupWatched(optionalLastUnwatched, watched);
+                  EpisodeService.markAllPreviousGroupWatched(self.episodes, getOptionalGroupID(), optionalLastUnwatched, watched);
                   resolve();
                 });
             }
@@ -954,19 +954,6 @@ angular.module('mediaMogulApp')
           }
           if (!!matching.personEpisode && !!episode.rating_id) {
             matching.personEpisode.rating_id = episode.rating_id;
-          }
-        }
-      });
-    }
-
-    function markAllPreviousGroupWatched(lastWatchedNumber, watched) {
-      self.episodes.forEach(function(episode) {
-        if (episode.absolute_number < lastWatchedNumber) {
-          const episodeGroup = getEpisodeViewerObject(episode);
-          if (!episodeGroup.watched && !episodeGroup.skipped) {
-            episodeGroup.watched = watched;
-            episodeGroup.watched_date = null;
-            episodeGroup.skipped = !watched;
           }
         }
       });
