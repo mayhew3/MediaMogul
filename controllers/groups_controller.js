@@ -791,10 +791,25 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
       ];
 
       db.selectNoResponse(sql, values).then(groupEpisodes => {
+        if (groupEpisodes.length > 0) {
+          const client_id = payload.client_id;
+          sendMultiWatchPayload(groupEpisodes, series_id, tv_group_id, !watched, client_id);
+        }
+
         resolve(groupEpisodes);
       });
     });
   });
+}
+
+function sendMultiWatchPayload(groupEpisodes, series_id, tv_group_id, skipped, client_id) {
+  const payload = {
+    series_id: series_id,
+    tv_group_id: tv_group_id,
+    skipped: skipped,
+    groupEpisodes: groupEpisodes
+  };
+  sockets.emitToAllClientsButOne(client_id, 'multi_group_episode_update', payload);
 }
 
 
