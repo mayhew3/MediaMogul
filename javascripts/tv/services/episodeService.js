@@ -1,7 +1,8 @@
 angular.module('mediaMogulApp')
   .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService',
-    '$timeout', 'GroupService', 'SocketService', '$rootScope',
-    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService, SocketService, $rootScope) {
+    '$timeout', 'GroupService', 'SocketService', '$rootScope', 'SeriesDetailService',
+    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService, SocketService, $rootScope,
+              SeriesDetailService) {
       const allShows = [];
       const myShows = [];
       const myPendingShows = [];
@@ -153,6 +154,7 @@ angular.module('mediaMogulApp')
             } else {
               groupSeries.unwatched_all -= payload.episode_count;
             }
+            SeriesDetailService.updateCacheWithGroupViewPayload(payload);
           });
         }
       }
