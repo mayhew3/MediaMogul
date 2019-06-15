@@ -1,8 +1,7 @@
 angular.module('mediaMogulApp')
   .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService',
-    '$timeout', 'GroupService', 'SocketService', '$rootScope', 'SeriesDetailService',
-    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService, SocketService, $rootScope,
-              SeriesDetailService) {
+    '$timeout', 'GroupService', 'SocketService', 'SeriesDetailService',
+    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService, SocketService, SeriesDetailService) {
       const allShows = [];
       const myShows = [];
       const myPendingShows = [];
@@ -147,16 +146,14 @@ angular.module('mediaMogulApp')
         const series_id = payload.series_id;
         const showList = self.getExistingGroupShowList(tv_group_id);
         if (!!showList) {
-          $rootScope.$apply(() => {
-            const series = self.findSeriesWithId(series_id);
-            const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
-            if (!payload.watched && !payload.skipped) {
-              groupSeries.unwatched_all += payload.episode_count;
-            } else {
-              groupSeries.unwatched_all -= payload.episode_count;
-            }
-            SeriesDetailService.updateCacheWithGroupViewPayload(payload);
-          });
+          const series = self.findSeriesWithId(series_id);
+          const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
+          if (!payload.watched && !payload.skipped) {
+            groupSeries.unwatched_all += payload.episode_count;
+          } else {
+            groupSeries.unwatched_all -= payload.episode_count;
+          }
+          SeriesDetailService.updateCacheWithGroupViewPayload(payload);
         }
       }
 
@@ -166,12 +163,10 @@ angular.module('mediaMogulApp')
         const groupEpisodes = payload.groupEpisodes;
         const showList = self.getExistingGroupShowList(tv_group_id);
         if (!!showList) {
-          $rootScope.$apply(() => {
-            const series = self.findSeriesWithId(series_id);
-            const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
-            groupSeries.unwatched_all -= groupEpisodes.length;
-            SeriesDetailService.updateCacheWithMultiGroupViewPayload(payload, series, groupSeries);
-          });
+          const series = self.findSeriesWithId(series_id);
+          const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
+          groupSeries.unwatched_all -= groupEpisodes.length;
+          SeriesDetailService.updateCacheWithMultiGroupViewPayload(payload, series, groupSeries);
         }
       }
 
@@ -991,17 +986,12 @@ angular.module('mediaMogulApp')
       SocketService.on('group_remove_series', handleGroupRemoveSeriesMessage);
 
       function handleGroupAddSeriesMessage(msg) {
-        $rootScope.$apply(() => {
-          addJSONIncomingGroupShowInternal(msg.series, msg.tv_group_id);
-        });
+        addJSONIncomingGroupShowInternal(msg.series, msg.tv_group_id);
       }
 
       function handleGroupRemoveSeriesMessage(msg) {
-        // todo: move to SocketService
-        $rootScope.$apply(() => {
-          const existing = self.findSeriesWithId(msg.series_id);
-          removeFromGroupShowsInternal(existing, msg.tv_group_id);
-        });
+        const existing = self.findSeriesWithId(msg.series_id);
+        removeFromGroupShowsInternal(existing, msg.tv_group_id);
       }
 
       function addJSONIncomingGroupShowInternal(incomingShow, tv_group_id) {
