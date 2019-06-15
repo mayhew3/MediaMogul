@@ -170,10 +170,23 @@ angular.module('mediaMogulApp')
             const series = self.findSeriesWithId(series_id);
             const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
             groupSeries.unwatched_all -= groupEpisodes.length;
-            SeriesDetailService.updateCacheWithMultiGroupViewPayload(payload);
+            SeriesDetailService.updateCacheWithMultiGroupViewPayload(payload, series, groupSeries);
           });
         }
       }
+
+      self.markAllPreviousGroupWatched = function(episodes, tv_group_id, lastWatchedNumber, watched) {
+        episodes.forEach(function(episode) {
+          if (episode.absolute_number < lastWatchedNumber) {
+            const episodeGroup = GroupService.getGroupEpisode(episode, tv_group_id);
+            if (!episodeGroup.watched && !episodeGroup.skipped) {
+              episodeGroup.watched = watched;
+              episodeGroup.watched_date = null;
+              episodeGroup.skipped = !watched;
+            }
+          }
+        });
+      };
 
       self.registerDataPresentCallback = function(callbackObject) {
         if (!!callbackObject.series_id) {

@@ -15,12 +15,7 @@ angular.module('mediaMogulApp')
           const episode = _.findWhere(episodes, {id: payload.episode_id});
           const tv_group_id = payload.tv_group_id;
           let groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
-          if (!groupEpisode) {
-            groupEpisode = {
-              tv_group_id: tv_group_id
-            };
-            episode.groups.push(groupEpisode);
-          }
+
           groupEpisode.watched = payload.watched;
           groupEpisode.watched_date = payload.watched_date;
           groupEpisode.skipped = payload.skipped;
@@ -28,25 +23,32 @@ angular.module('mediaMogulApp')
         }
       };
 
-      self.updateCacheWithMultiGroupViewPayload = function(payload) {
+      self.updateCacheWithMultiGroupViewPayload = function(payload, series, groupSeries) {
         if (!!series && series.id === payload.series_id) {
+          const tv_group_id = payload.tv_group_id;
+
           _.each(payload.groupEpisodes, incomingGroupEpisode => {
             const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
-            const tv_group_id = payload.tv_group_id;
             let groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
-            if (!groupEpisode) {
-              groupEpisode = {
-                tv_group_id: tv_group_id
-              };
-              episode.groups.push(groupEpisode);
-            }
+
             groupEpisode.watched = !payload.skipped;
             groupEpisode.watched_date = null;
             groupEpisode.skipped = payload.skipped;
             groupEpisode.tv_group_episode_id = incomingGroupEpisode.tv_group_episode_id;
           });
+
+          getEpisodeService().markAllPreviousGroupWatched(episodes, tv_group_id, payload.lastWatched, !payload.skipped);
+          getEpisodeService().updateMySeriesDenorms(series, episodes, doNothing, groupSeries);
         }
       };
+
+      function doNothing() {
+        return $q(resolve => resolve());
+      }
+
+      function getEpisodeService() {
+        return $injector.get('EpisodeService');
+      }
 
       self.getSeriesDetailInfo = function(series_id) {
         return $q(resolve => {
@@ -57,7 +59,7 @@ angular.module('mediaMogulApp')
             });
           } else {
             // ugly, but necessary to avoid circular dependency
-            $injector.get('EpisodeService').getSeriesDetailInfo(series_id).then(response => {
+            getEpisodeService().getSeriesDetailInfo(series_id).then(response => {
               series = response.series;
               episodes = response.episodes;
               resolve(response);
