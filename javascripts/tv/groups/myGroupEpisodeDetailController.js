@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('myGroupEpisodeDetailController', ['$log', 'EpisodeService', '$uibModalInstance', 'episode',
               'previousEpisodes', 'series', 'LockService', 'group', '$http', 'allPastWatchedCallback', 'firstUnwatched',
-              'GroupService',
+              'GroupService', 'SocketService',
     function($log, EpisodeService, $uibModalInstance, episode, previousEpisodes, series, LockService,
-             group, $http, allPastWatchedCallback, firstUnwatched, GroupService) {
+             group, $http, allPastWatchedCallback, firstUnwatched, GroupService, SocketService) {
       const self = this;
 
       self.episode = episode;
@@ -46,7 +46,8 @@ angular.module('mediaMogulApp')
           if (!isEmpty(changedFields)) {
             var payload = {
               changedFields: changedFields,
-              member_ids: extractMemberIds()
+              member_ids: extractMemberIds(),
+              client_id: SocketService.getClientID()
             };
             addIdentifyingFields(payload);
             $log.debug("Episode fields changed: " + _.keys(changedFields));

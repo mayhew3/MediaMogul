@@ -3,6 +3,8 @@ const db = require('postgres-mmethods');
 const person_controller = require('./person_controller');
 const debug = require('debug');
 const ArrayService = require('./array_util');
+const sockets = require('./sockets_controller');
+const errs = require('./error_handler');
 
 /* GROUPS */
 
@@ -503,14 +505,46 @@ exports.getGroupEpisodes = function(request, response) {
 
 exports.markEpisodeWatchedByGroup = function(request, response) {
   addOrEditTVGroupEpisode(request).then(function (result) {
+    const tv_group_episode_id = result.tv_group_episode_id;
     markEpisodeWatchedForPersons(request).then(function(personResult) {
       if (!!personResult && !!personResult[0]) {
         result.person_episode = personResult[0];
       }
+
+      const client_id = request.body.payload.client_id;
+      sendGroupWatchMessagePayload(tv_group_episode_id, client_id, response);
+
       response.json(result);
     });
   });
 };
+
+function sendGroupWatchMessagePayload(tv_group_episode_id, client_id, response) {
+  const sql = "SELECT e.series_id, tge.tv_group_id, tge.episode_id, tge.watched, tge.watched_date, tge.skipped " +
+    "FROM episode e " +
+    "INNER JOIN tv_group_episode tge " +
+    " ON tge.episode_id = e.id " +
+    "WHERE tge.id = $1 " +
+    "AND e.retired = $2 " +
+    "AND tge.retired = $2 ";
+
+  const values = [tv_group_episode_id, 0];
+
+  db.selectNoResponse(sql, values).then(results => {
+    const singleResult = results[0];
+    const payload = {
+      tv_group_episode_id: tv_group_episode_id,
+      tv_group_id: singleResult.tv_group_id,
+      watched: singleResult.watched,
+      watched_date: singleResult.watched_date,
+      skipped: singleResult.skipped,
+      series_id: singleResult.series_id,
+      episode_id: singleResult.episode_id,
+      episode_count: 1
+    };
+    sockets.emitToAllClientsButOne(client_id, 'group_episode_update', payload);
+  }).catch(err => errs.throwError(err, 'Error getting group episode info', response));
+}
 
 function markEpisodeWatchedForPersons(request) {
   const payload = request.body.payload;

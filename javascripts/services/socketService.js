@@ -28,6 +28,10 @@ angular.module('mediaMogulApp')
         return socket;
       };
 
+      self.getClientID = function() {
+        return !socket ? undefined : socket.id;
+      };
+
       self.on = function(channel, callback) {
         socket.on(channel, callback);
       };

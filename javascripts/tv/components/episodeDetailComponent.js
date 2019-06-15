@@ -2,6 +2,7 @@ angular.module('mediaMogulApp')
   .component('episodeDetail', {
     templateUrl: 'views/tv/episodeDetailComponent.html',
     controller: ['EpisodeService', 'ArrayService', 'LockService', 'DateService', '$scope', '$q', 'GroupService', '$http',
+      'SocketService',
       episodeDetailCompController],
     controllerAs: 'ctrl',
     bindings: {
@@ -15,7 +16,7 @@ angular.module('mediaMogulApp')
   });
 
 function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService,
-                                     $http) {
+                                     $http, SocketService) {
   const self = this;
 
   self.updating = false;
@@ -292,7 +293,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       },
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
       episode_id: self.episode.id,
-      person_id: LockService.person_id
+      person_id: LockService.person_id,
+      client_id: SocketService.getClientID()
     };
     if (_.isNumber(groupEpisode.tv_group_episode_id)) {
       payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
@@ -340,7 +342,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         watched_date: null
       },
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
-      episode_id: self.episode.id
+      episode_id: self.episode.id,
+      client_id: SocketService.getClientID()
     };
     if (_.isNumber(groupEpisode.tv_group_episode_id)) {
       payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
