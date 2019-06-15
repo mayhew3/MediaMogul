@@ -5,7 +5,6 @@ angular.module('mediaMogulApp')
       self.SocketService = SocketService;
 
       self.externalServices = [];
-      self.scopes = [];
       self.nextTimeout = undefined;
 
       self.updateExternalServices = function() {
@@ -15,7 +14,6 @@ angular.module('mediaMogulApp')
 
             self.SocketService.on('ext_service_update', function (externalService) {
               addOrReplaceExternalService(externalService);
-              self.scopes.forEach(scope => scope.$apply());
             });
 
           });

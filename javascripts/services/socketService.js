@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('SocketService', ['LockService',
-    function SocketService(LockService) {
+  .service('SocketService', ['LockService', '$rootScope',
+    function SocketService(LockService, $rootScope) {
       const self = this;
       self.LockService = LockService;
 
@@ -33,7 +33,12 @@ angular.module('mediaMogulApp')
       };
 
       self.on = function(channel, callback) {
-        socket.on(channel, callback);
+        socket.on(channel, function () {
+          const args = arguments;
+          $rootScope.$apply(function () {
+            callback.apply(socket, args);
+          });
+        });
       };
     }]);
 
