@@ -987,30 +987,50 @@ angular.module('mediaMogulApp')
         });
       };
 
+      SocketService.on('group_add_series', handleGroupAddSeriesMessage);
+
+      function handleGroupAddSeriesMessage(msg) {
+        $rootScope.$apply(() => {
+          addJSONIncomingGroupShowInternal(msg.series, msg.tv_group_id);
+        });
+      }
+
+      function addJSONIncomingGroupShowInternal(incomingShow, tv_group_id) {
+
+        formatIncomingShow(incomingShow);
+        const show = addGroupShowToAllShowsList(incomingShow);
+
+        const groupSeries = GroupService.getGroupSeries(show, tv_group_id);
+        groupSeries.ballots = [];
+        groupSeries.last_watched = undefined;
+
+        const groupList = self.getExistingGroupShowList(tv_group_id);
+        if (!!groupList) {
+          const existingGroupShow = _.findWhere(groupList, {id: show.id});
+          if (!existingGroupShow) {
+            groupList.push(show);
+          } else {
+            console.log("Trying to add existing show '" + show.title + "' to group " + tv_group_id);
+          }
+        }
+
+      }
+
       self.addToGroupShows = function(show, tv_group_id, episodes) {
         return $q((resolve, reject) => {
-          $http.post('/api/addGroupShow', {series_id: show.id, tv_group_id: tv_group_id, person_id: getPersonId()}).then(function(resultShow) {
+          const data = {
+            series_id: show.id,
+            tv_group_id: tv_group_id,
+            person_id: getPersonId(),
+            client_id: SocketService.getClientID()
+          };
+          $http.post('/api/addGroupShow', data).then(function(resultShow) {
             const incomingShow = resultShow.data;
 
-            formatIncomingShow(incomingShow);
-            const show = addGroupShowToAllShowsList(incomingShow);
-
-            const groupSeries = GroupService.getGroupSeries(show, tv_group_id);
-            groupSeries.ballots = [];
-            groupSeries.last_watched = undefined;
+            addJSONIncomingGroupShowInternal(incomingShow, tv_group_id);
 
             if (!!episodes) {
               addInfoForUnwatchedEpisodesSingleGroup(tv_group_id, episodes);
-            }
-
-            const groupList = self.getExistingGroupShowList(tv_group_id);
-            if (!!groupList) {
-              const existingGroupShow = _.findWhere(groupList, {id: show.id});
-              if (!existingGroupShow) {
-                groupList.push(show);
-              } else {
-                console.log("Trying to add existing show '" + show.title + "' to group " + tv_group_id);
-              }
             }
 
             resolve();
