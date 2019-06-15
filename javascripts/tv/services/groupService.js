@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-    .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q',
-      function ($http, ArrayService, LockService, $q) {
+    .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q', 'SocketService',
+      function ($http, ArrayService, LockService, $q, SocketService) {
         const self = this;
 
         self.LockService = LockService;
@@ -10,7 +10,6 @@ angular.module('mediaMogulApp')
         self.uninitialized = true;
         self.loadingGroups = true;
         self.errorGroups = false;
-
 
         self.updateMyGroupsList = function() {
           self.uninitialized = false;

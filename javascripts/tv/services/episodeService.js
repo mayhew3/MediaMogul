@@ -1,7 +1,7 @@
 angular.module('mediaMogulApp')
   .service('EpisodeService', ['$log', '$http', '$q', '$filter', 'LockService', 'ArrayService',
-    '$timeout', 'GroupService', 'SocketService',
-    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService, SocketService) {
+    '$timeout', 'GroupService', 'SocketService', '$rootScope',
+    function ($log, $http, $q, $filter, LockService, ArrayService, $timeout, GroupService, SocketService, $rootScope) {
       const allShows = [];
       const myShows = [];
       const myPendingShows = [];
@@ -135,6 +135,25 @@ angular.module('mediaMogulApp')
           _.each(mismatches, show => console.log(' - ' + show.title));
         } else {
           console.log("No mismatches found.")
+        }
+      }
+
+      SocketService.on('group_episode_update', updateGroupEpisodesOnWatch);
+
+      function updateGroupEpisodesOnWatch(payload) {
+        const tv_group_id = payload.tv_group_id;
+        const series_id = payload.series_id;
+        const showList = self.getExistingGroupShowList(tv_group_id);
+        if (!!showList) {
+          $rootScope.$apply(() => {
+            const series = self.findSeriesWithId(series_id);
+            const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
+            if (!payload.watched) {
+              groupSeries.unwatched_all += payload.episode_count;
+            } else {
+              groupSeries.unwatched_all -= payload.episode_count;
+            }
+          });
         }
       }
 
