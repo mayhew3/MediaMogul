@@ -241,6 +241,7 @@ function extractGroupSeries(seriesResults, tv_group_id) {
 exports.removeFromGroupShows = function(request, response) {
   const tv_group_id = request.body.tv_group_id;
   const series_id = request.body.series_id;
+  const client_id = request.body.client_id;
 
   const sql = "UPDATE tv_group_series " +
     "SET retired = id " +
@@ -252,7 +253,13 @@ exports.removeFromGroupShows = function(request, response) {
     series_id, tv_group_id, 0
   ];
 
-  db.updateSendResponse(response, sql, values);
+  db.updateNoResponse(sql, values).then(() => {
+    sockets.emitToAllClientsButOne(client_id, 'group_remove_series', {
+      series_id: series_id,
+      tv_group_id: tv_group_id
+    });
+    response.json({msg: "Success"});
+  });
 };
 
 
