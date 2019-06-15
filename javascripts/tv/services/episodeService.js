@@ -149,7 +149,7 @@ angular.module('mediaMogulApp')
           $rootScope.$apply(() => {
             const series = self.findSeriesWithId(series_id);
             const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
-            if (!payload.watched) {
+            if (!payload.watched && !payload.skipped) {
               groupSeries.unwatched_all += payload.episode_count;
             } else {
               groupSeries.unwatched_all -= payload.episode_count;
