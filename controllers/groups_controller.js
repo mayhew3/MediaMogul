@@ -927,6 +927,7 @@ exports.editBallot = function(request, response) {
 
 exports.submitVote = function(request, response) {
   const vote = request.body.vote;
+  const client_id = request.body.client_id;
 
   const sql = 'INSERT INTO tv_group_vote (tv_group_ballot_id, person_id, vote_value) ' +
     'VALUES ($1, $2, $3)';
@@ -950,6 +951,16 @@ exports.submitVote = function(request, response) {
 
     db.selectNoResponse(sql, values).then(function(votesResult) {
       const group_score = exports.calculateGroupRating({votes: votesResult});
+
+      const msgPayload = {
+        tv_group_ballot_id: vote.tv_group_ballot_id,
+        person_id: vote.person_id,
+        vote_value: vote.vote_value,
+        group_score: group_score,
+        tv_group_id: request.body.tv_group_id,
+        series_id: request.body.series_id
+      };
+      sockets.emitToAllClientsButOne(client_id, 'vote_submitted', msgPayload);
 
       response.json({group_score: group_score});
     });

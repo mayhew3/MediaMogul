@@ -986,12 +986,16 @@ angular.module('mediaMogulApp')
       SocketService.on('group_remove_series', handleGroupRemoveSeriesMessage);
 
       function handleGroupAddSeriesMessage(msg) {
-        addJSONIncomingGroupShowInternal(msg.series, msg.tv_group_id);
+        if (GroupService.isInMyGroups(msg.tv_group_id)) {
+          addJSONIncomingGroupShowInternal(msg.series, msg.tv_group_id);
+        }
       }
 
       function handleGroupRemoveSeriesMessage(msg) {
-        const existing = self.findSeriesWithId(msg.series_id);
-        removeFromGroupShowsInternal(existing, msg.tv_group_id);
+        if (GroupService.isInMyGroups(msg.tv_group_id)) {
+          const existing = self.findSeriesWithId(msg.series_id);
+          removeFromGroupShowsInternal(existing, msg.tv_group_id);
+        }
       }
 
       function addJSONIncomingGroupShowInternal(incomingShow, tv_group_id) {

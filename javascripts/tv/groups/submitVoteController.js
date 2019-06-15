@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
 .controller('submitVoteController', ['$log', 'LockService', '$http', '$uibModalInstance',
             'tv_group_ballot', 'series', 'tv_group', 'DateService', 'ArrayService', 'GroupService',
-            'SeriesDetailService', '$q', 'BallotService',
+            'SeriesDetailService', '$q', 'BallotService', 'SocketService',
   function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, tv_group, DateService,
-           ArrayService, GroupService, SeriesDetailService, $q, BallotService) {
+           ArrayService, GroupService, SeriesDetailService, $q, BallotService, SocketService) {
     const self = this;
     self.LockService = LockService;
     self.GroupService = GroupService;
@@ -178,20 +178,21 @@ angular.module('mediaMogulApp')
     };
 
     self.submitVote = function() {
-      const payload = {
+      const vote = {
         tv_group_ballot_id: tv_group_ballot.id,
         vote_value: self.selectedVote,
         person_id: self.LockService.person_id
       };
 
-      $http.post('/api/votes', {vote: payload}).then(function(result) {
-        if (!_.isArray(tv_group_ballot.votes)) {
-          tv_group_ballot.votes = [];
-        }
-        tv_group_ballot.votes.push({
-          vote_value: payload.vote_value,
-          person_id: payload.person_id
-        });
+      const payload = {
+        vote: vote,
+        client_id: SocketService.getClientID(),
+        tv_group_id: tv_group.id,
+        series_id: self.series.id
+      };
+
+      $http.post('/api/votes', payload).then(function(result) {
+        GroupService.addVoteToBallot(payload, tv_group_ballot);
 
         maybeCloseBallot(result.data.group_score).then(function() {
           $uibModalInstance.close();

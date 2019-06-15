@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-    .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q', 'SocketService',
-      function ($http, ArrayService, LockService, $q, SocketService) {
+    .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q', 'SocketService', '$injector',
+      function ($http, ArrayService, LockService, $q, SocketService, $injector) {
         const self = this;
 
         self.LockService = LockService;
@@ -31,6 +31,32 @@ angular.module('mediaMogulApp')
 
         };
 
+        SocketService.on('vote_submitted', msg => {
+          const series = getEpisodeService().findSeriesWithId(msg.series_id);
+          const groupSeries = self.getGroupSeries(series, msg.tv_group_id);
+          const tv_group = self.getGroupWithID(msg.tv_group_id);
+          if (_.isArray(groupSeries.ballots)) {
+            const ballot = _.findWhere(groupSeries.ballots, {id: msg.tv_group_ballot_id});
+            if (!!ballot && !ballot.voting_closed) {
+              self.addVoteToBallot(msg, ballot);
+            }
+            if (tv_group.members.length === ballot.votes.length) {
+              ballot.voting_closed = new Date;
+              groupSeries.group_score = msg.group_score;
+            }
+          }
+        });
+
+        self.addVoteToBallot = function(vote, ballot) {
+          if (!_.isArray(ballot.votes)) {
+            ballot.votes = [];
+          }
+          ballot.votes.push({
+            vote_value: vote.vote_value,
+            person_id: vote.person_id
+          });
+        };
+
         self.updateMyGroupsListIfDoesntExist = function() {
           return $q(resolve => {
             if (self.uninitialized) {
@@ -40,6 +66,15 @@ angular.module('mediaMogulApp')
             }
           });
         };
+
+        self.isInMyGroups = function(tv_group_id) {
+          const existing = _.findWhere(groups, {id: tv_group_id});
+          return !!existing;
+        };
+
+        function getEpisodeService() {
+          return $injector.get('EpisodeService');
+        }
 
         self.getMyGroups = function() {
           return groups;
