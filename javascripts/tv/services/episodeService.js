@@ -988,10 +988,19 @@ angular.module('mediaMogulApp')
       };
 
       SocketService.on('group_add_series', handleGroupAddSeriesMessage);
+      SocketService.on('group_remove_series', handleGroupRemoveSeriesMessage);
 
       function handleGroupAddSeriesMessage(msg) {
         $rootScope.$apply(() => {
           addJSONIncomingGroupShowInternal(msg.series, msg.tv_group_id);
+        });
+      }
+
+      function handleGroupRemoveSeriesMessage(msg) {
+        // todo: move to SocketService
+        $rootScope.$apply(() => {
+          const existing = self.findSeriesWithId(msg.series_id);
+          removeFromGroupShowsInternal(existing, msg.tv_group_id);
         });
       }
 
@@ -1041,16 +1050,25 @@ angular.module('mediaMogulApp')
         });
       };
 
+      function removeFromGroupShowsInternal(show, tv_group_id) {
+        GroupService.removeGroupFromSeries(show, tv_group_id);
+
+        const groupList = self.getExistingGroupShowList(tv_group_id);
+        if (!!groupList) {
+          ArrayService.removeFromArray(groupList, show);
+        }
+      }
+
       self.removeFromGroupShows = function(show, tv_group_id) {
         return $q((resolve, reject) => {
-          $http.post('/api/removeGroupShow', {series_id: show.id, tv_group_id: tv_group_id}).then(() => {
+          const data = {
+            series_id: show.id,
+            tv_group_id: tv_group_id,
+            client_id: SocketService.getClientID()
+          };
+          $http.post('/api/removeGroupShow', data).then(() => {
 
-            GroupService.removeGroupFromSeries(show, tv_group_id);
-
-            const groupList = self.getExistingGroupShowList(tv_group_id);
-            if (!!groupList) {
-              ArrayService.removeFromArray(groupList, show);
-            }
+            removeFromGroupShowsInternal(show, tv_group_id);
 
             resolve();
           }, function(errResponse) {
