@@ -162,6 +162,8 @@ exports.getMyQueueShows = function(request, response) {
   const sql = commonShowsQuery.sql +
     "AND ps.tier = $10 " +
     "AND ( " +
+    "       ps.pinned = $11 " +
+    "       OR " +
       "     (SELECT MAX(er.watched_date) " +
       "     FROM episode_rating er  " +
       "     INNER JOIN episode e  " +
@@ -171,7 +173,7 @@ exports.getMyQueueShows = function(request, response) {
       "     AND er.watched = $2 " +
       "     AND e.season <> $8 " +
       "     AND e.retired = $4 " +
-      "     AND er.retired = $4) > (now() - INTERVAL '8 days') " +
+      "     AND er.retired = $4) > (now() - INTERVAL '14 days') " +
       "    OR " +
       "    (ps.date_added > (now() - INTERVAL '8 days') ) " +
       "    OR " +
@@ -188,6 +190,7 @@ exports.getMyQueueShows = function(request, response) {
       "     ) ";
   const values = commonShowsQuery.values;
   values.push(tier);
+  values.push(true);
 
   db.selectNoResponse(sql, values).then(function (seriesResults) {
 
