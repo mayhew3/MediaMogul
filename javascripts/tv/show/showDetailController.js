@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService', 'DateService',
     '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
-    'SeriesDetailService', 'BallotService',
+    'SeriesDetailService', 'BallotService', 'SocketService',
   function($log, EpisodeService, $uibModal, $filter, LockService, DateService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService) {
+           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService, SocketService) {
     const self = this;
 
     self.LockService = LockService;
@@ -885,19 +885,42 @@ angular.module('mediaMogulApp')
       return GroupService.getGroupSeries(self.series, getOptionalGroupID());
     }
 
-    function updateDenormsAndGoToNext() {
-      EpisodeService.updateMySeriesDenorms(
-        self.series,
-        self.episodes,
-        updatePersonSeriesInDatabase,
-        self.series.personSeries)
-        .then(function () {
-          if (LockService.isAdmin()) {
-            YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
-          }
-          updateNextUp();
-          goToNextUpAfterPause();
-        });
+    function maybeUpdateMyDenorms() {
+      return $q(resolve => {
+        if (self.isInMyShows()) {
+          EpisodeService.updateMySeriesDenorms(
+            self.series,
+            self.episodes,
+            updatePersonSeriesInDatabase,
+            self.series.personSeries)
+            .then(function () {
+              if (LockService.isAdmin()) {
+                YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
+              }
+              resolve();
+            });
+        } else {
+          resolve();
+        }
+      });
+    }
+
+    function maybeUpdateDenormsAndGoToNext() {
+      maybeUpdateMyDenorms().then(() => {
+        updateNextUp();
+        goToNextUpAfterPause();
+      });
+    }
+
+    function sendMultiWatchPayload(groupEpisodes, optionalLastWatched, watched) {
+      const payload = {
+        series_id: self.series_id,
+        tv_group_id: getOptionalGroupID(),
+        skipped: !watched,
+        lastWatched: optionalLastWatched,
+        groupEpisodes: groupEpisodes
+      };
+      SocketService.emit('multi_group_episode_update', payload);
     }
 
     function maybeMarkPastUnwatched(optionalLastUnwatched, watched) {
@@ -912,6 +935,7 @@ angular.module('mediaMogulApp')
                 .then(results => {
                   updateRatingIDsAfterBulkWatch(results.data);
                   EpisodeService.markAllPreviousGroupWatched(self.episodes, getOptionalGroupID(), optionalLastUnwatched, watched);
+                  sendMultiWatchPayload(results.data, optionalLastUnwatched, watched);
                   resolve();
                 });
             }
@@ -926,7 +950,7 @@ angular.module('mediaMogulApp')
     }
 
     self.afterRatingChangeOnly = function() {
-      updateDenormsAndGoToNext();
+      maybeUpdateDenormsAndGoToNext();
     };
 
     self.afterViewingChange = function(dynamic_rating, optionalLastUnwatched, watched) {
@@ -940,7 +964,7 @@ angular.module('mediaMogulApp')
         if (self.isInGroupMode()) {
           EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
         }
-        updateDenormsAndGoToNext();
+        maybeUpdateDenormsAndGoToNext();
       });
     };
 
