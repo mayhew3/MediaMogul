@@ -3,6 +3,8 @@ const db = require('postgres-mmethods');
 const debug = require('debug');
 const ArrayService = require('./array_util');
 const groups_controller = require('./groups_controller');
+const errs = require('./error_handler');
+const moment = require('moment');
 
 exports.getPersonInfo = function(request, response) {
   var email = request.query.email;
@@ -836,6 +838,47 @@ function attachBallotsToGroupSeries(series, groupSeries) {
   });
 }
 
+function getUnwatchedEpisodesBeforeDate(latestTime, series_id, person_id) {
+  return new Promise(resolve => {
+    const incremented = moment(latestTime).add(1, 'minutes').toDate();
+
+    const sql = 'SELECT e.air_time ' +
+      'FROM episode e ' +
+      'WHERE series_id = $1 ' +
+      'AND air_time IS NOT NULL ' +
+      'AND retired = $2 ' +
+      'AND air_time < $3 ' +
+      'AND id NOT IN (SELECT episode_id ' +
+      '               FROM episode_rating ' +
+      '               WHERE watched = $4' +
+      '               AND retired = $2' +
+      '               AND person_id = $5) ' +
+      'ORDER BY air_time ';
+
+    const values = [series_id, 0, incremented, true, person_id];
+
+    db.selectNoResponse(sql, values).then(results => resolve(results));
+  });
+}
+
+function getResultObjectForUnwatched(latestTime, series_id, person_id, fullEpisodeCount, nextEpisode) {
+  return new Promise(resolve => {
+    getUnwatchedEpisodesBeforeDate(latestTime, series_id, person_id).then(unwatchedEpisodes => {
+      const first_unwatched = !unwatchedEpisodes[0] ? null : unwatchedEpisodes[0].air_time;
+      const unwatched_all = unwatchedEpisodes.length;
+
+      const infoObj = {
+        series_id: series_id,
+        episode_count: fullEpisodeCount,
+        next_air_time: nextEpisode ? nextEpisode.air_time : null,
+        first_unwatched: first_unwatched,
+        unwatched_all: unwatched_all
+      };
+      resolve(infoObj);
+    });
+  });
+}
+
 exports.getNextAiredInfo = function(request, response) {
   const sql = 'SELECT e.series_id, e.air_time ' +
     'FROM episode e ' +
@@ -849,13 +892,15 @@ exports.getNextAiredInfo = function(request, response) {
     'AND e.retired = $2 ' +
     'ORDER BY e.air_time ASC';
 
-  db.selectNoResponse(sql, [request.query.person_id, 0]).then(function (results) {
+  const person_id = request.query.person_id;
+  db.selectNoResponse(sql, [person_id, 0]).then(function (results) {
     if (results.length > 0) {
       const earliestTime = results[0].air_time;
       const earliestEpisodes = _.filter(results, episode => episode.air_time.getTime() === earliestTime.getTime());
       const groupedBySeries = _.groupBy(earliestEpisodes, 'series_id');
 
       const resultObjects = [];
+      const unwatchedQueries = [];
 
       for (const series_id in groupedBySeries) {
         if (groupedBySeries.hasOwnProperty(series_id)) {
@@ -866,21 +911,22 @@ exports.getNextAiredInfo = function(request, response) {
             return ArrayService.exists(episode.air_time) &&
               episode.air_time > earliestTime;
           });
-          const infoObj = {
-            series_id: series_id,
-            episode_count: episodes.length,
-            next_air_time: nextEpisode ? nextEpisode.air_time : null
-          };
-          resultObjects.push(infoObj);
+
+          unwatchedQueries.push(getResultObjectForUnwatched(earliestTime, series_id, person_id, episodes.length, nextEpisode));
         }
       }
 
-      const objectWithTime = {
-        air_time: earliestTime,
-        shows: resultObjects
-      };
+      Promise.all(unwatchedQueries).then(results => {
+        _.each(results, result => resultObjects.push(result));
 
-      response.json(objectWithTime);
+        const objectWithTime = {
+          air_time: earliestTime,
+          shows: resultObjects
+        };
+
+        response.json(objectWithTime);
+      });
+
     } else {
       response.json({
         air_time: null,
