@@ -3,8 +3,6 @@ const db = require('postgres-mmethods');
 const person_controller = require('./person_controller');
 const debug = require('debug');
 const ArrayService = require('./array_util');
-const sockets = require('./sockets_controller');
-const errs = require('./error_handler');
 
 /* GROUPS */
 
@@ -272,9 +270,7 @@ exports.removeFromGroupShows = function(request, response) {
     series_id, tv_group_id, 0
   ];
 
-  db.updateNoResponse(sql, values).then(() => {
-    response.json({msg: "Success"});
-  });
+  db.updateSendResponse(response, sql, values);
 };
 
 
@@ -527,46 +523,14 @@ exports.getGroupEpisodes = function(request, response) {
 
 exports.markEpisodeWatchedByGroup = function(request, response) {
   addOrEditTVGroupEpisode(request).then(function (result) {
-    const tv_group_episode_id = result.tv_group_episode_id;
     markEpisodeWatchedForPersons(request).then(function(personResult) {
       if (!!personResult && !!personResult[0]) {
         result.person_episode = personResult[0];
       }
-
-      const client_id = request.body.payload.client_id;
-      sendGroupWatchMessagePayload(tv_group_episode_id, client_id, response);
-
       response.json(result);
     });
   });
 };
-
-function sendGroupWatchMessagePayload(tv_group_episode_id, client_id, response) {
-  const sql = "SELECT e.series_id, tge.tv_group_id, tge.episode_id, tge.watched, tge.watched_date, tge.skipped " +
-    "FROM episode e " +
-    "INNER JOIN tv_group_episode tge " +
-    " ON tge.episode_id = e.id " +
-    "WHERE tge.id = $1 " +
-    "AND e.retired = $2 " +
-    "AND tge.retired = $2 ";
-
-  const values = [tv_group_episode_id, 0];
-
-  db.selectNoResponse(sql, values).then(results => {
-    const singleResult = results[0];
-    const payload = {
-      tv_group_episode_id: tv_group_episode_id,
-      tv_group_id: singleResult.tv_group_id,
-      watched: singleResult.watched,
-      watched_date: singleResult.watched_date,
-      skipped: singleResult.skipped,
-      series_id: singleResult.series_id,
-      episode_id: singleResult.episode_id,
-      episode_count: 1
-    };
-    sockets.emitToAllClientsButOne(client_id, 'group_episode_update', payload);
-  }).catch(err => errs.throwError(err, 'Error getting group episode info', response));
-}
 
 function markEpisodeWatchedForPersons(request) {
   const payload = request.body.payload;
@@ -716,7 +680,7 @@ function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
 
 
 exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
-  updateTVGroupEpisodesAllPastWatched(request.body, response)
+  updateTVGroupEpisodesAllPastWatched(request.body)
     .then(episodes => {
     person_controller.updateEpisodeRatingsAllPastWatched(request.body, true, episodes)
       .then(episodes => response.json(episodes));
@@ -747,7 +711,7 @@ function getEpisodesThatWillBeUpdated(series_id, tv_group_id, lastWatched) {
   return db.selectNoResponse(sql, values);
 }
 
-function updateTVGroupEpisodesAllPastWatched(payload, response) {
+function updateTVGroupEpisodesAllPastWatched(payload) {
   return new Promise(function(resolve) {
     const series_id = payload.series_id;
     const lastWatched = payload.last_watched;
@@ -785,7 +749,7 @@ function updateTVGroupEpisodesAllPastWatched(payload, response) {
       0                 // retired
     ];
 
-    return db.updateNoResponse(sql, values).then(function() {
+    db.updateNoResponse(sql, values).then(function() {
       const sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, date_added) " +
         "SELECT e.id, $1, $2, $3, now() " +
         "FROM episode e " +
@@ -813,27 +777,10 @@ function updateTVGroupEpisodesAllPastWatched(payload, response) {
       ];
 
       db.selectNoResponse(sql, values).then(groupEpisodes => {
-        if (groupEpisodes.length > 0) {
-          const client_id = payload.client_id;
-          sendMultiWatchPayload(groupEpisodes, series_id, tv_group_id, !watched, lastWatched, client_id);
-        }
-
         resolve(groupEpisodes);
       });
-    })
-      .catch(err => errs.throwError(err, 'Error updating group episodes', response));
+    });
   });
-}
-
-function sendMultiWatchPayload(groupEpisodes, series_id, tv_group_id, skipped, lastWatched, client_id) {
-  const payload = {
-    series_id: series_id,
-    tv_group_id: tv_group_id,
-    skipped: skipped,
-    lastWatched: lastWatched,
-    groupEpisodes: groupEpisodes
-  };
-  sockets.emitToAllClientsButOne(client_id, 'multi_group_episode_update', payload);
 }
 
 
@@ -958,6 +905,7 @@ exports.submitVote = function(request, response) {
 
     db.selectNoResponse(sql, values).then(function(votesResult) {
       const group_score = exports.calculateGroupRating({votes: votesResult});
+
       response.json({group_score: group_score});
     });
   });

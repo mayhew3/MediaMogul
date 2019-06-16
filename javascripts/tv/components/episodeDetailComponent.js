@@ -312,9 +312,22 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
     const payload = createPayload(watchedDate);
 
-    // todo: get rating_id for person_episode and attach it
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
-      groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
+      const tv_group_episode_id = response.data.tv_group_episode_id;
+
+      const msgPayload = {
+        tv_group_episode_id: tv_group_episode_id,
+        tv_group_id: getOptionalGroupID(),
+        watched: !self.isWatched(),
+        watched_date: watchedDate,
+        skipped: false,
+        series_id: self.episode.series_id,
+        episode_id: self.episode.id,
+        episode_count: 1
+      };
+      SocketService.emit('group_episode_update', msgPayload);
+
+      groupEpisode.tv_group_episode_id = tv_group_episode_id;
       groupEpisode.watched = !self.isWatched();
       groupEpisode.watched_date = watchedDate;
       groupEpisode.skipped = false;
@@ -354,6 +367,19 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
+
+      const msgPayload = {
+        tv_group_episode_id: groupEpisode.tv_group_episode_id,
+        tv_group_id: getOptionalGroupID(),
+        watched: false,
+        watched_date: null,
+        skipped: !self.isSkipped(),
+        series_id: self.episode.series_id,
+        episode_id: self.episode.id,
+        episode_count: 1
+      };
+      SocketService.emit('group_episode_update', msgPayload);
+
       groupEpisode.watched = false;
       groupEpisode.skipped = !self.isSkipped();
       self.updating = false;

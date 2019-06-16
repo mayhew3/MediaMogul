@@ -8,7 +8,9 @@ const persons = [];
 const groupChannels = [
   'vote_submitted',
   'group_add_series',
-  'group_remove_series'
+  'group_remove_series',
+  'group_episode_update',
+  'multi_group_episode_update'
 ];
 
 let io;
