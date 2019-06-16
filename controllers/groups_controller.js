@@ -261,7 +261,6 @@ function extractGroupSeries(seriesResults, tv_group_id) {
 exports.removeFromGroupShows = function(request, response) {
   const tv_group_id = request.body.tv_group_id;
   const series_id = request.body.series_id;
-  const client_id = request.body.client_id;
 
   const sql = "UPDATE tv_group_series " +
     "SET retired = id " +
@@ -274,10 +273,6 @@ exports.removeFromGroupShows = function(request, response) {
   ];
 
   db.updateNoResponse(sql, values).then(() => {
-    sockets.emitToAllClientsButOne(client_id, 'group_remove_series', {
-      series_id: series_id,
-      tv_group_id: tv_group_id
-    });
     response.json({msg: "Success"});
   });
 };
@@ -346,7 +341,6 @@ exports.addToGroupShows = function(request, response) {
   const tv_group_id = request.body.tv_group_id;
   const series_id = request.body.series_id;
   const person_id = request.body.person_id;
-  const client_id = request.body.client_id;
 
   addOrRestoreGroupSeries(series_id, tv_group_id).then(tv_group_series_id => {
 
@@ -413,12 +407,6 @@ exports.addToGroupShows = function(request, response) {
 
       db.selectNoResponse(sql, values).then(episodeResults =>  {
         person_controller.calculateUnwatchedDenorms(series, groupSeries, episodeResults);
-
-        const socketData = {
-          series: series,
-          tv_group_id: tv_group_id
-        };
-        sockets.emitToAllClientsButOne(client_id, 'group_add_series', socketData);
 
         response.json(series);
       });

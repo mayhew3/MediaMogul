@@ -1024,11 +1024,17 @@ angular.module('mediaMogulApp')
           const data = {
             series_id: show.id,
             tv_group_id: tv_group_id,
-            person_id: getPersonId(),
-            client_id: SocketService.getClientID()
+            person_id: getPersonId()
           };
           $http.post('/api/addGroupShow', data).then(function(resultShow) {
             const incomingShow = resultShow.data;
+
+            const msgPayload = {
+              series: incomingShow,
+              tv_group_id: tv_group_id
+            };
+
+            SocketService.emit('group_add_series', msgPayload);
 
             addJSONIncomingGroupShowInternal(incomingShow, tv_group_id);
 
@@ -1057,10 +1063,10 @@ angular.module('mediaMogulApp')
         return $q((resolve, reject) => {
           const data = {
             series_id: show.id,
-            tv_group_id: tv_group_id,
-            client_id: SocketService.getClientID()
+            tv_group_id: tv_group_id
           };
           $http.post('/api/removeGroupShow', data).then(() => {
+            SocketService.emit('group_remove_series', data);
 
             removeFromGroupShowsInternal(show, tv_group_id);
 
