@@ -60,6 +60,26 @@ exports.getMyGroups = function(request, response) {
   });
 };
 
+exports.getMyGroupIDsOnly = function(person_id) {
+  return new Promise((resolve, reject) => {
+    const sql = "SELECT id, name " +
+      "FROM tv_group " +
+      "WHERE id IN (SELECT tv_group_id " +
+      "             FROM tv_group_person " +
+      "             WHERE person_id = $1 " +
+      "             AND retired = $2) " +
+      "AND retired = $3 ";
+    db.selectNoResponse(sql, [person_id, 0, 0]).then(function(results) {
+      if (results.length < 1) {
+        resolve([]);
+      } else {
+        resolve(_.pluck(results, 'id'));
+      }
+    }).catch(err => reject(err));
+  });
+
+};
+
 exports.createGroup = function(request, response) {
   const group = request.body.group;
 
