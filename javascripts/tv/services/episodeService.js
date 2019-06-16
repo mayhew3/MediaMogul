@@ -327,8 +327,8 @@ angular.module('mediaMogulApp')
                   const series_id = parseInt(show.series_id);
                   const series = _.findWhere(myShows, {id: series_id});
                   console.log(' - Updating show ' + series.title);
-                  series.personSeries.unwatched_all += show.episode_count;
-                  series.personSeries.first_unwatched = nextAirDate;
+                  series.personSeries.unwatched_all = show.unwatched_all;
+                  series.personSeries.first_unwatched = show.first_unwatched;
                   series.nextAirDate = show.next_air_time ? new Date(show.next_air_time) : undefined;
                 });
                 $timeout.cancel(self.nextTimeout);
