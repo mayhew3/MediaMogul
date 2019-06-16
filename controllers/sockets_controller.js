@@ -15,6 +15,8 @@ exports.initIO = function(in_io) {
     let person_id = parseInt(client.handshake.query.person_id);
     addClientForPerson(person_id, client);
 
+    initChannels(client);
+
     client.on('disconnect', () => {
       console.log('Client disconnected. Removing from array.');
       arrayService.removeFromArray(clients, client);
@@ -22,6 +24,16 @@ exports.initIO = function(in_io) {
     });
   });
 };
+
+function initChannels(client) {
+  const broadcastChannels = ['vote_submitted'];
+
+  _.each(broadcastChannels, channelName => {
+    client.on(channelName, msg => {
+      client.broadcast.emit(channelName, msg);
+    });
+  });
+}
 
 /* API */
 
