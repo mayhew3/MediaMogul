@@ -69,16 +69,6 @@ exports.emitToPerson = function(person_id, channel, msg) {
   emitToClients(clientsForPerson, channel, msg);
 };
 
-exports.emitToPersons = function(person_ids, channel, msg) {
-  const clientsForPerson = getClientsForPersons(person_ids);
-  emitToClients(clientsForPerson, channel, msg);
-};
-
-exports.emitToAllClientsButOne = function(client_id, channel, msg) {
-  const clients = getAllClientsButOne(client_id);
-  emitToClients(clients, channel, msg);
-};
-
 exports.emitToAllExceptPerson = function(person_id, channel, msg) {
   const clientsForEveryoneExceptPerson = getClientsForEveryoneExceptPerson(person_id);
   emitToClients(clientsForEveryoneExceptPerson, channel, msg);
@@ -117,21 +107,11 @@ function getClientsForPerson(person_id) {
   }
 }
 
-function getClientsForPersons(person_ids) {
-  const allClients = [];
-  _.each(person_ids, person_id => arrayService.addToArray(allClients, getClientsForPerson(person_id)));
-  return allClients;
-}
-
 function getClientsForEveryoneExceptPerson(person_id) {
   const otherPersons = _.filter(persons, person => person_id !== person.person_id);
   const clients = [];
   _.each(otherPersons, person => arrayService.addToArray(clients, person.clients));
   return clients;
-}
-
-function getAllClientsButOne(client_id) {
-  return _.filter(clients, client => client_id !== client.id);
 }
 
 function emitToClients(clients, channel, msg) {
