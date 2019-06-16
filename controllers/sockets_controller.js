@@ -1,4 +1,5 @@
 const arrayService = require('../controllers/array_util');
+const groups = require('./groups_controller');
 const _ = require('underscore');
 
 const clients = [];
@@ -15,6 +16,7 @@ exports.initIO = function(in_io) {
     let person_id = parseInt(client.handshake.query.person_id);
     addClientForPerson(person_id, client);
 
+    initGroupRooms(client, person_id);
     initChannels(client);
 
     client.on('disconnect', () => {
@@ -25,12 +27,23 @@ exports.initIO = function(in_io) {
   });
 };
 
-function initChannels(client) {
-  const broadcastChannels = ['vote_submitted'];
+function initGroupRooms(client, person_id) {
+  groups.getMyGroupIDsOnly(person_id).then(group_ids => {
+    const room_names = _.map(group_ids, group_id => 'group_' + group_id);
+    client.join(room_names);
+  }).catch(err => console.error('Error fetching group ids: ' + err));
+}
 
-  _.each(broadcastChannels, channelName => {
+function initChannels(client) {
+  const groupChannels = ['vote_submitted'];
+
+  _.each(groupChannels, channelName => {
     client.on(channelName, msg => {
-      client.broadcast.emit(channelName, msg);
+      if (!msg.tv_group_id) {
+        console.error('No group id on message for channel \'' + channelName + '\'');
+      }
+      const room_name = 'group_' + msg.tv_group_id;
+      client.to(room_name).emit(channelName, msg);
     });
   });
 }
