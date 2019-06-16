@@ -5,6 +5,12 @@ const _ = require('underscore');
 const clients = [];
 const persons = [];
 
+const groupChannels = [
+  'vote_submitted',
+  'group_add_series',
+  'group_remove_series'
+];
+
 let io;
 
 exports.initIO = function(in_io) {
@@ -35,8 +41,6 @@ function initGroupRooms(client, person_id) {
 }
 
 function initChannels(client) {
-  const groupChannels = ['vote_submitted'];
-
   _.each(groupChannels, channelName => {
     client.on(channelName, msg => {
       if (!msg.tv_group_id) {
