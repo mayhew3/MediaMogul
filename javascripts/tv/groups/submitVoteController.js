@@ -184,14 +184,17 @@ angular.module('mediaMogulApp')
         person_id: self.LockService.person_id
       };
 
-      const payload = {
-        vote: vote,
-        client_id: SocketService.getClientID(),
-        tv_group_id: tv_group.id,
-        series_id: self.series.id
-      };
+      $http.post('/api/votes', {vote: vote}).then(function(result) {
+        const msgPayload = {
+          tv_group_ballot_id: tv_group_ballot.id,
+          person_id: self.LockService.person_id,
+          vote_value: self.selectedVote,
+          group_score: result.data.group_score,
+          tv_group_id: tv_group.id,
+          series_id: self.series.id
+        };
 
-      $http.post('/api/votes', payload).then(function(result) {
+        SocketService.emit('vote_submitted', msgPayload);
         GroupService.addVoteToBallot(vote, tv_group_ballot);
 
         maybeCloseBallot(result.data.group_score).then(function() {

@@ -40,6 +40,10 @@ angular.module('mediaMogulApp')
           });
         });
       };
+
+      self.emit = function(channel, msg) {
+        socket.emit(channel, msg);
+      };
     }]);
 
 
