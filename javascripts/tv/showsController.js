@@ -53,7 +53,7 @@ angular.module('mediaMogulApp')
       };
 
       function getMyShowsSubCategories() {
-        return [
+        const forEveryone = [
           {
             label: 'Dashboard',
             sref: 'dashboard'
@@ -67,6 +67,13 @@ angular.module('mediaMogulApp')
             sref: 'backlog'
           }
         ];
+        if (LockService.isAdmin()) {
+          forEveryone.push({
+            label: 'Rate',
+            sref: 'rate'
+          });
+        }
+        return forEveryone;
       }
 
       function getGroupShowsSubCategories() {
