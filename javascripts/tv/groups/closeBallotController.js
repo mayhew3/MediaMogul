@@ -1,7 +1,8 @@
 angular.module('mediaMogulApp')
 .controller('closeBallotController', ['$log', 'LockService', '$http', '$uibModalInstance',
-            'tv_group_ballot', 'series', 'DateService', 'tv_group', 'BallotService',
-  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, DateService, tv_group, BallotService) {
+            'tv_group_ballot', 'series', 'DateService', 'tv_group', 'BallotService', 'SocketService',
+  function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, DateService, tv_group, BallotService,
+           SocketService) {
     const self = this;
     self.LockService = LockService;
     self.DateService = DateService;
@@ -29,12 +30,31 @@ angular.module('mediaMogulApp')
       return self.getTotalMembers() - votes;
     };
 
+    function sendCloseBallotMessage(tv_group_ballot, skip) {
+      const msgPayload = {
+        series_id: self.series.id,
+        tv_group_id: self.tv_group.id,
+        voting_closed: tv_group_ballot.voting_closed,
+        tv_group_ballot_id: tv_group_ballot.id,
+        skip: skip
+      };
+      SocketService.emit('close_ballot', msgPayload);
+    }
+
     self.closeBallot = function() {
-      BallotService.closeBallot(tv_group_ballot, false).then(() => $uibModalInstance.close());
+      const skip = false;
+      BallotService.closeBallot(tv_group_ballot, skip).then(() => {
+        sendCloseBallotMessage(tv_group_ballot, skip);
+        $uibModalInstance.close()
+      });
     };
 
     self.skipBallot = function() {
-      BallotService.closeBallot(tv_group_ballot, true).then(() => $uibModalInstance.close());
+      const skip = true;
+      BallotService.closeBallot(tv_group_ballot, skip).then(() => {
+        sendCloseBallotMessage(tv_group_ballot, skip);
+        $uibModalInstance.close()
+      });
     };
 
     self.cancel = function() {
