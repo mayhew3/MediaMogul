@@ -1,177 +1,175 @@
-<div class="container">
 
-  <div class="page-header" id="banner" style="margin-top: 0">
-    <div class="row">
-      <div class="col-lg-12">
+<div class="page-header" id="banner" style="margin-top: 0">
+  <div class="row">
+    <div class="col-lg-12">
 
-        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
-          <h1>TV Ratings</h1>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
-          <drop-down dynamic-value="ctrl.getViewedYear"
-                     possible-values="ctrl.possibleYears"
-                     on-change-callback="ctrl.changeYear"></drop-down>
-        </div>
-
+      <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+        <h1>TV Ratings</h1>
       </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+        <drop-down dynamic-value="ctrl.getViewedYear"
+                   possible-values="ctrl.possibleYears"
+                   on-change-callback="ctrl.changeYear"></drop-down>
+      </div>
+
     </div>
   </div>
+</div>
 
-  <div class="bs-docs-section clearfix">
-    <div class="container col-lg-2">
-      <ul class="nav nav-pills nav-stacked btn-sm">
-        <li role="episodeGroup" ng-class="ctrl.isActive('All')">
-          <a href ng-click="ctrl.filterAll()">
-            All <span class="badge" ng-show="ctrl.countWhere(ctrl.allGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.allGroupFilter)"></span>
-          </a>
-        </li>
-        <li role="episodeGroup" ng-class="ctrl.isActive('Watched')">
-          <a href ng-click="ctrl.filterWatched()">
-            Watched <span class="badge" ng-show="ctrl.countWhere(ctrl.fullyWatchedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.fullyWatchedGroupFilter)"></span>
-          </a>
-        </li>
-        <li role="episodeGroup" ng-class="ctrl.isActive('Rated')">
-          <a href ng-click="ctrl.filterRated()">
-            Rated <span class="badge" ng-show="ctrl.countWhere(ctrl.ratedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.ratedGroupFilter)"></span>
-          </a>
-        </li>
-        <li role="episodeGroup" ng-class="ctrl.isActive('To Rate')">
-          <a href ng-click="ctrl.filterToRate()">
-            To Rate <span class="badge" ng-show="ctrl.countWhere(ctrl.unratedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.unratedGroupFilter)"></span>
-          </a>
-        </li>
-        <li role="episodeGroup" ng-class="ctrl.isActive('To Review')">
-          <a href ng-click="ctrl.filterToReview()">
-            To Review <span class="badge" ng-show="ctrl.countWhere(ctrl.unreviewedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.unreviewedGroupFilter)"></span>
-          </a>
-        </li>
-        <li role="episodeGroup" ng-class="ctrl.isActive('To Review Again')">
-          <a href ng-click="ctrl.filterToReviewAgain()">
-            To Update <span class="badge" ng-show="ctrl.countWhere(ctrl.reviewOutOfDateGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.reviewOutOfDateGroupFilter)"></span>
-          </a>
-        </li>
-        <li role="episodeGroup" ng-class="ctrl.isActive('To Air')">
-          <a href ng-click="ctrl.filterToAir()">
-            To Air <span class="badge" ng-show="ctrl.countWhere(ctrl.unairedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.unairedGroupFilter)"></span>
-          </a>
-        </li>
-        <li role="episodeGroup" ng-class="ctrl.isActive('To Watch')">
-          <a href ng-click="ctrl.filterToWatch()">To Watch</a>
-        </li>
-      </ul>
+<div class="bs-docs-section clearfix">
+  <div class="container col-lg-2">
+    <ul class="nav nav-pills nav-stacked btn-sm">
+      <li role="episodeGroup" ng-class="ctrl.isActive('All')">
+        <a href ng-click="ctrl.filterAll()">
+          All <span class="badge" ng-show="ctrl.countWhere(ctrl.allGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.allGroupFilter)"></span>
+        </a>
+      </li>
+      <li role="episodeGroup" ng-class="ctrl.isActive('Watched')">
+        <a href ng-click="ctrl.filterWatched()">
+          Watched <span class="badge" ng-show="ctrl.countWhere(ctrl.fullyWatchedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.fullyWatchedGroupFilter)"></span>
+        </a>
+      </li>
+      <li role="episodeGroup" ng-class="ctrl.isActive('Rated')">
+        <a href ng-click="ctrl.filterRated()">
+          Rated <span class="badge" ng-show="ctrl.countWhere(ctrl.ratedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.ratedGroupFilter)"></span>
+        </a>
+      </li>
+      <li role="episodeGroup" ng-class="ctrl.isActive('To Rate')">
+        <a href ng-click="ctrl.filterToRate()">
+          To Rate <span class="badge" ng-show="ctrl.countWhere(ctrl.unratedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.unratedGroupFilter)"></span>
+        </a>
+      </li>
+      <li role="episodeGroup" ng-class="ctrl.isActive('To Review')">
+        <a href ng-click="ctrl.filterToReview()">
+          To Review <span class="badge" ng-show="ctrl.countWhere(ctrl.unreviewedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.unreviewedGroupFilter)"></span>
+        </a>
+      </li>
+      <li role="episodeGroup" ng-class="ctrl.isActive('To Review Again')">
+        <a href ng-click="ctrl.filterToReviewAgain()">
+          To Update <span class="badge" ng-show="ctrl.countWhere(ctrl.reviewOutOfDateGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.reviewOutOfDateGroupFilter)"></span>
+        </a>
+      </li>
+      <li role="episodeGroup" ng-class="ctrl.isActive('To Air')">
+        <a href ng-click="ctrl.filterToAir()">
+          To Air <span class="badge" ng-show="ctrl.countWhere(ctrl.unairedGroupFilter) > 0" ng-bind="ctrl.countWhere(ctrl.unairedGroupFilter)"></span>
+        </a>
+      </li>
+      <li role="episodeGroup" ng-class="ctrl.isActive('To Watch')">
+        <a href ng-click="ctrl.filterToWatch()">To Watch</a>
+      </li>
+    </ul>
 
 
-      <ul class="nav nav-pills nav-stacked btn-sm">
-        <li role="yearMethods">
-          <a href
-             ng-click="ctrl.lockRatings()"
-             ng-show="ctrl.LockService.isAdmin() && !ctrl.isRatingLocked()"
-             ng-disabled="!ctrl.LockService.isAuthenticated">
-            Lock Ratings
-          </a>
-        </li>
-        <li role="yearMethods">
-          <a href
-             ng-click="ctrl.unlockRatings()"
-             ng-show="ctrl.LockService.isAdmin() && ctrl.isRatingLocked()"
-             ng-disabled="!ctrl.LockService.isAuthenticated">
-            Unlock Ratings
-          </a>
-        </li>
-        <li role="yearMethods">
-          <a href
-             ng-click="ctrl.increaseYear()"
-             ng-show="ctrl.LockService.isAdmin() && ctrl.readyToChangeYear()"
-             ng-disabled="!ctrl.LockService.isAuthenticated">
-            Update Year
-          </a>
-        </li>
-        <li role="yearMethods">
-          <a href
-             ng-click="ctrl.revertYear()"
-             ng-show="ctrl.LockService.isAdmin() && ctrl.initialYear !== null && ctrl.year !== ctrl.initialYear"
-             ng-disabled="!ctrl.LockService.isAuthenticated">
-            Revert Year
-          </a>
-        </li>
-      </ul>
+    <ul class="nav nav-pills nav-stacked btn-sm">
+      <li role="yearMethods">
+        <a href
+           ng-click="ctrl.lockRatings()"
+           ng-show="ctrl.LockService.isAdmin() && !ctrl.isRatingLocked()"
+           ng-disabled="!ctrl.LockService.isAuthenticated">
+          Lock Ratings
+        </a>
+      </li>
+      <li role="yearMethods">
+        <a href
+           ng-click="ctrl.unlockRatings()"
+           ng-show="ctrl.LockService.isAdmin() && ctrl.isRatingLocked()"
+           ng-disabled="!ctrl.LockService.isAuthenticated">
+          Unlock Ratings
+        </a>
+      </li>
+      <li role="yearMethods">
+        <a href
+           ng-click="ctrl.increaseYear()"
+           ng-show="ctrl.LockService.isAdmin() && ctrl.readyToChangeYear()"
+           ng-disabled="!ctrl.LockService.isAuthenticated">
+          Update Year
+        </a>
+      </li>
+      <li role="yearMethods">
+        <a href
+           ng-click="ctrl.revertYear()"
+           ng-show="ctrl.LockService.isAdmin() && ctrl.initialYear !== null && ctrl.year !== ctrl.initialYear"
+           ng-disabled="!ctrl.LockService.isAuthenticated">
+          Revert Year
+        </a>
+      </li>
+    </ul>
 
-    </div>
-    <div class="col-lg-10">
+  </div>
+  <div class="col-lg-10">
 
-      <div id="episodeGroupContainer">
-        <table class="table table-striped table-hover">
-          <thead>
-          <th>Title</th>
-          <th>Avg</th>
-          <th>Last</th>
-          <th ng-show="ctrl.showUnrated">Unrated</th>
-          <th ng-show="ctrl.showUnwatched">Unwatched</th>
-          <th ng-show="ctrl.showUnaired">Unaired</th>
-          <th ng-show="ctrl.showNeeds">Needs</th>
-          <th>Rating</th>
-          <th ng-show="ctrl.showRGB">RGB</th>
-          </thead>
-          <tr data-ng-repeat="episodeGroup in ctrl.episodeGroups |
+    <div id="episodeGroupContainer">
+      <table class="table table-striped table-hover">
+        <thead>
+        <th>Title</th>
+        <th>Avg</th>
+        <th>Last</th>
+        <th ng-show="ctrl.showUnrated">Unrated</th>
+        <th ng-show="ctrl.showUnwatched">Unwatched</th>
+        <th ng-show="ctrl.showUnaired">Unaired</th>
+        <th ng-show="ctrl.showNeeds">Needs</th>
+        <th>Rating</th>
+        <th ng-show="ctrl.showRGB">RGB</th>
+        </thead>
+        <tr data-ng-repeat="episodeGroup in ctrl.episodeGroups |
                 filter:ctrl.episodeGroupFilter |
                 orderBy:[ctrl.seriesOrdering]">
-            <td ng-bind="episodeGroup.title" ng-click="ctrl.openSeriesRating(episodeGroup)"></td>
-            <td ng-style="ctrl.colorStyleFull(episodeGroup.avg_rating)"  ng-bind="episodeGroup.avg_rating|number: 1" width="70" align="center"></td>
-            <td ng-bind="episodeGroup.last_aired|date:ctrl.getDateFormat(episodeGroup.last_aired):'America/Los_Angeles'" align="center"></td>
-            <td ng-show="ctrl.showUnrated">
+          <td ng-bind="episodeGroup.title" ng-click="ctrl.openSeriesRating(episodeGroup)"></td>
+          <td ng-style="ctrl.colorStyleFull(episodeGroup.avg_rating)"  ng-bind="episodeGroup.avg_rating|number: 1" width="70" align="center"></td>
+          <td ng-bind="episodeGroup.last_aired|date:ctrl.getDateFormat(episodeGroup.last_aired):'America/Los_Angeles'" align="center"></td>
+          <td ng-show="ctrl.showUnrated">
                 <span class="label label-danger"
                       ng-hide="ctrl.getUnrated(episodeGroup) === 0"
                       ng-bind="ctrl.getUnrated(episodeGroup)"
                       title="Unrated"></span>
-              <span ng-hide="ctrl.getUnrated(episodeGroup) === 0"> / </span>
-              <span class="label label-info"
-                    ng-hide="ctrl.getUnrated(episodeGroup) === 0"
-                    ng-bind="episodeGroup.num_episodes"
-                    title="Episodes"></span>
-            </td>
-            <td ng-show="ctrl.showUnwatched">
+            <span ng-hide="ctrl.getUnrated(episodeGroup) === 0"> / </span>
+            <span class="label label-info"
+                  ng-hide="ctrl.getUnrated(episodeGroup) === 0"
+                  ng-bind="episodeGroup.num_episodes"
+                  title="Episodes"></span>
+          </td>
+          <td ng-show="ctrl.showUnwatched">
                 <span class="label label-danger"
                       ng-hide="ctrl.getUnwatched(episodeGroup) === 0"
                       ng-bind="ctrl.getUnwatched(episodeGroup)"
                       title="Unwatched"></span>
-              <span ng-hide="ctrl.getUnwatched(episodeGroup) === 0"> / </span>
-              <span class="label label-info"
-                    ng-hide="ctrl.getUnwatched(episodeGroup) === 0"
-                    ng-bind="episodeGroup.aired"
-                    title="Aired"></span>
-            </td>
+            <span ng-hide="ctrl.getUnwatched(episodeGroup) === 0"> / </span>
+            <span class="label label-info"
+                  ng-hide="ctrl.getUnwatched(episodeGroup) === 0"
+                  ng-bind="episodeGroup.aired"
+                  title="Aired"></span>
+          </td>
 
-            <td ng-show="ctrl.showUnaired">
+          <td ng-show="ctrl.showUnaired">
                 <span class="label label-danger"
                       ng-hide="ctrl.getUnaired(episodeGroup) === 0"
                       ng-bind="ctrl.getUnaired(episodeGroup)"
                       title="Unwatched"></span>
-              <span ng-hide="ctrl.getUnaired(episodeGroup) === 0"> / </span>
-              <span class="label label-info"
-                    ng-hide="ctrl.getUnaired(episodeGroup) === 0"
-                    ng-bind="episodeGroup.aired"
-                    title="Aired"></span>
-            </td>
+            <span ng-hide="ctrl.getUnaired(episodeGroup) === 0"> / </span>
+            <span class="label label-info"
+                  ng-hide="ctrl.getUnaired(episodeGroup) === 0"
+                  ng-bind="episodeGroup.aired"
+                  title="Aired"></span>
+          </td>
 
-            <td ng-show="ctrl.showNeeds">
+          <td ng-show="ctrl.showNeeds">
                 <span class="label label-danger"
                       ng-show="ctrl.unratedGroupFilter(episodeGroup)"
                       title="Needs Rating">Rating</span>
-              <span class="label label-warning"
-                    ng-show="ctrl.unreviewedGroupFilter(episodeGroup)"
-                    title="Needs Review">Review</span>
-              <span class="label label-info"
-                    ng-show="ctrl.unairedGroupFilter(episodeGroup)"
-                    title="Needs Airing">Air</span>
-              <span class="label label-success"
-                    ng-show="ctrl.unwatchedGroupFilter(episodeGroup)"
-                    title="Needs Watching">Watch</span>
-            </td>
-            <td ng-style="ctrl.getBestRatingColorStyle(episodeGroup)" ng-bind="ctrl.getBestRating(episodeGroup)|number: 1" width="70" align="center"></td>
-            <td ng-show="ctrl.showRGB" align="right"><span ng-bind="ctrl.getBestRatingRGB(episodeGroup)"></span></td>
-          </tr>
-        </table>
-      </div>
+            <span class="label label-warning"
+                  ng-show="ctrl.unreviewedGroupFilter(episodeGroup)"
+                  title="Needs Review">Review</span>
+            <span class="label label-info"
+                  ng-show="ctrl.unairedGroupFilter(episodeGroup)"
+                  title="Needs Airing">Air</span>
+            <span class="label label-success"
+                  ng-show="ctrl.unwatchedGroupFilter(episodeGroup)"
+                  title="Needs Watching">Watch</span>
+          </td>
+          <td ng-style="ctrl.getBestRatingColorStyle(episodeGroup)" ng-bind="ctrl.getBestRating(episodeGroup)|number: 1" width="70" align="center"></td>
+          <td ng-show="ctrl.showRGB" align="right"><span ng-bind="ctrl.getBestRatingRGB(episodeGroup)"></span></td>
+        </tr>
+      </table>
     </div>
   </div>
 </div>

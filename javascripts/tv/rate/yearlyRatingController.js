@@ -35,6 +35,7 @@ angular.module('mediaMogulApp')
     function updateGroupRatings(year) {
       YearlyRatingService.updateEpisodeGroupRatings(year).then(function () {
         self.episodeGroups = YearlyRatingService.getEpisodeGroupRatings();
+        self.viewedYear.label = year;
         $log.debug("Controller has " + self.episodeGroups.length + " shows.");
       });
     }
