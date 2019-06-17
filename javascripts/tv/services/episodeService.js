@@ -1172,16 +1172,23 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.markLocalPastEpisodeWatched = function(episodes, lastWatched) {
+        episodes.forEach(function(episode) {
+          if (!!episode.personEpisode &&
+            episode.absolute_number !== null &&
+            episode.absolute_number <= lastWatched &&
+            episode.season !== 0) {
+
+            episode.personEpisode.watched = true;
+          }
+        });
+      };
+
       self.markMyPastWatched = function(series, episodes, lastWatched) {
         return $q((resolve, reject) => {
           $http.post('/api/markMyPastWatched', {SeriesId: series.id, LastWatched: lastWatched, PersonId: getPersonId()}).then(function() {
             $log.debug("Past watched API call complete.");
-            episodes.forEach(function(episode) {
-              $log.debug(lastWatched + ", " + episode.absolute_number);
-              if (episode.absolute_number !== null && episode.absolute_number <= lastWatched && episode.season !== 0) {
-                episode.personEpisode.watched = true;
-              }
-            });
+            self.markLocalPastEpisodeWatched(episodes, lastWatched);
             resolve();
           }, function(errResponse) {
             $log.debug("Error calling the method: " + errResponse);

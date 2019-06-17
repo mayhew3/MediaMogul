@@ -52,6 +52,10 @@ angular.module('mediaMogulApp')
               shallowCopy(msgPayload.personEpisode, existingEpisode.personEpisode);
             }
           }
+
+          if (msgPayload.last_unwatched) {
+            getEpisodeService().markLocalPastEpisodeWatched(episodes, msgPayload.last_unwatched);
+          }
         }
       };
 
