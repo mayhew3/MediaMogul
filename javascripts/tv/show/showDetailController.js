@@ -885,7 +885,7 @@ angular.module('mediaMogulApp')
       return GroupService.getGroupSeries(self.series, getOptionalGroupID());
     }
 
-    function maybeUpdateMyDenorms() {
+    function maybeUpdateMyDenorms(msgPayload) {
       return $q(resolve => {
         if (self.isInMyShows()) {
           EpisodeService.updateMySeriesDenorms(
@@ -897,6 +897,11 @@ angular.module('mediaMogulApp')
               if (LockService.isAdmin()) {
                 YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
               }
+              if (!!msgPayload) {
+                msgPayload.unwatched_all = self.series.personSeries.unwatched_all;
+                msgPayload.first_unwatched = self.series.personSeries.first_unwatched;
+                SocketService.emit('my_episode_viewed', msgPayload);
+              }
               resolve();
             });
         } else {
@@ -905,8 +910,8 @@ angular.module('mediaMogulApp')
       });
     }
 
-    function maybeUpdateDenormsAndGoToNext() {
-      maybeUpdateMyDenorms().then(() => {
+    function maybeUpdateDenormsAndGoToNext(msgPayload) {
+      maybeUpdateMyDenorms(msgPayload).then(() => {
         updateNextUp();
         goToNextUpAfterPause();
       });
@@ -953,7 +958,7 @@ angular.module('mediaMogulApp')
       maybeUpdateDenormsAndGoToNext();
     };
 
-    self.afterViewingChange = function(dynamic_rating, optionalLastUnwatched, watched) {
+    self.afterViewingChange = function(dynamic_rating, optionalLastUnwatched, watched, msgPayload) {
       if (!!dynamic_rating) {
         if (!self.series.personSeries) {
           self.series.personSeries = {};
@@ -964,7 +969,7 @@ angular.module('mediaMogulApp')
         if (self.isInGroupMode()) {
           EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
         }
-        maybeUpdateDenormsAndGoToNext();
+        maybeUpdateDenormsAndGoToNext(msgPayload);
       });
     };
 
