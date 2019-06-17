@@ -10,7 +10,13 @@ const groupChannels = [
   'group_add_series',
   'group_remove_series',
   'group_episode_update',
-  'multi_group_episode_update'
+  'multi_group_episode_update',
+  'add_ballot',
+  'close_ballot'
+];
+
+const personalChannels = [
+  'my_episode_viewed'
 ];
 
 let io;
