@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
 .controller('addBallotController', ['$log', 'LockService', '$http', '$uibModalInstance', 'series',
-            'DateService', 'ArrayService', 'groupSeries', 'starting_reason', 'EpisodeService', '$q',
+            'DateService', 'ArrayService', 'groupSeries', 'starting_reason', 'EpisodeService', '$q', 'SocketService',
   function($log, LockService, $http, $uibModalInstance, series, DateService, ArrayService,
-           groupSeries, starting_reason, EpisodeService, $q) {
+           groupSeries, starting_reason, EpisodeService, $q, SocketService) {
     const self = this;
     self.LockService = LockService;
     self.DateService = DateService;
@@ -71,6 +71,9 @@ angular.module('mediaMogulApp')
         } else {
           self.groupSeries.ballots.push(ballot);
         }
+
+        SocketService.emit('add_ballot', ballot);
+
         $uibModalInstance.close();
       });
     }
