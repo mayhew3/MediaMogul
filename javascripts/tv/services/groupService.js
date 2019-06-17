@@ -35,6 +35,7 @@ angular.module('mediaMogulApp')
 
         SocketService.on('vote_submitted', handleVoteSubmittedMessage);
         SocketService.on('add_ballot', addBallotMessageReceived);
+        SocketService.on('close_ballot', closeBallotMessageReceived);
 
         function handleVoteSubmittedMessage(msg) {
           const series = getEpisodeService().findSeriesWithId(msg.series_id);
@@ -56,6 +57,16 @@ angular.module('mediaMogulApp')
           const series = getEpisodeService().findSeriesWithId(msg.series_id);
           const groupSeries = self.getGroupSeries(series, msg.tv_group_id);
           self.addBallotToGroupSeries(msg.ballot, groupSeries);
+        }
+
+        function closeBallotMessageReceived(msg) {
+          const series = getEpisodeService().findSeriesWithId(msg.series_id);
+          const groupSeries = self.getGroupSeries(series, msg.tv_group_id);
+          const ballot = _.findWhere(groupSeries.ballots, {id: msg.tv_group_ballot_id});
+          if (!!ballot) {
+            ballot.voting_closed = msg.voting_closed;
+            ballot.skip = msg.skip;
+          }
         }
 
         self.addBallotToGroupSeries = function(ballot, groupSeries) {
