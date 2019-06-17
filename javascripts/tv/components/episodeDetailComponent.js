@@ -262,8 +262,17 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         personEpisode.watched_date = watchedDate;
         personEpisode.rating_value = self.rating_value;
       }
+
+      const msgPayload = {
+        series_id: self.episode.series_id,
+        person_id: LockService.person_id,
+        personEpisode: changedFields
+      };
+      msgPayload.personEpisode.episode_id = self.episode.id;
+
       resolve({
-        result: result
+        result: result,
+        msgPayload: msgPayload
       });
     });
   }
