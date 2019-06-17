@@ -442,6 +442,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
         self.updating = false;
         msgPayload.dynamic_rating = dynamicRating;
+        msgPayload.last_unwatched = getLastUnwatched();
         self.postViewingCallback(dynamicRating, getLastUnwatched(), self.isWatched(), msgPayload);
       });
     }
