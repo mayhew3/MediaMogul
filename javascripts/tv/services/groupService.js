@@ -31,7 +31,12 @@ angular.module('mediaMogulApp')
 
         };
 
-        SocketService.on('vote_submitted', msg => {
+        // Socket Message Handler
+
+        SocketService.on('vote_submitted', handleVoteSubmittedMessage);
+        SocketService.on('add_ballot', addBallotMessageReceived);
+
+        function handleVoteSubmittedMessage(msg) {
           const series = getEpisodeService().findSeriesWithId(msg.series_id);
           const groupSeries = self.getGroupSeries(series, msg.tv_group_id);
           const tv_group = self.getGroupWithID(msg.tv_group_id);
@@ -45,7 +50,21 @@ angular.module('mediaMogulApp')
               groupSeries.group_score = msg.group_score;
             }
           }
-        });
+        }
+
+        function addBallotMessageReceived(msg) {
+          const series = getEpisodeService().findSeriesWithId(msg.series_id);
+          const groupSeries = self.getGroupSeries(series, msg.tv_group_id);
+          self.addBallotToGroupSeries(msg.ballot, groupSeries);
+        }
+
+        self.addBallotToGroupSeries = function(ballot, groupSeries) {
+          if (!_.isArray(groupSeries.ballots)) {
+            groupSeries.ballots = [ballot];
+          } else {
+            groupSeries.ballots.push(ballot);
+          }
+        };
 
         self.addVoteToBallot = function(vote, ballot) {
           if (!_.isArray(ballot.votes)) {
