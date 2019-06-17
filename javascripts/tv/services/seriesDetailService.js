@@ -7,11 +7,11 @@ angular.module('mediaMogulApp')
       let episodes = [];
 
       function alreadyHasSeries(series_id) {
-        return ArrayService.exists(series) && series_id === series.id;
+        return !!series && series_id === series.id;
       }
 
       self.updateCacheWithGroupViewPayload = function(payload) {
-        if (!!series && series.id === payload.series_id) {
+        if (alreadyHasSeries(payload.series_id)) {
           const episode = _.findWhere(episodes, {id: payload.episode_id});
           const tv_group_id = payload.tv_group_id;
           let groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
@@ -24,7 +24,7 @@ angular.module('mediaMogulApp')
       };
 
       self.updateCacheWithMultiGroupViewPayload = function(payload, series, groupSeries) {
-        if (!!series && series.id === payload.series_id) {
+        if (alreadyHasSeries(payload.series_id)) {
           const tv_group_id = payload.tv_group_id;
 
           _.each(payload.groupEpisodes, incomingGroupEpisode => {
@@ -41,6 +41,30 @@ angular.module('mediaMogulApp')
           getEpisodeService().updateMySeriesDenorms(series, episodes, doNothing, groupSeries);
         }
       };
+
+      self.updateCacheWithPersonEpisodeWatched = function(msgPayload) {
+        if (alreadyHasSeries(msgPayload.series_id)) {
+          const existingEpisode = _.findWhere(episodes, {id: msgPayload.personEpisode.episode_id});
+          if (!!existingEpisode) {
+            if (!existingEpisode.personEpisode) {
+              existingEpisode.personEpisode = msgPayload.personEpisode;
+            } else {
+              shallowCopy(msgPayload.personEpisode, existingEpisode.personEpisode);
+            }
+          }
+        }
+      };
+
+      function shallowCopy(sourceObj, destinationObj) {
+        for (let propertyName in sourceObj) {
+          if (sourceObj.hasOwnProperty(propertyName)) {
+            const originalProp = sourceObj[propertyName];
+            if (!_.isArray(originalProp)) {
+              destinationObj[propertyName] = originalProp;
+            }
+          }
+        }
+      }
 
       function doNothing() {
         return $q(resolve => resolve());

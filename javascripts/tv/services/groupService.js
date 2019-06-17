@@ -41,7 +41,7 @@ angular.module('mediaMogulApp')
           const series = getEpisodeService().findSeriesWithId(msg.series_id);
           const groupSeries = self.getGroupSeries(series, msg.tv_group_id);
           const tv_group = self.getGroupWithID(msg.tv_group_id);
-          if (_.isArray(groupSeries.ballots)) {
+          if (!!groupSeries && _.isArray(groupSeries.ballots)) {
             const ballot = _.findWhere(groupSeries.ballots, {id: msg.tv_group_ballot_id});
             if (!!ballot && !ballot.voting_closed) {
               self.addVoteToBallot(msg, ballot);
