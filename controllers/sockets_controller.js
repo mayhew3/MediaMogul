@@ -4,6 +4,8 @@ const _ = require('underscore');
 
 const clients = [];
 const persons = [];
+const existing_person_rooms = [];
+const existing_group_rooms = [];
 
 const groupChannels = [
   'vote_submitted',
@@ -30,8 +32,7 @@ exports.initIO = function(in_io) {
     let person_id = parseInt(client.handshake.query.person_id);
     addClientForPerson(person_id, client);
 
-    initGroupRooms(client, person_id);
-    initChannels(client);
+    initAllRooms(client, person_id);
 
     client.on('disconnect', () => {
       console.log('Client disconnected. Removing from array.');
@@ -41,14 +42,55 @@ exports.initIO = function(in_io) {
   });
 };
 
+function addToPersonRooms(room_name) {
+  if (!_.contains(existing_person_rooms, room_name)) {
+    existing_person_rooms.push(room_name);
+  }
+}
+
+function addToGroupRooms(room_names) {
+  _.each(room_names, room_name => {
+    if (!_.contains(existing_group_rooms, room_name)) {
+      existing_group_rooms.push(room_name);
+    }
+  });
+}
+
+function initAllRooms(client, person_id) {
+  initPersonRoom(client, person_id);
+  initGroupRooms(client, person_id);
+  initPersonalChannels(client);
+  initGroupChannels(client);
+}
+
+function initPersonRoom(client, person_id) {
+  const room_name = 'person_' + person_id;
+  client.join(room_name);
+  addToPersonRooms(room_name);
+}
+
 function initGroupRooms(client, person_id) {
   groups.getMyGroupIDsOnly(person_id).then(group_ids => {
     const room_names = _.map(group_ids, group_id => 'group_' + group_id);
     client.join(room_names);
+    addToGroupRooms(room_names);
   }).catch(err => console.error('Error fetching group ids: ' + err));
 }
 
-function initChannels(client) {
+function initPersonalChannels(client) {
+  _.each(personalChannels, channelName => {
+    client.on(channelName, msg => {
+      if (!msg.person_id) {
+        console.error('No person id on message for channel \'' + channelName + '\'');
+      }
+      console.log('Message received on channel \'' + channelName + '\' to person ' + msg.person_id);
+      const room_name = 'person_' + msg.person_id;
+      client.to(room_name).emit(channelName, msg);
+    });
+  });
+}
+
+function initGroupChannels(client) {
   _.each(groupChannels, channelName => {
     client.on(channelName, msg => {
       if (!msg.tv_group_id) {

@@ -413,6 +413,18 @@ angular.module('mediaMogulApp')
         fetchEpisodeCallbacks.push(callback);
       };
 
+      SocketService.on('my_episode_viewed', handleEpisodeViewedMessage);
+
+      function handleEpisodeViewedMessage(msg) {
+        const existingShow = _.findWhere(myShows, {id: msg.series_id});
+        if (!!existingShow && !!existingShow.personSeries) {
+          const personSeries = existingShow.personSeries;
+          personSeries.unwatched_all = msg.unwatched_all;
+          personSeries.first_unwatched = msg.first_unwatched;
+          personSeries.dynamic_rating = msg.dynamic_rating;
+        }
+      }
+
       function listenForShowsAddedBySomeoneElse() {
         self.SocketService.on('show_added', addNewShowAddedExternally);
       }

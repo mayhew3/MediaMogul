@@ -262,7 +262,9 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         personEpisode.watched_date = watchedDate;
         personEpisode.rating_value = self.rating_value;
       }
-      resolve(result);
+      resolve({
+        result: result
+      });
     });
   }
 
@@ -279,7 +281,19 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     };
     EpisodeService.addMyEpisodeRating(ratingFields, episode.series_id).then(function (result) {
       episode.personEpisode = ratingFields;
-      resolve(result);
+
+      const msgPayload = {
+        series_id: self.episode.series_id,
+        person_id: LockService.person_id,
+        personEpisode: ratingFields
+      };
+
+      msgPayload.personEpisode.rating_id = result.data.rating_id;
+
+      resolve({
+        result: result,
+        msgPayload: msgPayload
+      });
     });
   }
 
@@ -407,14 +421,19 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       updateOrAddGroupRating();
     } else {
       updateOrAddMyRating().then(response => {
+        const result = response.result;
+        const msgPayload = response.msgPayload;
+
         let dynamicRating = undefined;
-        if (response) {
+        if (result) {
           const personEpisode = self.episode.personEpisode;
-          personEpisode.rating_id = response.data.rating_id;
-          dynamicRating = response.data.dynamic_rating;
+          personEpisode.rating_id = result.data.rating_id;
+          dynamicRating = result.data.dynamic_rating;
         }
+
         self.updating = false;
-        self.postViewingCallback(dynamicRating, getLastUnwatched());
+        msgPayload.dynamic_rating = dynamicRating;
+        self.postViewingCallback(dynamicRating, getLastUnwatched(), self.isWatched(), msgPayload);
       });
     }
   };
