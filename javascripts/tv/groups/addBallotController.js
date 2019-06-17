@@ -72,7 +72,13 @@ angular.module('mediaMogulApp')
           self.groupSeries.ballots.push(ballot);
         }
 
-        SocketService.emit('add_ballot', ballot);
+        const msgPayload = {
+          ballot: ballot,
+          tv_group_id: self.groupSeries.tv_group_id,
+          series_id: self.series.id
+        };
+
+        SocketService.emit('add_ballot', msgPayload);
 
         $uibModalInstance.close();
       });

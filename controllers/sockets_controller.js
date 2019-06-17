@@ -54,6 +54,7 @@ function initChannels(client) {
       if (!msg.tv_group_id) {
         console.error('No group id on message for channel \'' + channelName + '\'');
       }
+      console.log('Message received on channel \'' + channelName + '\' to group ' + msg.tv_group_id);
       const room_name = 'group_' + msg.tv_group_id;
       client.to(room_name).emit(channelName, msg);
     });
