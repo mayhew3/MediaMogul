@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService', 'DateService',
     '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
-    'SeriesDetailService', 'BallotService', 'SocketService',
+    'SeriesDetailService', 'BallotService', 'SocketService', 'ObjectCopyService',
   function($log, EpisodeService, $uibModal, $filter, LockService, DateService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService, SocketService) {
+           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService, SocketService, ObjectCopyService) {
     const self = this;
 
     self.LockService = LockService;
@@ -947,19 +947,44 @@ angular.module('mediaMogulApp')
       maybeUpdateDenormsAndGoToNext();
     };
 
-    self.afterViewingChange = function(dynamic_rating, optionalLastUnwatched, watched, msgPayload) {
+    self.afterViewingChange = function(dynamic_rating, optionalLastUnwatched, watched, msgPayload, personEpisodes, groupEpisodes) {
       if (!!dynamic_rating) {
         if (!self.series.personSeries) {
           self.series.personSeries = {};
         }
         self.series.personSeries.dynamic_rating = dynamic_rating;
       }
-      maybeMarkPastUnwatched(optionalLastUnwatched).then(() => {
-        if (self.isInGroupMode()) {
-          EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
+
+      _.each(personEpisodes, personEpisode => {
+        const episode = _.findWhere(self.episodes, {id: personEpisode.episode_id});
+        if (!!episode) {
+          if (!!episode.personEpisode) {
+            ObjectCopyService.shallowCopy(personEpisode, episode.personEpisode);
+          } else {
+            episode.personEpisode = personEpisode;
+          }
         }
-        maybeUpdateDenormsAndGoToNext(msgPayload);
       });
+
+      _.each(groupEpisodes, incomingGroupEpisode => {
+        const episode = _.findWhere(self.episodes, {id: incomingGroupEpisode.episode_id});
+        if (!!episode) {
+          const groupEpisode = GroupService.getGroupEpisode(episode, getOptionalGroupID());
+          if (!!groupEpisode) {
+            ObjectCopyService.shallowCopy(incomingGroupEpisode, groupEpisode);
+          } else {
+            if (!_.isArray(episode.groups)) {
+              episode.groups = [];
+            }
+            episode.groups.push(incomingGroupEpisode);
+          }
+        }
+      });
+
+      if (self.isInGroupMode()) {
+        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
+      }
+      maybeUpdateDenormsAndGoToNext(msgPayload);
     };
 
     function updateRatingIDsAfterBulkWatch(episodes) {
