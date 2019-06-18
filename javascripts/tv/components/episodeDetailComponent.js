@@ -306,17 +306,18 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     });
   }
 
-  function createPayload(watchedDate) {
+  function createPayload(watchedDate, skipped) {
     const groupEpisode = getGroupEpisode();
     const payload = {
       changedFields: {
-        watched: !self.isWatched(),
+        watched: skipped ? false : !self.isWatched(),
         watched_date: watchedDate,
-        skipped: false
+        skipped: skipped ? !self.isSkipped() : false
       },
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
       episode_id: self.episode.id,
-      person_id: LockService.person_id
+      person_id: LockService.person_id,
+      series_id: self.episode.series_id
     };
     if (_.isNumber(groupEpisode.tv_group_episode_id)) {
       payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
@@ -327,12 +328,20 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return payload;
   }
 
-  function updateOrAddGroupRating() {
+  function createPayloadForGroupWatch(watchedDate) {
+    return createPayload(watchedDate, false);
+  }
+
+  function createPayloadForGroupSkip(watchedDate) {
+    return createPayload(watchedDate, true);
+  }
+
+  function updateOrAddGroupWatch() {
     const watchedDate = DateService.formatDateForDatabase(self.watchedDate);
     const groupEpisode = getGroupEpisode();
     const personEpisode = self.episode.personEpisode;
 
-    const payload = createPayload(watchedDate);
+    const payload = createPayloadForGroupWatch(watchedDate);
 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       const tv_group_episode_id = response.data.tv_group_episode_id;
@@ -368,24 +377,9 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     });
   }
 
-  function updateOrAddSkipRating() {
+  function updateOrAddGroupSkip() {
     const groupEpisode = getGroupEpisode();
-    const payload = {
-      changedFields: {
-        skipped: !self.isSkipped(),
-        watched: false,
-        watched_date: null
-      },
-      member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
-      episode_id: self.episode.id,
-      client_id: SocketService.getClientID()
-    };
-    if (_.isNumber(groupEpisode.tv_group_episode_id)) {
-      payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
-    } else {
-      payload.changedFields.tv_group_id = self.viewer.group_id;
-      payload.changedFields.episode_id = self.episode.id;
-    }
+    const payload = createPayloadForGroupSkip(null);
 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
@@ -426,7 +420,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   self.addOrUpdateRating = function() {
     self.updating = true;
     if (self.isInGroupMode()) {
-      updateOrAddGroupRating();
+      updateOrAddGroupWatch();
     } else {
       updateOrAddMyRating().then(response => {
         const result = response.result;
@@ -480,7 +474,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   };
 
   self.toggleSkipped = function() {
-    updateOrAddSkipRating();
+    updateOrAddGroupSkip();
   };
 
   self.updateMyRating = function() {
