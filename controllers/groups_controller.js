@@ -3,6 +3,7 @@ const db = require('postgres-mmethods');
 const person_controller = require('./person_controller');
 const debug = require('debug');
 const ArrayService = require('./array_util');
+const errs = require('./error_handler');
 
 /* GROUPS */
 
@@ -534,8 +535,8 @@ exports.markEpisodeWatchedByGroup = function(request, response) {
         result.person_episode = personResult[0];
       }
       response.json(result);
-    });
-  });
+    }).catch(err => errs.throwError(err, 'markEpisodeWatchedForPersons', response));
+  }).catch(err => errs.throwError(err, 'addOrEditTVGroupEpisode', response));
 };
 
 function addOrEditTVGroupEpisode(request) {
@@ -543,19 +544,19 @@ function addOrEditTVGroupEpisode(request) {
   const tv_group_episode = payload.changedFields;
   const tv_group_episode_id = payload.tv_group_episode_id;
 
-  return new Promise(function(resolve) {
-    if (ArrayService.exists(tv_group_episode_id)) {
-      editTVGroupEpisode(tv_group_episode, tv_group_episode_id).then(function () {
-        resolve({
-          tv_group_episode_id: tv_group_episode_id
-        });
-      });
-    } else {
+  return new Promise(function(resolve, reject) {
+    if (!tv_group_episode_id) {
       addTVGroupEpisode(tv_group_episode).then(function (results) {
         resolve({
           tv_group_episode_id: results[0].id
         });
-      });
+      }).catch(err => reject(err));
+    } else {
+      editTVGroupEpisode(tv_group_episode, tv_group_episode_id).then(function () {
+        resolve({
+          tv_group_episode_id: tv_group_episode_id
+        });
+      }).catch(err => reject(err));
     }
   });
 
@@ -583,49 +584,53 @@ function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
 }
 
 function markEpisodeWatchedForPersons(request) {
-  const payload = request.body.payload;
+  return new Promise((resolve, reject) => {
+    const payload = request.body.payload;
 
-  if (payload.changedFields.skipped) {
-    console.log("Request to skip episode. Not propagating to persons.");
-    return Promise.resolve();
-  }
+    if (payload.changedFields.skipped) {
+      console.log("Request to skip episode. Not propagating to persons.");
+      resolve();
+    }
 
-  const person_id = payload.person_id;
-  const member_ids = payload.member_ids;
-  const episode_id = payload.episode_id;
+    const person_id = payload.person_id;
+    const member_ids = payload.member_ids;
+    const episode_id = payload.episode_id;
 
-  const sql = "SELECT er.person_id " +
-    "FROM episode_rating er " +
-    "WHERE episode_id = $1 " +
-    "AND retired = $2 " +
-    "AND person_id IN (" + db.createInlineVariableList(member_ids.length, 3) + ") ";
+    const sql = "SELECT er.person_id " +
+      "FROM episode_rating er " +
+      "WHERE episode_id = $1 " +
+      "AND retired = $2 " +
+      "AND person_id IN (" + db.createInlineVariableList(member_ids.length, 3) + ") ";
 
-  const values = [
-    episode_id,
-    0
-  ];
+    const values = [
+      episode_id,
+      0
+    ];
 
-  ArrayService.addToArray(values, member_ids);
+    ArrayService.addToArray(values, member_ids);
 
-  return db.selectNoResponse(sql, values).then(function(personResults) {
-    let existingRatings = _.pluck(personResults, 'person_id');
-    let newRatingPersons = _.difference(member_ids, existingRatings);
+    db.selectNoResponse(sql, values).then(function(personResults) {
+      let existingRatings = _.pluck(personResults, 'person_id');
+      let newRatingPersons = _.difference(member_ids, existingRatings);
 
-    let episodeRatingInfo = {
-      episode_id: episode_id,
-      watched: payload.changedFields.watched,
-      watched_date: payload.changedFields.watched_date
-    };
+      let episodeRatingInfo = {
+        episode_id: episode_id,
+        watched: payload.changedFields.watched,
+        watched_date: payload.changedFields.watched_date
+      };
 
-    return Promise.all(
-      [addRatingsForPersons(newRatingPersons, episodeRatingInfo, person_id),
-        editRatingsForPersons(existingRatings, episodeRatingInfo)]
-    );
+      Promise.all(
+        [addRatingsForPersons(newRatingPersons, episodeRatingInfo, person_id),
+          editRatingsForPersons(existingRatings, episodeRatingInfo)]
+      ).then(results => resolve(results))
+        .catch(err => reject(err));
+
+    }).catch(err => reject(err));
   });
 }
 
 function addRatingsForPersons(member_ids, episodeRatingInfo, person_id) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     if (member_ids.length < 1) {
       resolve();
     }
@@ -650,7 +655,7 @@ function addRatingsForPersons(member_ids, episodeRatingInfo, person_id) {
     db.selectNoResponse(sql, values).then(results => {
       const matching = _.findWhere(results, {person_id: person_id});
       resolve(matching);
-    });
+    }).catch(err => reject(err));
   });
 }
 
