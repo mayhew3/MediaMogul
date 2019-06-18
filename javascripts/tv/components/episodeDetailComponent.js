@@ -308,6 +308,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   function createPayload(watchedDate, skipped) {
     const groupEpisode = getGroupEpisode();
+    const unwatching = skipped ? self.isSkipped() : self.isWatched();
+
     const payload = {
       changedFields: {
         watched: skipped ? false : !self.isWatched(),
@@ -317,8 +319,12 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
       episode_id: self.episode.id,
       person_id: LockService.person_id,
-      series_id: self.episode.series_id
+      series_id: self.episode.series_id,
+      tv_group_id: groupEpisode.tv_group_id
     };
+    if (!unwatching && self.hasPreviousUnwatched()) {
+      payload.last_watched = self.episode.absolute_number;
+    }
     if (_.isNumber(groupEpisode.tv_group_episode_id)) {
       payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
     } else {
@@ -373,7 +379,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
       self.updating = false;
 
-      self.postViewingCallback(null, getLastUnwatched(), self.isWatched());
+      self.postViewingCallback(null, null, self.isWatched());
     });
   }
 
@@ -399,7 +405,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.watched = false;
       groupEpisode.skipped = !self.isSkipped();
       self.updating = false;
-      self.postViewingCallback(null, getLastUnwatched(), self.isWatched());
+      self.postViewingCallback(null, null, self.isWatched());
     });
   }
 
@@ -435,8 +441,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
         self.updating = false;
         msgPayload.dynamic_rating = dynamicRating;
-        msgPayload.last_unwatched = getLastUnwatched();
-        self.postViewingCallback(dynamicRating, getLastUnwatched(), self.isWatched(), msgPayload);
+        msgPayload.last_unwatched = getLastUnwatchedAfterChange();
+        self.postViewingCallback(dynamicRating, getLastUnwatchedAfterChange(), self.isWatched(), msgPayload);
       });
     }
   };
@@ -461,7 +467,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     }
   };
 
-  function getLastUnwatched() {
+  function getLastUnwatchedAfterChange() {
     if ((self.isWatched() || self.isSkipped()) && self.hasPreviousUnwatched()) {
       return self.episode.absolute_number;
     } else {
