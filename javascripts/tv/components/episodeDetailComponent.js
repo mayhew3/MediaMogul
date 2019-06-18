@@ -350,14 +350,16 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     const payload = createPayloadForGroupWatch(watchedDate);
 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
-      const tv_group_episode_id = response.data.tv_group_episode_id;
+      const incomingGroupEpisodes = response.data.groupEpisodes;
+      const incomingGroupEpisode = _.findWhere(incomingGroupEpisodes, {episode_id: self.episode.id});
+      const tv_group_episode_id = incomingGroupEpisode.tv_group_episode_id;
 
       const groupMsgPayload = {
         tv_group_episode_id: tv_group_episode_id,
         tv_group_id: getOptionalGroupID(),
-        watched: !self.isWatched(),
-        watched_date: watchedDate,
-        skipped: false,
+        watched: incomingGroupEpisode.watched,
+        watched_date: incomingGroupEpisode.watched_date,
+        skipped: incomingGroupEpisode.skipped,
         series_id: self.episode.series_id,
         episode_id: self.episode.id,
         episode_count: 1
@@ -365,11 +367,12 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       SocketService.emit('group_episode_update', groupMsgPayload);
 
       groupEpisode.tv_group_episode_id = tv_group_episode_id;
-      groupEpisode.watched = !self.isWatched();
-      groupEpisode.watched_date = watchedDate;
-      groupEpisode.skipped = false;
+      groupEpisode.watched = incomingGroupEpisode.watched;
+      groupEpisode.watched_date = incomingGroupEpisode.watched_date;
+      groupEpisode.skipped = incomingGroupEpisode.skipped;
 
-      const incomingPersonEpisode = response.data.person_episode;
+      const incomingPersonEpisodes = response.data.personEpisodes;
+      const incomingPersonEpisode = _.findWhere(incomingPersonEpisodes, {episode_id: self.episode.id});
       if (!!incomingPersonEpisode) {
         personEpisode.rating_id = incomingPersonEpisode.rating_id;
         personEpisode.watched = incomingPersonEpisode.watched;
@@ -379,7 +382,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
       self.updating = false;
 
-      self.postViewingCallback(null, null, self.isWatched());
+      self.postViewingCallback(null, null, self.isWatched(), null, incomingPersonEpisodes, incomingGroupEpisodes);
     });
   }
 
@@ -388,24 +391,31 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     const payload = createPayloadForGroupSkip(null);
 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
-      groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
+      const incomingGroupEpisodes = response.data.groupEpisodes;
+      const incomingGroupEpisode = _.findWhere(incomingGroupEpisodes, {episode_id: self.episode.id});
+      const tv_group_episode_id = incomingGroupEpisode.tv_group_episode_id;
+
 
       const groupMsgPayload = {
-        tv_group_episode_id: groupEpisode.tv_group_episode_id,
+        tv_group_episode_id: tv_group_episode_id,
         tv_group_id: getOptionalGroupID(),
-        watched: false,
-        watched_date: null,
-        skipped: !self.isSkipped(),
+        watched: incomingGroupEpisode.watched,
+        watched_date: incomingGroupEpisode.watched_date,
+        skipped: incomingGroupEpisode.skipped,
         series_id: self.episode.series_id,
         episode_id: self.episode.id,
         episode_count: 1
       };
       SocketService.emit('group_episode_update', groupMsgPayload);
 
-      groupEpisode.watched = false;
-      groupEpisode.skipped = !self.isSkipped();
+      groupEpisode.tv_group_episode_id = tv_group_episode_id;
+      groupEpisode.watched = incomingGroupEpisode.watched;
+      groupEpisode.watched_date = incomingGroupEpisode.watched_date;
+      groupEpisode.skipped = incomingGroupEpisode.skipped;
+
       self.updating = false;
-      self.postViewingCallback(null, null, self.isWatched());
+      
+      self.postViewingCallback(null, null, self.isWatched(), null, [], incomingGroupEpisodes);
     });
   }
 
