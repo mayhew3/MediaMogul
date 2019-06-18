@@ -528,7 +528,7 @@ exports.getGroupEpisodes = function(request, response) {
 
 /* GROUP EPISODES */
 
-exports.markEpisodeWatchedByGroup = function(request, response) {
+exports.markEpisodesWatchedByGroup = function(request, response) {
   const returnObj = {};
   returnObj.groupEpisodes = [];
   returnObj.personEpisodes = [];
