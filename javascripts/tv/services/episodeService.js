@@ -145,8 +145,8 @@ angular.module('mediaMogulApp')
         const tv_group_id = payload.tv_group_id;
         const series_id = payload.series_id;
         const showList = self.getExistingGroupShowList(tv_group_id);
+        const series = self.findSeriesWithId(series_id);
         if (!!showList) {
-          const series = self.findSeriesWithId(series_id);
           const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
           if (!payload.watched && !payload.skipped) {
             groupSeries.unwatched_all += payload.episode_count;
@@ -154,6 +154,10 @@ angular.module('mediaMogulApp')
             groupSeries.unwatched_all -= payload.episode_count;
           }
           SeriesDetailService.updateCacheWithGroupViewPayload(payload);
+        }
+
+        if (!!series.personSeries) {
+          // todo: update person series
         }
       }
 
