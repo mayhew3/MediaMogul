@@ -130,6 +130,9 @@ exports.getGroupPersons = function(request, response) {
   db.selectSendResponse(response, sql, values);
 };
 
+
+/* GROUP SHOWS */
+
 exports.getGroupShows = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
   const person_id = request.query.person_id;
@@ -215,9 +218,9 @@ exports.getGroupShows = function(request, response) {
           let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
           debug("Series: " + series.title);
 
-          const group = exports.getGroup(series, tv_group_id);
+          const groupSeries = getGroupShowFromSeries(series, tv_group_id);
 
-          person_controller.calculateUnwatchedDenorms(series, group, unwatchedEpisodes);
+          person_controller.calculateUnwatchedDenorms(series, groupSeries, unwatchedEpisodes);
         }
       }
 
@@ -228,9 +231,9 @@ exports.getGroupShows = function(request, response) {
   });
 };
 
-exports.getGroup = function(series, tv_group_id) {
+function getGroupShowFromSeries(series, tv_group_id) {
   return _.findWhere(series.groups, {tv_group_id: tv_group_id});
-};
+}
 
 function extractSingleGroupSeries(series, tv_group_id) {
   const columnsToMove = [
@@ -521,6 +524,9 @@ exports.getGroupEpisodes = function(request, response) {
   });
 };
 
+
+/* GROUP EPISODES */
+
 exports.markEpisodeWatchedByGroup = function(request, response) {
   addOrEditTVGroupEpisode(request).then(function (result) {
     markEpisodeWatchedForPersons(request).then(function(personResult) {
@@ -531,6 +537,50 @@ exports.markEpisodeWatchedByGroup = function(request, response) {
     });
   });
 };
+
+function addOrEditTVGroupEpisode(request) {
+  const payload = request.body.payload;
+  const tv_group_episode = payload.changedFields;
+  const tv_group_episode_id = payload.tv_group_episode_id;
+
+  return new Promise(function(resolve) {
+    if (ArrayService.exists(tv_group_episode_id)) {
+      editTVGroupEpisode(tv_group_episode, tv_group_episode_id).then(function () {
+        resolve({
+          tv_group_episode_id: tv_group_episode_id
+        });
+      });
+    } else {
+      addTVGroupEpisode(tv_group_episode).then(function (results) {
+        resolve({
+          tv_group_episode_id: results[0].id
+        });
+      });
+    }
+  });
+
+}
+
+function addTVGroupEpisode(tv_group_episode) {
+  const sql = "INSERT INTO tv_group_episode (tv_group_id, episode_id, watched, watched_date, skipped, date_added) " +
+    "VALUES ($1, $2, $3, $4, $5, $6) " +
+    "RETURNING id ";
+
+  const values = [
+    tv_group_episode.tv_group_id,
+    tv_group_episode.episode_id,
+    tv_group_episode.watched,
+    tv_group_episode.watched_date,
+    tv_group_episode.skipped,
+    new Date
+  ];
+
+  return db.selectNoResponse(sql, values);
+}
+
+function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
+  return db.updateObjectWithChangedFieldsNoResponse(tv_group_episode, "tv_group_episode", tv_group_episode_id);
+}
 
 function markEpisodeWatchedForPersons(request) {
   const payload = request.body.payload;
@@ -633,83 +683,15 @@ function editRatingsForPersons(member_ids, episodeRatingInfo) {
 }
 
 
-
-function addOrEditTVGroupEpisode(request) {
-  const payload = request.body.payload;
-  const tv_group_episode = payload.changedFields;
-  const tv_group_episode_id = payload.tv_group_episode_id;
-
-  return new Promise(function(resolve) {
-    if (ArrayService.exists(tv_group_episode_id)) {
-      editTVGroupEpisode(tv_group_episode, tv_group_episode_id).then(function () {
-        resolve({
-          tv_group_episode_id: tv_group_episode_id
-        });
-      });
-    } else {
-      addTVGroupEpisode(tv_group_episode).then(function (results) {
-        resolve({
-          tv_group_episode_id: results[0].id
-        });
-      });
-    }
-  });
-
-}
-
-function addTVGroupEpisode(tv_group_episode) {
-  const sql = "INSERT INTO tv_group_episode (tv_group_id, episode_id, watched, watched_date, skipped, date_added) " +
-    "VALUES ($1, $2, $3, $4, $5, $6) " +
-    "RETURNING id ";
-
-  const values = [
-    tv_group_episode.tv_group_id,
-    tv_group_episode.episode_id,
-    tv_group_episode.watched,
-    tv_group_episode.watched_date,
-    tv_group_episode.skipped,
-    new Date
-  ];
-
-  return db.selectNoResponse(sql, values);
-}
-
-function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
-  return db.updateObjectWithChangedFieldsNoResponse(tv_group_episode, "tv_group_episode", tv_group_episode_id);
-}
-
+/* GROUP MULTI WATCH */
 
 exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
   updateTVGroupEpisodesAllPastWatched(request.body)
     .then(episodes => {
-    person_controller.updateEpisodeRatingsAllPastWatched(request.body, true, episodes)
-      .then(episodes => response.json(episodes));
-  });
+      person_controller.updateEpisodeRatingsAllPastWatched(request.body, true, episodes)
+        .then(episodes => response.json(episodes));
+    });
 };
-
-function getEpisodesThatWillBeUpdated(series_id, tv_group_id, lastWatched) {
-  const sql = 'SELECT e.id AS episode_id, (SELECT id  ' +
-    '                            FROM tv_group_episode  ' +
-    '                            WHERE episode_id = e.id ' +
-    '                            AND tv_group_id = $3 ' +
-    '                            AND retired = $1) AS tv_group_episode_id ' +
-    'FROM episode e ' +
-    'WHERE e.retired = $1 ' +
-    'AND e.series_id = $2 ' +
-    'AND e.season <> $6 ' +
-    'AND e.absolute_number IS NOT NULL ' +
-    'AND e.absolute_number < $4 ' +
-    'AND e.id NOT IN (SELECT episode_id ' +
-    '                 FROM tv_group_episode ' +
-    '                 WHERE retired = $1 ' +
-    '                 AND tv_group_id = $3 ' +
-    '                 AND (watched = $5 OR skipped = $5)) ' +
-    'ORDER BY e.absolute_number';
-
-  const values = [0, series_id, tv_group_id, lastWatched, true, 0];
-
-  return db.selectNoResponse(sql, values);
-}
 
 function updateTVGroupEpisodesAllPastWatched(payload) {
   return new Promise(function(resolve) {
@@ -841,11 +823,11 @@ exports.getBallots = function(tv_group_id, response, seriesResults) {
           let ballots = groupedBySeries[series_id];
           let series = _.findWhere(seriesResults, {id: parseInt(series_id)});
 
-          const group = exports.getGroup(series, tv_group_id);
+          const groupSeries = getGroupShowFromSeries(series, tv_group_id);
 
-          group.ballots = ballots;
+          groupSeries.ballots = ballots;
 
-          group.group_score = exports.calculateGroupRatingForGroupSeries(group);
+          groupSeries.group_score = exports.calculateGroupRatingForGroupSeries(groupSeries);
         }
       }
 
@@ -911,6 +893,10 @@ exports.submitVote = function(request, response) {
   });
 };
 
+
+
+// GROUP RATING
+
 exports.calculateGroupRatingForGroupSeries = function(groupSeries) {
   const lastBallot = getMostRecentClosedBallot(groupSeries.ballots);
   return !lastBallot ? null : exports.calculateGroupRating(lastBallot);
@@ -930,7 +916,6 @@ exports.calculateGroupRating = function(ballot) {
 
   return ((average * 2) + (minimum * 3)) / 5;
 };
-
 
 function getMostRecentClosedBallot(ballots) {
   return _.find(ballots, ballot => !!ballot.voting_closed && !ballot.skip);

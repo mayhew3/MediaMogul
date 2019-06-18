@@ -316,8 +316,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       },
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
       episode_id: self.episode.id,
-      person_id: LockService.person_id,
-      client_id: SocketService.getClientID()
+      person_id: LockService.person_id
     };
     if (_.isNumber(groupEpisode.tv_group_episode_id)) {
       payload.tv_group_episode_id = groupEpisode.tv_group_episode_id;
@@ -338,7 +337,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       const tv_group_episode_id = response.data.tv_group_episode_id;
 
-      const msgPayload = {
+      const groupMsgPayload = {
         tv_group_episode_id: tv_group_episode_id,
         tv_group_id: getOptionalGroupID(),
         watched: !self.isWatched(),
@@ -348,7 +347,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         episode_id: self.episode.id,
         episode_count: 1
       };
-      SocketService.emit('group_episode_update', msgPayload);
+      SocketService.emit('group_episode_update', groupMsgPayload);
 
       groupEpisode.tv_group_episode_id = tv_group_episode_id;
       groupEpisode.watched = !self.isWatched();
@@ -391,7 +390,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       groupEpisode.tv_group_episode_id = response.data.tv_group_episode_id;
 
-      const msgPayload = {
+      const groupMsgPayload = {
         tv_group_episode_id: groupEpisode.tv_group_episode_id,
         tv_group_id: getOptionalGroupID(),
         watched: false,
@@ -401,7 +400,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         episode_id: self.episode.id,
         episode_count: 1
       };
-      SocketService.emit('group_episode_update', msgPayload);
+      SocketService.emit('group_episode_update', groupMsgPayload);
 
       groupEpisode.watched = false;
       groupEpisode.skipped = !self.isSkipped();
