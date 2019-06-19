@@ -1108,16 +1108,23 @@ angular.module('mediaMogulApp')
 
       self.addMyEpisodeRating = function(episodeRating, seriesId, last_watched) {
         $log.debug("Adding new episode rating.");
-        return $http.post('/api/rateMyEpisode', {
+        return $http.post('/api/updateEpisodeRatings', {
           IsNew: true,
           EpisodeRating: episodeRating,
           series_id: seriesId,
+          person_id: getPersonId(),
           last_watched: last_watched});
       };
 
-      self.updateMyEpisodeRating = function(changedFields, rating_id, seriesId) {
+      self.updateMyEpisodeRating = function(episodeRating, changedFields, rating_id, seriesId) {
         $log.debug("Updating existing episode rating with id: " + rating_id + ", Changed: " + JSON.stringify(changedFields));
-        return $http.post('/api/rateMyEpisode', {IsNew: false, ChangedFields: changedFields, RatingId: rating_id, SeriesId: seriesId, PersonId: getPersonId()});
+        return $http.post('/api/updateEpisodeRatings', {
+          IsNew: false,
+          EpisodeRating: episodeRating,
+          ChangedFields: changedFields,
+          RatingId: rating_id,
+          series_id: seriesId,
+          person_id: getPersonId()});
       };
 
       self.rateMyShow = function(series, rating) {

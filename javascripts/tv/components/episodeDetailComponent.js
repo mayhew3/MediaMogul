@@ -2,7 +2,7 @@ angular.module('mediaMogulApp')
   .component('episodeDetail', {
     templateUrl: 'views/tv/episodeDetailComponent.html',
     controller: ['EpisodeService', 'ArrayService', 'LockService', 'DateService', '$scope', '$q', 'GroupService', '$http',
-      'SocketService',
+      'SocketService', 'ObjectCopyService',
       episodeDetailCompController],
     controllerAs: 'ctrl',
     bindings: {
@@ -16,7 +16,7 @@ angular.module('mediaMogulApp')
   });
 
 function episodeDetailCompController(EpisodeService, ArrayService, LockService, DateService, $scope, $q, GroupService,
-                                     $http, SocketService) {
+                                     $http, SocketService, ObjectCopyService) {
   const self = this;
 
   self.updating = false;
@@ -250,18 +250,17 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     const personEpisode = episode.personEpisode;
     const watchedDate = DateService.formatDateForDatabase(self.watchedDate);
     const changedFields = {
-      watched: !self.isWatched()
+      watched: !self.isWatched(),
+      watched_date: null
     };
     if (!self.isWatched()) {
       changedFields.watched_date = watchedDate;
       changedFields.rating_value = self.rating_value;
     }
-    EpisodeService.updateMyEpisodeRating(changedFields, episode.personEpisode.rating_id, episode.series_id).then(function (result) {
-      personEpisode.watched = !self.isWatched();
-      if (self.isWatched()) {
-        personEpisode.watched_date = watchedDate;
-        personEpisode.rating_value = self.rating_value;
-      }
+    EpisodeService.updateMyEpisodeRating(personEpisode, changedFields, personEpisode.rating_id, episode.series_id).then(function (result) {
+      const incomingPersonEpisode = _.findWhere(result.data.personEpisodes, {rating_id: self.episode.personEpisode.rating_id});
+
+      ObjectCopyService.shallowCopy(incomingPersonEpisode, episode.personEpisode);
 
       const msgPayload = {
         series_id: self.episode.series_id,
@@ -294,7 +293,9 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       last_watched = self.episode.absolute_number;
     }
     EpisodeService.addMyEpisodeRating(ratingFields, episode.series_id, last_watched).then(function (result) {
-      episode.personEpisode = ratingFields;
+      const incomingPersonEpisode = _.findWhere(result.data.personEpisodes, {rating_id: self.episode.personEpisode.rating_id});
+
+      ObjectCopyService.shallowCopy(incomingPersonEpisode, episode.personEpisode);
 
       const msgPayload = {
         series_id: self.episode.series_id,
@@ -446,13 +447,11 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       updateOrAddMyRating().then(response => {
         const result = response.result;
         const incomingPersonEpisodes = result.data.personEpisodes;
-        const incomingPersonEpisode = _.findWhere(incomingPersonEpisodes, {episode_id: self.episode.id});
+
         const msgPayload = response.msgPayload;
 
         let dynamicRating = undefined;
-        if (result) {
-          const personEpisode = self.episode.personEpisode;
-          personEpisode.rating_id = incomingPersonEpisode.rating_id;
+        if (!!result) {
           dynamicRating = result.data.dynamic_rating;
         }
 
@@ -506,7 +505,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       rating_value: self.rating_value,
       rating_pending: false
     };
-    EpisodeService.updateMyEpisodeRating(changedFields, self.episode.personEpisode.rating_id, self.episode.series_id).then(function (result) {
+    const personEpisode = self.episode.personEpisode;
+    EpisodeService.updateMyEpisodeRating(personEpisode, changedFields, personEpisode.rating_id, self.episode.series_id).then(function (result) {
       self.episode.personEpisode.rating_value = self.rating_value;
       self.episode.personEpisode.rating_pending = false;
       self.original_rating_value = self.rating_value;
@@ -520,7 +520,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     const changedFields = {
       rating_pending: false
     };
-    EpisodeService.updateMyEpisodeRating(changedFields, self.episode.personEpisode.rating_id, self.episode.series_id).then(function (result) {
+    const personEpisode = self.episode.personEpisode;
+    EpisodeService.updateMyEpisodeRating(personEpisode, changedFields, personEpisode.rating_id, self.episode.series_id).then(function (result) {
       self.episode.personEpisode.rating_pending = false;
       self.original_rating_value = self.rating_value;
       self.updating = false;
