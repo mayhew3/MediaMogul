@@ -1316,7 +1316,7 @@ exports.rateMyShow = function(request, response) {
   ];
 
   db.updateNoResponse(sql, values).then(function() {
-    updateSeriesRating(seriesId, personId).then(function(result) {
+    calculateSeriesRating(seriesId, personId).then(function(result) {
       if (_.isUndefined(result.my_rating)) {
         return response.json({
           dynamic_rating: rating
@@ -1393,45 +1393,46 @@ exports.getMyEpisodes = function(request, response) {
   });
 };
 
-exports.rateMyEpisode = function(request, response) {
+exports.updateEpisodeRatings = function(request, response) {
   const payload = request.body;
   addOrEditRating(request).then(function(result) {
-    let rating_id = result.rating_id;
-    const person_id = payload.EpisodeRating.person_id;
+    const personEpisode = result;
+    const person_id = payload.person_id;
     exports.updateEpisodeRatingsAllPastWatched(payload, false, [person_id])
       .then(pastEpResults => {
-      updateSeriesRating(payload.series_id, person_id).then(function(result) {
+      calculateSeriesRating(payload.series_id, person_id).then(function(result) {
         const data = {
-          personEpisodes: [payload.EpisodeRating],
+          personEpisodes: [personEpisode],
           dynamic_rating: result.personSeries ? result.personSeries.dynamic_rating : undefined
         };
-        data.personEpisodes[0].rating_id = rating_id;
         ArrayService.addToArray(data.personEpisodes, pastEpResults);
         return response.json(data);
-      }).catch(err => errs.throwError(err, 'updateSeriesRating', response));
+      }).catch(err => errs.throwError(err, 'calculateSeriesRating', response));
     }).catch(err => errs.throwError(err, 'updateEpisodeRatingsAllPastWatched', response));
   }).catch(err => errs.throwError(err, 'addOrEditRating', response));
 };
 
 function addOrEditRating(request) {
-  return new Promise(function(resolve) {
+  return new Promise(resolve => {
+    const personEpisode = {};
+    ArrayService.shallowCopy(request.body.EpisodeRating, personEpisode);
     if (request.body.IsNew) {
       addRating(request.body.EpisodeRating).then(function(results) {
-        resolve({
-          rating_id: results[0].id
-        });
-      });
+        personEpisode.rating_id = results[0].id;
+        resolve(personEpisode);
+      })
+        .catch(err => errs.throwError(err, 'addRating', response));
     } else {
       editRating(request.body.ChangedFields, request.body.RatingId).then(function() {
-        resolve({
-          rating_id: request.body.RatingId
-        });
-      });
+        ArrayService.shallowCopy(request.body.ChangedFields, personEpisode);
+        resolve(personEpisode);
+      })
+        .catch(err => errs.throwError(err, 'editRating', response));
     }
   });
 }
 
-function updateSeriesRating(series_id, person_id) {
+function calculateSeriesRating(series_id, person_id) {
   return new Promise(function(resolve) {
 
     var sql =
@@ -1475,7 +1476,7 @@ function updateSeriesRating(series_id, person_id) {
           id: series_id
         });
       }
-    });
+    }).catch(err => errs.throwError(err, 'episodes fetch for series rating', response));
   });
 }
 
@@ -1761,8 +1762,8 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
 
         db.selectNoResponse(sql, values).then(episodeRatings => {
           resolve(episodeRatings);
-        });
-      });
+        }).catch(err => errs.throwError(err, 'INSERT new past episode ratings', response));
+      }).catch(err => errs.throwError(err, 'UPDATE existing past episode ratings', response));
     }
 
   });
