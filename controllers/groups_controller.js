@@ -545,7 +545,7 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
         markEpisodeWatchedForPersons(payload, persons).then(personResults => {
 
           const person_ids = _.pluck(persons, 'person_id');
-          person_controller.updateEpisodeRatingsAllPastWatched(payload, true, pastGroupEpResults, person_ids)
+          person_controller.updateEpisodeRatingsAllPastWatched(payload, true, person_ids)
             .then(pastPersonResults => {
 
               const person_id = payload.person_id;
@@ -752,7 +752,7 @@ function getPersonInformation(tv_group_id) {
 exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
   updateTVGroupEpisodesAllPastWatched(request.body)
     .then(episodes => {
-      person_controller.updateEpisodeRatingsAllPastWatched(request.body, true, episodes, request.body.person_ids)
+      person_controller.updateEpisodeRatingsAllPastWatched(request.body, true, request.body.person_ids)
         .then(episodes => response.json(episodes));
     });
 };

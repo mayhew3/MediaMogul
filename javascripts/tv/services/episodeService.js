@@ -1106,9 +1106,13 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.addMyEpisodeRating = function(episodeRating, seriesId) {
+      self.addMyEpisodeRating = function(episodeRating, seriesId, last_watched) {
         $log.debug("Adding new episode rating.");
-        return $http.post('/api/rateMyEpisode', {IsNew: true, EpisodeRating: episodeRating, SeriesId: seriesId});
+        return $http.post('/api/rateMyEpisode', {
+          IsNew: true,
+          EpisodeRating: episodeRating,
+          series_id: seriesId,
+          last_watched: last_watched});
       };
 
       self.updateMyEpisodeRating = function(changedFields, rating_id, seriesId) {

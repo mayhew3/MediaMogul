@@ -1394,16 +1394,23 @@ exports.getMyEpisodes = function(request, response) {
 };
 
 exports.rateMyEpisode = function(request, response) {
+  const payload = request.body;
   addOrEditRating(request).then(function(result) {
     let rating_id = result.rating_id;
-    updateSeriesRating(result.series_id, result.person_id).then(function(result) {
-      var data = {
-        rating_id: rating_id,
-        dynamic_rating: result.personSeries ? result.personSeries.dynamic_rating : undefined
-      };
-      return response.json(data);
-    });
-  })
+    const person_id = payload.EpisodeRating.person_id;
+    exports.updateEpisodeRatingsAllPastWatched(payload, false, [person_id])
+      .then(pastEpResults => {
+      updateSeriesRating(payload.series_id, person_id).then(function(result) {
+        const data = {
+          personEpisodes: [payload.EpisodeRating],
+          dynamic_rating: result.personSeries ? result.personSeries.dynamic_rating : undefined
+        };
+        data.personEpisodes[0].rating_id = rating_id;
+        ArrayService.addToArray(data.personEpisodes, pastEpResults);
+        return response.json(data);
+      }).catch(err => errs.throwError(err, 'updateSeriesRating', response));
+    }).catch(err => errs.throwError(err, 'updateEpisodeRatingsAllPastWatched', response));
+  }).catch(err => errs.throwError(err, 'addOrEditRating', response));
 };
 
 function addOrEditRating(request) {
@@ -1411,17 +1418,13 @@ function addOrEditRating(request) {
     if (request.body.IsNew) {
       addRating(request.body.EpisodeRating).then(function(results) {
         resolve({
-          rating_id: results[0].id,
-          series_id: request.body.SeriesId,
-          person_id: request.body.EpisodeRating.person_id
+          rating_id: results[0].id
         });
       });
     } else {
       editRating(request.body.ChangedFields, request.body.RatingId).then(function() {
         resolve({
-          rating_id: request.body.RatingId,
-          series_id: request.body.SeriesId,
-          person_id: request.body.PersonId
+          rating_id: request.body.RatingId
         });
       });
     }
@@ -1543,19 +1546,11 @@ exports.updateMyPoster = function(request, response) {
   db.updateObjectWithChangedFieldsSendResponse(response, changedFields, 'person_poster', person_poster_id);
 };
 
-function updateExistingPoster(posterObj, tvdb_poster_id, response) {
-
-}
-
-function addCustomPoster(series_id, person_id, tvdb_poster_id, response) {
-
-}
-
 // Mark All Watched
 
 
 exports.markAllPastEpisodesAsWatched = function(request, response) {
-  var payload = {
+  const payload = {
     series_id: request.body.SeriesId,
     last_watched: request.body.LastWatched,
     person_ids: [request.body.PersonId]
@@ -1689,12 +1684,12 @@ exports.revertYear = function(request, response) {
   });
 };
 
-exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications, episodes, person_ids) {
+exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications, person_ids) {
   return new Promise(function(resolve) {
     const series_id = payload.series_id;
     const last_watched = payload.last_watched;
 
-    if (person_ids.length < 1 || payload.skipped || episodes.length < 1) {
+    if (person_ids.length < 1 || payload.skipped || !last_watched) {
       resolve([]);
     } else {
 
