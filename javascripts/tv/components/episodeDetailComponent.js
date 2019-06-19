@@ -288,7 +288,12 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       review: null,
       rating_pending: false
     };
-    EpisodeService.addMyEpisodeRating(ratingFields, episode.series_id).then(function (result) {
+    const unwatching = self.isWatched();
+    let last_watched = null;
+    if (!unwatching && self.hasPreviousUnwatched()) {
+      last_watched = self.episode.absolute_number;
+    }
+    EpisodeService.addMyEpisodeRating(ratingFields, episode.series_id, last_watched).then(function (result) {
       episode.personEpisode = ratingFields;
 
       const msgPayload = {
@@ -414,7 +419,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       groupEpisode.skipped = incomingGroupEpisode.skipped;
 
       self.updating = false;
-      
+
       self.postViewingCallback(null, null, self.isWatched(), null, [], incomingGroupEpisodes);
     });
   }
@@ -440,19 +445,21 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     } else {
       updateOrAddMyRating().then(response => {
         const result = response.result;
+        const incomingPersonEpisodes = result.data.personEpisodes;
+        const incomingPersonEpisode = _.findWhere(incomingPersonEpisodes, {episode_id: self.episode.id});
         const msgPayload = response.msgPayload;
 
         let dynamicRating = undefined;
         if (result) {
           const personEpisode = self.episode.personEpisode;
-          personEpisode.rating_id = result.data.rating_id;
+          personEpisode.rating_id = incomingPersonEpisode.rating_id;
           dynamicRating = result.data.dynamic_rating;
         }
 
         self.updating = false;
         msgPayload.dynamic_rating = dynamicRating;
         msgPayload.last_unwatched = getLastUnwatchedAfterChange();
-        self.postViewingCallback(dynamicRating, getLastUnwatchedAfterChange(), self.isWatched(), msgPayload);
+        self.postViewingCallback(dynamicRating, null, null, msgPayload, incomingPersonEpisodes, []);
       });
     }
   };
