@@ -164,15 +164,45 @@ angular.module('mediaMogulApp')
       function updateGroupMultiWatch(payload) {
         const tv_group_id = payload.tv_group_id;
         const series_id = payload.series_id;
-        const groupEpisodes = payload.groupEpisodes;
         const showList = self.getExistingGroupShowList(tv_group_id);
         if (!!showList) {
           const series = self.findSeriesWithId(series_id);
           const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
-          groupSeries.unwatched_all -= groupEpisodes.length;
+          groupSeries.unwatched_all = payload.unwatched_all;
+          groupSeries.first_unwatched = payload.first_unwatched;
           SeriesDetailService.updateCacheWithMultiGroupViewPayload(payload, series, groupSeries);
         }
       }
+
+      self.updatePersonEpisodes = function(episodes, incomingPersonEpisodes) {
+        _.each(incomingPersonEpisodes, personEpisode => {
+          const episode = _.findWhere(episodes, {id: personEpisode.episode_id});
+          if (!!episode) {
+            if (!!episode.personEpisode) {
+              shallowCopy(personEpisode, episode.personEpisode);
+            } else {
+              episode.personEpisode = personEpisode;
+            }
+          }
+        });
+      };
+
+      self.updateGroupEpisodes = function(tv_group_id, episodes, incomingGroupEpisodes) {
+        _.each(incomingGroupEpisodes, incomingGroupEpisode => {
+          const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
+          if (!!episode) {
+            const groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
+            if (!!groupEpisode) {
+              shallowCopy(incomingGroupEpisode, groupEpisode);
+            } else {
+              if (!_.isArray(episode.groups)) {
+                episode.groups = [];
+              }
+              episode.groups.push(incomingGroupEpisode);
+            }
+          }
+        });
+      };
 
       self.markAllPreviousGroupWatched = function(episodes, tv_group_id, lastWatchedNumber, watched) {
         episodes.forEach(function(episode) {
@@ -425,7 +455,10 @@ angular.module('mediaMogulApp')
           const personSeries = existingShow.personSeries;
           personSeries.unwatched_all = msg.unwatched_all;
           personSeries.first_unwatched = msg.first_unwatched;
-          personSeries.dynamic_rating = msg.dynamic_rating;
+          personSeries.rating_pending_episodes = msg.rating_pending_episodes;
+
+          // todo: have server calculate
+          // personSeries.dynamic_rating = msg.dynamic_rating;
 
           SeriesDetailService.updateCacheWithPersonEpisodeWatched(msg);
         }
@@ -1243,6 +1276,16 @@ angular.module('mediaMogulApp')
         return changedFields;
       };
 
+      self.hasAired = function(episode) {
+        let now = new Date;
+        if (episode.air_time === null) {
+          return false;
+        }
+        let airTime = new Date(episode.air_time);
+        episode.air_time = airTime;
+        return isBefore(airTime, now);
+      };
+
       self.updateMySeriesDenorms = function(series, episodes, databaseCallback, viewer) {
         const isGroup = ArrayService.exists(viewer.tv_group_id);
 
@@ -1250,22 +1293,12 @@ angular.module('mediaMogulApp')
           (episode) => GroupService.getGroupEpisode(episode, viewer.tv_group_id) :
           (episode) => episode.personEpisode;
 
-        let unwatchedEpisodes = 0;
-        let firstUnwatched = null;
-        let now = new Date;
+        let unwatchedEpisodes;
+        let firstUnwatched;
 
         let eligibleEpisodes = _.filter(episodes, function(episode) {
           return episode.season !== 0;
         });
-
-        self.hasAired = function(episode) {
-          if (episode.air_time === null) {
-            return false;
-          }
-          let airTime = new Date(episode.air_time);
-          episode.air_time = airTime;
-          return isBefore(airTime, now);
-        };
 
         let airedEpisodes = _.sortBy(_.filter(eligibleEpisodes, self.hasAired), function(episode) {
           return episode.absolute_number;
@@ -1287,40 +1320,26 @@ angular.module('mediaMogulApp')
         unwatchedEpisodes = unwatchedEpisodesList.length;
         firstUnwatched = unwatchedEpisodes === 0 ? null : _.first(unwatchedEpisodesList).air_time;
 
-        let originalFields = {
-          first_unwatched: viewer.first_unwatched,
-        };
+        let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
-        let updatedFields = {
-          first_unwatched: firstUnwatched
-        };
+        if (ArrayService.exists(lastWatchedEpisode)) {
+          const episodeViewer = getEpisodeViewer(lastWatchedEpisode);
+          viewer.last_watched = episodeViewer.watched_date;
+        } else {
+          viewer.last_watched = null;
+        }
 
-        let changedFields = self.getChangedFields(originalFields, updatedFields);
+        viewer.first_unwatched = firstUnwatched;
+        viewer.unwatched_all = unwatchedEpisodes;
 
-        return databaseCallback(changedFields).then(function() {
-          $log.debug("Updating my series denorms: " + _.keys(changedFields));
+        if (!isGroup) {
+          viewer.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
+            const personEpisode = episode.personEpisode;
+            return ArrayService.exists(personEpisode.rating_pending) && personEpisode.rating_pending === true;
+          }).length;
+        }
 
-          let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
-
-          if (ArrayService.exists(lastWatchedEpisode)) {
-            const episodeViewer = getEpisodeViewer(lastWatchedEpisode);
-            viewer.last_watched = episodeViewer.watched_date;
-          } else {
-            viewer.last_watched = null;
-          }
-          
-          viewer.first_unwatched = firstUnwatched;
-          viewer.unwatched_all = unwatchedEpisodes;
-
-          if (!isGroup) {
-            viewer.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
-              const personEpisode = episode.personEpisode;
-              return ArrayService.exists(personEpisode.rating_pending) && personEpisode.rating_pending === true;
-            }).length;
-          }
-
-          viewer.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
-        });
+        viewer.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
       };
 
       function isTrue(field) {

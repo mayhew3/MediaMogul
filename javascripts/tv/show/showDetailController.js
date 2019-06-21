@@ -397,6 +397,7 @@ angular.module('mediaMogulApp')
     };
 
     self.getPreviousUnwatched = function(episode) {
+      // noinspection UnnecessaryLocalVariableJS
       const unwatchedPrevious = _.filter(self.episodes, unwatched => {
         return shouldCountAsUnwatched(unwatched) &&
           unwatched.absolute_number < episode.absolute_number;
@@ -664,11 +665,9 @@ angular.module('mediaMogulApp')
           EpisodeService.updateMySeriesDenorms(
             self.series,
             self.episodes,
-            updatePersonSeriesInDatabase,
-            self.series.personSeries)
-            .then(function () {
-              updateNextUp();
-            });
+            doNothing,
+            self.series.personSeries);
+          updateNextUp();
         });
       } else {
         return $q(resolve => resolve());
@@ -885,51 +884,48 @@ angular.module('mediaMogulApp')
       return GroupService.getGroupSeries(self.series, getOptionalGroupID());
     }
 
-    function maybeUpdateMyDenorms(msgPayload) {
-      return $q(resolve => {
-        if (self.isInMyShows()) {
-          EpisodeService.updateMySeriesDenorms(
-            self.series,
-            self.episodes,
-            updatePersonSeriesInDatabase,
-            self.series.personSeries)
-            .then(function () {
-              if (LockService.isAdmin()) {
-                YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
-              }
-              if (!!msgPayload) {
-                msgPayload.unwatched_all = self.series.personSeries.unwatched_all;
-                msgPayload.first_unwatched = self.series.personSeries.first_unwatched;
-                SocketService.emit('my_episode_viewed', msgPayload);
-              }
-              resolve();
-            });
-        } else {
-          resolve();
+    function maybeUpdateMyDenorms() {
+      if (self.isInMyShows()) {
+        EpisodeService.updateMySeriesDenorms(
+          self.series,
+          self.episodes,
+          doNothing(),
+          self.series.personSeries);
+        if (LockService.isAdmin()) {
+          YearlyRatingService.updateEpisodeGroupRatingWithNewRating(self.series, self.episodes);
         }
-      });
+      }
     }
 
-    function maybeUpdateDenormsAndGoToNext(msgPayload) {
-      maybeUpdateMyDenorms(msgPayload).then(() => {
-        updateNextUp();
-        goToNextUpAfterPause();
-      });
+    function sendPersonMultiWatchPayload(personEpisodes) {
+      const personSeries = self.series.personSeries;
+      const payload = {
+        series_id: self.series_id,
+        person_id: LockService.person_id,
+        personEpisodes: personEpisodes,
+        first_unwatched: personSeries.first_unwatched,
+        unwatched_all: personSeries.unwatched_all,
+        rating_pending_episodes: personSeries.rating_pending_episodes
+      };
+      SocketService.emit('my_episode_viewed', payload);
     }
 
-    function sendMultiWatchPayload(groupEpisodes, optionalLastWatched, watched) {
+    function sendGroupMultiWatchPayload(groupEpisodes) {
+      const groupSeries = getGroupSeries();
       const payload = {
         series_id: self.series_id,
         tv_group_id: getOptionalGroupID(),
-        skipped: !watched,
-        lastWatched: optionalLastWatched,
-        groupEpisodes: groupEpisodes
+        groupEpisodes: groupEpisodes,
+        first_unwatched: groupSeries.first_unwatched,
+        unwatched_all: groupSeries.unwatched_all
       };
       SocketService.emit('multi_group_episode_update', payload);
     }
 
     self.afterRatingChangeOnly = function() {
-      maybeUpdateDenormsAndGoToNext();
+      maybeUpdateMyDenorms();
+      updateNextUp();
+      goToNextUpAfterPause();
     };
 
     self.afterViewingChange = function(dynamic_rating, optionalLastUnwatched, watched, msgPayload, personEpisodes, groupEpisodes) {
@@ -940,52 +936,23 @@ angular.module('mediaMogulApp')
         self.series.personSeries.dynamic_rating = dynamic_rating;
       }
 
-      _.each(personEpisodes, personEpisode => {
-        const episode = _.findWhere(self.episodes, {id: personEpisode.episode_id});
-        if (!!episode) {
-          if (!!episode.personEpisode) {
-            ObjectCopyService.shallowCopy(personEpisode, episode.personEpisode);
-          } else {
-            episode.personEpisode = personEpisode;
-          }
-        }
-      });
+      EpisodeService.updatePersonEpisodes(self.episodes, personEpisodes);
+      EpisodeService.updateGroupEpisodes(getOptionalGroupID(), self.episodes, groupEpisodes);
 
-      _.each(groupEpisodes, incomingGroupEpisode => {
-        const episode = _.findWhere(self.episodes, {id: incomingGroupEpisode.episode_id});
-        if (!!episode) {
-          const groupEpisode = GroupService.getGroupEpisode(episode, getOptionalGroupID());
-          if (!!groupEpisode) {
-            ObjectCopyService.shallowCopy(incomingGroupEpisode, groupEpisode);
-          } else {
-            if (!_.isArray(episode.groups)) {
-              episode.groups = [];
-            }
-            episode.groups.push(incomingGroupEpisode);
-          }
-        }
-      });
+      maybeUpdateMyDenorms();
 
       if (self.isInGroupMode()) {
         EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
+        sendGroupMultiWatchPayload(groupEpisodes);
       }
-      maybeUpdateDenormsAndGoToNext(msgPayload);
-    };
 
-    function updateRatingIDsAfterBulkWatch(episodes) {
-      _.each(episodes, episode => {
-        const matching = _.findWhere(self.episodes, {id: episode.episode_id});
-        if (!!matching) {
-          if (!!episode.tv_group_episode_id) {
-            const groupEpisode = getEpisodeViewerObject(matching);
-            groupEpisode.tv_group_episode_id = episode.tv_group_episode_id;
-          }
-          if (!!matching.personEpisode && !!episode.rating_id) {
-            matching.personEpisode.rating_id = episode.rating_id;
-          }
-        }
-      });
-    }
+      if (personEpisodes.length > 0) {
+        sendPersonMultiWatchPayload(personEpisodes);
+      }
+
+      updateNextUp();
+      goToNextUpAfterPause();
+    };
 
     function getLastAired() {
 
@@ -1028,37 +995,6 @@ angular.module('mediaMogulApp')
       }
     }
 
-    function getPreviousEpisodes(episode) {
-      let allEarlierEpisodes = self.episodes.filter(function (otherEpisode) {
-        return  otherEpisode.air_date !== null &&
-          otherEpisode.season !== 0 &&
-          ((otherEpisode.season < episode.season) ||
-            (otherEpisode.season === episode.season &&
-              otherEpisode.episode_number < episode.episode_number));
-      });
-
-      let earlierSorted = allEarlierEpisodes.sort(function(e1, e2) {
-        if (e1.season === e2.season) {
-          return e2.episode_number - e1.episode_number;
-        } else {
-          return e2.season - e1.season;
-        }
-      });
-
-
-      if (earlierSorted.length < 5) {
-        return earlierSorted;
-      }
-
-      return [
-        earlierSorted[0],
-        earlierSorted[1],
-        earlierSorted[2],
-        earlierSorted[3]
-      ];
-
-    }
-
     self.colorStyle = function(scaledValue) {
       let hue = (scaledValue <= 50) ? scaledValue * 0.5 : (50 * 0.5 + (scaledValue - 50) * 4.5);
       let saturation = scaledValue === null ? '0%' : '50%';
@@ -1069,18 +1005,6 @@ angular.module('mediaMogulApp')
 
     self.episodeColorStyle = function(episode) {
       return EpisodeService.episodeColorStyle(episode);
-    };
-
-    self.openEpisodeDetailFromRow = function(episode) {
-      if (!self.adding && !self.watchMultiple) {
-        self.openEpisodeDetail(episode);
-      }
-    };
-
-    self.openEpisodeDetailFromButton = function(episode) {
-      if (self.adding) {
-        self.openEpisodeDetail(episode);
-      }
     };
 
     self.openChangePoster = function () {

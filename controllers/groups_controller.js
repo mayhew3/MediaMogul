@@ -195,7 +195,8 @@ exports.getGroupShows = function(request, response) {
       "AND e.id NOT IN (SELECT tge.episode_id " +
       "                   FROM tv_group_episode tge " +
       "                   WHERE tge.tv_group_id = $3 " +
-      "                   AND (tge.watched = $4 OR tge.skipped = $5)) " +
+      "                   AND (tge.watched = $4 OR tge.skipped = $5)" +
+      "                   AND tge.retired = $1) " +
       "AND tgs.tv_group_id = $6 " +
       "AND tgs.retired = $1 " +
       "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
@@ -557,6 +558,14 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
               }
               const myPersonEpisodes = _.where(pastPersonResults, {person_id: person_id});
               ArrayService.addToArray(returnObj.personEpisodes, myPersonEpisodes);
+
+
+
+              Promise.all(getUpdatedDenormsForMultiplePersons(payload.series_id, person_ids)).then(personShows => {
+                getUpdatedGroupUnwatchedDenorms(payload.series_id, payload.tv_group_id).then(groupUnwatched => {
+
+                });
+              });
               response.json(returnObj);
 
             }).catch(err => errs.throwError(err, 'updateEpisodeRatingsAllPastWatched', response));
@@ -565,6 +574,65 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
     }).catch(err => errs.throwError(err, 'updateTVGroupEpisodesAllPastWatched', response));
   }).catch(err => errs.throwError(err, 'addOrEditTVGroupEpisode', response));
 };
+
+function getUpdatedDenormsForMultiplePersons(series_id, person_ids) {
+  return _.map(person_ids, person_id => getUpdatedDenormsForSinglePerson(series_id, person_id));
+}
+
+function getUpdatedDenormsForSinglePerson(series_id, person_id) {
+  return new Promise(resolve => {
+    const sql = "SELECT MIN(e.air_time) as first_unwatched, COUNT(1) as unwatched_all " +
+      "FROM episode e " +
+      "WHERE e.series_id = $1 " +
+      "AND e.retired = $2 " +
+      "AND e.season <> $3 " +
+      "AND e.air_time < now() " +
+      "AND e.id NOT IN (SELECT er.episode_id " +
+      "                   FROM episode_rating er " +
+      "                   WHERE er.watched = $4 " +
+      "                   AND er.person_id = $5 " +
+      "                   AND er.retired = $2) ";
+
+    const values = [
+      series_id,
+      0,
+      0,
+      true,
+      person_id
+    ];
+
+    db.selectNoResponse(sql, values).then(results => {
+      const personSeries = results[0];
+      personSeries.person_id = person_id;
+      resolve(personSeries);
+    });
+  });
+}
+
+function getUpdatedGroupUnwatchedDenorms(series_id, tv_group_id) {
+  const sql = "SELECT MIN(e.air_time) as first_unwatched, COUNT(1) as unwatched_all " +
+    "FROM episode e " +
+    "WHERE e.series_id = $1 " +
+    "AND e.retired = $2 " +
+    "AND e.season <> $3 " +
+    "AND e.air_time < now() " +
+    "AND e.id NOT IN (SELECT tge.episode_id " +
+    "                   FROM tv_group_episode tge " +
+    "                   WHERE tge.tv_group_id = $4 " +
+    "                   AND (tge.watched = $5 OR tge.skipped = $6) " +
+    "                   AND tge.retired = $2) ";
+
+  const values = [
+    series_id,
+    0,
+    0,
+    tv_group_id,
+    true,
+    true
+  ];
+
+  return db.selectNoResponse(sql, values);
+}
 
 function addOrEditTVGroupEpisode(payload) {
   const tv_group_episode = payload.changedFields;

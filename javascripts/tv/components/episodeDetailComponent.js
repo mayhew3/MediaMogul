@@ -326,7 +326,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       episode_id: self.episode.id,
       person_id: LockService.person_id,
       series_id: self.episode.series_id,
-      tv_group_id: groupEpisode.tv_group_id
+      tv_group_id: groupEpisode.tv_group_id,
+      client_id: SocketService.getClientID()
     };
     if (!unwatching && self.hasPreviousUnwatched()) {
       payload.last_watched = self.episode.absolute_number;
@@ -358,21 +359,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       const incomingGroupEpisodes = response.data.groupEpisodes;
       const incomingGroupEpisode = _.findWhere(incomingGroupEpisodes, {episode_id: self.episode.id});
-      const tv_group_episode_id = incomingGroupEpisode.tv_group_episode_id;
 
-      const groupMsgPayload = {
-        tv_group_episode_id: tv_group_episode_id,
-        tv_group_id: getOptionalGroupID(),
-        watched: incomingGroupEpisode.watched,
-        watched_date: incomingGroupEpisode.watched_date,
-        skipped: incomingGroupEpisode.skipped,
-        series_id: self.episode.series_id,
-        episode_id: self.episode.id,
-        episode_count: 1
-      };
-      SocketService.emit('group_episode_update', groupMsgPayload);
-
-      groupEpisode.tv_group_episode_id = tv_group_episode_id;
+      groupEpisode.tv_group_episode_id = incomingGroupEpisode.tv_group_episode_id;
       groupEpisode.watched = incomingGroupEpisode.watched;
       groupEpisode.watched_date = incomingGroupEpisode.watched_date;
       groupEpisode.skipped = incomingGroupEpisode.skipped;
@@ -399,22 +387,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
       const incomingGroupEpisodes = response.data.groupEpisodes;
       const incomingGroupEpisode = _.findWhere(incomingGroupEpisodes, {episode_id: self.episode.id});
-      const tv_group_episode_id = incomingGroupEpisode.tv_group_episode_id;
 
-
-      const groupMsgPayload = {
-        tv_group_episode_id: tv_group_episode_id,
-        tv_group_id: getOptionalGroupID(),
-        watched: incomingGroupEpisode.watched,
-        watched_date: incomingGroupEpisode.watched_date,
-        skipped: incomingGroupEpisode.skipped,
-        series_id: self.episode.series_id,
-        episode_id: self.episode.id,
-        episode_count: 1
-      };
-      SocketService.emit('group_episode_update', groupMsgPayload);
-
-      groupEpisode.tv_group_episode_id = tv_group_episode_id;
+      groupEpisode.tv_group_episode_id = incomingGroupEpisode.tv_group_episode_id;
       groupEpisode.watched = incomingGroupEpisode.watched;
       groupEpisode.watched_date = incomingGroupEpisode.watched_date;
       groupEpisode.skipped = incomingGroupEpisode.skipped;
