@@ -1199,19 +1199,6 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.markMyPastWatched = function(series, episodes, lastWatched) {
-        return $q((resolve, reject) => {
-          $http.post('/api/markMyPastWatched', {SeriesId: series.id, LastWatched: lastWatched, PersonId: getPersonId()}).then(function() {
-            $log.debug("Past watched API call complete.");
-            self.markLocalPastEpisodeWatched(episodes, lastWatched);
-            resolve();
-          }, function(errResponse) {
-            $log.debug("Error calling the method: " + errResponse);
-            reject();
-          });
-        });
-      };
-
       self.dateHasChanged = function(originalDate, updatedDate) {
         if (updatedDate === null && originalDate === null) {
           return false;

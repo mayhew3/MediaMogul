@@ -549,9 +549,11 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
             .then(pastPersonResults => {
 
               const person_id = payload.person_id;
-              if (!!personResults && _.isArray(personResults[0])) {
+              if (!!personResults && _.isArray(personResults[0]) && personResults[0].length > 0) {
                 const personEpisode = _.findWhere(personResults[0], {person_id: person_id});
-                returnObj.personEpisodes.push(personEpisode);
+                if (!!personEpisode) {
+                  returnObj.personEpisodes.push(personEpisode);
+                }
               }
               const myPersonEpisodes = _.where(pastPersonResults, {person_id: person_id});
               ArrayService.addToArray(returnObj.personEpisodes, myPersonEpisodes);

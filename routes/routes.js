@@ -89,7 +89,6 @@ module.exports = function(app) {
   app.post('/api/updateMyShow', authCheck, persons.updateMyShow);
   app.post('/api/rateMyShow', authCheck, persons.rateMyShow);
   app.post('/api/updateEpisodeRatings', authCheck, persons.updateEpisodeRatings);
-  app.post('/api/markMyPastWatched', authCheck, persons.markAllPastEpisodesAsWatched);
   app.post('/api/increaseYear', authCheck, persons.increaseYear);
   app.post('/api/revertYear', authCheck, persons.revertYear);
   app.post('/api/seriesRequest', authCheck, persons.seriesRequest);

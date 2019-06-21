@@ -242,30 +242,6 @@ angular.module('mediaMogulApp')
         $state.go('tv.addShows.search');
       };
 
-      self.open = function(series) {
-        $uibModal.open({
-          templateUrl: 'views/tv/seriesDetailPopup.html',
-          controller: 'mySeriesDetailPopupController as ctrl',
-          size: 'lg',
-          resolve: {
-            series: function() {
-              return series;
-            },
-            owned: function() {
-              return true;
-            },
-            adding: function() {
-              return false;
-            },
-            addSeriesCallback: function() {
-              return undefined;
-            }
-          }
-        }).result.finally(function() {
-          self.quickFindResult = undefined;
-        });
-      };
-
       self.createGroup = function() {
         $uibModal.open({
           templateUrl: 'views/tv/groups/createGroup.html',

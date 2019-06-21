@@ -928,21 +928,6 @@ angular.module('mediaMogulApp')
       SocketService.emit('multi_group_episode_update', payload);
     }
 
-    function maybeMarkPastUnwatched(optionalLastUnwatched) {
-      return $q(resolve => {
-        if (!optionalLastUnwatched) {
-          resolve();
-        } else {
-          if (!self.isInGroupMode()) {
-            if (self.isInMyShows()) {
-              markMyPastWatched(optionalLastUnwatched).then(() => resolve());
-            }
-          }
-        }
-      });
-
-    }
-
     self.afterRatingChangeOnly = function() {
       maybeUpdateDenormsAndGoToNext();
     };
@@ -1001,40 +986,6 @@ angular.module('mediaMogulApp')
         }
       });
     }
-
-    self.markAllPastWatched = function() {
-
-      if (self.selectedLastWatchedEpisode === null) {
-        $log.debug('Mark Past Watched called with no selected episode.');
-        EpisodeService.updateMySeriesDenorms(
-          self.series,
-          self.episodes,
-          updatePersonSeriesInDatabase,
-          self.series.personSeries)
-          .then(function () {
-            updateNextUp();
-          });
-      } else {
-
-        let lastWatched = self.selectedLastWatchedEpisode.absolute_number;
-
-        $log.debug("Last Watched: Episode " + lastWatched);
-
-        EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched + 1).then(function () {
-          $log.debug("Finished update, adjusting denorms.");
-          EpisodeService.updateMySeriesDenorms(
-            self.series,
-            self.episodes,
-            updatePersonSeriesInDatabase,
-            self.series.personSeries)
-            .then(function () {
-              updateNextUp();
-            });
-        });
-      }
-
-      $log.debug("Series '" + self.series.title + "' " + self.series.id);
-    };
 
     function getLastAired() {
 
@@ -1119,10 +1070,6 @@ angular.module('mediaMogulApp')
     self.episodeColorStyle = function(episode) {
       return EpisodeService.episodeColorStyle(episode);
     };
-
-    function markMyPastWatched(lastWatched) {
-      return EpisodeService.markMyPastWatched(self.series, self.episodes, lastWatched);
-    }
 
     self.openEpisodeDetailFromRow = function(episode) {
       if (!self.adding && !self.watchMultiple) {

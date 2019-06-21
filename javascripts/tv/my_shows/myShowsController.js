@@ -349,28 +349,6 @@ angular.module('mediaMogulApp')
       );
     };
 
-    self.open = function(series) {
-      $uibModal.open({
-        templateUrl: 'views/tv/seriesDetailPopup.html',
-        controller: 'mySeriesDetailPopupController as ctrl',
-        size: 'lg',
-        resolve: {
-          series: function() {
-            return series;
-          },
-          owned: function() {
-            return true;
-          },
-          adding: function() {
-            return false;
-          },
-          addSeriesCallback: function() {
-            return undefined;
-          }
-        }
-      });
-    };
-
     self.reviewRequest = function(seriesRequest) {
       $uibModal.open({
         templateUrl: 'views/tv/reviewRequest.html',
