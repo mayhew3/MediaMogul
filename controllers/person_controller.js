@@ -1315,7 +1315,7 @@ exports.rateMyShow = function(request, response) {
   ];
 
   db.updateNoResponse(sql, values).then(function() {
-    calculateSeriesRating(seriesId, personId).then(function(result) {
+    exports.calculateSeriesRating(seriesId, personId).then(function(result) {
       if (_.isUndefined(result.my_rating)) {
         return response.json({
           dynamic_rating: rating
@@ -1399,7 +1399,7 @@ exports.updateEpisodeRatings = function(request, response) {
     const person_id = payload.person_id;
     exports.updateEpisodeRatingsAllPastWatched(payload, false, [person_id])
       .then(pastEpResults => {
-      calculateSeriesRating(payload.series_id, person_id).then(function(result) {
+      exports.calculateSeriesRating(payload.series_id, person_id).then(function(result) {
         const data = {
           personEpisodes: [personEpisode],
           dynamic_rating: result.personSeries ? result.personSeries.dynamic_rating : undefined
@@ -1435,7 +1435,7 @@ exports.calculateUnwatchedDenormsAfterGettingEpisodes = function(series_id, view
 
 };
 
-function calculateSeriesRating(series_id, person_id) {
+exports.calculateSeriesRating = function(series_id, person_id) {
   return new Promise(function(resolve) {
 
     const sql =
@@ -1481,7 +1481,7 @@ function calculateSeriesRating(series_id, person_id) {
       }
     }).catch(err => errs.throwError(err, 'episodes fetch for series rating', response));
   });
-}
+};
 
 exports.updateMyShow = function(request, response) {
   console.log("Update Person-Series with " + JSON.stringify(request.body.ChangedFields));
