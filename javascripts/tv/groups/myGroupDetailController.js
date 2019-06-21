@@ -87,6 +87,21 @@ angular.module('mediaMogulApp')
         pageLimit: 6
       },
       {
+        headerText: "Needs Post-Buffet Vote",
+        tvFilter: needsPostBuffetVote,
+        posterSize: 'large',
+        sort: {
+          field: 'title',
+          direction: 'desc'
+        },
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
+        panelFormat: 'panel-info',
+        clickOverride: clickBallotPosterPostBuffet,
+        textOverlay: textOverlay,
+        pageLimit: 6
+      },
+      {
         headerText: "Needs Refresh Vote",
         tvFilter: needsAbsenceRefresh,
         posterSize: 'large',
@@ -398,15 +413,35 @@ angular.module('mediaMogulApp')
     }
 
     function hasWatchedEpisodes(series) {
-      return (series.aired_episodes - getUnwatched(series)) !== 0;
+      return getNumberOfWatchedEpisodes(series) > 0;
     }
 
     function needsFirstVote(series) {
       return hasNeverBeenVotedOn(series) && hasUnwatchedEpisodes(series);
     }
 
+    function needsPostBuffetVote(series) {
+      return !needsFirstVote(series) &&
+        getNumberOfWatchedEpisodes(series) >= 2 &&
+        hasUnwatchedEpisodes(series) &&
+        !hasOpenBallots(series) &&
+        !hasClosedPostBuffetBallot(series);
+    }
+
+    function hasClosedPostBuffetBallot(series) {
+      const groupSeries = getGroupSeries(series);
+      return !!_.find(groupSeries.ballots, ballot => ballot.reason === 'Post-Buffet' && !!ballot.voting_closed);
+    }
+
+    function getNumberOfWatchedEpisodes(series) {
+      return (series.aired_episodes - getUnwatched(series));
+    }
+
     function needsAbsenceRefresh(series) {
-      return shouldGetAbsenceVote(series) && hasUnwatchedEpisodes(series) && !hasOpenBallots(series);
+      return shouldGetAbsenceVote(series) &&
+        hasUnwatchedEpisodes(series) &&
+        !hasOpenBallots(series) &&
+        !needsPostBuffetVote(series);
     }
 
     function absenceRefreshSubtitle(series) {
@@ -479,6 +514,10 @@ angular.module('mediaMogulApp')
 
     function clickBallotPosterToStart(series) {
       clickBallotPoster(series, 'To Start');
+    }
+
+    function clickBallotPosterPostBuffet(series) {
+      clickBallotPoster(series, 'Post-Buffet');
     }
 
     function clickBallotPosterAbsence(series) {
