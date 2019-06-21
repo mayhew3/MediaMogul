@@ -4,6 +4,7 @@ const person_controller = require('./person_controller');
 const debug = require('debug');
 const ArrayService = require('./array_util');
 const errs = require('./error_handler');
+const sockets = require('./sockets_controller');
 
 /* GROUPS */
 
@@ -529,11 +530,38 @@ exports.getGroupEpisodes = function(request, response) {
 
 /* GROUP EPISODES */
 
+function handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults) {
+  Promise.all(getUpdatedDenormsForMultiplePersons(series_id, person_ids)).then(personShows => {
+    _.each(personShows, personSeries => {
+      const theirPersonEpisodes = [];
+      const theirPersonEpisode = _.findWhere(insertedPersonEpisodes, {person_id: personSeries.person_id});
+      if (!!theirPersonEpisode) {
+        theirPersonEpisodes.push(theirPersonEpisode);
+      }
+      ArrayService.addToArray(theirPersonEpisodes, _.where(pastPersonResults, {person_id: personSeries.person_id}));
+
+      if (theirPersonEpisodes.length > 0) {
+        const msg = {
+          series_id: series_id,
+          person_id: personSeries.person_id,
+          personEpisodes: theirPersonEpisodes,
+          first_unwatched: personSeries.first_unwatched,
+          unwatched_all: personSeries.unwatched_all
+          // todo: dynamic_rating
+          // todo: rating_pending_episodes
+        };
+        sockets.emitToPerson(personSeries.person_id, 'my_episode_viewed', msg);
+      }
+    });
+  });
+}
+
 exports.markEpisodesWatchedByGroup = function(request, response) {
   const returnObj = {};
   returnObj.groupEpisodes = [];
   returnObj.personEpisodes = [];
   const payload = request.body.payload;
+  const series_id = payload.series_id;
 
   addOrEditTVGroupEpisode(payload).then(groupEpResult => {
     returnObj.groupEpisodes.push(groupEpResult);
@@ -550,25 +578,23 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
             .then(pastPersonResults => {
 
               const person_id = payload.person_id;
-              if (!!personResults && _.isArray(personResults[0]) && personResults[0].length > 0) {
-                const personEpisode = _.findWhere(personResults[0], {person_id: person_id});
-                if (!!personEpisode) {
-                  returnObj.personEpisodes.push(personEpisode);
-                }
+              const insertedPersonEpisodes = personResults[0];
+              const personEpisode = _.findWhere(insertedPersonEpisodes, {person_id: person_id});
+              if (!!personEpisode) {
+                returnObj.personEpisodes.push(personEpisode);
               }
+
               const myPersonEpisodes = _.where(pastPersonResults, {person_id: person_id});
               ArrayService.addToArray(returnObj.personEpisodes, myPersonEpisodes);
 
-              person_controller.calculateSeriesRating(payload.series_id, person_id).then(series => {
-                returnObj.dynamic_rating = series.personSeries.dynamic_rating;
+              person_controller.calculateSeriesRating(series_id, person_id).then(series => {
+                if (!!series.personSeries) {
+                  returnObj.dynamic_rating = series.personSeries.dynamic_rating;
+                }
                 response.json(returnObj);
               });
 
-              Promise.all(getUpdatedDenormsForMultiplePersons(payload.series_id, person_ids)).then(personShows => {
-                getUpdatedGroupUnwatchedDenorms(payload.series_id, payload.tv_group_id).then(groupUnwatched => {
-
-                });
-              });
+              handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults);
 
             }).catch(err => errs.throwError(err, 'updateEpisodeRatingsAllPastWatched', response));
         }).catch(err => errs.throwError(err, 'markEpisodeWatchedForPersons', response));
@@ -686,7 +712,7 @@ function markEpisodeWatchedForPersons(payload, persons) {
 
     if (payload.changedFields.skipped) {
       console.log("Request to skip episode. Not propagating to persons.");
-      resolve();
+      resolve([[],[]]);
     } else {
 
       const member_ids = payload.member_ids;
