@@ -1237,7 +1237,6 @@ exports.addToMyShows = function(request, response) {
       person_ids: [personId]
     };
     exports.updateEpisodeRatingsAllPastWatched(payload, false).then(() => {
-      // todo: need to return rating_ids attached to episodes as well!
       exports.getUpdatedSingleSeries(seriesId, personId)
         .then(series => {
           response.json(series);
@@ -1548,20 +1547,6 @@ exports.updateMyPoster = function(request, response) {
 };
 
 // Mark All Watched
-
-
-exports.markAllPastEpisodesAsWatched = function(request, response) {
-  const payload = {
-    series_id: request.body.SeriesId,
-    last_watched: request.body.LastWatched,
-    person_ids: [request.body.PersonId]
-  };
-
-  exports.updateEpisodeRatingsAllPastWatched(payload, false).then(function() {
-    // todo: return and use rating ids
-    response.json({msg: "Success!"});
-  });
-};
 
 exports.markEpisodesWatched = function(request, response) {
   const person_id = request.body.PersonId;
