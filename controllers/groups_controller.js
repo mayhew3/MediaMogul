@@ -536,27 +536,29 @@ function handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastP
 
       person_controller.calculateSeriesRating(series_id, personSeries.person_id).then(series => {
 
-        const theirPersonEpisodes = [];
-        const theirPersonEpisode = _.findWhere(insertedPersonEpisodes, {person_id: personSeries.person_id});
-        if (!!theirPersonEpisode) {
-          theirPersonEpisodes.push(theirPersonEpisode);
-        }
-        ArrayService.addToArray(theirPersonEpisodes, _.where(pastPersonResults, {person_id: personSeries.person_id}));
+        getRatingPendingEpisodesForSinglePerson(series_id, personSeries.person_id).then(ratings_pending => {
 
-        if (theirPersonEpisodes.length > 0) {
-          const msg = {
-            series_id: series_id,
-            person_id: personSeries.person_id,
-            personEpisodes: theirPersonEpisodes,
-            first_unwatched: personSeries.first_unwatched,
-            unwatched_all: personSeries.unwatched_all,
-            dynamic_rating: !series.personSeries ? null : series.personSeries.dynamic_rating
-            // todo: rating_pending_episodes
-          };
-          sockets.emitToPerson(personSeries.person_id, 'my_episode_viewed', msg);
-        }
+          const theirPersonEpisodes = [];
+          const theirPersonEpisode = _.findWhere(insertedPersonEpisodes, {person_id: personSeries.person_id});
+          if (!!theirPersonEpisode) {
+            theirPersonEpisodes.push(theirPersonEpisode);
+          }
+          ArrayService.addToArray(theirPersonEpisodes, _.where(pastPersonResults, {person_id: personSeries.person_id}));
+
+          if (theirPersonEpisodes.length > 0) {
+            const msg = {
+              series_id: series_id,
+              person_id: personSeries.person_id,
+              personEpisodes: theirPersonEpisodes,
+              first_unwatched: personSeries.first_unwatched,
+              unwatched_all: personSeries.unwatched_all,
+              dynamic_rating: !series.personSeries ? null : series.personSeries.dynamic_rating,
+              rating_pending_episodes: ratings_pending.rating_pending_episodes
+            };
+            sockets.emitToPerson(personSeries.person_id, 'my_episode_viewed', msg);
+          }
+        });
       });
-
     });
   });
 }
@@ -646,21 +648,18 @@ function getUpdatedDenormsForSinglePerson(series_id, person_id) {
 
 function getRatingPendingEpisodesForSinglePerson(series_id, person_id) {
   return new Promise(resolve => {
-    const sql = "SELECT MIN(e.air_time) as first_unwatched, COUNT(1) as unwatched_all " +
-      "FROM episode e " +
-      "WHERE e.series_id = $1 " +
-      "AND e.retired = $2 " +
-      "AND e.season <> $3 " +
-      "AND e.air_time < now() " +
-      "AND e.id NOT IN (SELECT er.episode_id " +
-      "                   FROM episode_rating er " +
-      "                   WHERE er.watched = $4 " +
-      "                   AND er.person_id = $5 " +
-      "                   AND er.retired = $2) ";
+    const sql = "SELECT COUNT(1) as rating_pending_episodes " +
+      "  FROM episode_rating er " +
+      "  INNER JOIN episode e " +
+      "    ON er.episode_id = e.id" +
+      "  WHERE e.series_id = $1 " +
+      "  AND e.retired = $2 " +
+      "  AND er.retired = $2 " +
+      "  AND er.rating_pending = $3" +
+      "  AND er.person_id = $4 ";
 
     const values = [
       series_id,
-      0,
       0,
       true,
       person_id
