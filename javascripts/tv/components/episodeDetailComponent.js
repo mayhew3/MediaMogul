@@ -357,6 +357,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     const payload = createPayloadForGroupWatch(watchedDate);
 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
+      const dynamic_rating = response.data.dynamic_rating;
       const incomingGroupEpisodes = response.data.groupEpisodes;
       const incomingGroupEpisode = _.findWhere(incomingGroupEpisodes, {episode_id: self.episode.id});
 
@@ -376,7 +377,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
       self.updating = false;
 
-      self.postViewingCallback(null, null, self.isWatched(), null, incomingPersonEpisodes, incomingGroupEpisodes);
+      self.postViewingCallback(dynamic_rating, null, self.isWatched(), null, incomingPersonEpisodes, incomingGroupEpisodes);
     });
   }
 
@@ -385,6 +386,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     const payload = createPayloadForGroupSkip(null);
 
     $http.post('/api/groupWatchEpisode', {payload: payload}).then(response => {
+      const dynamic_rating = response.data.dynamic_rating;
       const incomingGroupEpisodes = response.data.groupEpisodes;
       const incomingGroupEpisode = _.findWhere(incomingGroupEpisodes, {episode_id: self.episode.id});
 
@@ -395,7 +397,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
       self.updating = false;
 
-      self.postViewingCallback(null, null, self.isWatched(), null, [], incomingGroupEpisodes);
+      self.postViewingCallback(dynamic_rating, null, self.isWatched(), null, [], incomingGroupEpisodes);
     });
   }
 
