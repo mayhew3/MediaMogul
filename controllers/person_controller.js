@@ -1236,7 +1236,7 @@ exports.addToMyShows = function(request, response) {
       last_watched: lastWatched,
       person_ids: [personId]
     };
-    exports.updateEpisodeRatingsAllPastWatched(payload, false).then(() => {
+    exports.updateEpisodeRatingsAllPastWatched(payload, false, [personId]).then(() => {
       exports.getUpdatedSingleSeries(seriesId, personId)
         .then(series => {
           response.json(series);
