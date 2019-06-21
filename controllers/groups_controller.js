@@ -530,28 +530,33 @@ exports.getGroupEpisodes = function(request, response) {
 
 /* GROUP EPISODES */
 
-function handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults) {
+function handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults, persons) {
   Promise.all(getUpdatedDenormsForMultiplePersons(series_id, person_ids)).then(personShows => {
     _.each(personShows, personSeries => {
-      const theirPersonEpisodes = [];
-      const theirPersonEpisode = _.findWhere(insertedPersonEpisodes, {person_id: personSeries.person_id});
-      if (!!theirPersonEpisode) {
-        theirPersonEpisodes.push(theirPersonEpisode);
-      }
-      ArrayService.addToArray(theirPersonEpisodes, _.where(pastPersonResults, {person_id: personSeries.person_id}));
 
-      if (theirPersonEpisodes.length > 0) {
-        const msg = {
-          series_id: series_id,
-          person_id: personSeries.person_id,
-          personEpisodes: theirPersonEpisodes,
-          first_unwatched: personSeries.first_unwatched,
-          unwatched_all: personSeries.unwatched_all
-          // todo: dynamic_rating
-          // todo: rating_pending_episodes
-        };
-        sockets.emitToPerson(personSeries.person_id, 'my_episode_viewed', msg);
-      }
+      person_controller.calculateSeriesRating(series_id, personSeries.person_id).then(series => {
+
+        const theirPersonEpisodes = [];
+        const theirPersonEpisode = _.findWhere(insertedPersonEpisodes, {person_id: personSeries.person_id});
+        if (!!theirPersonEpisode) {
+          theirPersonEpisodes.push(theirPersonEpisode);
+        }
+        ArrayService.addToArray(theirPersonEpisodes, _.where(pastPersonResults, {person_id: personSeries.person_id}));
+
+        if (theirPersonEpisodes.length > 0) {
+          const msg = {
+            series_id: series_id,
+            person_id: personSeries.person_id,
+            personEpisodes: theirPersonEpisodes,
+            first_unwatched: personSeries.first_unwatched,
+            unwatched_all: personSeries.unwatched_all,
+            dynamic_rating: !series.personSeries ? null : series.personSeries.dynamic_rating
+            // todo: rating_pending_episodes
+          };
+          sockets.emitToPerson(personSeries.person_id, 'my_episode_viewed', msg);
+        }
+      });
+
     });
   });
 }
@@ -594,7 +599,9 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
                 response.json(returnObj);
               });
 
-              handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults);
+              ArrayService.removeFromArray(person_ids, person_id);
+
+              handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults, persons);
 
             }).catch(err => errs.throwError(err, 'updateEpisodeRatingsAllPastWatched', response));
         }).catch(err => errs.throwError(err, 'markEpisodeWatchedForPersons', response));
@@ -608,6 +615,36 @@ function getUpdatedDenormsForMultiplePersons(series_id, person_ids) {
 }
 
 function getUpdatedDenormsForSinglePerson(series_id, person_id) {
+  return new Promise(resolve => {
+    const sql = "SELECT MIN(e.air_time) as first_unwatched, COUNT(1) as unwatched_all " +
+      "FROM episode e " +
+      "WHERE e.series_id = $1 " +
+      "AND e.retired = $2 " +
+      "AND e.season <> $3 " +
+      "AND e.air_time < now() " +
+      "AND e.id NOT IN (SELECT er.episode_id " +
+      "                   FROM episode_rating er " +
+      "                   WHERE er.watched = $4 " +
+      "                   AND er.person_id = $5 " +
+      "                   AND er.retired = $2) ";
+
+    const values = [
+      series_id,
+      0,
+      0,
+      true,
+      person_id
+    ];
+
+    db.selectNoResponse(sql, values).then(results => {
+      const personSeries = results[0];
+      personSeries.person_id = person_id;
+      resolve(personSeries);
+    });
+  });
+}
+
+function getRatingPendingEpisodesForSinglePerson(series_id, person_id) {
   return new Promise(resolve => {
     const sql = "SELECT MIN(e.air_time) as first_unwatched, COUNT(1) as unwatched_all " +
       "FROM episode e " +
