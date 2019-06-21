@@ -7,10 +7,10 @@ const errs = require('./error_handler');
 const moment = require('moment');
 
 exports.getPersonInfo = function(request, response) {
-  var email = request.query.email;
+  const email = request.query.email;
   console.log("User call received: " + email);
 
-  var sql = 'SELECT p.* ' +
+  const sql = 'SELECT p.* ' +
           'FROM person p ' +
           'WHERE p.email = $1 ' +
           'AND p.retired = $2 ';
@@ -29,10 +29,10 @@ exports.getPersons = function(request, response) {
 };
 
 exports.getMyPendingShows = function(request, response) {
-  var personId = request.query.PersonId;
+  const personId = request.query.PersonId;
   console.log("Server call: Person " + personId);
 
-  var sql = "SELECT s.id, " +
+  const sql = "SELECT s.id, " +
       "s.title, " +
       "s.metacritic, " +
       "s.tvdb_series_id, " +
@@ -45,7 +45,7 @@ exports.getMyPendingShows = function(request, response) {
       "FROM series s " +
       "WHERE s.tvdb_match_status = $1 " +
       "AND s.retired = $2 ";
-  var values = [
+  const values = [
     'Match Confirmed', 0
   ];
 
@@ -960,11 +960,11 @@ exports.pinToDashboard = function(request, response) {
 exports.seriesRequest = function(request, response) {
   const series_request = request.body.seriesRequest;
 
-  var sql = "INSERT INTO series_request (" +
+  const sql = "INSERT INTO series_request (" +
     "title, person_id, tvdb_series_ext_id, poster) " +
     "VALUES ($1, $2, $3, $4) " +
     "RETURNING id ";
-  var values = [
+  const values = [
     series_request.title,
     series_request.person_id,
     series_request.tvdb_series_ext_id,
@@ -1164,8 +1164,8 @@ function combineRatingElements(ratingElements) {
     return 0;
   }
 
-  var runningWeight = 0;
-  var runningValue = 0;
+  let runningWeight = 0;
+  let runningValue = 0;
   _.each(ratingElements, function(element) {
     runningWeight += element.weight;
     runningValue += (element.value * element.weight);
@@ -1249,14 +1249,14 @@ exports.addToMyShows = function(request, response) {
 };
 
 exports.removeFromMyShows = function(request, response) {
-  var personId = request.body.PersonId;
-  var seriesId = request.body.SeriesId;
+  const personId = request.body.PersonId;
+  const seriesId = request.body.SeriesId;
   console.log("Server call 'removeFromMyShows': Person " + personId + ", Series " + seriesId);
 
-  var sql = "DELETE FROM person_series " +
+  const sql = "DELETE FROM person_series " +
     "WHERE person_id = $1 " +
     "AND series_id = $2 ";
-  var values = [
+  const values = [
     personId, seriesId
   ];
 
@@ -1301,16 +1301,16 @@ exports.getNotMyShows = function(request, response) {
 };
 
 exports.rateMyShow = function(request, response) {
-  var personId = request.body.PersonId;
-  var seriesId = request.body.SeriesId;
-  var rating = request.body.Rating;
+  const personId = request.body.PersonId;
+  const seriesId = request.body.SeriesId;
+  const rating = request.body.Rating;
 
-  var sql = "UPDATE person_series " +
+  const sql = "UPDATE person_series " +
     "SET rating = $1, rating_date = NOW() " +
     "WHERE person_id = $2 " +
     "AND series_id = $3 ";
 
-  var values = [
+  const values = [
     rating, personId, seriesId
   ];
 
@@ -1330,11 +1330,11 @@ exports.rateMyShow = function(request, response) {
 };
 
 exports.getMyEpisodes = function(request, response) {
-  var seriesId = request.query.SeriesId;
-  var personId = request.query.PersonId;
+  const seriesId = request.query.SeriesId;
+  const personId = request.query.PersonId;
   console.log("Episode call received. Params: " + seriesId + ", Person: " + personId);
 
-  var sql = 'SELECT e.id, ' +
+  const sql = 'SELECT e.id, ' +
     'e.air_date, ' +
     'e.air_time, ' +
     'e.title, ' +
@@ -1357,7 +1357,7 @@ exports.getMyEpisodes = function(request, response) {
 
   return db.selectNoResponse(sql, [seriesId, 0, 0]).then(function (episodeResult) {
 
-    var sql =
+    const sql =
       'SELECT er.episode_id, ' +
       'er.watched_date,' +
       'er.watched,' +
@@ -1431,10 +1431,14 @@ function addOrEditRating(request) {
   });
 }
 
+exports.calculateUnwatchedDenormsAfterGettingEpisodes = function(series_id, viewer) {
+
+};
+
 function calculateSeriesRating(series_id, person_id) {
   return new Promise(function(resolve) {
 
-    var sql =
+    const sql =
       "SELECT er.episode_id, er.rating_value, s.metacritic, ps.rating as my_rating " +
       "FROM episode_rating er " +
       "INNER JOIN episode e " +
@@ -1450,7 +1454,7 @@ function calculateSeriesRating(series_id, person_id) {
       "AND e.series_id = $4 " +
       "ORDER BY er.watched_date DESC, e.season DESC, e.episode_number DESC ";
 
-    var values = [
+    const values = [
       true,
       0,
       person_id,
@@ -1459,7 +1463,7 @@ function calculateSeriesRating(series_id, person_id) {
 
     db.selectNoResponse(sql, values).then(function (results) {
       if (!_.isEmpty(results)) {
-        var series = {
+        const series = {
           id: series_id,
           personSeries: {
             my_rating: results[0].my_rating
@@ -1482,7 +1486,7 @@ function calculateSeriesRating(series_id, person_id) {
 exports.updateMyShow = function(request, response) {
   console.log("Update Person-Series with " + JSON.stringify(request.body.ChangedFields));
 
-  var queryConfig = db.buildUpdateQueryConfigNoID(
+  const queryConfig = db.buildUpdateQueryConfigNoID(
     request.body.ChangedFields,
     "person_series",
     {
@@ -1499,13 +1503,13 @@ exports.updateMyShow = function(request, response) {
 function addRating(episodeRating) {
   console.log("Adding rating: " + JSON.stringify(episodeRating));
 
-  var sql = "INSERT INTO episode_rating (episode_id, person_id, watched, watched_date, " +
+  const sql = "INSERT INTO episode_rating (episode_id, person_id, watched, watched_date, " +
       "rating_date, rating_value, " +
       "review, date_added) " +
     "VALUES ($1, $2, $3, $4, $5, $6, $7, $8) " +
     "RETURNING id";
 
-  var values = [
+  const values = [
     episodeRating.episode_id,
     episodeRating.person_id,
     episodeRating.watched,
@@ -1628,17 +1632,17 @@ exports.getSystemVars = function(request, response) {
 exports.increaseYear = function(request, response) {
   console.log("Incrementing rating year.");
 
-  var sql = "SELECT rating_year FROM system_vars";
+  const sql = "SELECT rating_year FROM system_vars";
   return db.selectNoResponse(sql, []).then(function (result) {
-    var system_vars = result[0];
-    var ratingYear = system_vars.rating_year;
+    const system_vars = result[0];
+    const ratingYear = system_vars.rating_year;
     console.log("Current year: " + ratingYear);
 
     if (_.isNaN(ratingYear)) {
       return response.send("Error rating year found that is not numeric: " + ratingYear);
     } else {
-      var nextYear = ratingYear + 1;
-      var sql = "UPDATE system_vars " +
+      const nextYear = ratingYear + 1;
+      const sql = "UPDATE system_vars " +
         "SET rating_year = $1, " +
         "    rating_end_date = NULL ";
       return db.updateSendResponse(response, sql, [nextYear]);
@@ -1648,20 +1652,20 @@ exports.increaseYear = function(request, response) {
 };
 
 exports.revertYear = function(request, response) {
-  var endDate = request.body.EndDate;
+  const endDate = request.body.EndDate;
   console.log("Reverting rating year increase with end date: " + endDate);
 
-  var sql = "SELECT rating_year FROM system_vars";
+  const sql = "SELECT rating_year FROM system_vars";
   return db.selectNoResponse(sql, []).then(function (result) {
-    var system_vars = result[0];
-    var ratingYear = system_vars.rating_year;
+    const system_vars = result[0];
+    const ratingYear = system_vars.rating_year;
     console.log("Current year: " + ratingYear);
 
     if (_.isNaN(ratingYear)) {
       return response.send("Error rating year found that is not numeric: " + ratingYear);
     } else {
-      var nextYear = ratingYear - 1;
-      var sql = "UPDATE system_vars " +
+      const nextYear = ratingYear - 1;
+      const sql = "UPDATE system_vars " +
         "SET rating_year = $1, " +
         "    rating_end_date = $2 ";
       return db.updateSendResponse(response, sql, [nextYear, endDate]);

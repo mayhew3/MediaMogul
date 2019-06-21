@@ -568,24 +568,6 @@ angular.module('mediaMogulApp')
       );
     };
 
-    self.open = function(series) {
-      $uibModal.open({
-        templateUrl: 'views/tv/groups/seriesDetail.html',
-        controller: 'myGroupSeriesDetailController as ctrl',
-        size: 'lg',
-        resolve: {
-          series: function() {
-            return series;
-          },
-          group: function() {
-            return self.group;
-          }
-        }
-      }).result.finally(function() {
-        self.quickFindResult = undefined;
-      });
-    };
-
     self.addShows = function() {
       $uibModal.open({
         templateUrl: 'views/tv/groups/addShows.html',
