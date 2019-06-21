@@ -456,9 +456,7 @@ angular.module('mediaMogulApp')
           personSeries.unwatched_all = msg.unwatched_all;
           personSeries.first_unwatched = msg.first_unwatched;
           personSeries.rating_pending_episodes = msg.rating_pending_episodes;
-
-          // todo: have server calculate
-          // personSeries.dynamic_rating = msg.dynamic_rating;
+          personSeries.dynamic_rating = msg.dynamic_rating;
 
           SeriesDetailService.updateCacheWithPersonEpisodeWatched(msg);
         }

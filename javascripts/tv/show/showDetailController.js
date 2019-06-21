@@ -905,6 +905,7 @@ angular.module('mediaMogulApp')
         personEpisodes: personEpisodes,
         first_unwatched: personSeries.first_unwatched,
         unwatched_all: personSeries.unwatched_all,
+        dynamic_rating: personSeries.dynamic_rating,
         rating_pending_episodes: personSeries.rating_pending_episodes
       };
       SocketService.emit('my_episode_viewed', payload);

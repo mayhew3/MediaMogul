@@ -559,14 +559,16 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
               const myPersonEpisodes = _.where(pastPersonResults, {person_id: person_id});
               ArrayService.addToArray(returnObj.personEpisodes, myPersonEpisodes);
 
-
+              person_controller.calculateSeriesRating(payload.series_id, person_id).then(series => {
+                returnObj.dynamic_rating = series.personSeries.dynamic_rating;
+                response.json(returnObj);
+              });
 
               Promise.all(getUpdatedDenormsForMultiplePersons(payload.series_id, person_ids)).then(personShows => {
                 getUpdatedGroupUnwatchedDenorms(payload.series_id, payload.tv_group_id).then(groupUnwatched => {
 
                 });
               });
-              response.json(returnObj);
 
             }).catch(err => errs.throwError(err, 'updateEpisodeRatingsAllPastWatched', response));
         }).catch(err => errs.throwError(err, 'markEpisodeWatchedForPersons', response));
