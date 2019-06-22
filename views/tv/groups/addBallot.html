@@ -11,12 +11,20 @@
 
   <div class="col-md-9 col-sm-8 col-xs-7">
 
+    <div class="row seriesDetailElement"
+         ng-if="ctrl.showNextSeasonAndEpisode()">
+      <div class="col-md-8 col-sm-11 col-xs-12">
+        <span>Next Up</span><br>
+        <span class="mediumLabel" ng-bind="ctrl.nextEpisodeString()"></span>
+      </div>
+    </div>
+
     <div class="row seriesDetailElement">
       <div class="col-md-8 col-sm-11 col-xs-12">
         <label for="reasonInput">Reason</label>
         <select id="reasonInput"
                 ng-model="ctrl.reason"
-                ng-options="x for x in ctrl.possibleReasons"
+                ng-options="x as ctrl.reasonLabel(x) for x in ctrl.possibleReasons"
                 class="form-control"></select>
       </div>
     </div>

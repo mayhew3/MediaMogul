@@ -23,6 +23,28 @@ angular.module('mediaMogulApp')
       return !self.series.trailer_link;
     };
 
+    self.reasonLabel = function(reason) {
+      return reason === 'New Season' ?
+        'New Season (' + self.groupSeries.nextEpisodeSeason + ')' :
+        reason;
+    };
+
+    self.showNextSeasonAndEpisode = function() {
+      return !!self.groupSeries.nextEpisodeSeason && !!self.groupSeries.nextEpisodeNumber;
+    };
+
+    self.nextEpisodeString = function() {
+      return 'Season ' + self.groupSeries.nextEpisodeSeason + ' Episode ' + self.groupSeries.nextEpisodeNumber;
+    };
+
+    self.getNumberOfWatchedEpisodes = function() {
+      return (self.series.aired_episodes - getUnwatched());
+    };
+
+    function getUnwatched() {
+      return groupSeries.unwatched_all + groupSeries.skipped_episodes;
+    }
+
     function maybeUpdateTrailer() {
       return $q(resolve => {
         if (!!self.inputTrailer) {
@@ -56,6 +78,10 @@ angular.module('mediaMogulApp')
         skip: skip
       };
 
+      if (self.reason === 'New Season') {
+        payload.season = self.groupSeries.nextEpisodeSeason;
+      }
+
       $http.post('/api/ballots', payload).then(function(result) {
         const submitDate = new Date;
         const ballot = {
@@ -64,7 +90,8 @@ angular.module('mediaMogulApp')
           voting_closed: !skip ? null : submitDate,
           reason: self.reason,
           skip: skip,
-          votes: []
+          votes: [],
+          season: payload.season
         };
         if (!_.isArray(self.groupSeries.ballots)) {
           self.groupSeries.ballots = [ballot];
@@ -75,7 +102,8 @@ angular.module('mediaMogulApp')
         const msgPayload = {
           ballot: ballot,
           tv_group_id: self.groupSeries.tv_group_id,
-          series_id: self.series.id
+          series_id: self.series.id,
+          season: payload.season
         };
 
         SocketService.emit('add_ballot', msgPayload);

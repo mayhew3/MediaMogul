@@ -102,6 +102,21 @@ angular.module('mediaMogulApp')
         pageLimit: 6
       },
       {
+        headerText: "Needs New Season Vote",
+        tvFilter: needsNewSeasonVote,
+        posterSize: 'large',
+        sort: {
+          field: 'title',
+          direction: 'desc'
+        },
+        showLoading: self.showLoading,
+        seriesFunction: self.getGroupShows,
+        panelFormat: 'panel-info',
+        clickOverride: clickBallotPosterNewSeason,
+        textOverlay: textOverlay,
+        pageLimit: 6
+      },
+      {
         headerText: "Needs Refresh Vote",
         tvFilter: needsAbsenceRefresh,
         posterSize: 'large',
@@ -425,12 +440,46 @@ angular.module('mediaMogulApp')
         getNumberOfWatchedEpisodes(series) >= 2 &&
         hasUnwatchedEpisodes(series) &&
         !hasOpenBallots(series) &&
-        !hasClosedPostBuffetBallot(series);
+        !needsNewSeasonVote(series) &&
+        !hasClosedPostBuffetBallot(series) &&
+        !hasClosedNewSeasonBallot(series);
+    }
+
+    function needsNewSeasonVote(series) {
+      return !needsFirstVote(series) &&
+        currentSeasonHasntBeenVotedOn(series) &&
+        hasUnwatchedEpisodes(series) &&
+        !hasOpenBallots(series) &&
+        !hasClosedNewSeasonBallot(series);
     }
 
     function hasClosedPostBuffetBallot(series) {
       const groupSeries = getGroupSeries(series);
       return !!_.find(groupSeries.ballots, ballot => ballot.reason === 'Post-Buffet' && !!ballot.voting_closed);
+    }
+
+    function currentSeasonHasntBeenVotedOn(series) {
+      let currentSeason = getCurrentSeason(series);
+      let lastVoted = getLastVotedOnSeason(series);
+      return !!currentSeason &&
+        currentSeason > 1 &&
+        (!lastVoted || currentSeason > lastVoted);
+    }
+
+    function getLastVotedOnSeason(series) {
+      const groupSeries = getGroupSeries(series);
+      const votedOnSeasons = _.compact(_.map(groupSeries.ballots, ballot => ballot.season));
+      return _.max(votedOnSeasons);
+    }
+
+    function getCurrentSeason(series) {
+      const groupSeries = getGroupSeries(series);
+      return groupSeries.nextEpisodeSeason;
+    }
+
+    function hasClosedNewSeasonBallot(series) {
+      const groupSeries = getGroupSeries(series);
+      return !!_.find(groupSeries.ballots, ballot => ballot.reason === 'New Season' && !!ballot.voting_closed && ballot.season === groupSeries.nextEpisodeSeason);
     }
 
     function getNumberOfWatchedEpisodes(series) {
@@ -518,6 +567,10 @@ angular.module('mediaMogulApp')
 
     function clickBallotPosterPostBuffet(series) {
       clickBallotPoster(series, 'Post-Buffet');
+    }
+
+    function clickBallotPosterNewSeason(series) {
+      clickBallotPoster(series, 'New Season');
     }
 
     function clickBallotPosterAbsence(series) {
