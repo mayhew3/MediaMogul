@@ -324,7 +324,7 @@ function updateEpisodes(series) {
         const episodes = _.pluck(results, 'episode');
         updateAbsoluteNumbers(episodes);
         commitEpisodes(episodes).then(() => {
-          person_controller.calculateUnwatchedDenorms(series, series.personSeries, episodes);
+          person_controller.updateSeriesDenorms(series, series.personSeries, episodes);
 
           updateMatchCompleted(series).then(() => {
             console.log('Successfully added all episodes for series "' + series.title + '"! Sending events.');
