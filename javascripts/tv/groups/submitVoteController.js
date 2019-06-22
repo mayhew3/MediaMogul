@@ -84,7 +84,6 @@ angular.module('mediaMogulApp')
 
     function getVoteInfos() {
       const voteInfos = [];
-      let firstUsed = false;
 
       _.each(self.series.groups, group => {
         const pastBallots = _.filter(group.ballots, ballot => !!ballot.voting_closed && !ballot.skip);
@@ -109,7 +108,7 @@ angular.module('mediaMogulApp')
             });
           } else {
             const filteredBallots = _.map(pastBallots, ballot => {
-              const myVote = _.findWhere(ballot.votes, vote => isMe(vote.person_id));
+              const myVote = _.find(ballot.votes, vote => isMe(vote.person_id));
               return !myVote ? null : {
                 voting_closed: ballot.voting_closed,
                 reason: ballot.reason,
