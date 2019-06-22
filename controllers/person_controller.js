@@ -389,7 +389,7 @@ function updateUnwatchedDenorms(seriesResults, episodeResults) {
       if (series) {
         debug("Series: " + series.title);
 
-        exports.calculateUnwatchedDenorms(series, series.personSeries, unwatchedEpisodes);
+        exports.updateSeriesDenorms(series, series.personSeries, unwatchedEpisodes);
       }
     }
   }
@@ -457,7 +457,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
 
       db.selectNoResponse(sql, values).then(function(episodeResults) {
 
-        exports.calculateUnwatchedDenorms(series, series.personSeries, episodeResults);
+        exports.updateSeriesDenorms(series, series.personSeries, episodeResults);
 
         const sql =
           "SELECT er.episode_id, er.rating_value " +
@@ -642,7 +642,7 @@ exports.getSeriesDetailInfo = function(request, response) {
             }
           });
 
-          updateDenormsUsingAll(series, series.personSeries, series.episodes);
+          exports.updateSeriesDenorms(series, series.personSeries, series.episodes);
 
           const sql = 'SELECT tgs.tv_group_id, ' +
             ' tgs.date_added, ' +
@@ -715,7 +715,7 @@ exports.getSeriesDetailInfo = function(request, response) {
 
               _.each(series.groups, groupSeries => {
                 updates.push(attachBallotsToGroupSeries(series, groupSeries));
-                updateDenormsUsingAll(series, groupSeries, series.episodes);
+                exports.updateSeriesDenorms(series, groupSeries, series.episodes);
               });
 
               Promise.all(updates).then(() => {
@@ -1069,32 +1069,11 @@ function markRequestResolved(myRequest, dupeRequest) {
 
 // denorm helper
 
-exports.calculateUnwatchedDenorms = function(series, viewer, unwatchedEpisodes) {
-  let unairedEpisodes = _.filter(unwatchedEpisodes, isUnaired);
-  let airedEpisodes = _.filter(unwatchedEpisodes, isAired);
-
-  viewer.unwatched_all = airedEpisodes.length;
-
-  let nextEpisodeToWatch = airedEpisodes.length === 0 ? null : _.first(airedEpisodes);
-  let nextEpisodeToAir = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
-
-  if (nextEpisodeToWatch !== null) {
-    viewer.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
-  }
-
-  if (nextEpisodeToAir !== null) {
-    series.nextAirDate = nextEpisodeToAir.air_time === null ? nextEpisodeToAir.air_date : nextEpisodeToAir.air_time;
-  }
-
-  viewer.midSeason = stoppedMidseason(nextEpisodeToWatch);
-
-};
-
 function getGroupEpisode(episode, tv_group_id) {
   return _.findWhere(episode.groups, {tv_group_id: tv_group_id});
 }
 
-function updateDenormsUsingAll(series, viewer, allEpisodes) {
+exports.updateSeriesDenorms = function(series, viewer, allEpisodes) {
   const eligibleEpisodes = _.filter(allEpisodes, isEligible);
   let unairedEpisodes = _.filter(eligibleEpisodes, isUnaired);
   let airedEpisodes = _.filter(eligibleEpisodes, isAired);
@@ -1104,7 +1083,7 @@ function updateDenormsUsingAll(series, viewer, allEpisodes) {
     series.nextAirDate = nextEpisodeToAir.air_time === null ? nextEpisodeToAir.air_date : nextEpisodeToAir.air_time;
   }
 
-  if (ArrayService.exists(viewer)) {
+  if (!!viewer) {
     const isGroup = ArrayService.exists(viewer.tv_group_id);
 
     const getEpisodeViewer = isGroup ?
@@ -1118,11 +1097,13 @@ function updateDenormsUsingAll(series, viewer, allEpisodes) {
     let nextEpisodeToWatch = unwatchedEpisodes.length === 0 ? null : _.first(unwatchedEpisodes);
     if (nextEpisodeToWatch !== null) {
       viewer.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
+      viewer.nextEpisodeNumber = nextEpisodeToWatch.episode_number;
+      viewer.nextEpisodeSeason = nextEpisodeToWatch.season;
     }
 
     viewer.midSeason = stoppedMidseason(nextEpisodeToWatch);
   }
-}
+};
 
 function calculateRating(series, ratings) {
   const ratingElements = [];

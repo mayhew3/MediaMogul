@@ -223,7 +223,7 @@ exports.getGroupShows = function(request, response) {
 
           const groupSeries = getGroupShowFromSeries(series, tv_group_id);
 
-          person_controller.calculateUnwatchedDenorms(series, groupSeries, unwatchedEpisodes);
+          person_controller.updateSeriesDenorms(series, groupSeries, unwatchedEpisodes);
         }
       }
 
@@ -408,7 +408,7 @@ exports.addToGroupShows = function(request, response) {
       ];
 
       db.selectNoResponse(sql, values).then(episodeResults =>  {
-        person_controller.calculateUnwatchedDenorms(series, groupSeries, episodeResults);
+        person_controller.updateSeriesDenorms(series, groupSeries, episodeResults);
 
         response.json(series);
       });

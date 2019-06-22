@@ -1292,7 +1292,7 @@ angular.module('mediaMogulApp')
           (episode) => episode.personEpisode;
 
         let unwatchedEpisodes;
-        let firstUnwatched;
+        let firstUnwatchedDate;
 
         let eligibleEpisodes = _.filter(episodes, function(episode) {
           return episode.season !== 0;
@@ -1316,7 +1316,8 @@ angular.module('mediaMogulApp')
         $log.debug("Found " + unwatchedEpisodesList.length + " unwatched episodes:");
 
         unwatchedEpisodes = unwatchedEpisodesList.length;
-        firstUnwatched = unwatchedEpisodes === 0 ? null : _.first(unwatchedEpisodesList).air_time;
+        let firstUnwatchedEpisode = _.first(unwatchedEpisodesList);
+        firstUnwatchedDate = unwatchedEpisodes === 0 ? null : firstUnwatchedEpisode.air_time;
 
         let lastWatchedEpisode = _.last(watchedEpisodesWithDates);
 
@@ -1327,7 +1328,9 @@ angular.module('mediaMogulApp')
           viewer.last_watched = null;
         }
 
-        viewer.first_unwatched = firstUnwatched;
+        viewer.first_unwatched = firstUnwatchedDate;
+        viewer.nextEpisodeNumber = !firstUnwatchedEpisode ? null : firstUnwatchedEpisode.episode_number;
+        viewer.nextEpisodeSeason = !firstUnwatchedEpisode ? null : firstUnwatchedEpisode.season;
         viewer.unwatched_all = unwatchedEpisodes;
 
         if (!isGroup) {
@@ -1337,7 +1340,7 @@ angular.module('mediaMogulApp')
           }).length;
         }
 
-        viewer.midSeason = stoppedMidseason(_.first(unwatchedEpisodesList));
+        viewer.midSeason = stoppedMidseason(firstUnwatchedEpisode);
       };
 
       function isTrue(field) {
