@@ -975,7 +975,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
 
 exports.getBallots = function(tv_group_id, response, seriesResults) {
 
-  const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, tgb.skip, ' +
+  const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, tgb.skip, tgb.season, ' +
     '  tgs.series_id  ' +
     'FROM tv_group_ballot tgb ' +
     'INNER JOIN tv_group_series tgs ' +
@@ -1045,16 +1045,18 @@ exports.addBallot = function(request, response) {
   const tv_group_series_id = request.body.tv_group_series_id;
   const reason = request.body.reason;
   const skip = request.body.skip;
+  const season = request.body.season;
 
-  const sql = 'INSERT INTO tv_group_ballot (voting_open, reason, tv_group_series_id, skip, voting_closed) ' +
-    'VALUES (now(), $1, $2, $3, $4) ' +
+  const sql = 'INSERT INTO tv_group_ballot (voting_open, reason, tv_group_series_id, skip, voting_closed, season) ' +
+    'VALUES (now(), $1, $2, $3, $4, $5) ' +
     'RETURNING id ';
 
   const values = [
     reason,
     tv_group_series_id,
     skip,
-    !skip ? null : new Date()
+    !skip ? null : new Date(),
+    season
   ];
 
   db.selectSendResponse(response, sql, values);
