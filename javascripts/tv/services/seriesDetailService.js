@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('SeriesDetailService', ['ArrayService', '$q', 'GroupService', '$injector',
-    function (ArrayService, $q, GroupService, $injector) {
+  .service('SeriesDetailService', ['ArrayService', '$q', 'GroupService', 'SeriesDenormService', 'ObjectCopyService',
+    function (ArrayService, $q, GroupService, SeriesDenormService, ObjectCopyService) {
       const self = this;
 
       let series;
@@ -28,16 +28,46 @@ angular.module('mediaMogulApp')
           const tv_group_id = payload.tv_group_id;
           const groupEpisodes = payload.groupEpisodes;
 
-          getEpisodeService().updateGroupEpisodes(tv_group_id, episodes, groupEpisodes);
-          getEpisodeService().updateMySeriesDenorms(series, episodes, doNothing, groupSeries);
+          self.updateGroupEpisodes(tv_group_id, episodes, groupEpisodes);
+          SeriesDenormService.updateMySeriesDenorms(series, episodes, doNothing, groupSeries);
         }
+      };
+
+      self.updatePersonEpisodes = function(episodes, incomingPersonEpisodes) {
+        _.each(incomingPersonEpisodes, personEpisode => {
+          const episode = _.findWhere(episodes, {id: personEpisode.episode_id});
+          if (!!episode) {
+            if (!!episode.personEpisode) {
+              ObjectCopyService.shallowCopy(personEpisode, episode.personEpisode);
+            } else {
+              episode.personEpisode = personEpisode;
+            }
+          }
+        });
+      };
+
+      self.updateGroupEpisodes = function(tv_group_id, episodes, incomingGroupEpisodes) {
+        _.each(incomingGroupEpisodes, incomingGroupEpisode => {
+          const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
+          if (!!episode) {
+            const groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
+            if (!!groupEpisode) {
+              ObjectCopyService.shallowCopy(incomingGroupEpisode, groupEpisode);
+            } else {
+              if (!_.isArray(episode.groups)) {
+                episode.groups = [];
+              }
+              episode.groups.push(incomingGroupEpisode);
+            }
+          }
+        });
       };
 
       self.updateCacheWithPersonEpisodeWatched = function(msgPayload) {
         if (alreadyHasSeries(msgPayload.series_id)) {
           const personEpisodes = msgPayload.personEpisodes;
 
-          getEpisodeService().updatePersonEpisodes(episodes, personEpisodes);
+          self.updatePersonEpisodes(episodes, personEpisodes);
         }
       };
 
@@ -45,11 +75,7 @@ angular.module('mediaMogulApp')
         return $q(resolve => resolve());
       }
 
-      function getEpisodeService() {
-        return $injector.get('EpisodeService');
-      }
-
-      self.getSeriesDetailInfo = function(series_id) {
+      self.getSeriesDetailInfo = function(series_id, databaseCallback) {
         return $q(resolve => {
           if (alreadyHasSeries(series_id)) {
             resolve({
@@ -58,7 +84,7 @@ angular.module('mediaMogulApp')
             });
           } else {
             // ugly, but necessary to avoid circular dependency
-            getEpisodeService().getSeriesDetailInfo(series_id).then(response => {
+            databaseCallback(series_id).then(response => {
               series = response.series;
               episodes = response.episodes;
               resolve(response);

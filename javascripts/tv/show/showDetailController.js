@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService', 'DateService',
     '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
-    'SeriesDetailService', 'BallotService', 'SocketService', 'ObjectCopyService',
+    'SeriesDetailService', 'BallotService', 'SocketService', 'SeriesDenormService',
   function($log, EpisodeService, $uibModal, $filter, LockService, DateService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService, SocketService, ObjectCopyService) {
+           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService, SocketService, SeriesDenormService) {
     const self = this;
 
     self.LockService = LockService;
@@ -270,7 +270,7 @@ angular.module('mediaMogulApp')
 
     function startDetailUpdate() {
       return $q(resolve => {
-        SeriesDetailService.getSeriesDetailInfo(self.series_id).then(function (results) {
+        SeriesDetailService.getSeriesDetailInfo(self.series_id, EpisodeService.getSeriesDetailInfo).then(function (results) {
           resolve();
 
           if (!ArrayService.exists(self.series)) {
@@ -662,7 +662,7 @@ angular.module('mediaMogulApp')
 
         return $http.post('api/markEpisodesWatched', payload).then(() => {
           changed.forEach(episode => episode.personEpisode.watched = episode.personEpisode.watched_pending);
-          EpisodeService.updateMySeriesDenorms(
+          SeriesDenormService.updateMySeriesDenorms(
             self.series,
             self.episodes,
             doNothing,
@@ -886,7 +886,7 @@ angular.module('mediaMogulApp')
 
     function maybeUpdateMyDenorms() {
       if (self.isInMyShows()) {
-        EpisodeService.updateMySeriesDenorms(
+        SeriesDenormService.updateMySeriesDenorms(
           self.series,
           self.episodes,
           doNothing(),
@@ -939,13 +939,13 @@ angular.module('mediaMogulApp')
         self.series.personSeries.dynamic_rating = dynamic_rating;
       }
 
-      EpisodeService.updatePersonEpisodes(self.episodes, personEpisodes);
-      EpisodeService.updateGroupEpisodes(getOptionalGroupID(), self.episodes, groupEpisodes);
+      SeriesDetailService.updatePersonEpisodes(self.episodes, personEpisodes);
+      SeriesDetailService.updateGroupEpisodes(getOptionalGroupID(), self.episodes, groupEpisodes);
 
       maybeUpdateMyDenorms();
 
       if (self.isInGroupMode()) {
-        EpisodeService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
+        SeriesDenormService.updateMySeriesDenorms(self.series, self.episodes, doNothing, getGroupSeries());
         sendGroupMultiWatchPayload(groupEpisodes);
       }
 
