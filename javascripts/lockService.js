@@ -4,8 +4,6 @@ angular.module('mediaMogulApp')
     function ($log, $http, store, $location, jwtHelper, __env, $q, ArrayService, $state) {
 
       const self = this;
-      self.user_role = 'none';
-      let rating_notifications = false;
       let tokenRenewalTimeout;
 
       const afterLoginCallbacks = [];
@@ -82,7 +80,7 @@ angular.module('mediaMogulApp')
             self.isAuthenticated = false;
             if (err) {
               console.log("Error on renew: " + err.error);
-              if (self.user_role === 'admin') {
+              if (self.getUserRole() === 'admin') {
                 alert('Failed to renew. Error: ' + err.error + ". Check the console for further details.");
                 console.log("Full error object: " + JSON.stringify(err));
               }
@@ -114,24 +112,19 @@ angular.module('mediaMogulApp')
         // self.lock.logout();
         store.remove('profile');
         store.remove('token');
-        store.remove('person_id');
-        store.remove('first_name');
-        store.remove('user_role');
-        store.remove('rating_notifications');
-        self.user_role = 'none';
-        self.person_id = undefined;
+        store.remove('person_info');
         clearTimeout(tokenRenewalTimeout);
       };
 
       if (self.isAuthenticated) {
-        if (isNaN(self.person_id)) {
-          console.log("Setting LockService person id to: " + store.get('person_id'));
-          self.person_id = store.get('person_id');
+        if (!self.personInfo) {
+          self.personInfo = store.get('person_info');
+          if (!self.personInfo) {
+            self.logout();
+            $state.go('home');
+          }
+          console.log("Setting LockService person id to: " + self.personInfo.id);
         }
-
-        self.firstName = store.get('first_name');
-        self.user_role = store.get('user_role');
-        rating_notifications = store.get('rating_notifications');
       }
 
       self.setSession = function(authResult, callback) {
@@ -152,15 +145,29 @@ angular.module('mediaMogulApp')
       };
 
       self.isAdmin = function () {
-        return this.isAuthenticated && (self.user_role === 'admin');
+        return this.isAuthenticated && (self.getUserRole() === 'admin');
       };
 
       self.isUser = function () {
-        return this.isAuthenticated && _.contains(['user', 'admin'], self.user_role);
+        return this.isAuthenticated && _.contains(['user', 'admin'], self.getUserRole());
       };
 
-      self.getsRatingNotifications = function() {
-        return rating_notifications;
+      // accessors
+
+      self.getFirstName = function() {
+        return !self.personInfo ? null : self.personInfo.first_name;
+      };
+
+      self.getPersonID = function() {
+        return !self.personInfo ? null : self.personInfo.id;
+      };
+
+      self.getUserRole = function() {
+        return !self.personInfo ? null : self.personInfo.user_role;
+      };
+
+      self.getRatingNotifications = function() {
+        return !self.personInfo ? null : self.personInfo.rating_notifications;
       };
 
       // user management functions
@@ -178,7 +185,7 @@ angular.module('mediaMogulApp')
             copyPersonInfoToAuth(personData, idTokenPayload);
           }
 
-          console.log("role found: " + self.user_role);
+          console.log("role found: " + self.getUserRole());
 
           callback();
         });
@@ -190,17 +197,10 @@ angular.module('mediaMogulApp')
         console.log("Name: " + personInfo.first_name + " " + personInfo.last_name);
         console.log("PersonID: " + personInfo.id);
 
-        self.firstName = personInfo.first_name;
-        self.lastName = personInfo.last_name;
-        self.person_id = personInfo.id;
-        self.user_role = personInfo.user_role;
-        rating_notifications = personInfo.rating_notifications;
+        self.personInfo = personInfo;
 
         console.log("Setting store with person id: " + self.person_id);
-        store.set('person_id', self.person_id);
-        store.set('first_name', self.firstName);
-        store.set('user_role', self.user_role);
-        store.set('rating_notifications', rating_notifications);
+        store.set('person_info', personInfo);
 /*
         $http.post('/api/updateUser', {
           user_id: idTokenPayload.sub,

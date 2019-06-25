@@ -552,7 +552,7 @@ angular.module('mediaMogulApp')
       };
 
       function getPersonId() {
-        return LockService.person_id;
+        return LockService.getPersonID();
       }
 
       function updateGroupShows(tv_group_id) {

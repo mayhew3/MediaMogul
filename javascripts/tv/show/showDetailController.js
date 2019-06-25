@@ -656,7 +656,7 @@ angular.module('mediaMogulApp')
         const unwatched_ids = _.pluck(unwatched, 'id');
 
         const payload = {
-          PersonId: LockService.person_id,
+          PersonId: LockService.getPersonID(),
           watched_ids: watched_ids,
           unwatched_ids: unwatched_ids};
 
@@ -901,7 +901,7 @@ angular.module('mediaMogulApp')
       const personSeries = self.series.personSeries;
       const payload = {
         series_id: self.series_id,
-        person_id: LockService.person_id,
+        person_id: LockService.getPersonID(),
         personEpisodes: personEpisodes,
         first_unwatched: personSeries.first_unwatched,
         unwatched_all: personSeries.unwatched_all,
@@ -988,7 +988,7 @@ angular.module('mediaMogulApp')
       if (Object.keys(changedFields).length > 0) {
         return $http.post('/api/updateMyShow', {
           SeriesId: self.series.id,
-          PersonId: LockService.person_id,
+          PersonId: LockService.getPersonID(),
           ChangedFields: changedFields
         });
       } else {

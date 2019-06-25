@@ -144,7 +144,7 @@ angular.module('mediaMogulApp')
           start_time: lastPlayed,
           minutes: self.added_duration === null ? 0 : self.added_duration.asMinutes(),
           rating: self.session_rating,
-          person_id: LockService.person_id
+          person_id: LockService.getPersonID()
         }).then(function() {
           GamesService.updatePersonGame(game.person_game_id, changedFields).then(function () {
             // todo: loop?

@@ -268,10 +268,10 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
         // Get the JWT that is saved in local storage
         // and if it is there, check whether it is expired.
         // If it isn't, set the user's auth state
-        var token = store.get('token');
-        var person_id = store.get('person_id');
+        const token = store.get('token');
+        const person_id = store.get('person_info').id;
 
-        console.log("On Refresh: Store PersonID: " + person_id + ", Auth PersonID: " + LockService.person_id);
+        console.log("On Refresh: Store PersonID: " + person_id + ", Auth PersonID: " + LockService.getPersonID());
         if (token) {
           if (jwtHelper.isTokenExpired(token)) {
             console.log("Token is expired. Trying to renew.");
@@ -279,15 +279,15 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             LockService.renew().then(function () {
 
               if (!store.get('token')) {
-                console.log("ERROR: No token found even after renew()!!! Sending back to home.")
+                console.log("ERROR: No token found even after renew()!!! Sending back to home.");
                 self.sendHome(event);
               }
 
               // SUCCESS!
               console.log("Redirecting to 'next' with value: " + next);
 
-              var callbackBase = self.callbackBase();
-              var nextPath = next.replace(callbackBase, "");
+              const callbackBase = self.callbackBase();
+              const nextPath = next.replace(callbackBase, "");
 
               console.log("Using parsed path of " + nextPath);
 

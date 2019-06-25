@@ -74,7 +74,7 @@ angular.module('mediaMogulApp')
         return $q((resolve, reject) => {
           $http.get('/api/episodeListForRating', {params: {
               SeriesId: episodeRatingGroup.series_id,
-              PersonId: LockService.person_id,
+              PersonId: LockService.getPersonID(),
               Year: episodeRatingGroup.year
             }}).then(function(episodeResponse) {
             const episodes = episodeResponse.data;

@@ -143,7 +143,7 @@ angular.module('mediaMogulApp')
       };
 
       self.initiateSeriesRequest = function(show) {
-        show.person_id = self.LockService.person_id;
+        show.person_id = self.LockService.getPersonID();
         show.request_processing = true;
         SeriesRequestService.initiateSeriesRequest(show).then(() => delete show.request_processing);
       };
@@ -161,7 +161,7 @@ angular.module('mediaMogulApp')
       self.addSeries = function(show) {
         show.request_processing = true;
         show.date_added = new Date;
-        show.person_id = self.LockService.person_id;
+        show.person_id = self.LockService.getPersonID();
 
         EpisodeService.addSeries(show).then(() => {
           self.SocketService.on('fetch_failed', err => {
