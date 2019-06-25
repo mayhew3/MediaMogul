@@ -170,6 +170,8 @@ angular.module('mediaMogulApp')
           const groupSeries = GroupService.getGroupSeries(series, tv_group_id);
           groupSeries.unwatched_all = payload.unwatched_all;
           groupSeries.first_unwatched = payload.first_unwatched;
+          groupSeries.nextEpisodeSeason = payload.nextEpisodeSeason;
+          groupSeries.nextEpisodeNumber = payload.nextEpisodeNumber;
           SeriesDetailService.updateCacheWithMultiGroupViewPayload(payload, series, groupSeries);
         }
       }
