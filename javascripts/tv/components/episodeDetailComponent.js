@@ -264,7 +264,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
       const msgPayload = {
         series_id: self.episode.series_id,
-        person_id: LockService.person_id,
+        person_id: LockService.getPersonID(),
         personEpisode: changedFields
       };
       msgPayload.personEpisode.episode_id = self.episode.id;
@@ -280,7 +280,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     const episode = self.episode;
     const ratingFields = {
       episode_id: episode.id,
-      person_id: LockService.person_id,
+      person_id: LockService.getPersonID(),
       watched: !self.isWatched(),
       watched_date: self.isWatched() ? null : DateService.formatDateForDatabase(self.watchedDate),
       rating_value: self.rating_value,
@@ -299,7 +299,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
       const msgPayload = {
         series_id: self.episode.series_id,
-        person_id: LockService.person_id,
+        person_id: LockService.getPersonID(),
         personEpisode: ratingFields
       };
 
@@ -324,7 +324,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       },
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
       episode_id: self.episode.id,
-      person_id: LockService.person_id,
+      person_id: LockService.getPersonID(),
       series_id: self.episode.series_id,
       tv_group_id: groupEpisode.tv_group_id,
       client_id: SocketService.getClientID()

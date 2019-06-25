@@ -90,7 +90,7 @@ angular.module('mediaMogulApp')
     };
 
     function isMe(person_id) {
-      return self.LockService.person_id === person_id;
+      return self.LockService.getPersonID() === person_id;
     }
 
     self.displayAsTimeAgo = function(dateValue) {
@@ -195,13 +195,13 @@ angular.module('mediaMogulApp')
       const vote = {
         tv_group_ballot_id: tv_group_ballot.id,
         vote_value: self.selectedVote,
-        person_id: self.LockService.person_id
+        person_id: self.LockService.getPersonID()
       };
 
       $http.post('/api/votes', {vote: vote}).then(function(result) {
         const msgPayload = {
           tv_group_ballot_id: tv_group_ballot.id,
-          person_id: self.LockService.person_id,
+          person_id: self.LockService.getPersonID(),
           vote_value: self.selectedVote,
           group_score: result.data.group_score,
           tv_group_id: tv_group.id,

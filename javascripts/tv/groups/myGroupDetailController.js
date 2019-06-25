@@ -512,7 +512,7 @@ angular.module('mediaMogulApp')
       const ballot = getOpenBallotForShow(series);
       if (!!ballot) {
         const peopleWhoHaveVoted = _.pluck(ballot.votes, 'person_id');
-        return !_.contains(peopleWhoHaveVoted, self.LockService.person_id);
+        return !_.contains(peopleWhoHaveVoted, self.LockService.getPersonID());
       } else {
         return false;
       }

@@ -12,13 +12,13 @@ angular.module('mediaMogulApp')
           // io() is global function provided by socket.io, requires no import
           socket = io({
             query: {
-              person_id: self.LockService.person_id
+              person_id: self.LockService.getPersonID()
             }
           });
 
           socket.on('reconnect_attempt', () => {
             socket.io.opts.query = {
-              person_id: self.LockService.person_id
+              person_id: self.LockService.getPersonID()
             }
           });
         });

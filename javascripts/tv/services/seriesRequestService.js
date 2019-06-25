@@ -21,7 +21,7 @@ angular.module('mediaMogulApp')
 
       self.fetchMyPendingRequests = function() {
         return $q(resolve => {
-          $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.person_id}}).then(results => {
+          $http.get('/api/mySeriesRequests', {params: {person_id: self.LockService.getPersonID()}}).then(results => {
             ArrayService.refreshArray(myPendingRequests, results.data);
             resolve(myPendingRequests);
           });

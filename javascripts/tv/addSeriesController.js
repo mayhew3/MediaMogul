@@ -85,7 +85,7 @@ angular.module('mediaMogulApp')
 
     self.ok = function() {
       self.series.date_added = new Date;
-      self.series.person_id = LockService.person_id;
+      self.series.person_id = LockService.getPersonID();
       self.series.tvdb_series_ext_id = self.selectedShow.tvdb_series_ext_id;
       self.series.poster = self.selectedShow.poster;
       self.series.title = self.selectedShow.title;

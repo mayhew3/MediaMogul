@@ -6,7 +6,7 @@ function GamesService($log, $http, LockService, ArrayService) {
   var self = this;
 
   this.updateGamesList = function() {
-    return $http.get('/api/games', {params: {PersonId: LockService.person_id}}).then(function (gamesResponse) {
+    return $http.get('/api/games', {params: {PersonId: LockService.getPersonID()}}).then(function (gamesResponse) {
       $log.debug("Games returned " + gamesResponse.data.length + " items.");
       var tempGames = gamesResponse.data;
       tempGames.forEach(function (game) {
@@ -24,7 +24,7 @@ function GamesService($log, $http, LockService, ArrayService) {
   };
 
   this.updateNotMyGamesList = function() {
-    return $http.get('/api/notMyGames', {params: {PersonId: LockService.person_id}}).then(function (gamesResponse) {
+    return $http.get('/api/notMyGames', {params: {PersonId: LockService.getPersonID()}}).then(function (gamesResponse) {
       $log.debug("Games returned " + gamesResponse.data.length + " items.");
       var tempGames = gamesResponse.data;
       tempGames.forEach(function (game) {
@@ -94,7 +94,7 @@ function GamesService($log, $http, LockService, ArrayService) {
 
   this.addGame = function(game) {
     $log.debug("Adding game " + JSON.stringify(game));
-    $http.post('/api/addgame', {game: game, PersonId: LockService.person_id}).then(function() {
+    $http.post('/api/addgame', {game: game, PersonId: LockService.getPersonID()}).then(function() {
       self.updateRating(game);
       $log.debug(game.title + " updated to rating: " + game.FullRating);
       games.push(game);
@@ -106,7 +106,7 @@ function GamesService($log, $http, LockService, ArrayService) {
 
   this.addToMyGames = function(game) {
     $log.debug("Adding to my games: " + JSON.stringify(game));
-    return $http.post('/api/addToMyGames', {PersonId: LockService.person_id, GameId: game.id}).then(function() {
+    return $http.post('/api/addToMyGames', {PersonId: LockService.getPersonID(), GameId: game.id}).then(function() {
       game.tier = 1;
       game.minutes_played = 0;
       game.addedSuccessfully = true;

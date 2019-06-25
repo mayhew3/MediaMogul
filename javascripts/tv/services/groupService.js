@@ -17,7 +17,7 @@ angular.module('mediaMogulApp')
           self.errorGroups = false;
 
           return $q((resolve, reject) => {
-            $http.get('/api/myGroups', {params: {person_id: LockService.person_id}}).then(function(results) {
+            $http.get('/api/myGroups', {params: {person_id: LockService.getPersonID()}}).then(function(results) {
               self.loadingGroups = false;
 
               ArrayService.refreshArray(groups, results.data);
@@ -101,7 +101,7 @@ angular.module('mediaMogulApp')
 
         self.getGroupMemberList = function(group) {
           const membersWithoutMe = _.filter(group.members, function(member) {
-            return member.person_id !== self.LockService.person_id;
+            return member.person_id !== self.LockService.getPersonID();
           });
           const memberNames = _.pluck(membersWithoutMe, 'first_name');
           return memberNames.join(', ');
@@ -130,7 +130,7 @@ angular.module('mediaMogulApp')
             watched: watched,
             skipped: !watched,
             person_ids: self.getMemberIDs(tv_group_id),
-            person_id: self.LockService.person_id,
+            person_id: self.LockService.getPersonID(),
             client_id: SocketService.getClientID()
           });
         };
