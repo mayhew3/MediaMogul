@@ -918,7 +918,9 @@ angular.module('mediaMogulApp')
         tv_group_id: getOptionalGroupID(),
         groupEpisodes: groupEpisodes,
         first_unwatched: groupSeries.first_unwatched,
-        unwatched_all: groupSeries.unwatched_all
+        unwatched_all: groupSeries.unwatched_all,
+        nextEpisodeSeason: groupSeries.nextEpisodeSeason,
+        nextEpisodeNumber: groupSeries.nextEpisodeNumber
       };
       SocketService.emit('multi_group_episode_update', payload);
     }
