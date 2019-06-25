@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
 .controller('myGroupDetailController', ['$log', 'LockService', '$http', '$uibModal', '$stateParams', '$filter',
-            'NavHelperService', 'ArrayService', 'GroupService', 'EpisodeService', '$state', '$q', 'GenreService',
+            'NavHelperService', 'ArrayService', 'GroupService', 'GroupMessageService', 'EpisodeService', '$state', '$q', 'GenreService',
             'BallotService', 'DateService',
   function($log, LockService, $http, $uibModal, $stateParams, $filter, NavHelperService, ArrayService,
-           GroupService, EpisodeService, $state, $q, GenreService, BallotService, DateService) {
+           GroupService, GroupMessageService, EpisodeService, $state, $q, GenreService, BallotService, DateService) {
     const self = this;
 
     self.LockService = LockService;
