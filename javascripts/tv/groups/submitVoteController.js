@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
 .controller('submitVoteController', ['$log', 'LockService', '$http', '$uibModalInstance',
             'tv_group_ballot', 'series', 'tv_group', 'DateService', 'ArrayService', 'GroupService',
-            'SeriesDetailService', '$q', 'BallotService', 'SocketService',
+            'SeriesDetailService', '$q', 'BallotService', 'SocketService', 'EpisodeService',
   function($log, LockService, $http, $uibModalInstance, tv_group_ballot, series, tv_group, DateService,
-           ArrayService, GroupService, SeriesDetailService, $q, BallotService, SocketService) {
+           ArrayService, GroupService, SeriesDetailService, $q, BallotService, SocketService, EpisodeService) {
     const self = this;
     self.LockService = LockService;
     self.GroupService = GroupService;
@@ -24,7 +24,7 @@ angular.module('mediaMogulApp')
 
     function startDetailUpdate() {
       return $q(resolve => {
-        SeriesDetailService.getSeriesDetailInfo(self.series.id).then(function (results) {
+        SeriesDetailService.getSeriesDetailInfo(self.series.id, EpisodeService.getSeriesDetailInfo).then(function (results) {
           resolve();
 
           mergeNewGroupsOntoSeries(results.series);
