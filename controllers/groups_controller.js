@@ -200,7 +200,7 @@ exports.getGroupShows = function(request, response) {
       "                   AND tge.retired = $1) " +
       "AND tgs.tv_group_id = $6 " +
       "AND tgs.retired = $1 " +
-      "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
+      "ORDER BY e.series_id, e.season, e.episode_number, e.air_time ";
 
     const values = [
       0,
@@ -396,7 +396,7 @@ exports.addToGroupShows = function(request, response) {
         "                   AND (tge.watched = $4 OR tge.skipped = $5)) " +
         "AND tgs.id = $6 " +
         "AND tgs.retired = $1 " +
-        "ORDER BY e.air_time, e.season, e.episode_number ";
+        "ORDER BY e.season, e.episode_number, e.air_time ";
 
       const values = [
         0,

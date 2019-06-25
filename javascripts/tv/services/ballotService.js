@@ -16,8 +16,10 @@ angular.module('mediaMogulApp')
         };
 
         self.getLastVoteDate = function(groupSeries) {
-          const lastBallot = self.getMostRecentClosedBallot(groupSeries);
-          return !lastBallot ? null : lastBallot.voting_closed;
+          const voteDates = _.map(groupSeries.ballots, ballot => !ballot.voting_closed ? null : new Date(ballot.voting_closed));
+          const reduced = _.compact(voteDates);
+          const maximum = _.max(reduced);
+          return !maximum ? null : maximum;
         };
 
         self.getLastVoteOrSkipDate = function(groupSeries) {

@@ -83,7 +83,7 @@ exports.getMyShows = function(request, response) {
       "                   AND er.watched = $4) " +
       "AND ps.person_id = $5 " +
       "AND ps.tier = $6" +
-      "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
+      "ORDER BY e.series_id, e.season, e.episode_number, e.air_time ";
 
     const values = [
       0,
@@ -210,7 +210,7 @@ exports.getMyQueueShows = function(request, response) {
           "                   WHERE er.person_id = $3 " +
           "                   AND er.watched = $4) " +
           "AND e.series_id IN (" + db.createInlineVariableList(series_ids.length, 5) + ') ' +
-          "ORDER BY e.series_id, e.air_time, e.season, e.episode_number ";
+          "ORDER BY e.series_id, e.season, e.episode_number, e.air_time ";
 
       const values = [
         0,
@@ -445,7 +445,7 @@ exports.getUpdatedSingleSeries = function(series_id, person_id) {
         "                   AND er.watched = $4" +
         "                   AND er.retired = $1) " +
         "AND e.series_id = $5 " +
-        "ORDER BY e.air_time, e.season, e.episode_number ";
+        "ORDER BY e.season, e.episode_number, e.air_time ";
 
       const values = [
         0,

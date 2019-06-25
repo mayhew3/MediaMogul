@@ -41,6 +41,21 @@ angular.module('mediaMogulApp')
       return !!loading;
     };
 
+    self.reasonLabel = function() {
+      const reason = tv_group_ballot.reason;
+      return reason === 'New Season' ?
+        'New Season (' + self.groupSeries.nextEpisodeSeason + ')' :
+        reason;
+    };
+
+    self.showNextSeasonAndEpisode = function() {
+      return !!self.groupSeries.nextEpisodeSeason && !!self.groupSeries.nextEpisodeNumber;
+    };
+
+    self.nextEpisodeString = function() {
+      return 'Season ' + self.groupSeries.nextEpisodeSeason + ' Episode ' + self.groupSeries.nextEpisodeNumber;
+    };
+
     function mergeNewGroupsOntoSeries(incomingSeries) {
       _.each(incomingSeries.groups, group => {
         const existing = _.findWhere(self.series.groups, {tv_group_id: group.tv_group_id});

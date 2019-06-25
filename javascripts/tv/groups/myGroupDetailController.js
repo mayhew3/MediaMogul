@@ -53,7 +53,8 @@ angular.module('mediaMogulApp')
     };
 
     function textOverlay(show) {
-      return !show.trailer_link ? 'No Trailer' : null;
+      const hasNoTrailerLink = !show.trailer_link;
+      return hasNoTrailerLink && !hasWatchedEpisodes(show) ? 'No Trailer' : null;
     }
 
     self.dashboardInfos = [
@@ -98,7 +99,6 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
         clickOverride: clickBallotPosterPostBuffet,
-        textOverlay: textOverlay,
         pageLimit: 6
       },
       {
@@ -113,7 +113,6 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
         clickOverride: clickBallotPosterNewSeason,
-        textOverlay: textOverlay,
         pageLimit: 6
       },
       {
@@ -449,6 +448,7 @@ angular.module('mediaMogulApp')
       return !needsFirstVote(series) &&
         currentSeasonHasntBeenVotedOn(series) &&
         hasUnwatchedEpisodes(series) &&
+        hasWatchedEpisodes(series) &&
         !hasOpenBallots(series) &&
         !hasClosedNewSeasonBallot(series);
     }
