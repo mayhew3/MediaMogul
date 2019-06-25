@@ -504,7 +504,8 @@ angular.module('mediaMogulApp')
     }
 
     function hasClosedBallot(series) {
-      return !!BallotService.getMostRecentClosedBallot(getGroupSeries(series));
+      const groupSeries = getGroupSeries(series);
+      return !!_.find(groupSeries.ballots, ballot => !!ballot.voting_closed);
     }
 
     function isAwaitingMyVote(series) {
