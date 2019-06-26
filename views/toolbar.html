@@ -33,7 +33,7 @@
           <a ui-sref="admin.services">
             Admin
             <span class="badge pillTabRed"
-                  ng-show="toolbar.getNumberOfOverdueServices() > 0"
+                  ng-if="toolbar.showServicesBadge()"
                   ng-bind="toolbar.getNumberOfOverdueServices()"></span>
           </a>
         </li>
