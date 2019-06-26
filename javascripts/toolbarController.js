@@ -57,8 +57,17 @@
       return (self.NavHelperService.isSelected(label)) ? 'active' : '';
     };
 
+    function isProduction() {
+      const envName = self.getEnvName();
+      return !envName || envName === 'heroku';
+    }
+
     self.getNumberOfOverdueServices = function() {
       return self.ExternalServicesService.getNumberOfOverdueServices();
+    };
+
+    self.showServicesBadge = function() {
+      return isProduction() && self.getNumberOfOverdueServices() > 0;
     };
 
     function login() {
