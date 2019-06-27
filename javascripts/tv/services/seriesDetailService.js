@@ -46,7 +46,24 @@ angular.module('mediaMogulApp')
         });
       };
 
+      function updateOtherViewers(incomingGroupEpisode, episode, member_ids) {
+        if (!incomingGroupEpisode.skipped && !!incomingGroupEpisode.watched) {
+          if (!_.isArray(episode.otherViewers)) {
+            episode.otherViewers = [];
+          }
+          _.each(member_ids, member_id => {
+            const existing = _.findWhere(episode.otherViewers, {person_id: member_id});
+            if (!existing) {
+              episode.otherViewers.push({
+                person_id: member_id,
+              });
+            }
+          });
+        }
+      }
+
       self.updateGroupEpisodes = function(tv_group_id, episodes, incomingGroupEpisodes) {
+        const member_ids = GroupService.getMemberIDs(tv_group_id);
         _.each(incomingGroupEpisodes, incomingGroupEpisode => {
           const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
           if (!!episode) {
@@ -59,6 +76,8 @@ angular.module('mediaMogulApp')
               }
               episode.groups.push(incomingGroupEpisode);
             }
+
+            updateOtherViewers(incomingGroupEpisode, episode, member_ids);
           }
         });
       };
