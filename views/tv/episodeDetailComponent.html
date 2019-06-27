@@ -136,7 +136,8 @@
       <div class="col-lg-5 col-xs-4 seriesDetailElement" style="padding-right: 15px">
         <div ng-if="ctrl.getViewerInfos().length > 0" class="text-right">
           Viewers:
-          <div ng-repeat="viewerInfo in ctrl.getViewerInfos()">
+          <div ng-repeat="viewerInfo in ctrl.getViewerInfos()"
+               style="margin-bottom: 5px">
             <div class="label"
                  ng-class="ctrl.getViewerClass(viewerInfo)">
               <!--suppress CheckImageSize -->
