@@ -102,7 +102,6 @@ module.exports = function(app) {
   app.get('/api/myGroups', authCheck, groups.getMyGroups);
   app.get('/api/groupPersons', authCheck, groups.getGroupPersons);
   app.get('/api/groupShows', authCheck, groups.getGroupShows);
-  app.get('/api/groupEpisodes', authCheck, groups.getGroupEpisodes);
 
   app.post('/api/createGroup', authCheck, groups.createGroup);
   app.post('/api/groupWatchEpisode', authCheck, groups.markEpisodesWatchedByGroup);

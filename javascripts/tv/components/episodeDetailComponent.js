@@ -20,11 +20,13 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   const self = this;
 
   self.updating = false;
+  self.viewerInfos = [];
 
   self.$onInit = function() {
     self.watchedDate = initWatchedDate();
     self.original_rating_value = initRating();
     self.rating_value = initRating();
+    initViewerInfos();
   };
 
   function initRating() {
@@ -137,6 +139,43 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       return !!self.episode.personEpisode.rating_id;
     }
   }
+
+  function initViewerInfos() {
+    const viewerInfos = [];
+
+    if (self.isInGroupMode()) {
+      viewerInfos.push({
+        person_id: LockService.getPersonID(),
+        first_name: LockService.getFirstName(),
+        watched: !!self.episode.personEpisode && !!self.episode.personEpisode.watched
+      });
+
+      const groupMemberIDs = GroupService.getMemberIDs(getOptionalGroupID());
+      _.each(groupMemberIDs, member_id => {
+        if (member_id !== LockService.getPersonID()) {
+          viewerInfos.push({
+            person_id: member_id,
+            first_name: GroupService.getMemberName(getOptionalGroupID(), member_id),
+            watched: !!_.findWhere(self.episode.otherViewers, {person_id: member_id})
+          });
+        }
+      });
+    }
+
+    ArrayService.addToArray(self.viewerInfos, viewerInfos);
+  }
+
+  self.getViewerInfos = function() {
+    return self.viewerInfos;
+  };
+
+  self.getViewerClass = function(viewerInfo) {
+    if (!viewerInfo.watched) {
+      return 'label-ready';
+    } else {
+      return 'label-watched';
+    }
+  };
 
   self.isInGroupMode = function() {
     return self.viewer.type === 'group';
