@@ -689,38 +689,78 @@ exports.getSeriesDetailInfo = function(request, response) {
 
             db.selectNoResponse(sql, values).then(groupEpisodeResults => {
 
-              _.each(groupEpisodeResults, groupEpisode => {
-                const episodeMatch = _.find(series.episodes, function (episode) {
-                  return episode.id === groupEpisode.episode_id;
+              const sql = 'SELECT tgp.person_id, er.episode_id ' +
+                'FROM episode_rating er ' +
+                'INNER JOIN person p ' +
+                '  ON er.person_id = p.id ' +
+                'INNER JOIN tv_group_person tgp ' +
+                '  ON p.id = tgp.person_id ' +
+                'INNER JOIN tv_group_person my_tgp ' +
+                '  ON tgp.tv_group_id = my_tgp.tv_group_id ' +
+                'INNER JOIN episode e ' +
+                '  ON er.episode_id = e.id ' +
+                'WHERE my_tgp.person_id = $1 ' +
+                'AND tgp.person_id <> $1 ' +
+                'AND e.series_id = $2 ' +
+                'AND e.retired = $3 ' +
+                'AND er.retired = $3 ' +
+                'AND tgp.retired = $3 ' +
+                'AND p.retired = $3 ' +
+                'AND my_tgp.retired = $3 ' +
+                'AND er.watched = $4 ' +
+                'GROUP BY tgp.person_id, er.episode_id ' +
+                'ORDER BY tgp.person_id, er.episode_id ';
+
+              const values = [
+                person_id,
+                series_id,
+                0,
+                true
+              ];
+
+              db.selectNoResponse(sql, values).then(otherViewerResults => {
+
+                _.each(groupEpisodeResults, groupEpisode => {
+                  const episodeMatch = _.find(series.episodes, function (episode) {
+                    return episode.id === groupEpisode.episode_id;
+                  });
+
+                  if (ArrayService.exists(episodeMatch)) {
+                    if (!ArrayService.exists(episodeMatch.groups)) {
+                      episodeMatch.groups = [];
+                    }
+
+                    const groupEpisodeObj = {
+                      tv_group_id: groupEpisode.tv_group_id,
+                      tv_group_episode_id: groupEpisode.id,
+                      watched: groupEpisode.watched,
+                      watched_date: groupEpisode.watched_date,
+                      skipped: groupEpisode.skipped
+                    };
+
+                    episodeMatch.groups.push(groupEpisodeObj);
+
+                  }
                 });
 
-                if (ArrayService.exists(episodeMatch)) {
-                  if (!ArrayService.exists(episodeMatch.groups)) {
-                    episodeMatch.groups = [];
-                  }
+                _.each(episodeResults, episode => {
+                  const otherViewers = _.where(otherViewerResults, {episode_id: episode.id});
+                  episode.otherViewers = _.map(otherViewers, otherViewer => _.omit(otherViewer, 'episode_id'));
+                });
 
-                  const groupEpisodeObj = {
-                    tv_group_id: groupEpisode.tv_group_id,
-                    tv_group_episode_id: groupEpisode.id,
-                    watched: groupEpisode.watched,
-                    watched_date: groupEpisode.watched_date,
-                    skipped: groupEpisode.skipped
-                  };
+                const updates = [];
 
-                  episodeMatch.groups.push(groupEpisodeObj);
-                }
+                _.each(series.groups, groupSeries => {
+                  updates.push(attachBallotsToGroupSeries(series, groupSeries));
+                  exports.updateSeriesDenorms(series, groupSeries, series.episodes);
+                });
+
+                Promise.all(updates).then(() => {
+                  response.json(series);
+                });
+
               });
 
-              const updates = [];
-
-              _.each(series.groups, groupSeries => {
-                updates.push(attachBallotsToGroupSeries(series, groupSeries));
-                exports.updateSeriesDenorms(series, groupSeries, series.episodes);
-              });
-
-              Promise.all(updates).then(() => {
-                response.json(series);
-              });
             });
 
           });

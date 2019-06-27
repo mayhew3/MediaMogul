@@ -43,7 +43,7 @@
          ng-if="ctrl.isUnaired()">Episode airs {{ctrl.airedFromNow()}}.</div>
 
     <div class="row" ng-if="ctrl.isInViewerCollection()">
-      <div class="col-lg-12 col-sm-6">
+      <div class="col-lg-7 col-sm-8">
         <div class="watchedButton">
 
           <div class="seriesDetailElement">
@@ -130,6 +130,24 @@
                               ng-disabled="ctrl.isUpdating()"></checkmark-button>
           </div>
 
+        </div>
+      </div>
+
+      <div class="col-lg-5 col-sm-3 seriesDetailElement">
+        <div ng-if="ctrl.getViewerInfos().length > 0" style="text-align: right">
+          Viewers:
+          <div ng-repeat="viewerInfo in ctrl.getViewerInfos()">
+            <div class="label"
+                 ng-class="ctrl.getViewerClass(viewerInfo)">
+              {{viewerInfo.first_name}}
+              <!--suppress CheckImageSize -->
+              <img src="../../images/CheckmarkWhite.svg"
+                   width="12"
+                   height="12"
+                   ng-if="viewerInfo.watched"
+                   alt="checked">
+            </div>
+          </div>
         </div>
       </div>
     </div>
