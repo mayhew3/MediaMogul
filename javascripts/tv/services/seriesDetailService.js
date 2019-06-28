@@ -42,6 +42,7 @@ angular.module('mediaMogulApp')
             } else {
               episode.personEpisode = personEpisode;
             }
+            updateViewerInfosForEpisode(episode);
           }
         });
       };
@@ -59,6 +60,7 @@ angular.module('mediaMogulApp')
               });
             }
           });
+          updateViewerInfosForEpisode(episode);
         }
       }
 
@@ -95,6 +97,38 @@ angular.module('mediaMogulApp')
         return $q(resolve => resolve());
       }
 
+      function updateViewerInfosForEpisodeAndGroup(episode, tv_group_id) {
+        const viewerInfos = [];
+        const groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
+
+        viewerInfos.push({
+          person_id: LockService.getPersonID(),
+          first_name: LockService.getFirstName(),
+          watched: !!episode.personEpisode && !!episode.personEpisode.watched
+        });
+
+        const groupMemberIDs = GroupService.getMemberIDs(tv_group_id);
+        _.each(groupMemberIDs, member_id => {
+          if (member_id !== LockService.getPersonID()) {
+            viewerInfos.push({
+              person_id: member_id,
+              first_name: GroupService.getMemberName(tv_group_id, member_id),
+              watched: !!_.findWhere(episode.otherViewers, {person_id: member_id})
+            });
+          }
+        });
+
+        groupEpisode.viewerInfos = viewerInfos;
+      }
+
+      function updateViewerInfosForEpisode(episode) {
+        _.each(episode.groups, group => updateViewerInfosForEpisodeAndGroup(episode, group.tv_group_id));
+      }
+
+      function updateViewerInfos() {
+        _.each(episodes, updateViewerInfosForEpisode);
+      }
+
       self.getSeriesDetailInfo = function(series_id, databaseCallback) {
         return $q(resolve => {
           if (alreadyHasSeries(series_id)) {
@@ -107,6 +141,7 @@ angular.module('mediaMogulApp')
             databaseCallback(series_id).then(response => {
               series = response.series;
               episodes = response.episodes;
+              updateViewerInfos();
               resolve(response);
             });
           }
