@@ -422,16 +422,15 @@ angular.module('mediaMogulApp')
       SocketService.on('my_episode_viewed', handleEpisodeViewedMessage);
 
       function handleEpisodeViewedMessage(msg) {
-        const existingShow = _.findWhere(myShows, {id: msg.series_id});
+        const existingShow = self.findSeriesWithId(msg.series_id);
         if (!!existingShow && !!existingShow.personSeries) {
           const personSeries = existingShow.personSeries;
           personSeries.unwatched_all = msg.unwatched_all;
           personSeries.first_unwatched = msg.first_unwatched;
           personSeries.rating_pending_episodes = msg.rating_pending_episodes;
           personSeries.dynamic_rating = msg.dynamic_rating;
-
-          SeriesDetailService.updateCacheWithPersonEpisodeWatched(msg);
         }
+        SeriesDetailService.updateCacheWithPersonEpisodeWatched(msg);
       }
 
       function listenForShowsAddedBySomeoneElse() {
