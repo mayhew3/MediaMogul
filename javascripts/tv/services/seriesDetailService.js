@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('SeriesDetailService', ['ArrayService', '$q', 'GroupService', 'SeriesDenormService', 'ObjectCopyService',
-    function (ArrayService, $q, GroupService, SeriesDenormService, ObjectCopyService) {
+  .service('SeriesDetailService', ['ArrayService', '$q', 'GroupService', 'SeriesDenormService', 'ObjectCopyService', 'LockService',
+    function (ArrayService, $q, GroupService, SeriesDenormService, ObjectCopyService, LockService) {
       const self = this;
 
       let series;
@@ -64,6 +64,7 @@ angular.module('mediaMogulApp')
 
       self.updateGroupEpisodes = function(tv_group_id, episodes, incomingGroupEpisodes) {
         const member_ids = GroupService.getMemberIDs(tv_group_id);
+        ArrayService.removeFromArray(member_ids, LockService.getPersonID());
         _.each(incomingGroupEpisodes, incomingGroupEpisode => {
           const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
           if (!!episode) {

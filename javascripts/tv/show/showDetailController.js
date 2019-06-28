@@ -902,12 +902,16 @@ angular.module('mediaMogulApp')
       const payload = {
         series_id: self.series_id,
         person_id: LockService.getPersonID(),
-        personEpisodes: personEpisodes,
-        first_unwatched: personSeries.first_unwatched,
-        unwatched_all: personSeries.unwatched_all,
-        dynamic_rating: personSeries.dynamic_rating,
-        rating_pending_episodes: personSeries.rating_pending_episodes
+        personEpisodes: personEpisodes
       };
+
+      if (!!personSeries) {
+        payload.first_unwatched = personSeries.first_unwatched;
+        payload.unwatched_all = personSeries.unwatched_all;
+        payload.dynamic_rating = personSeries.dynamic_rating;
+        payload.rating_pending_episodes = personSeries.rating_pending_episodes;
+      }
+
       SocketService.emit('my_episode_viewed', payload);
     }
 
