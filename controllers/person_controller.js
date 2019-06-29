@@ -1257,7 +1257,7 @@ exports.addToMyShows = function(request, response) {
       last_watched: lastWatched,
       person_ids: [personId]
     };
-    exports.updateEpisodeRatingsAllPastWatched(payload, false, [personId]).then(() => {
+    exports.updateEpisodeRatingsAllPastWatched(payload, false, [personId], null, response).then(() => {
       exports.getUpdatedSingleSeries(seriesId, personId)
         .then(series => {
           response.json(series);
@@ -1418,7 +1418,7 @@ exports.updateEpisodeRatings = function(request, response) {
   addOrEditRating(request).then(function(result) {
     const personEpisode = result;
     const person_id = payload.person_id;
-    exports.updateEpisodeRatingsAllPastWatched(payload, false, [person_id])
+    exports.updateEpisodeRatingsAllPastWatched(payload, false, [person_id], null, response)
       .then(pastEpResults => {
       exports.calculateSeriesRating(payload.series_id, person_id).then(function(result) {
         const data = {
@@ -1695,7 +1695,7 @@ exports.revertYear = function(request, response) {
   });
 };
 
-exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications, person_ids) {
+exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications, person_ids, tv_group_id, response) {
   return new Promise(function(resolve) {
     const series_id = payload.series_id;
     const last_watched = payload.last_watched;
@@ -1710,35 +1710,47 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
         '                    WHERE id = episode_rating.person_id) ' :
         '';
 
+      const updateGroupClause = !!tv_group_id ?
+        'AND episode_id IN ' + '(SELECT tge.episode_id ' +
+        'FROM tv_group_episode tge ' +
+        'WHERE tge.watched = $7 ' +
+        'AND tge.tv_group_id = $8 ' +
+        'AND tge.retired = $6) ' :
+        '';
+
       console.log("Updating episodes as Watched, before episode " + last_watched);
+
+      const values = [
+        true,             // watched
+        true,             // !watched
+        series_id,        // series_id
+        last_watched,     // absolute_number <
+        0,                // season
+        0                 // retired
+      ];
+
+      if (!!tv_group_id) {
+        values.push(true);        // group episode watched
+        values.push(tv_group_id);
+      }
 
       const sql = 'UPDATE episode_rating ' +
         'SET watched = $1 ' +
         ratingClause +
         'WHERE watched <> $2 ' +
         'AND episode_id IN (SELECT e.id ' +
-        'FROM episode e ' +
-        'WHERE e.series_id = $3 ' +
-        'AND e.absolute_number IS NOT NULL ' +
-        'AND e.absolute_number < $4 ' +
-        'AND e.season <> $5 ' +
-        'AND retired = $6) ' +
-        'AND person_id IN (' + db.createInlineVariableList(person_ids.length, 7) + ") ";
-
-      const values = [true, // watched
-        true,             // !watched
-        series_id,         // series_id
-        last_watched,      // absolute_number <
-        0,                // season
-        0                 // retired
-      ];
+                            'FROM episode e ' +
+                            'WHERE e.series_id = $3 ' +
+                            'AND e.absolute_number IS NOT NULL ' +
+                            'AND e.absolute_number < $4 ' +
+                            'AND e.season <> $5 ' +
+                            'AND retired = $6) ' +
+        updateGroupClause +
+        'AND person_id IN (' + db.createInlineVariableList(person_ids.length, values.length + 1) + ') ';
 
       ArrayService.addToArray(values, person_ids);
 
       db.updateNoResponse(sql, values).then(function() {
-        const ratingClause = rating_notifications ?
-          'p.rating_notifications ' :
-          '$7 ';
 
         const values = [
           true,        // watched
@@ -1753,6 +1765,23 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
           values.push(false);
         }
 
+        const ratingClause = rating_notifications ?
+          'p.rating_notifications ' :
+          '$' + values.length + ' ';
+
+        if (!!tv_group_id) {
+          values.push(true);        // group episode watched
+          values.push(tv_group_id);
+        }
+
+        const insertGroupClause = !!tv_group_id ?
+          'AND e.id IN (SELECT tge.episode_id ' +
+          'FROM tv_group_episode tge ' +
+          'WHERE tge.watched = $' + String(values.length - 1) + ' ' +
+          'AND tge.tv_group_id = $' + String(values.length) + ' ' +
+          'AND tge.retired = $6) ' :
+          '';
+
         const sql = "INSERT INTO episode_rating (episode_id, person_id, watched, date_added, rating_pending) " +
           "SELECT e.id, p.id, $1, now(), " + ratingClause +
           "FROM episode e, person p " +
@@ -1762,9 +1791,10 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
           'AND e.absolute_number < $4 ' +
           'AND e.season <> $5 ' +
           "AND e.id NOT IN (SELECT er.episode_id " +
-          "FROM episode_rating er " +
-          "WHERE er.retired = $6 " +
-          "AND er.person_id = p.id) " +
+                          "FROM episode_rating er " +
+                          "WHERE er.retired = $6 " +
+                          "AND er.person_id = p.id) " +
+          insertGroupClause +
           "AND p.id IN (" + db.createInlineVariableList(person_ids.length, values.length + 1) + ") " +
           "RETURNING episode_id, id as rating_id, person_id, watched, rating_pending ";
 

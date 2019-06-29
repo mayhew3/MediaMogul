@@ -569,6 +569,7 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
   returnObj.personEpisodes = [];
   const payload = request.body.payload;
   const series_id = payload.series_id;
+  const tv_group_id = payload.tv_group_id;
 
   addOrEditTVGroupEpisode(payload).then(groupEpResult => {
     returnObj.groupEpisodes.push(groupEpResult);
@@ -581,7 +582,7 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
         markEpisodeWatchedForPersons(payload, persons).then(personResults => {
 
           const person_ids = _.pluck(persons, 'person_id');
-          person_controller.updateEpisodeRatingsAllPastWatched(payload, true, person_ids)
+          person_controller.updateEpisodeRatingsAllPastWatched(payload, true, person_ids, tv_group_id, response)
             .then(pastPersonResults => {
 
               const person_id = payload.person_id;
@@ -671,31 +672,6 @@ function getRatingPendingEpisodesForSinglePerson(series_id, person_id) {
       resolve(personSeries);
     });
   });
-}
-
-function getUpdatedGroupUnwatchedDenorms(series_id, tv_group_id) {
-  const sql = "SELECT MIN(e.air_time) as first_unwatched, COUNT(1) as unwatched_all " +
-    "FROM episode e " +
-    "WHERE e.series_id = $1 " +
-    "AND e.retired = $2 " +
-    "AND e.season <> $3 " +
-    "AND e.air_time < now() " +
-    "AND e.id NOT IN (SELECT tge.episode_id " +
-    "                   FROM tv_group_episode tge " +
-    "                   WHERE tge.tv_group_id = $4 " +
-    "                   AND (tge.watched = $5 OR tge.skipped = $6) " +
-    "                   AND tge.retired = $2) ";
-
-  const values = [
-    series_id,
-    0,
-    0,
-    tv_group_id,
-    true,
-    true
-  ];
-
-  return db.selectNoResponse(sql, values);
 }
 
 function addOrEditTVGroupEpisode(payload) {
@@ -882,14 +858,6 @@ function getPersonInformation(tv_group_id) {
 }
 
 /* GROUP MULTI WATCH */
-
-exports.markAllPastEpisodesAsGroupWatched = function(request, response) {
-  updateTVGroupEpisodesAllPastWatched(request.body)
-    .then(episodes => {
-      person_controller.updateEpisodeRatingsAllPastWatched(request.body, true, request.body.person_ids)
-        .then(episodes => response.json(episodes));
-    });
-};
 
 function updateTVGroupEpisodesAllPastWatched(payload) {
   return new Promise(function(resolve) {
