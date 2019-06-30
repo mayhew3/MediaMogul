@@ -944,7 +944,10 @@ angular.module('mediaMogulApp')
       }
 
       SeriesDetailService.updatePersonEpisodes(self.episodes, personEpisodes);
-      SeriesDetailService.updateGroupEpisodes(getOptionalGroupID(), self.episodes, groupEpisodes);
+
+      if (self.isInGroupMode()) {
+        SeriesDetailService.updateGroupEpisodes(getOptionalGroupID(), self.episodes, groupEpisodes);
+      }
 
       maybeUpdateMyDenorms();
 

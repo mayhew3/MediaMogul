@@ -65,24 +65,26 @@ angular.module('mediaMogulApp')
       }
 
       self.updateGroupEpisodes = function(tv_group_id, episodes, incomingGroupEpisodes) {
-        const member_ids = GroupService.getMemberIDs(tv_group_id);
-        ArrayService.removeFromArray(member_ids, LockService.getPersonID());
-        _.each(incomingGroupEpisodes, incomingGroupEpisode => {
-          const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
-          if (!!episode) {
-            const groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
-            if (!!groupEpisode) {
-              ObjectCopyService.shallowCopy(incomingGroupEpisode, groupEpisode);
-            } else {
-              if (!_.isArray(episode.groups)) {
-                episode.groups = [];
+        if (!!tv_group_id) {
+          const member_ids = GroupService.getMemberIDs(tv_group_id);
+          ArrayService.removeFromArray(member_ids, LockService.getPersonID());
+          _.each(incomingGroupEpisodes, incomingGroupEpisode => {
+            const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
+            if (!!episode) {
+              const groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
+              if (!!groupEpisode) {
+                ObjectCopyService.shallowCopy(incomingGroupEpisode, groupEpisode);
+              } else {
+                if (!_.isArray(episode.groups)) {
+                  episode.groups = [];
+                }
+                episode.groups.push(incomingGroupEpisode);
               }
-              episode.groups.push(incomingGroupEpisode);
-            }
 
-            updateOtherViewers(incomingGroupEpisode, episode, member_ids);
-          }
-        });
+              updateOtherViewers(incomingGroupEpisode, episode, member_ids);
+            }
+          });
+        }
       };
 
       self.updateCacheWithPersonEpisodeWatched = function(msgPayload) {

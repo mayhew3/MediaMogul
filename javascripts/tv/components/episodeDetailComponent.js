@@ -140,7 +140,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   }
 
   self.getViewerInfos = function() {
-    return getGroupEpisode().viewerInfos;
+    return self.isInGroupMode() ? getGroupEpisode().viewerInfos : [];
   };
 
   self.getViewerClass = function(viewerInfo) {
