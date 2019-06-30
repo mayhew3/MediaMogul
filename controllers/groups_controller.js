@@ -530,7 +530,7 @@ exports.getGroupEpisodes = function(request, response) {
 
 /* GROUP EPISODES */
 
-function handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults, persons) {
+function handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults) {
   Promise.all(getUpdatedDenormsForMultiplePersons(series_id, person_ids)).then(personShows => {
     _.each(personShows, personSeries => {
 
@@ -604,7 +604,7 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
 
               ArrayService.removeFromArray(person_ids, person_id);
 
-              handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults, persons);
+              handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults);
 
             }).catch(err => errs.throwError(err, 'updateEpisodeRatingsAllPastWatched', response));
         }).catch(err => errs.throwError(err, 'markEpisodeWatchedForPersons', response));
@@ -754,7 +754,7 @@ function markEpisodeWatchedForPersons(payload, persons) {
         };
 
         Promise.all(
-          [addRatingsForPersons(newRatingPersons, episodeRatingInfo),
+          [addRatingsForPersons(newRatingPersons, episodeRatingInfo, payload.changedFields.skipped),
             editRatingsForPersons(existingRatings, episodeRatingInfo, persons)]
         ).then(results => resolve(results))
           .catch(err => reject(err));
@@ -765,9 +765,13 @@ function markEpisodeWatchedForPersons(payload, persons) {
   });
 }
 
-function addRatingsForPersons(member_ids, episodeRatingInfo) {
+function isUndoingWatchOrSkip(watched, skipped) {
+  return !watched && !skipped;
+}
+
+function addRatingsForPersons(member_ids, episodeRatingInfo, skipped) {
   return new Promise((resolve, reject) => {
-    if (member_ids.length < 1) {
+    if (member_ids.length < 1 || isUndoingWatchOrSkip(episodeRatingInfo.watched, skipped)) {
       resolve([]);
     } else {
 
@@ -885,7 +889,8 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
         'AND e.absolute_number IS NOT NULL ' +
         'AND e.absolute_number < $9 ' +
         'AND e.season <> $10 ' +
-        'AND retired = $4) ';
+        'AND retired = $4) ' +
+        'RETURNING episode_id, id AS tv_group_episode_id, tv_group_id, watched, skipped ';
 
 
       const values = [
@@ -901,7 +906,7 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
         0                 // season
       ];
 
-      db.updateNoResponse(sql, values).then(function() {
+      db.selectNoResponse(sql, values).then(updateResults => {
         const sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, date_added) " +
           "SELECT e.id, $1, $2, $3, now() " +
           "FROM episode e " +
@@ -929,7 +934,8 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
         ];
 
         db.selectNoResponse(sql, values).then(groupEpisodes => {
-          resolve(groupEpisodes);
+          ArrayService.addToArray(updateResults, groupEpisodes);
+          resolve(updateResults);
         });
       });
 
