@@ -1746,11 +1746,12 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
                             'AND e.season <> $5 ' +
                             'AND retired = $6) ' +
         updateGroupClause +
-        'AND person_id IN (' + db.createInlineVariableList(person_ids.length, values.length + 1) + ') ';
+        'AND person_id IN (' + db.createInlineVariableList(person_ids.length, values.length + 1) + ') ' +
+        'RETURNING episode_id, id as rating_id, person_id, watched, rating_pending ';
 
       ArrayService.addToArray(values, person_ids);
 
-      db.updateNoResponse(sql, values).then(function() {
+      db.selectNoResponse(sql, values).then(updateResults => {
 
         const values = [
           true,        // watched
@@ -1801,7 +1802,8 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
         ArrayService.addToArray(values, person_ids);
 
         db.selectNoResponse(sql, values).then(episodeRatings => {
-          resolve(episodeRatings);
+          ArrayService.addToArray(updateResults, episodeRatings);
+          resolve(updateResults);
         }).catch(err => errs.throwError(err, 'INSERT new past episode ratings', response));
       }).catch(err => errs.throwError(err, 'UPDATE existing past episode ratings', response));
     }
