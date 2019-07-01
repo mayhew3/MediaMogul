@@ -1263,7 +1263,7 @@ exports.addToMyShows = function(request, response) {
           response.json(series);
         })
         .catch(err => {
-          response.error(err);
+          errs.throwError(err, 'Error updating past episode ratings.', response);
         });
     });
   });
@@ -1639,8 +1639,7 @@ exports.getSystemVars = function(request, response) {
   const sql = "SELECT * FROM system_vars";
   db.selectNoResponse(sql, []).then(results => {
     if (results.length !== 1) {
-      response.error({msg: 'Unexpected number of system_vars.'});
-      throw new Error("Should have exactly one row in system_vars.");
+      errs.throwError({message: 'Unexpected number of system_vars.'}, 'No rows in system_vars', response);
     }
 
     const systemVars = results[0];
