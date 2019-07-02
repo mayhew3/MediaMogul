@@ -5,6 +5,7 @@
   "main": "bin/www.js",
   "scripts": {
     "start": "node bin/www.js",
+    "db_restore": "node bin/data_setup.js",
     "postinstall": "grunt"
   },
   "dependencies": {
