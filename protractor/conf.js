@@ -4,13 +4,18 @@
 // Then use the global protractor location in WebStorm config:
 //    ~\AppData\Roaming\npm\node_modules\protractor
 
-const userDir = process.env.USERPROFILE;
+const assert = require('assert');
+
+const profileDir = process.env.E2E_CHROME_PROFILE;
+assert(!!profileDir, 'Need E2E_CHROME_PROFILE environment variable!');
 
 exports.config = {
   framework: 'jasmine',
-  seleniumServerJar: userDir + '\\AppData\\Roaming\\npm\\node_modules\\' +
-    'protractor\\node_modules\\' +
-    'webdriver-manager\\selenium\\' +
-    'selenium-server-standalone-3.141.59.jar',
-  specs: ['spec.js']
+  specs: ['spec.js'],
+  capabilities: {
+    'browserName': 'chrome',
+    'chromeOptions': {
+      'args': ['user-data-dir=' + profileDir]
+    }
+  }
 };
