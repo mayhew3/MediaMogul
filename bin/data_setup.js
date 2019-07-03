@@ -2,8 +2,8 @@ const {spawn} = require('child_process');
 const assert = require('assert');
 
 assert(!!process.env.PGPASSFILE, 'Expected PGPASSFILE environment variable.');
-let backupDir = process.env.BACKUP_DIR_MM;
-assert(!!backupDir, 'Expected PGPASSFILE environment variable.');
+let backupDir = process.env.E2E_DB_DIR;
+assert(!!backupDir, 'Expected E2E_DB_DIR environment variable.');
 
 let args = [
   '--host=localhost',
@@ -12,7 +12,7 @@ let args = [
   '--clean',
   '--format=custom',
   '--verbose',
-  backupDir + '\\e2e\\owned_shows.dump'
+  backupDir + '\\owned_shows.dump'
 ];
 
 const child = spawn('pg_restore', args, {
