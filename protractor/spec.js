@@ -1,5 +1,5 @@
 // spec.js
-describe('MediaMogul basic tests', function() {
+describe('MediaMogul basic tests', () => {
   const baseURL = 'http://localhost:1441';
   const dashboardURL = baseURL + '/tv/shows/my/dashboard';
 
@@ -28,9 +28,6 @@ describe('MediaMogul basic tests', function() {
 
   beforeEach(() => {
     browser.get(dashboardURL);
-  });
-
-  it('should have a title', () => {
     expect(browser.getTitle()).toEqual('MediaMogul');
   });
 
@@ -43,6 +40,9 @@ describe('MediaMogul basic tests', function() {
     const legionShow = element(legionSpec);
     legionShow.click();
     expect(browser.getCurrentUrl()).toContain('show/1/episode');
+
+    const seriesTitle = element(by.binding('ctrl.series.title'));
+    expect(seriesTitle.getText()).toEqual('Legion');
   });
 
 });
