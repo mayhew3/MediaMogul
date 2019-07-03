@@ -14,7 +14,10 @@ let args = [
   '--verbose',
   backupDir + '\\e2e\\unowned_shows.dump'
 ];
-const child = spawn('pg_restore', args);
+
+const child = spawn('pg_restore', args, {
+  stdio: 'inherit'
+});
 
 child.on('exit', code => {
   console.log(`Exit code is: ${code}`);
