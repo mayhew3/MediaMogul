@@ -12,7 +12,7 @@ let args = [
   '--clean',
   '--format=custom',
   '--verbose',
-  backupDir + '\\e2e\\unowned_shows.dump'
+  backupDir + '\\e2e\\owned_shows.dump'
 ];
 
 const child = spawn('pg_restore', args, {
