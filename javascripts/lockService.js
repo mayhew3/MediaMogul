@@ -15,12 +15,14 @@ angular.module('mediaMogulApp')
       };
 
       function isLoggedInAsTest() {
-        return (envName === 'test' && !!self.personInfo);
+        const personInfo = getPersonInfo();
+        return (envName === 'test' && !!personInfo);
       }
 
       function isLoggedInAsAuth() {
         const token = getToken();
-        return !!self.personInfo && !!token && !jwtHelper.isTokenExpired(token);
+        const personInfo = getPersonInfo();
+        return !!personInfo && !!token && !jwtHelper.isTokenExpired(token);
       }
 
       self.loginAsTest = function() {
@@ -46,7 +48,7 @@ angular.module('mediaMogulApp')
 
           self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
 
-          console.log("Listeners being added.");SystemEnvService
+          console.log("Listeners being added.");
           self.lock.on('authenticated', function(authResult) {
             console.log("Authenticated event detected.");
             if (authResult && authResult.accessToken && authResult.idToken) {
@@ -174,6 +176,10 @@ angular.module('mediaMogulApp')
 
       function getToken() {
         return store.get('token');
+      }
+
+      function getPersonInfo() {
+        return store.get('person_info');
       }
 
       self.loginAsAdminForTest = () => {
