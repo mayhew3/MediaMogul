@@ -47,7 +47,9 @@
           </a>
         </li>
         <li ng-show="toolbar.LockService.isAuthenticated()">
-          <a href="#" ng-click="toolbar.logout()">Sign Out</a>
+          <a href="#"
+             id="sign_out"
+             ng-click="toolbar.logout()">Sign Out</a>
         </li>
       </ul>
     </div>
