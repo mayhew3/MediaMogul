@@ -154,7 +154,7 @@
            type="submit"
            value="Submit"
            ng-show="ctrl.LockService.isUser()"
-           ng-disabled="gameFields.$invalid || !ctrl.LockService.isAuthenticated">
+           ng-disabled="gameFields.$invalid || !ctrl.LockService.isAuthenticated()">
     <input class="btn btn-default"
            type="button"
            value="Cancel"

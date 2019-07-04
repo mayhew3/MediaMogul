@@ -1,15 +1,77 @@
 angular.module('mediaMogulApp')
   .service('LockService', ['$log', '$http', 'store', '$location', 'jwtHelper', '__env',
-    '$q', 'ArrayService', '$state',
-    function ($log, $http, store, $location, jwtHelper, __env, $q, ArrayService, $state) {
+    '$q', 'ArrayService', '$state', 'SystemEnvService',
+    function ($log, $http, store, $location, jwtHelper, __env, $q, ArrayService, $state, SystemEnvService) {
 
       const self = this;
       let tokenRenewalTimeout;
 
       const afterLoginCallbacks = [];
 
-      const token = store.get('token');
-      self.isAuthenticated = token && !jwtHelper.isTokenExpired(token);
+      let envName;
+
+      self.isAuthenticated = function() {
+        return isLoggedInAsTest() || isLoggedInAsAuth();
+      };
+
+      function isLoggedInAsTest() {
+        return (envName === 'test' && !!self.personInfo);
+      }
+
+      function isLoggedInAsAuth() {
+        const token = getToken();
+        return !!self.personInfo && !!token && !jwtHelper.isTokenExpired(token);
+      }
+
+      function handleEnvName(env) {
+        envName = env;
+        if (envName !== 'test') {
+
+          self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
+
+          console.log("Listeners being added.");
+          self.lock.on('authenticated', function(authResult) {
+            console.log("Authenticated event detected.");
+            if (authResult && authResult.accessToken && authResult.idToken) {
+              console.log('Authenticated!', authResult);
+              // self.isAuthenticated = true;
+              self.setSession(authResult, function() {
+                executeAfterLoginCallbacks();
+                $state.go('tv.shows.my.dashboard')
+              });
+            }
+          });
+
+          self.lock.on('authorization_error', function(err) {
+            // self.isAuthenticated = false;
+            console.log(err);
+            alert('Error: ' + err.error + ". Check the console for further details.");
+          });
+
+          if (self.isAuthenticated()) {
+            if (!self.personInfo) {
+              self.personInfo = store.get('person_info');
+              if (!self.personInfo) {
+                self.logout();
+                $state.go('home');
+              }
+              console.log("Setting LockService person id to: " + self.personInfo.id);
+            }
+          }
+
+        } else {
+          syncPersonWithDB('scorpy@gmail.com', () => {
+            executeAfterLoginCallbacks();
+            $state.go('tv.shows.my.dashboard');
+          });
+        }
+      }
+
+      SystemEnvService.waitForEnvName(handleEnvName);
+
+      function isInTestMode() {
+        return envName === 'test';
+      }
 
       self.callbackBase = function() {
         var protocol_host = $location.protocol() + "://" + $location.host();
@@ -39,7 +101,7 @@ angular.module('mediaMogulApp')
       };
 
       self.addCallback = function(callback) {
-        if (self.isAuthenticated) {
+        if (self.isAuthenticated()) {
           callback();
         } else {
           afterLoginCallbacks.push(callback);
@@ -51,33 +113,12 @@ angular.module('mediaMogulApp')
         ArrayService.emptyArray(afterLoginCallbacks);
       }
 
-      self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
-      
-      console.log("Listeners being added.");
-      self.lock.on('authenticated', function(authResult) {
-        console.log("Authenticated event detected.");
-        if (authResult && authResult.accessToken && authResult.idToken) {
-          console.log('Authenticated!', authResult);
-          self.isAuthenticated = true;
-          self.setSession(authResult, function() {
-            executeAfterLoginCallbacks();
-            $state.go('tv.shows.my.dashboard')
-          });
-        }
-      });
-      
-      self.lock.on('authorization_error', function(err) {
-        self.isAuthenticated = false;
-        console.log(err);
-        alert('Error: ' + err.error + ". Check the console for further details.");
-      });
-
       self.renew = function() {
         let deferred = $q.defer();
         console.log("Attempting to renew token...");
         self.lock.checkSession({}, function(err, authResult) {
           if (err || !authResult) {
-            self.isAuthenticated = false;
+            // self.isAuthenticated = false;
             if (err) {
               console.log("Error on renew: " + err.error);
               if (self.getUserRole() === 'admin') {
@@ -94,7 +135,7 @@ angular.module('mediaMogulApp')
           } else {
             if (authResult.accessToken && authResult.idToken) {
               console.log('Authentication renewed!', authResult);
-              self.isAuthenticated = true;
+              // self.isAuthenticated = true;
               self.setSession(authResult, function () {
                 executeAfterLoginCallbacks();
               });
@@ -107,25 +148,30 @@ angular.module('mediaMogulApp')
       };
 
       self.logout = function() {
-        self.isAuthenticated = false;
+        // self.isAuthenticated = false;
         // todo: re-enable for MM-495
         // self.lock.logout();
         store.remove('profile');
         store.remove('token');
         store.remove('person_info');
+        delete self.personInfo;
         clearTimeout(tokenRenewalTimeout);
       };
 
-      if (self.isAuthenticated) {
-        if (!self.personInfo) {
-          self.personInfo = store.get('person_info');
-          if (!self.personInfo) {
-            self.logout();
-            $state.go('home');
-          }
-          console.log("Setting LockService person id to: " + self.personInfo.id);
-        }
+      function getToken() {
+        return store.get('token');
       }
+
+      self.login = function() {
+        if (isInTestMode()) {
+          syncPersonWithDB('scorpy@gmail.com', () => {
+            executeAfterLoginCallbacks();
+            $state.go('tv.shows.my.dashboard');
+          });
+        } else {
+          self.lock.show();
+        }
+      };
 
       self.setSession = function(authResult, callback) {
         // Set the time that the Access Token will expire
@@ -141,15 +187,15 @@ angular.module('mediaMogulApp')
 
         self.scheduleRenewal();
 
-        syncPersonWithDB(authResult.idTokenPayload, callback);
+        syncPersonWithDB(authResult.idTokenPayload.email, callback);
       };
 
       self.isAdmin = function () {
-        return this.isAuthenticated && (self.getUserRole() === 'admin');
+        return self.isAuthenticated() && (self.getUserRole() === 'admin');
       };
 
       self.isUser = function () {
-        return this.isAuthenticated && _.contains(['user', 'admin'], self.getUserRole());
+        return self.isAuthenticated() && _.contains(['user', 'admin'], self.getUserRole());
       };
 
       // accessors
@@ -172,17 +218,16 @@ angular.module('mediaMogulApp')
 
       // user management functions
 
-      function syncPersonWithDB(idTokenPayload, callback) {
-        var email = idTokenPayload.email;
+      function syncPersonWithDB(email, callback) {
 
         $http.get('/api/person', {params: {email: email}}).then(function (response) {
-          var personData = response.data;
+          const personData = response.data;
 
           if (personData.length === 0) {
             console.log("Redirecting back to home page, because no user found with e-mail '" + email + "'");
             self.logout();
           } else {
-            copyPersonInfoToAuth(personData, idTokenPayload);
+            copyPersonInfoToAuth(personData);
           }
 
           console.log("role found: " + self.getUserRole());
@@ -201,14 +246,6 @@ angular.module('mediaMogulApp')
 
         console.log("Setting store with person id: " + self.person_id);
         store.set('person_info', personInfo);
-/*
-        $http.post('/api/updateUser', {
-          user_id: idTokenPayload.sub,
-          access_token: store.get('access_token'),
-          first_name: self.firstName,
-          last_name: self.lastName,
-          user_role: personInfo.user_role
-        });*/
       }
 
 

@@ -65,7 +65,7 @@
         <a href
            ng-click="ctrl.lockRatings()"
            ng-show="ctrl.LockService.isAdmin() && !ctrl.isRatingLocked()"
-           ng-disabled="!ctrl.LockService.isAuthenticated">
+           ng-disabled="!ctrl.LockService.isAuthenticated()">
           Lock Ratings
         </a>
       </li>
@@ -73,7 +73,7 @@
         <a href
            ng-click="ctrl.unlockRatings()"
            ng-show="ctrl.LockService.isAdmin() && ctrl.isRatingLocked()"
-           ng-disabled="!ctrl.LockService.isAuthenticated">
+           ng-disabled="!ctrl.LockService.isAuthenticated()">
           Unlock Ratings
         </a>
       </li>
@@ -81,7 +81,7 @@
         <a href
            ng-click="ctrl.increaseYear()"
            ng-show="ctrl.LockService.isAdmin() && ctrl.readyToChangeYear()"
-           ng-disabled="!ctrl.LockService.isAuthenticated">
+           ng-disabled="!ctrl.LockService.isAuthenticated()">
           Update Year
         </a>
       </li>
@@ -89,7 +89,7 @@
         <a href
            ng-click="ctrl.revertYear()"
            ng-show="ctrl.LockService.isAdmin() && ctrl.initialYear !== null && ctrl.year !== ctrl.initialYear"
-           ng-disabled="!ctrl.LockService.isAuthenticated">
+           ng-disabled="!ctrl.LockService.isAuthenticated()">
           Revert Year
         </a>
       </li>

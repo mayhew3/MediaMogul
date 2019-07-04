@@ -225,11 +225,78 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
 
     }])
   .run(['$rootScope', 'LockService', 'store', 'jwtHelper', '$location', '$transitions', '$trace', '$state',
-    function($rootScope, LockService, store, jwtHelper, $location, $transitions, $trace, $state) {
+    'SystemEnvService',
+    function($rootScope, LockService, store, jwtHelper, $location, $transitions, $trace, $state,
+             SystemEnvService) {
 
       const self = this;
 
-      LockService.scheduleRenewal();
+      SystemEnvService.waitForEnvName(envName => {
+        if (envName !== 'test') {
+          LockService.scheduleRenewal();
+
+          // return value is a "deregistration" function that can be called to detach from the event.
+          const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);
+
+          self.sendHome = function(event) {
+            event.preventDefault();
+            onRouteChangeOff();
+            $state.go('home');
+          };
+
+          self.callbackBase = function() {
+            var protocol_host = $location.protocol() + "://" + $location.host();
+            var optional_port = $location.port() === 80 ? '' : ':' + $location.port();
+            return protocol_host + optional_port;
+          };
+
+          function routeChange(event, next) {
+            // Get the JWT that is saved in local storage
+            // and if it is there, check whether it is expired.
+            // If it isn't, set the user's auth state
+            const token = store.get('token');
+            const person_id = !!store.get('person_info') ?
+              store.get('person_info').id :
+              undefined;
+
+            console.log("On Refresh: Store PersonID: " + person_id + ", Auth PersonID: " + LockService.getPersonID());
+            if (token) {
+              if (jwtHelper.isTokenExpired(token)) {
+                console.log("Token is expired. Trying to renew.");
+
+                LockService.renew().then(function () {
+
+                  if (!store.get('token')) {
+                    console.log("ERROR: No token found even after renew()!!! Sending back to home.");
+                    self.sendHome(event);
+                  }
+
+                  // SUCCESS!
+                  console.log("Redirecting to 'next' with value: " + next);
+
+                  const callbackBase = self.callbackBase();
+                  const nextPath = next.replace(callbackBase, "");
+
+                  console.log("Using parsed path of " + nextPath);
+
+                  $location.path(nextPath);
+
+                }).catch(function(error) {
+                  console.log("Received error from renewal: " + error.error);
+                  self.sendHome(event);
+                });
+              }
+            } else {
+              console.log("No auth token found. Redirecting to home page for login.");
+              self.sendHome(event);
+            }
+
+          }
+        }
+      });
+
+
+      // TRANSITION DEBUGGING
 
       $transitions.onStart({}, transition => {
         console.log('Transitioning to: ' + transition.to().name);
@@ -249,61 +316,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
 // This is a naive example of how to silence the default error handler.
         console.log(error);
       });
-      // return value is a "deregistration" function that can be called to detach from the event.
-      const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);
 
-      self.sendHome = function(event) {
-        event.preventDefault();
-        onRouteChangeOff();
-        $state.go('home');
-      };
-
-      self.callbackBase = function() {
-        var protocol_host = $location.protocol() + "://" + $location.host();
-        var optional_port = $location.port() === 80 ? '' : ':' + $location.port();
-        return protocol_host + optional_port;
-      };
-
-      function routeChange(event, next) {
-        // Get the JWT that is saved in local storage
-        // and if it is there, check whether it is expired.
-        // If it isn't, set the user's auth state
-        const token = store.get('token');
-        const person_id = store.get('person_info').id;
-
-        console.log("On Refresh: Store PersonID: " + person_id + ", Auth PersonID: " + LockService.getPersonID());
-        if (token) {
-          if (jwtHelper.isTokenExpired(token)) {
-            console.log("Token is expired. Trying to renew.");
-
-            LockService.renew().then(function () {
-
-              if (!store.get('token')) {
-                console.log("ERROR: No token found even after renew()!!! Sending back to home.");
-                self.sendHome(event);
-              }
-
-              // SUCCESS!
-              console.log("Redirecting to 'next' with value: " + next);
-
-              const callbackBase = self.callbackBase();
-              const nextPath = next.replace(callbackBase, "");
-
-              console.log("Using parsed path of " + nextPath);
-
-              $location.path(nextPath);
-
-            }).catch(function(error) {
-              console.log("Received error from renewal: " + error.error);
-              self.sendHome(event);
-            });
-          }
-        } else {
-          console.log("No auth token found. Redirecting to home page for login.");
-          self.sendHome(event);
-        }
-
-      }
 
     }])
   .directive('errSrc', function() {
