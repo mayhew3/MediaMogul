@@ -24,96 +24,108 @@ module.exports = function(app) {
   });
 
   // SYSTEM VARS
-  app.get('/api/systemVars', authCheck, persons.getSystemVars);
+  getAPI('/api/systemVars', persons.getSystemVars);
 
   // GAMES
-  app.get('/api/games', authCheck, games.getGames);
-  app.get('/api/notMyGames', authCheck, games.getNotMyGames);
-  app.get('/api/gamesMatchList', authCheck, games.getGamesWithPossibleMatchInfo);
-  app.get('/api/possibleGameMatches', authCheck, games.getPossibleGameMatches);
+  getAPI('/api/games', games.getGames);
+  getAPI('/api/notMyGames', games.getNotMyGames);
+  getAPI('/api/gamesMatchList', games.getGamesWithPossibleMatchInfo);
+  getAPI('/api/possibleGameMatches', games.getPossibleGameMatches);
 
-  app.post('/api/updategame', authCheck, games.updateGame);
-  app.post('/api/updatePersonGame', authCheck, games.updatePersonGame);
-  app.post('/api/addgame', authCheck, games.addGame);
-  app.post('/api/addToMyGames', authCheck, games.addToMyGames);
-  app.post('/api/addgameplay', authCheck, games.addGameplaySession);
+  postAPI('/api/updategame', games.updateGame);
+  postAPI('/api/updatePersonGame', games.updatePersonGame);
+  postAPI('/api/addgame', games.addGame);
+  postAPI('/api/addToMyGames', games.addToMyGames);
+  postAPI('/api/addgameplay', games.addGameplaySession);
 
   // TV
-  app.get('/api/episodeGroupRating', authCheck, series.getEpisodeGroupRating);
-  app.get('/api/episodeGroupRatings', authCheck, series.getEpisodeGroupRatings);
-  app.get('/api/numShowsToRate', authCheck, series.getNumberOfShowsToRate);
-  app.get('/api/viewingLocations', authCheck, series.getViewingLocations);
-  app.get('/api/allPosters', authCheck, series.getAllPosters);
-  app.get('/api/seriesViewingLocations', authCheck, series.getSeriesViewingLocations);
-  app.get('/api/upcomingEpisodes', authCheck, series.getUpcomingEpisodes);
-  app.get('/api/ratingYears', authCheck, series.getAllRatingYears);
-  app.get('/api/episodeListForRating', authCheck, series.getEpisodesForRating);
-  app.get('/api/tvdbMatches', authCheck, addShow.getTVDBMatches);
-  app.get('/api/tvdbIDs', authCheck, series.getMatchedTVDBIDs);
+  getAPI('/api/episodeGroupRating', series.getEpisodeGroupRating);
+  getAPI('/api/episodeGroupRatings', series.getEpisodeGroupRatings);
+  getAPI('/api/numShowsToRate', series.getNumberOfShowsToRate);
+  getAPI('/api/viewingLocations', series.getViewingLocations);
+  getAPI('/api/allPosters', series.getAllPosters);
+  getAPI('/api/seriesViewingLocations', series.getSeriesViewingLocations);
+  getAPI('/api/upcomingEpisodes', series.getUpcomingEpisodes);
+  getAPI('/api/ratingYears', series.getAllRatingYears);
+  getAPI('/api/episodeListForRating', series.getEpisodesForRating);
+  getAPI('/api/tvdbMatches', addShow.getTVDBMatches);
+  getAPI('/api/tvdbIDs', series.getMatchedTVDBIDs);
 
   // ADMIN
-  app.get('/api/tvdbErrors', authCheck, admin.getTVDBErrors);
-  app.get('/api/services', authCheck, admin.getExternalServices);
+  getAPI('/api/tvdbErrors', admin.getTVDBErrors);
+  getAPI('/api/services', admin.getExternalServices);
   
   // API for iOS app
-  app.get('/primeTV', authCheck, series.getPrimeTV);
-  app.get('/primeSeriesInfo', authCheck, series.getPrimeSeriesInfo);
+  getAPI('/primeTV', series.getPrimeTV);
+  getAPI('/primeSeriesInfo', series.getPrimeSeriesInfo);
 
-  app.post('/api/updateEpisode', authCheck, series.updateEpisode);
-  app.post('/api/changeTier', authCheck, series.changeTier);
-  app.post('/api/addSeries', authCheck, addShow.beginEpisodeFetch);
-  app.post('/api/updateSeries', authCheck, series.updateSeries);
-  app.post('/api/updateEpisodeGroupRating', authCheck, series.updateEpisodeGroupRating);
-  app.post('/api/addEpisodeGroupRating', authCheck, series.addEpisodeGroupRating);
-  app.post('/api/addViewingLocation', authCheck, series.addViewingLocation);
-  app.post('/api/removeViewingLocation', authCheck, series.removeViewingLocation);
-  app.post('/api/handleSeriesRequest', authCheck, series.handleSeriesRequest);
+  postAPI('/api/updateEpisode', series.updateEpisode);
+  postAPI('/api/changeTier', series.changeTier);
+  postAPI('/api/addSeries', addShow.beginEpisodeFetch);
+  postAPI('/api/updateSeries', series.updateSeries);
+  postAPI('/api/updateEpisodeGroupRating', series.updateEpisodeGroupRating);
+  postAPI('/api/addEpisodeGroupRating', series.addEpisodeGroupRating);
+  postAPI('/api/addViewingLocation', series.addViewingLocation);
+  postAPI('/api/removeViewingLocation', series.removeViewingLocation);
+  postAPI('/api/handleSeriesRequest', series.handleSeriesRequest);
 
   // PERSONS
-  app.get('/api/person', authCheck, persons.getPersonInfo);
-  app.get('/api/persons', authCheck, persons.getPersons);
+  getAPI('/api/person', persons.getPersonInfo);
+  getAPI('/api/persons', persons.getPersons);
 
   // MY SHOWS
-  app.get('/api/myShows', authCheck, persons.getMyShows);
-  app.get('/api/myQueueShows', authCheck, persons.getMyQueueShows);
-  app.get('/api/myPendingShows', authCheck, persons.getMyPendingShows);
-  app.get('/api/notMyShows', authCheck, persons.getNotMyShows);
-  app.get('/api/getMyEpisodes', authCheck, persons.getMyEpisodes);
-  app.get('/api/seriesDetail', authCheck, persons.getSeriesDetailInfo);
-  app.get('/api/seriesRequest', authCheck, persons.getAllOpenSeriesRequests);
-  app.get('/api/mySeriesRequests', authCheck, persons.getMySeriesRequests);
-  app.get('/api/nextAired', authCheck, persons.getNextAiredInfo);
+  getAPI('/api/myShows', persons.getMyShows);
+  getAPI('/api/myQueueShows', persons.getMyQueueShows);
+  getAPI('/api/myPendingShows', persons.getMyPendingShows);
+  getAPI('/api/notMyShows', persons.getNotMyShows);
+  getAPI('/api/getMyEpisodes', persons.getMyEpisodes);
+  getAPI('/api/seriesDetail', persons.getSeriesDetailInfo);
+  getAPI('/api/seriesRequest', persons.getAllOpenSeriesRequests);
+  getAPI('/api/mySeriesRequests', persons.getMySeriesRequests);
+  getAPI('/api/nextAired', persons.getNextAiredInfo);
 
-  app.post('/api/addToMyShows', authCheck, persons.addToMyShows);
-  app.post('/api/removeFromMyShows', authCheck, persons.removeFromMyShows);
-  app.post('/api/updateMyShow', authCheck, persons.updateMyShow);
-  app.post('/api/rateMyShow', authCheck, persons.rateMyShow);
-  app.post('/api/updateEpisodeRatings', authCheck, persons.updateEpisodeRatings);
-  app.post('/api/increaseYear', authCheck, persons.increaseYear);
-  app.post('/api/revertYear', authCheck, persons.revertYear);
-  app.post('/api/seriesRequest', authCheck, persons.seriesRequest);
-  app.post('/api/markEpisodesWatched', authCheck, persons.markEpisodesWatched);
-  app.post('/api/pinToDashboard', authCheck, persons.pinToDashboard);
-  app.post('/api/myPoster', authCheck, persons.addMyPoster);
+  postAPI('/api/addToMyShows', persons.addToMyShows);
+  postAPI('/api/removeFromMyShows', persons.removeFromMyShows);
+  postAPI('/api/updateMyShow', persons.updateMyShow);
+  postAPI('/api/rateMyShow', persons.rateMyShow);
+  postAPI('/api/updateEpisodeRatings', persons.updateEpisodeRatings);
+  postAPI('/api/increaseYear', persons.increaseYear);
+  postAPI('/api/revertYear', persons.revertYear);
+  postAPI('/api/seriesRequest', persons.seriesRequest);
+  postAPI('/api/markEpisodesWatched', persons.markEpisodesWatched);
+  postAPI('/api/pinToDashboard', persons.pinToDashboard);
+  postAPI('/api/myPoster', persons.addMyPoster);
 
-  app.patch('/api/myPoster', authCheck, persons.updateMyPoster);
+  patchAPI('/api/myPoster', persons.updateMyPoster);
 
   // GROUPS
-  app.get('/api/myGroups', authCheck, groups.getMyGroups);
-  app.get('/api/groupPersons', authCheck, groups.getGroupPersons);
-  app.get('/api/groupShows', authCheck, groups.getGroupShows);
+  getAPI('/api/myGroups', groups.getMyGroups);
+  getAPI('/api/groupPersons', groups.getGroupPersons);
+  getAPI('/api/groupShows', groups.getGroupShows);
 
-  app.post('/api/createGroup', authCheck, groups.createGroup);
-  app.post('/api/groupWatchEpisode', authCheck, groups.markEpisodesWatchedByGroup);
-  app.post('/api/addGroupShow', authCheck, groups.addToGroupShows);
-  app.post('/api/removeGroupShow', authCheck, groups.removeFromGroupShows);
-  app.post('/api/votes', authCheck, groups.submitVote);
-  app.post('/api/ballots', authCheck, groups.addBallot);
+  postAPI('/api/createGroup', groups.createGroup);
+  postAPI('/api/groupWatchEpisode', groups.markEpisodesWatchedByGroup);
+  postAPI('/api/addGroupShow', groups.addToGroupShows);
+  postAPI('/api/removeGroupShow', groups.removeFromGroupShows);
+  postAPI('/api/votes', groups.submitVote);
+  postAPI('/api/ballots', groups.addBallot);
 
-  app.patch('/api/ballots', authCheck, groups.editBallot);
+  patchAPI('/api/ballots', groups.editBallot);
 
   // GENRES
-  app.get('/api/genres', authCheck, series.getAllGenres);
+  getAPI('/api/genres', series.getAllGenres);
+
+  function getAPI(endpoint, callback) {
+    app.get(endpoint, authCheck, callback);
+  }
+
+  function postAPI(endpoint, callback) {
+    app.post(endpoint, authCheck, callback);
+  }
+
+  function patchAPI(endpoint, callback) {
+    app.patch(endpoint, authCheck, callback);
+  }
 
   // error handlers
 
