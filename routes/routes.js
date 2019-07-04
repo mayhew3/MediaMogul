@@ -14,10 +14,12 @@ module.exports = function(app) {
   const secret = process.env.AUTH0_CLIENT_SECRET;
   const clientID = process.env.AUTH0_CLIENT_ID;
   const database_url = process.env.DATABASE_URL;
+  const envName = process.env.envName;
 
   assert(!!secret, "No environment variable: AUTH0_CLIENT_SECRET");
   assert(!!clientID, "No environment variable: AUTH0_CLIENT_ID");
   assert(!!database_url, "No environment variable: DATABASE_URL");
+  assert(!!envName, "No environment variable: envName");
 
   const authCheck = jwt({
     secret: new Buffer(secret, 'base64'),
@@ -119,15 +121,27 @@ module.exports = function(app) {
   getAPI('/genres', series.getAllGenres);
 
   function getAPI(endpoint, callback) {
-    router.get(endpoint, authCheck, callback);
+    if (envName === 'test') {
+      router.get(endpoint, callback);
+    } else {
+      router.get(endpoint, authCheck, callback);
+    }
   }
 
   function postAPI(endpoint, callback) {
-    router.post(endpoint, authCheck, callback);
+    if (envName === 'test') {
+      router.post(endpoint, callback);
+    } else {
+      router.post(endpoint, authCheck, callback);
+    }
   }
 
   function patchAPI(endpoint, callback) {
-    router.patch(endpoint, authCheck, callback);
+    if (envName === 'test') {
+      router.patch(endpoint, callback);
+    } else {
+      router.patch(endpoint, authCheck, callback);
+    }
   }
 
   app.use('/api', router);

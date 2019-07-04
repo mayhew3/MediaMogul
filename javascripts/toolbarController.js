@@ -48,6 +48,8 @@
         return 'navbar-default';
       } else if (envName === 'heroku-staging') {
         return 'navbar-default stagingNavbar';
+      } else if (envName === 'test') {
+        return 'navbar-default testNavbar';
       } else {
         return 'navbar-default localNavbar';
       }
