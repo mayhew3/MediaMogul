@@ -6,6 +6,7 @@ const series = require('../controllers/series_controller');
 const persons = require('../controllers/person_controller');
 const groups = require('../controllers/groups_controller');
 const addShow = require('../controllers/add_show_controller');
+const testing = require('../controllers/testing_controller');
 require('../controllers/event_handlers');
 const assert = require('assert');
 
@@ -116,6 +117,9 @@ module.exports = function(app) {
   privatePost('/ballots', groups.addBallot);
 
   privatePatch('/ballots', groups.editBallot);
+
+  // TESTING
+  privateGet('/testData', testing.createTestData);
 
   // PUBLIC API for ENV MODE
   publicGet('/serverEnv', (request, response) => response.json({envName: envName}));

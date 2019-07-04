@@ -183,6 +183,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           controller: 'profileController',
           controllerAs: 'user'
         })
+        .state('testing', {
+          url: '/testing',
+          templateUrl: 'testing/testStart.html',
+          controller: 'testStartController',
+          controllerAs: 'ctrl'
+        })
       ;
 
       $locationProvider.hashPrefix('');

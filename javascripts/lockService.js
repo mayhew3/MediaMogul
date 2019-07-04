@@ -23,6 +23,22 @@ angular.module('mediaMogulApp')
         return !!self.personInfo && !!token && !jwtHelper.isTokenExpired(token);
       }
 
+      self.loginAsTest = function() {
+        return new Promise((resolve, reject) => {
+          $http.get('/api/testData').then(result => {
+            const person = result.data;
+            if(!person || !person.email || !person.id) {
+              console.log('Invalid person returned: ' + JSON.stringify(person));
+              reject(new Error('Invalid person returned: ' + JSON.stringify(person)));
+            } else {
+              self.personInfo = person;
+              store.set('person_info', person);
+              resolve(person);
+            }
+          }).catch(err => reject(err));
+        });
+      };
+
       function handleEnvName(env) {
         envName = env;
         if (envName !== 'test') {
