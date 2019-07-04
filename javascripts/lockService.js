@@ -41,6 +41,7 @@ angular.module('mediaMogulApp')
 
       function handleEnvName(env) {
         envName = env;
+
         if (envName !== 'test') {
 
           self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
@@ -64,23 +65,19 @@ angular.module('mediaMogulApp')
             alert('Error: ' + err.error + ". Check the console for further details.");
           });
 
-          if (self.isAuthenticated()) {
-            if (!self.personInfo) {
-              self.personInfo = store.get('person_info');
-              if (!self.personInfo) {
-                self.logout();
-                $state.go('home');
-              }
-              console.log("Setting LockService person id to: " + self.personInfo.id);
-            }
-          }
-
-        } else {
-          syncPersonWithDB('scorpy@gmail.com', () => {
-            executeAfterLoginCallbacks();
-            $state.go('tv.shows.my.dashboard');
-          });
         }
+
+        if (self.isAuthenticated()) {
+          if (!self.personInfo) {
+            self.personInfo = store.get('person_info');
+            if (!self.personInfo) {
+              self.logout();
+              $state.go('home');
+            }
+            console.log("Setting LockService person id to: " + self.personInfo.id);
+          }
+        }
+
       }
 
       SystemEnvService.waitForEnvName(handleEnvName);

@@ -1,11 +1,13 @@
 angular.module('mediaMogulApp')
-  .service('SocketService', ['LockService', '$rootScope',
-    function SocketService(LockService, $rootScope) {
+  .service('SocketService', ['LockService', '$rootScope', 'ArrayService',
+    function SocketService(LockService, $rootScope, ArrayService) {
       const self = this;
       self.LockService = LockService;
 
       let socket;
       initSocket();
+
+      const pendingListeners = [];
 
       function initSocket() {
         self.LockService.addCallback(() => {
@@ -21,6 +23,9 @@ angular.module('mediaMogulApp')
               person_id: self.LockService.getPersonID()
             }
           });
+
+          _.each(pendingListeners, listener => listener());
+          ArrayService.emptyArray(pendingListeners);
         });
       }
 
@@ -33,16 +38,31 @@ angular.module('mediaMogulApp')
       };
 
       self.on = function(channel, callback) {
-        socket.on(channel, function () {
-          const args = arguments;
-          $rootScope.$apply(function () {
-            callback.apply(socket, args);
+        let listener = () => {
+          socket.on(channel, function () {
+            const args = arguments;
+            $rootScope.$apply(function () {
+              callback.apply(socket, args);
+            });
           });
-        });
+        };
+
+        if (!!socket) {
+          listener();
+        } else {
+          pendingListeners.push(listener);
+        }
       };
 
       self.emit = function(channel, msg) {
-        socket.emit(channel, msg);
+        let listener = () => {
+          socket.emit(channel, msg);
+        };
+        if (!!socket) {
+          listener();
+        } else {
+          pendingListeners.push(listener);
+        }
       };
     }]);
 
