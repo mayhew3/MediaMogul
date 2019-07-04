@@ -29,22 +29,15 @@ describe('MediaMogul basic tests', () => {
     browser.get(baseURL);
     let signInLink = element(by.id('sign_in'));
 
-    signInLink.isDisplayed().then(is_displayed => {
-
-      if (is_displayed === true) {
-        signInLink.click();
-
-        const loginButtonExists = by.buttonText('Log in with Google');
-        browser.wait(() => browser.isElementPresent(loginButtonExists), 5000).then(() => {
-          const loginButton = element(loginButtonExists);
-          browser.sleep(4000);
-          loginButton.click();
-          browser.sleep(2000);
-          expect(browser.getCurrentUrl()).toBe(dashboardURL);
-        });
-      } else {
-        browser.get(dashboardURL);
+    signInLink.isPresent().then(is_displayed => {
+      if (is_displayed === false) {
+        let signOutLink = element(by.id('sign_out'));
+        signOutLink.click();
+        browser.sleep(1000);
       }
+      signInLink.click();
+      browser.sleep(1000);
+      expect(browser.getCurrentUrl()).toBe(dashboardURL);
     });
 
   });
