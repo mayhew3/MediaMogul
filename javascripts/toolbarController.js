@@ -8,7 +8,7 @@
     return {
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
-        'SystemVarsService',
+        'SystemVarsService', 'SystemEnvService',
         toolbarController],
       controllerAs: 'toolbar'
     }
@@ -73,8 +73,7 @@
     };
 
     function login() {
-      console.log("SHOWING");
-      self.lock.show();
+      LockService.login();
     }
 
     function logout() {

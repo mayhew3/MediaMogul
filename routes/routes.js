@@ -29,98 +29,101 @@ module.exports = function(app) {
   const router = express.Router();
 
   // SYSTEM VARS
-  getAPI('/systemVars', persons.getSystemVars);
+  privateGet('/systemVars', persons.getSystemVars);
 
   // GAMES
-  getAPI('/games', games.getGames);
-  getAPI('/notMyGames', games.getNotMyGames);
-  getAPI('/gamesMatchList', games.getGamesWithPossibleMatchInfo);
-  getAPI('/possibleGameMatches', games.getPossibleGameMatches);
+  privateGet('/games', games.getGames);
+  privateGet('/notMyGames', games.getNotMyGames);
+  privateGet('/gamesMatchList', games.getGamesWithPossibleMatchInfo);
+  privateGet('/possibleGameMatches', games.getPossibleGameMatches);
 
-  postAPI('/updategame', games.updateGame);
-  postAPI('/updatePersonGame', games.updatePersonGame);
-  postAPI('/addgame', games.addGame);
-  postAPI('/addToMyGames', games.addToMyGames);
-  postAPI('/addgameplay', games.addGameplaySession);
+  privatePost('/updategame', games.updateGame);
+  privatePost('/updatePersonGame', games.updatePersonGame);
+  privatePost('/addgame', games.addGame);
+  privatePost('/addToMyGames', games.addToMyGames);
+  privatePost('/addgameplay', games.addGameplaySession);
 
   // TV
-  getAPI('/episodeGroupRating', series.getEpisodeGroupRating);
-  getAPI('/episodeGroupRatings', series.getEpisodeGroupRatings);
-  getAPI('/numShowsToRate', series.getNumberOfShowsToRate);
-  getAPI('/viewingLocations', series.getViewingLocations);
-  getAPI('/allPosters', series.getAllPosters);
-  getAPI('/seriesViewingLocations', series.getSeriesViewingLocations);
-  getAPI('/upcomingEpisodes', series.getUpcomingEpisodes);
-  getAPI('/ratingYears', series.getAllRatingYears);
-  getAPI('/episodeListForRating', series.getEpisodesForRating);
-  getAPI('/tvdbMatches', addShow.getTVDBMatches);
-  getAPI('/tvdbIDs', series.getMatchedTVDBIDs);
+  privateGet('/episodeGroupRating', series.getEpisodeGroupRating);
+  privateGet('/episodeGroupRatings', series.getEpisodeGroupRatings);
+  privateGet('/numShowsToRate', series.getNumberOfShowsToRate);
+  privateGet('/viewingLocations', series.getViewingLocations);
+  privateGet('/allPosters', series.getAllPosters);
+  privateGet('/seriesViewingLocations', series.getSeriesViewingLocations);
+  privateGet('/upcomingEpisodes', series.getUpcomingEpisodes);
+  privateGet('/ratingYears', series.getAllRatingYears);
+  privateGet('/episodeListForRating', series.getEpisodesForRating);
+  privateGet('/tvdbMatches', addShow.getTVDBMatches);
+  privateGet('/tvdbIDs', series.getMatchedTVDBIDs);
 
   // ADMIN
-  getAPI('/tvdbErrors', admin.getTVDBErrors);
-  getAPI('/services', admin.getExternalServices);
+  privateGet('/tvdbErrors', admin.getTVDBErrors);
+  privateGet('/services', admin.getExternalServices);
   
   // API for iOS app
-  getAPI('/primeTV', series.getPrimeTV);
-  getAPI('/primeSeriesInfo', series.getPrimeSeriesInfo);
+  privateGet('/primeTV', series.getPrimeTV);
+  privateGet('/primeSeriesInfo', series.getPrimeSeriesInfo);
 
-  postAPI('/updateEpisode', series.updateEpisode);
-  postAPI('/changeTier', series.changeTier);
-  postAPI('/addSeries', addShow.beginEpisodeFetch);
-  postAPI('/updateSeries', series.updateSeries);
-  postAPI('/updateEpisodeGroupRating', series.updateEpisodeGroupRating);
-  postAPI('/addEpisodeGroupRating', series.addEpisodeGroupRating);
-  postAPI('/addViewingLocation', series.addViewingLocation);
-  postAPI('/removeViewingLocation', series.removeViewingLocation);
-  postAPI('/handleSeriesRequest', series.handleSeriesRequest);
+  privatePost('/updateEpisode', series.updateEpisode);
+  privatePost('/changeTier', series.changeTier);
+  privatePost('/addSeries', addShow.beginEpisodeFetch);
+  privatePost('/updateSeries', series.updateSeries);
+  privatePost('/updateEpisodeGroupRating', series.updateEpisodeGroupRating);
+  privatePost('/addEpisodeGroupRating', series.addEpisodeGroupRating);
+  privatePost('/addViewingLocation', series.addViewingLocation);
+  privatePost('/removeViewingLocation', series.removeViewingLocation);
+  privatePost('/handleSeriesRequest', series.handleSeriesRequest);
 
   // PERSONS
-  getAPI('/person', persons.getPersonInfo);
-  getAPI('/persons', persons.getPersons);
+  privateGet('/person', persons.getPersonInfo);
+  privateGet('/persons', persons.getPersons);
 
   // MY SHOWS
-  getAPI('/myShows', persons.getMyShows);
-  getAPI('/myQueueShows', persons.getMyQueueShows);
-  getAPI('/myPendingShows', persons.getMyPendingShows);
-  getAPI('/notMyShows', persons.getNotMyShows);
-  getAPI('/getMyEpisodes', persons.getMyEpisodes);
-  getAPI('/seriesDetail', persons.getSeriesDetailInfo);
-  getAPI('/seriesRequest', persons.getAllOpenSeriesRequests);
-  getAPI('/mySeriesRequests', persons.getMySeriesRequests);
-  getAPI('/nextAired', persons.getNextAiredInfo);
+  privateGet('/myShows', persons.getMyShows);
+  privateGet('/myQueueShows', persons.getMyQueueShows);
+  privateGet('/myPendingShows', persons.getMyPendingShows);
+  privateGet('/notMyShows', persons.getNotMyShows);
+  privateGet('/getMyEpisodes', persons.getMyEpisodes);
+  privateGet('/seriesDetail', persons.getSeriesDetailInfo);
+  privateGet('/seriesRequest', persons.getAllOpenSeriesRequests);
+  privateGet('/mySeriesRequests', persons.getMySeriesRequests);
+  privateGet('/nextAired', persons.getNextAiredInfo);
 
-  postAPI('/addToMyShows', persons.addToMyShows);
-  postAPI('/removeFromMyShows', persons.removeFromMyShows);
-  postAPI('/updateMyShow', persons.updateMyShow);
-  postAPI('/rateMyShow', persons.rateMyShow);
-  postAPI('/updateEpisodeRatings', persons.updateEpisodeRatings);
-  postAPI('/increaseYear', persons.increaseYear);
-  postAPI('/revertYear', persons.revertYear);
-  postAPI('/seriesRequest', persons.seriesRequest);
-  postAPI('/markEpisodesWatched', persons.markEpisodesWatched);
-  postAPI('/pinToDashboard', persons.pinToDashboard);
-  postAPI('/myPoster', persons.addMyPoster);
+  privatePost('/addToMyShows', persons.addToMyShows);
+  privatePost('/removeFromMyShows', persons.removeFromMyShows);
+  privatePost('/updateMyShow', persons.updateMyShow);
+  privatePost('/rateMyShow', persons.rateMyShow);
+  privatePost('/updateEpisodeRatings', persons.updateEpisodeRatings);
+  privatePost('/increaseYear', persons.increaseYear);
+  privatePost('/revertYear', persons.revertYear);
+  privatePost('/seriesRequest', persons.seriesRequest);
+  privatePost('/markEpisodesWatched', persons.markEpisodesWatched);
+  privatePost('/pinToDashboard', persons.pinToDashboard);
+  privatePost('/myPoster', persons.addMyPoster);
 
-  patchAPI('/myPoster', persons.updateMyPoster);
+  privatePatch('/myPoster', persons.updateMyPoster);
 
   // GROUPS
-  getAPI('/myGroups', groups.getMyGroups);
-  getAPI('/groupPersons', groups.getGroupPersons);
-  getAPI('/groupShows', groups.getGroupShows);
+  privateGet('/myGroups', groups.getMyGroups);
+  privateGet('/groupPersons', groups.getGroupPersons);
+  privateGet('/groupShows', groups.getGroupShows);
 
-  postAPI('/createGroup', groups.createGroup);
-  postAPI('/groupWatchEpisode', groups.markEpisodesWatchedByGroup);
-  postAPI('/addGroupShow', groups.addToGroupShows);
-  postAPI('/removeGroupShow', groups.removeFromGroupShows);
-  postAPI('/votes', groups.submitVote);
-  postAPI('/ballots', groups.addBallot);
+  privatePost('/createGroup', groups.createGroup);
+  privatePost('/groupWatchEpisode', groups.markEpisodesWatchedByGroup);
+  privatePost('/addGroupShow', groups.addToGroupShows);
+  privatePost('/removeGroupShow', groups.removeFromGroupShows);
+  privatePost('/votes', groups.submitVote);
+  privatePost('/ballots', groups.addBallot);
 
-  patchAPI('/ballots', groups.editBallot);
+  privatePatch('/ballots', groups.editBallot);
+
+  // PUBLIC API for ENV MODE
+  publicGet('/serverEnv', (request, response) => response.json({envName: envName}));
 
   // GENRES
-  getAPI('/genres', series.getAllGenres);
+  privateGet('/genres', series.getAllGenres);
 
-  function getAPI(endpoint, callback) {
+  function privateGet(endpoint, callback) {
     if (envName === 'test') {
       router.get(endpoint, callback);
     } else {
@@ -128,7 +131,11 @@ module.exports = function(app) {
     }
   }
 
-  function postAPI(endpoint, callback) {
+  function publicGet(endpoint, callback) {
+    router.get(endpoint, callback);
+  }
+
+  function privatePost(endpoint, callback) {
     if (envName === 'test') {
       router.post(endpoint, callback);
     } else {
@@ -136,7 +143,7 @@ module.exports = function(app) {
     }
   }
 
-  function patchAPI(endpoint, callback) {
+  function privatePatch(endpoint, callback) {
     if (envName === 'test') {
       router.patch(endpoint, callback);
     } else {
