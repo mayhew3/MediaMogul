@@ -8,7 +8,9 @@ const lastNames = ["Anderson", "Ashwoon", "Aikin", "Bateman", "Bongard", "Bowers
 
 exports.createTestData = function(request, response) {
   createPerson(response).then(person => {
-    response.json(person);
+    addShows(person, response).then(() => {
+      response.json(person);
+    });
   });
 };
 
@@ -30,6 +32,26 @@ function createPerson(response) {
       .then(() => resolve(personObj))
       .catch(err => errs.throwError(err, 'Insert person', response));
   });
+}
+
+function addShows(person, response) {
+  return new Promise(resolve => {
+    const showPromises = [];
+    showPromises.push(addShow(person, 1));
+
+    Promise.all(showPromises)
+      .then(() => resolve())
+      .catch(err => errs.throwError(err, 'Add person series', response));
+  });
+}
+
+function addShow(person, show_id) {
+  const personSeries = {
+    series_id: show_id,
+    person_id: person.id,
+    tier: 1
+  };
+  return insertObject('person_series', personSeries);
 }
 
 function createEmail() {

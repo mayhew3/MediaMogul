@@ -10,6 +10,7 @@ describe('MediaMogul basic tests', () => {
     const showLink = element(spec);
     expect(showLink).toBeDefined();
     showLink.click();
+    browser.sleep(100);
     expect(browser.getCurrentUrl()).toContain('show/' + id + '/episode');
   }
 
@@ -66,18 +67,18 @@ describe('MediaMogul basic tests', () => {
     expect(selectedEpisodeTile.getAttribute('class')).toContain('tile-ready');
 
     getEpisodeInfo(selectedEpisodeTile).then(episodeInfo => {
-      expect(episodeInfo.season).toEqual(2);
+      expect(episodeInfo.season).toEqual(1);
       expect(episodeInfo.episode).toEqual(1);
 
       markWatched();
 
       expect(selectedEpisodeTile.getAttribute('class')).toContain('tile-watched');
 
-      browser.sleep(1000);
+      browser.sleep(500);
 
       const newlySelected = getSelectedEpisode();
       getEpisodeInfo(newlySelected).then(newEpisode => {
-        expect(newEpisode.season).toEqual(2);
+        expect(newEpisode.season).toEqual(1);
         expect(newEpisode.episode).toEqual(2);
       });
     });
