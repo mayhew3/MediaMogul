@@ -5,9 +5,10 @@ angular.module('mediaMogulApp')
       self.LockService = LockService;
 
       let socket;
-      initSocket();
 
       const pendingListeners = [];
+
+      initSocket();
 
       function initSocket() {
         self.LockService.addCallback(() => {

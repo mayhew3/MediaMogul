@@ -46,7 +46,7 @@ angular.module('mediaMogulApp')
 
           self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
 
-          console.log("Listeners being added.");
+          console.log("Listeners being added.");SystemEnvService
           self.lock.on('authenticated', function(authResult) {
             console.log("Authenticated event detected.");
             if (authResult && authResult.accessToken && authResult.idToken) {
@@ -67,14 +67,15 @@ angular.module('mediaMogulApp')
 
         }
 
-        if (self.isAuthenticated()) {
+        if (self.isAuthenticated() || self.isInTestMode()) {
           if (!self.personInfo) {
             self.personInfo = store.get('person_info');
             if (!self.personInfo) {
               self.logout();
               $state.go('home');
+            } else {
+              console.log("Setting LockService person id to: " + self.personInfo.id);
             }
-            console.log("Setting LockService person id to: " + self.personInfo.id);
           }
         }
 
@@ -175,12 +176,20 @@ angular.module('mediaMogulApp')
         return store.get('token');
       }
 
-      self.login = function() {
+      self.loginAsAdminForTest = () => {
         if (isInTestMode()) {
           syncPersonWithDB('scorpy@gmail.com', () => {
             executeAfterLoginCallbacks();
             $state.go('tv.shows.my.dashboard');
           });
+        }
+      };
+
+      self.isInTestMode = () => SystemEnvService.isInTestMode();
+
+      self.login = function() {
+        if (isInTestMode()) {
+          self.loginAsTest().then(() => $state.go('tv.shows.my.dashboard'));
         } else {
           self.lock.show();
         }

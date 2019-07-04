@@ -76,6 +76,16 @@
       LockService.login();
     }
 
+    self.showLoginAsAdmin = () => {
+      let inTestMode = LockService.isInTestMode();
+      let authenticated = LockService.isAuthenticated();
+      return inTestMode && !authenticated;
+    };
+
+    self.loginAsAdmin = () => {
+      LockService.loginAsAdminForTest();
+    };
+
     function logout() {
       LockService.logout();
       $location.path('/');

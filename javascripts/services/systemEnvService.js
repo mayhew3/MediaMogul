@@ -15,7 +15,7 @@ function SystemEnvService($http, ArrayService) {
     }
   };
 
-  self.isTest = function() {
+  self.isInTestMode = function() {
     return envName === 'test';
   };
 
