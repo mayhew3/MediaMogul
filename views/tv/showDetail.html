@@ -247,6 +247,7 @@
                       <episode-summary-tile ng-repeat="episode in ctrl.episodes |
                                     filter:ctrl.episodeFilter |
                                     orderBy:['absolute_number']"
+                                            id="s{{episode.season}}_e{{episode.episode_number}}"
                                             episode="episode"
                                             on-click="ctrl.goToEpisode"
                                             tile-class="ctrl.getTileClass">

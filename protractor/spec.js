@@ -72,9 +72,10 @@ describe('MediaMogul basic tests', () => {
 
       markWatched();
 
-      expect(selectedEpisodeTile.getAttribute('class')).toContain('tile-watched');
-
       browser.sleep(500);
+
+      const firstEpisodeTile = getEpisodeTile(1, 1);
+      expect(firstEpisodeTile.getAttribute('class')).toContain('tile-watched');
 
       const newlySelected = getSelectedEpisode();
       getEpisodeInfo(newlySelected).then(newEpisode => {
@@ -102,6 +103,11 @@ describe('MediaMogul basic tests', () => {
       });
     });
 
+  }
+
+  function getEpisodeTile(season, episode) {
+    const parent = element(by.id('s' + season + '_e' + episode));
+    return parent.element(by.className('episodeTile'));
   }
 
 });
