@@ -26,7 +26,7 @@ describe('MediaMogul basic tests', () => {
   }
 
   function markUnwatched() {
-    const markUnwatchedButton = element(by.buttonText('Mark Unwatched'));
+    const markUnwatchedButton = element(by.buttonText('Watched'));
     markUnwatchedButton.click();
   }
 
@@ -75,9 +75,16 @@ describe('MediaMogul basic tests', () => {
       expect(episodeInfo.season).toEqual(1);
       expect(episodeInfo.episode).toEqual(1);
 
+      expectCurrentEpisodeIsUnwatched();
       markWatched();
 
+      browser.sleep(100);
+
+      expectCurrentEpisodeIsWatched();
+
       browser.sleep(800);
+
+      expectCurrentEpisodeIsUnwatched();
 
       const firstEpisodeTile = getEpisodeTile(1, 1);
       expect(firstEpisodeTile.getAttribute('class')).toContain('tile-watched');
@@ -89,6 +96,33 @@ describe('MediaMogul basic tests', () => {
 
         expect(newlySelected.getAttribute('class')).toContain('tile-ready');
       });
+    });
+  });
+
+  it('mark unwatched', () => {
+    goToShow(1);
+
+    const firstEpisodeTile = getEpisodeTile(1, 1);
+    expect(firstEpisodeTile.getAttribute('class')).toContain('tile-watched');
+    firstEpisodeTile.click();
+
+    const selectedEpisodeTile = getSelectedEpisode();
+    getEpisodeInfo(selectedEpisodeTile).then(episodeInfo => {
+      expect(episodeInfo.season).toEqual(1);
+      expect(episodeInfo.episode).toEqual(1);
+
+      expectCurrentEpisodeIsWatched();
+      markUnwatched();
+
+      browser.sleep(100);
+
+      expectCurrentEpisodeIsUnwatched();
+
+      browser.sleep(800);
+
+      expectCurrentEpisodeIsUnwatched();
+
+      expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
     });
   });
 
@@ -117,4 +151,17 @@ describe('MediaMogul basic tests', () => {
     return parent.element(by.className('episodeTile'));
   }
 
+  function expectElementHasClass(element, className) {
+    expect(element.getAttribute('class')).toContain(className);
+  }
+
+  function expectCurrentEpisodeIsWatched() {
+    let watchedButton = element(by.buttonText('Watched'));
+    expectElementHasClass(watchedButton, 'btn-primary');
+  }
+
+  function expectCurrentEpisodeIsUnwatched() {
+    let markWatchedButton = element(by.buttonText('Mark Watched'));
+    expectElementHasClass(markWatchedButton, 'btn-success');
+  }
 });
