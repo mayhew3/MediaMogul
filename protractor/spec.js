@@ -25,6 +25,11 @@ describe('MediaMogul basic tests', () => {
     markWatchedButton.click();
   }
 
+  function markUnwatched() {
+    const markUnwatchedButton = element(by.buttonText('Mark Unwatched'));
+    markUnwatchedButton.click();
+  }
+
   beforeAll(() => {
     browser.waitForAngularEnabled(false);
     browser.get(baseURL);
@@ -72,7 +77,7 @@ describe('MediaMogul basic tests', () => {
 
       markWatched();
 
-      browser.sleep(500);
+      browser.sleep(800);
 
       const firstEpisodeTile = getEpisodeTile(1, 1);
       expect(firstEpisodeTile.getAttribute('class')).toContain('tile-watched');
@@ -81,6 +86,8 @@ describe('MediaMogul basic tests', () => {
       getEpisodeInfo(newlySelected).then(newEpisode => {
         expect(newEpisode.season).toEqual(1);
         expect(newEpisode.episode).toEqual(2);
+
+        expect(newlySelected.getAttribute('class')).toContain('tile-ready');
       });
     });
   });
