@@ -5,33 +5,6 @@ describe('MediaMogul basic tests', () => {
 
   const EC = protractor.ExpectedConditions;
 
-  const legionSpec = by.id('show_1');
-
-  function goToShow(id) {
-    const spec = by.id('show_' + id);
-    const showLink = element(spec);
-    expect(showLink).toBeDefined();
-    showLink.click();
-    browser.sleep(100);
-    expect(browser.getCurrentUrl()).toContain('show/' + id + '/episode');
-  }
-
-  function getSelectedEpisode() {
-    const selectedEpisode = element(by.className('selectedEpisodeTile'));
-    expect(selectedEpisode).toBeDefined();
-    return selectedEpisode;
-  }
-
-  function markWatched() {
-    const markWatchedButton = element(by.buttonText('Mark Watched'));
-    markWatchedButton.click();
-  }
-
-  function markUnwatched() {
-    const markUnwatchedButton = element(by.buttonText('Watched'));
-    markUnwatchedButton.click();
-  }
-
   beforeAll(() => {
     browser.waitForAngularEnabled(false);
     browser.get(baseURL);
@@ -56,6 +29,7 @@ describe('MediaMogul basic tests', () => {
   });
 
   it('should have legion in its shows', () => {
+    const legionSpec = by.id('show_1');
     const legionShow = element(legionSpec);
     expect(legionShow).toBeDefined();
   });
@@ -128,6 +102,9 @@ describe('MediaMogul basic tests', () => {
     });
   });
 
+
+  // HELPER METHODS
+
   function getEpisodeInfo(episodeTile) {
     return new Promise(resolve => {
       episodeTile.element(by.className('episodeTileNumber')).getText().then(episodeNumber => {
@@ -171,4 +148,30 @@ describe('MediaMogul basic tests', () => {
     const timeout = !optionalTimeout ? 2000 : optionalTimeout;
     browser.wait(EC.visibilityOf(element(elementFinder)), timeout);
   }
+
+  function goToShow(id) {
+    const spec = by.id('show_' + id);
+    const showLink = element(spec);
+    expect(showLink).toBeDefined();
+    showLink.click();
+    browser.sleep(100);
+    expect(browser.getCurrentUrl()).toContain('show/' + id + '/episode');
+  }
+
+  function getSelectedEpisode() {
+    const selectedEpisode = element(by.className('selectedEpisodeTile'));
+    expect(selectedEpisode).toBeDefined();
+    return selectedEpisode;
+  }
+
+  function markWatched() {
+    const markWatchedButton = element(by.buttonText('Mark Watched'));
+    markWatchedButton.click();
+  }
+
+  function markUnwatched() {
+    const markUnwatchedButton = element(by.buttonText('Watched'));
+    markUnwatchedButton.click();
+  }
+
 });
