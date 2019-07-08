@@ -9,7 +9,8 @@ angular.module('mediaMogulApp')
       getLabel: '<',
       buttonIsToggled: '<',
       onClick: '<',
-      buttonClass: '<'
+      buttonClass: '<',
+      id: '<'
     }
   });
 

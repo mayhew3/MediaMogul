@@ -350,16 +350,6 @@ angular.module('mediaMogulApp')
       return self.getPreviousUnwatched(episode).length;
     };
 
-    self.getWatchButtonLabel = function(episode) {
-      if (isWatched(episode)) {
-        return 'Watched';
-      } else if (self.hasPreviousUnwatched(episode)) {
-        return 'Mark ' + self.previousUnwatchedCount(episode) + ' Watched';
-      } else {
-        return 'Mark Watched';
-      }
-    };
-
     function labelForPreviousPage() {
       if (!!self.from_label) {
         return self.from_label;
