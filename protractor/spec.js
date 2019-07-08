@@ -3,6 +3,8 @@ describe('MediaMogul basic tests', () => {
   const baseURL = 'http://localhost:1441';
   const dashboardURL = baseURL + '/tv/shows/my/dashboard';
 
+  const EC = protractor.ExpectedConditions;
+
   const legionSpec = by.id('show_1');
 
   function goToShow(id) {
@@ -78,11 +80,11 @@ describe('MediaMogul basic tests', () => {
       expectCurrentEpisodeIsUnwatched();
       markWatched();
 
-      browser.sleep(100);
+      waitForElement(by.buttonText('Watched'));
 
       expectCurrentEpisodeIsWatched();
 
-      browser.sleep(800);
+      waitForElement(by.buttonText('Mark Watched'));
 
       expectCurrentEpisodeIsUnwatched();
 
@@ -114,12 +116,12 @@ describe('MediaMogul basic tests', () => {
       expectCurrentEpisodeIsWatched();
       markUnwatched();
 
-      browser.sleep(100);
-
+      let elementFinder = by.buttonText('Mark Watched');
+      waitForElement(elementFinder);
       expectCurrentEpisodeIsUnwatched();
 
       browser.sleep(800);
-
+      // wait to verify episode is still unwatched.
       expectCurrentEpisodeIsUnwatched();
 
       expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
@@ -163,5 +165,10 @@ describe('MediaMogul basic tests', () => {
   function expectCurrentEpisodeIsUnwatched() {
     let markWatchedButton = element(by.buttonText('Mark Watched'));
     expectElementHasClass(markWatchedButton, 'btn-success');
+  }
+
+  function waitForElement(elementFinder, optionalTimeout) {
+    const timeout = !optionalTimeout ? 2000 : optionalTimeout;
+    browser.wait(EC.visibilityOf(element(elementFinder)), timeout);
   }
 });
