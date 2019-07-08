@@ -1,3 +1,5 @@
+const _ = require('underscore');
+
 // spec.js
 describe('MediaMogul basic tests', () => {
   const baseURL = 'http://localhost:1441';
@@ -52,14 +54,12 @@ describe('MediaMogul basic tests', () => {
       expect(episodeInfo.episode).toEqual(1);
 
       expectCurrentEpisodeIsUnwatched();
-      markWatched();
+      toggleMarkWatchedButton();
 
-      waitForElement(by.buttonText('Watched'));
-
+      waitForWatch();
       expectCurrentEpisodeIsWatched();
 
-      waitForElement(by.buttonText('Mark Watched'));
-
+      waitForUnwatch();
       expectCurrentEpisodeIsUnwatched();
 
       const firstEpisodeTile = getEpisodeTile(1, 1);
@@ -88,10 +88,9 @@ describe('MediaMogul basic tests', () => {
       expect(episodeInfo.episode).toEqual(1);
 
       expectCurrentEpisodeIsWatched();
-      markUnwatched();
+      toggleMarkWatchedButton();
 
-      let elementFinder = by.buttonText('Mark Watched');
-      waitForElement(elementFinder);
+      waitForUnwatch();
       expectCurrentEpisodeIsUnwatched();
 
       browser.sleep(800);
@@ -102,6 +101,39 @@ describe('MediaMogul basic tests', () => {
     });
   });
 
+  it('mark multiple watched', () => {
+    goToShow(1);
+
+    const firstEpisodeTile = getEpisodeTile(1, 5);
+
+    getPreviousUnwatchedTilesOnPage(1, 5).then(previousUnwatched => {
+      const previousUnwatchedCount = previousUnwatched.length;
+
+      expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
+      firstEpisodeTile.click();
+
+      expectCurrentEpisodeIsUnwatched(previousUnwatchedCount);
+      let markWatchedButton = getMarkWatchedButton();
+      expect(markWatchedButton.getText()).toContain('Mark ' + previousUnwatchedCount + ' Watched');
+
+      toggleMarkWatchedButton();
+
+      waitForWatch();
+
+      expectCurrentEpisodeIsWatched();
+
+      waitForUnwatch();
+
+      expectCurrentEpisodeIsUnwatched();
+
+      expectCurrentEpisodeToBe(1, 6);
+    });
+
+  });
+
+  it('mark unwatched episode that was multi-watched', () => {
+
+  });
 
   // HELPER METHODS
 
@@ -118,7 +150,8 @@ describe('MediaMogul basic tests', () => {
 
         resolve({
           season: currentSeason,
-          episode: currentEpisode
+          episode: currentEpisode,
+          episodeTile: episodeTile
         });
       });
     });
@@ -130,23 +163,52 @@ describe('MediaMogul basic tests', () => {
     return parent.element(by.className('episodeTile'));
   }
 
+  function getPreviousUnwatchedTilesOnPage(season, episode) {
+    return new Promise(resolve => {
+      element.all(by.className('tile-ready')).then(unwatched => {
+        const infoPromises = _.map(unwatched, tile => {
+          return getEpisodeInfo(tile);
+        });
+        Promise.all(infoPromises).then(infos => {
+          const earlierEps = _.filter(infos, info => {
+            return info.season === season && info.episode <= episode;
+          });
+
+          resolve(earlierEps);
+        });
+      });
+    });
+  }
+
   function expectElementHasClass(element, className) {
     expect(element.getAttribute('class')).toContain(className);
   }
 
-  function expectCurrentEpisodeIsWatched() {
-    let watchedButton = element(by.buttonText('Watched'));
-    expectElementHasClass(watchedButton, 'btn-primary');
+  function getMarkWatchedButton() {
+    return element(by.id('mark_watched'));
   }
 
-  function expectCurrentEpisodeIsUnwatched() {
-    let markWatchedButton = element(by.buttonText('Mark Watched'));
+  function expectCurrentEpisodeIsWatched() {
+    let markWatchedButton = getMarkWatchedButton();
+    expect(markWatchedButton.getText()).toEqual('Watched');
+    expectElementHasClass(markWatchedButton, 'btn-primary');
+  }
+
+  function expectCurrentEpisodeIsUnwatched(previousUnwatched) {
+    const expectedText = !previousUnwatched ? 'Mark Watched' : 'Mark ' + previousUnwatched + ' Watched';
+    let markWatchedButton = getMarkWatchedButton();
+    expect(markWatchedButton.getText()).toEqual(expectedText);
     expectElementHasClass(markWatchedButton, 'btn-success');
   }
 
-  function waitForElement(elementFinder, optionalTimeout) {
+  function waitForElementToContainText(element, text, optionalTimeout) {
     const timeout = !optionalTimeout ? 2000 : optionalTimeout;
-    browser.wait(EC.visibilityOf(element(elementFinder)), timeout);
+    browser.wait(EC.textToBePresentInElement(element, text), timeout);
+  }
+
+  function waitForElementToNotContainText(element, text, optionalTimeout) {
+    const timeout = !optionalTimeout ? 2000 : optionalTimeout;
+    browser.wait(EC.not(EC.textToBePresentInElement(element, text), timeout));
   }
 
   function goToShow(id) {
@@ -164,14 +226,25 @@ describe('MediaMogul basic tests', () => {
     return selectedEpisode;
   }
 
-  function markWatched() {
-    const markWatchedButton = element(by.buttonText('Mark Watched'));
-    markWatchedButton.click();
+  function toggleMarkWatchedButton() {
+    getMarkWatchedButton().click();
   }
 
-  function markUnwatched() {
-    const markUnwatchedButton = element(by.buttonText('Watched'));
-    markUnwatchedButton.click();
+  function waitForWatch() {
+    waitForElementToNotContainText(getMarkWatchedButton(), 'Mark');
+    expect(getMarkWatchedButton().getText()).toContain('Watched')
+  }
+
+  function waitForUnwatch() {
+    waitForElementToContainText(getMarkWatchedButton(), 'Mark Watched');
+  }
+
+  function expectCurrentEpisodeToBe(season, episode) {
+    let selectedEpisode = getSelectedEpisode();
+    getEpisodeInfo(selectedEpisode).then(newEpisode => {
+      expect(newEpisode.season).toEqual(season);
+      expect(newEpisode.episode).toEqual(episode);
+    });
   }
 
 });
