@@ -43,39 +43,37 @@ describe('MediaMogul basic tests', () => {
     expect(seriesTitle.getText()).toEqual('Legion');
   });
 
-  it('mark watched', () => {
+  it('mark watched', async () => {
     goToShow(1);
 
     const selectedEpisodeTile = getSelectedEpisode();
     expect(selectedEpisodeTile.getAttribute('class')).toContain('tile-ready');
 
-    getEpisodeInfo(selectedEpisodeTile).then(episodeInfo => {
-      expect(episodeInfo.season).toEqual(1);
-      expect(episodeInfo.episode).toEqual(1);
+    const episodeInfo = await getEpisodeInfo(selectedEpisodeTile);
+    expect(episodeInfo.season).toEqual(1);
+    expect(episodeInfo.episode).toEqual(1);
 
-      expectCurrentEpisodeIsUnwatched();
-      toggleMarkWatchedButton();
+    expectCurrentEpisodeIsUnwatched();
+    toggleMarkWatchedButton();
 
-      waitForWatch();
-      expectCurrentEpisodeIsWatched();
+    waitForWatch();
+    expectCurrentEpisodeIsWatched();
 
-      waitForUnwatch();
-      expectCurrentEpisodeIsUnwatched();
+    waitForUnwatch();
+    expectCurrentEpisodeIsUnwatched();
 
-      const firstEpisodeTile = getEpisodeTile(1, 1);
-      expect(firstEpisodeTile.getAttribute('class')).toContain('tile-watched');
+    const firstEpisodeTile = getEpisodeTile(1, 1);
+    expect(firstEpisodeTile.getAttribute('class')).toContain('tile-watched');
 
-      const newlySelected = getSelectedEpisode();
-      getEpisodeInfo(newlySelected).then(newEpisode => {
-        expect(newEpisode.season).toEqual(1);
-        expect(newEpisode.episode).toEqual(2);
+    const newlySelected = getSelectedEpisode();
+    const newEpisode = await getEpisodeInfo(newlySelected);
+    expect(newEpisode.season).toEqual(1);
+    expect(newEpisode.episode).toEqual(2);
 
-        expect(newlySelected.getAttribute('class')).toContain('tile-ready');
-      });
-    });
+    expect(newlySelected.getAttribute('class')).toContain('tile-ready');
   });
 
-  it('mark unwatched', () => {
+  it('mark unwatched', async () => {
     goToShow(1);
 
     const firstEpisodeTile = getEpisodeTile(1, 1);
@@ -83,51 +81,49 @@ describe('MediaMogul basic tests', () => {
     firstEpisodeTile.click();
 
     const selectedEpisodeTile = getSelectedEpisode();
-    getEpisodeInfo(selectedEpisodeTile).then(episodeInfo => {
-      expect(episodeInfo.season).toEqual(1);
-      expect(episodeInfo.episode).toEqual(1);
+    const episodeInfo = await getEpisodeInfo(selectedEpisodeTile);
+    expect(episodeInfo.season).toEqual(1);
+    expect(episodeInfo.episode).toEqual(1);
 
-      expectCurrentEpisodeIsWatched();
-      toggleMarkWatchedButton();
+    expectCurrentEpisodeIsWatched();
+    toggleMarkWatchedButton();
 
-      waitForUnwatch();
-      expectCurrentEpisodeIsUnwatched();
+    waitForUnwatch();
+    expectCurrentEpisodeIsUnwatched();
 
-      browser.sleep(800);
-      // wait to verify episode is still unwatched.
-      expectCurrentEpisodeIsUnwatched();
+    browser.sleep(800);
+    // wait to verify episode is still unwatched.
+    expectCurrentEpisodeIsUnwatched();
 
-      expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
-    });
+    expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
   });
 
-  it('mark multiple watched', () => {
+  it('mark multiple watched', async () => {
     goToShow(1);
 
     const firstEpisodeTile = getEpisodeTile(1, 5);
 
-    getPreviousUnwatchedTilesOnPage(1, 5).then(previousUnwatched => {
-      const previousUnwatchedCount = previousUnwatched.length;
+    const previousUnwatched = await getPreviousUnwatchedTilesOnPage(1, 5);
+    const previousUnwatchedCount = previousUnwatched.length;
 
-      expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
-      firstEpisodeTile.click();
+    expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
+    firstEpisodeTile.click();
 
-      expectCurrentEpisodeIsUnwatched(previousUnwatchedCount);
-      let markWatchedButton = getMarkWatchedButton();
-      expect(markWatchedButton.getText()).toContain('Mark ' + previousUnwatchedCount + ' Watched');
+    expectCurrentEpisodeIsUnwatched(previousUnwatchedCount);
+    let markWatchedButton = getMarkWatchedButton();
+    expect(markWatchedButton.getText()).toContain('Mark ' + previousUnwatchedCount + ' Watched');
 
-      toggleMarkWatchedButton();
+    toggleMarkWatchedButton();
 
-      waitForWatch();
+    waitForWatch();
 
-      expectCurrentEpisodeIsWatched();
+    expectCurrentEpisodeIsWatched();
 
-      waitForUnwatch();
+    waitForUnwatch();
 
-      expectCurrentEpisodeIsUnwatched();
+    expectCurrentEpisodeIsUnwatched();
 
-      expectCurrentEpisodeToBe(1, 6);
-    });
+    expectCurrentEpisodeToBe(1, 6);
 
   });
 
