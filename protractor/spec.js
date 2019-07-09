@@ -133,25 +133,21 @@ describe('MediaMogul basic tests', () => {
 
   // HELPER METHODS
 
-  function getEpisodeInfo(episodeTile) {
-    return new Promise(resolve => {
-      episodeTile.element(by.className('episodeTileNumber')).getText().then(episodeNumber => {
+  async function getEpisodeInfo(episodeTile) {
+    const episodeNumber = await episodeTile.element(by.className('episodeTileNumber')).getText();
 
-        expect(episodeNumber).toContain('Season');
-        expect(episodeNumber).toContain('Episode');
+    expect(episodeNumber).toContain('Season');
+    expect(episodeNumber).toContain('Episode');
 
-        const splits = episodeNumber.toString().split(' ');
-        const currentSeason = parseInt(splits[1]);
-        const currentEpisode = parseInt(splits[3]);
+    const splits = episodeNumber.toString().split(' ');
+    const currentSeason = parseInt(splits[1]);
+    const currentEpisode = parseInt(splits[3]);
 
-        resolve({
-          season: currentSeason,
-          episode: currentEpisode,
-          episodeTile: episodeTile
-        });
-      });
-    });
-
+    return {
+      season: currentSeason,
+      episode: currentEpisode,
+      episodeTile: episodeTile
+    };
   }
 
   function getEpisodeTile(season, episode) {
@@ -235,12 +231,11 @@ describe('MediaMogul basic tests', () => {
     waitForElementToContainText(getMarkWatchedButton(), 'Mark Watched');
   }
 
-  function expectCurrentEpisodeToBe(season, episode) {
+  async function expectCurrentEpisodeToBe(season, episode) {
     let selectedEpisode = getSelectedEpisode();
-    getEpisodeInfo(selectedEpisode).then(newEpisode => {
-      expect(newEpisode.season).toEqual(season);
-      expect(newEpisode.episode).toEqual(episode);
-    });
+    const newEpisode = await getEpisodeInfo(selectedEpisode);
+    expect(newEpisode.season).toEqual(season);
+    expect(newEpisode.episode).toEqual(episode);
   }
 
 });
