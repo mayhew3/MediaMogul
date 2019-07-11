@@ -125,6 +125,8 @@ describe('MediaMogul basic tests', () => {
 
     expectCurrentEpisodeToBe(1, 6);
 
+    expectAllEpisodesAreWatchedThrough(5);
+
   });
 
   it('mark unwatched episode that was multi-watched', () => {
@@ -236,6 +238,17 @@ describe('MediaMogul basic tests', () => {
     const newEpisode = await getEpisodeInfo(selectedEpisode);
     expect(newEpisode.season).toEqual(season);
     expect(newEpisode.episode).toEqual(episode);
+  }
+
+  function expectEpisodeTileIsWatched(episodeTile) {
+    expect(episodeTile.getAttribute('class')).toContain('tile-watched');
+  }
+
+  function expectAllEpisodesAreWatchedThrough(episodeNumber) {
+    for (let i = 1; i <= episodeNumber; i++) {
+      const episodeTile = getEpisodeTile(1, i);
+      expectEpisodeTileIsWatched(episodeTile);
+    }
   }
 
 });
