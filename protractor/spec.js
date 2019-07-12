@@ -47,7 +47,7 @@ describe('MediaMogul basic tests', () => {
     goToShow(1);
 
     const selectedEpisodeTile = getSelectedEpisode();
-    expect(selectedEpisodeTile.getAttribute('class')).toContain('tile-ready');
+    expectEpisodeTileIsUnwatched(selectedEpisodeTile);
 
     const episodeInfo = await getEpisodeInfo(selectedEpisodeTile);
     expect(episodeInfo.season).toEqual(1);
@@ -63,21 +63,21 @@ describe('MediaMogul basic tests', () => {
     expectCurrentEpisodeIsUnwatched();
 
     const firstEpisodeTile = getEpisodeTile(1, 1);
-    expect(firstEpisodeTile.getAttribute('class')).toContain('tile-watched');
+    expectEpisodeTileIsWatched(firstEpisodeTile);
 
     const newlySelected = getSelectedEpisode();
     const newEpisode = await getEpisodeInfo(newlySelected);
     expect(newEpisode.season).toEqual(1);
     expect(newEpisode.episode).toEqual(2);
 
-    expect(newlySelected.getAttribute('class')).toContain('tile-ready');
+    expectEpisodeTileIsUnwatched(newlySelected);
   });
 
   it('mark unwatched', async () => {
     goToShow(1);
 
     const firstEpisodeTile = getEpisodeTile(1, 1);
-    expect(firstEpisodeTile.getAttribute('class')).toContain('tile-watched');
+    expectEpisodeTileIsWatched(firstEpisodeTile);
     firstEpisodeTile.click();
 
     const selectedEpisodeTile = getSelectedEpisode();
@@ -95,7 +95,7 @@ describe('MediaMogul basic tests', () => {
     // wait to verify episode is still unwatched.
     expectCurrentEpisodeIsUnwatched();
 
-    expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
+    expectEpisodeTileIsUnwatched(firstEpisodeTile);
   });
 
   it('mark multiple watched', async () => {
@@ -106,7 +106,7 @@ describe('MediaMogul basic tests', () => {
     const previousUnwatched = await getPreviousUnwatchedTilesOnPage(1, 5);
     const previousUnwatchedCount = previousUnwatched.length;
 
-    expect(firstEpisodeTile.getAttribute('class')).toContain('tile-ready');
+    expectEpisodeTileIsUnwatched(firstEpisodeTile);
     firstEpisodeTile.click();
 
     expectCurrentEpisodeIsUnwatched(previousUnwatchedCount);
@@ -130,7 +130,24 @@ describe('MediaMogul basic tests', () => {
   });
 
   it('mark unwatched episode that was multi-watched', () => {
+    goToShow(1);
 
+    const episodeTile = getEpisodeTile(1, 3);
+    expectEpisodeTileIsWatched(episodeTile);
+    episodeTile.click();
+
+    expectCurrentEpisodeIsWatched();
+    toggleMarkWatchedButton();
+
+    waitForUnwatch();
+
+    expectCurrentEpisodeIsUnwatched();
+
+    browser.sleep(800);
+    // wait to verify episode is still unwatched.
+    expectCurrentEpisodeIsUnwatched();
+
+    expectEpisodeTileIsUnwatched(episodeTile);
   });
 
   // HELPER METHODS
@@ -242,6 +259,10 @@ describe('MediaMogul basic tests', () => {
 
   function expectEpisodeTileIsWatched(episodeTile) {
     expect(episodeTile.getAttribute('class')).toContain('tile-watched');
+  }
+
+  function expectEpisodeTileIsUnwatched(episodeTile) {
+    expect(episodeTile.getAttribute('class')).toContain('tile-ready');
   }
 
   function expectAllEpisodesAreWatchedThrough(episodeNumber) {
