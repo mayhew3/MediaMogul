@@ -17,5 +17,11 @@ exports.config = {
     'chromeOptions': {
       'args': ['user-data-dir=' + profileDir]
     }
-  }
+  },
+  plugins: [{
+    package: 'protractor-console-plugin',
+    failOnWarning: false,
+    failOnError: true,
+    logWarnings: true
+  }]
 };
