@@ -27,6 +27,9 @@ angular.module('mediaMogulApp')
         function addBallotMessageReceived(msg) {
           const series = EpisodeService.findSeriesWithId(msg.series_id);
           const groupSeries = GroupService.getGroupSeries(series, msg.tv_group_id);
+          if (!!msg.trailer_link) {
+            series.trailer_link = msg.trailer_link;
+          }
           GroupService.addBallotToGroupSeries(msg.ballot, groupSeries);
         }
 
