@@ -106,6 +106,10 @@ angular.module('mediaMogulApp')
           season: payload.season
         };
 
+        if (!!self.inputTrailer) {
+          msgPayload.trailer_link = self.inputTrailer;
+        }
+
         SocketService.emit('add_ballot', msgPayload);
 
         $uibModalInstance.close();
