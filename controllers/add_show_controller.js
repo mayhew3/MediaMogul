@@ -135,7 +135,7 @@ async function getOrCreateCloudinary(seriesObj) {
 }
 
 async function getExistingCloudinary(seriesObj) {
-  const sql = 'SELECT tvdb_series_ext_id, tvdb_poster, cloudinary_id ' +
+  const sql = 'SELECT id, tvdb_series_ext_id, tvdb_poster, cloudinary_id ' +
     'FROM pending_poster ' +
     'WHERE tvdb_series_ext_id = $1 ' +
     'AND retired = $2 ';
@@ -152,7 +152,7 @@ async function getExistingCloudinary(seriesObj) {
 
 async function uploadPosterAndUpdate(seriesObj) {
   try {
-    const result = await updatePosterToCloudinary(seriesObj.poster);
+    const result = await uploadPosterToCloudinary(seriesObj.poster);
     const pending_poster = {
       tvdb_series_ext_id: seriesObj.tvdb_series_ext_id,
       tvdb_poster: seriesObj.poster,
@@ -169,7 +169,7 @@ async function uploadPosterAndUpdate(seriesObj) {
   }
 }
 
-async function updatePosterToCloudinary(tvdb_filename) {
+async function uploadPosterToCloudinary(tvdb_filename) {
   try {
     return await cloudinary.uploader.upload("https://www.thetvdb.com/banners/" + tvdb_filename);
   } catch (error) {
@@ -247,47 +247,31 @@ exports.beginEpisodeFetch = function(request, response) {
 
 };
 
-function updatePosters(tvdbSeries, tvdbSeriesObj, personId) {
-  return new Promise((resolve, reject) => {
-    tokens.getBaseOptions().then(options => {
-      const postersUrl = "https://api.thetvdb.com/series/" + tvdbSeries.tvdb_series_ext_id + "/images/query";
+async function updatePosters(tvdbSeries, tvdbSeriesObj, personId) {
+  const options = await tokens.getBaseOptions();
+  const postersUrl = "https://api.thetvdb.com/series/" + tvdbSeries.tvdb_series_ext_id + "/images/query";
 
-      options.qs = {
-        'keyType': 'poster'
-      };
+  options.qs = {
+    'keyType': 'poster'
+  };
 
-      requestLib(postersUrl, options, function (error, tvdb_response, body) {
-        if (error) {
-          throwFetchEpisodesError(error,
-            "Error getting TVDB posters.",
-            'Error getting TVDB Data.',
-            personId);
-          reject();
-        } else if (tvdb_response.statusCode !== 200) {
-          if (!!body && body.Error === "No results for your query") {
-            console.log("No posters found for series '" + tvdbSeries.name + "'. Continuing with empty poster array.");
-            resolve();
-          } else {
-            throwFetchEpisodesError(new Error("Unexpected status code from TVDB API: " + tvdb_response.statusCode),
-              "Error fetching poster data from TVDB: " + tvdb_response.statusText,
-              'Error fetching poster data from TVDB',
-              personId);
-            reject();
-          }
-        } else {
-          const posterData = body.data;
-          if (posterData.length > 0) {
-            _.each(posterData, posterObj => addPoster(tvdbSeries.id, posterObj.fileName)
-              .catch(err => throwFetchEpisodesError(err,
-                'Add poster',
-                'Internal Database Error',
-                personId)));
-          }
-          resolve();
-        }
-      });
-    })
-  });
+  try {
+    const tvdb_response = await requestLib(postersUrl, options);
+
+    const posterData = tvdb_response.data;
+    if (posterData.length > 0) {
+      _.each(posterData, posterObj => addPoster(tvdbSeries, posterObj.fileName)
+        .catch(err => throwFetchEpisodesError(err,
+          'Add poster',
+          'Internal Database Error',
+          personId)));
+    }
+  } catch (error) {
+    throwFetchEpisodesError(error,
+      "Error getting TVDB posters.",
+      'Error getting TVDB Data.',
+      personId);
+  }
 }
 
 function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId) {
@@ -527,13 +511,29 @@ function updateMatchCompleted(series) {
   return db.updateNoResponse(sql, values);
 }
 
-function addPoster(tvdbSeriesId, fileName) {
-  const poster = {
+async function addPoster(tvdbSeries, fileName) {
+  const tvdb_poster = {
     poster_path: fileName,
-    tvdb_series_id: tvdbSeriesId
+    tvdb_series_id: tvdbSeries.id
   };
 
-  return insertObject('tvdb_poster', poster);
+  const existing = await getExistingCloudinary({tvdb_series_ext_id: tvdbSeries.tvdb_series_ext_id});
+  if (!existing) {
+    const posterObj = await uploadPosterToCloudinary(fileName);
+    tvdb_poster.cloud_poster = posterObj.public_id;
+  } else {
+    tvdb_poster.cloud_poster = existing.cloud_poster;
+    retirePendingPoster(existing);
+  }
+
+  return insertObject('tvdb_poster', tvdb_poster);
+}
+
+function retirePendingPoster(pending_poster) {
+  const changedFields = {
+    retired: pending_poster.id
+  };
+  db.updateObjectWithChangedFieldsNoResponse(changedFields, "pending_poster", pending_poster.id);
 }
 
 function insertTVDBSeries(tvdbSeries) {
