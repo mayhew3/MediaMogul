@@ -1,5 +1,5 @@
 const db = require('postgres-mmethods');
-const requestLib = require('request');
+const requestLib = require('request-promise');
 const _ = require('underscore');
 const ArrayService = require('./array_util');
 const tokens = require('./tvdb_token_service');
@@ -7,64 +7,58 @@ const fast_sort = require('fast-sort');
 const moment = require('moment');
 const person_controller = require('./person_controller');
 const sockets = require('./sockets_controller');
+const cloudinary = require("cloudinary").v2;
 
 /* GET POSSIBLE MATCHES */
 
-exports.getTVDBMatches = function(request, response) {
+exports.getTVDBMatches = async function(request, response) {
   const series_name = request.query.series_name;
   console.log("Finding TVDB matches for series: " + series_name);
 
-  tokens.getBaseOptions().then(function (options) {
+  const options = await tokens.getBaseOptions();
 
-    const formatted_name = series_name
-      .toLowerCase()
-      .replace(/ /g, '_')
-      .replace(/[^\w-]+/g, '');
+  const formatted_name = series_name
+    .toLowerCase()
+    .replace(/ /g, '_')
+    .replace(/[^\w-]+/g, '');
 
-    const seriesUrl = 'https://api.thetvdb.com/search/series';
+  const seriesUrl = 'https://api.thetvdb.com/search/series';
 
-    const optionsCopy = {
-      qs: {
-        'name': formatted_name
-      }
-    };
-    ArrayService.shallowCopy(options, optionsCopy);
+  const optionsCopy = {
+    qs: {
+      'name': formatted_name
+    }
+  };
+  ArrayService.shallowCopy(options, optionsCopy);
 
-    requestLib(seriesUrl, optionsCopy, function (error, tvdb_response, body) {
-      if (error) {
-        console.log("Error getting TVDB data: " + error);
-        response.send("Error getting TVDB data: " + error);
-      } else if (tvdb_response.statusCode !== 200) {
-        console.log("Unexpected status code from TVDB API: " + tvdb_response.statusCode + ", " + tvdb_response.statusText);
-        response.json([]);
-      } else {
-        const seriesData = body.data;
-        const prunedData = _.map(seriesData, function(seriesObj) {
-          // noinspection JSUnresolvedVariable
-          return {
-            title: seriesObj.seriesName,
-            tvdb_series_ext_id: seriesObj.id,
-            poster: null,
-            first_aired: seriesObj.firstAired,
-            network: seriesObj.network,
-            overview: seriesObj.overview,
-            status: seriesObj.status
-          };
-        });
+  try {
+    const tvdbResponse = await requestLib(seriesUrl, optionsCopy);
 
-        let posterUpdates = [];
-        prunedData.forEach(function(prunedSeries) {
-          posterUpdates.push(getTopPoster(prunedSeries, options));
-        });
-
-        Promise.all(posterUpdates).then(function() {
-          response.json(prunedData);
-        }).catch(function(error) {
-          console.log("Error on poster retrieval: " + error);
-        });
-      }
+    const seriesData = tvdbResponse.data;
+    const prunedData = _.map(seriesData, function(seriesObj) {
+      // noinspection JSUnresolvedVariable
+      return {
+        title: seriesObj.seriesName,
+        tvdb_series_ext_id: seriesObj.id,
+        poster: null,
+        first_aired: seriesObj.firstAired,
+        network: seriesObj.network,
+        overview: seriesObj.overview,
+        status: seriesObj.status
+      };
     });
-  });
+
+    for (const idx in prunedData) {
+      const prunedSeries = prunedData[idx];
+      await getTopPoster(prunedSeries, options);
+    }
+
+    response.json(prunedData);
+
+  } catch (error) {
+    console.log("Error getting TVDB data: " + error);
+    response.send("Error getting TVDB data: " + error);
+  }
 
 };
 
@@ -98,42 +92,90 @@ function findFirstWorkingPoster(posters) {
   });
 }
 
-function getTopPoster(seriesObj, options) {
-  return new Promise(function(resolve) {
-    const posterUrl = 'https://api.thetvdb.com/series/' + seriesObj.tvdb_series_ext_id + '/images/query';
+async function getTopPoster(seriesObj, options) {
+  const posterUrl = 'https://api.thetvdb.com/series/' + seriesObj.tvdb_series_ext_id + '/images/query';
 
-    const optionsCopy = {
-      qs: {
-        'keyType': 'poster'
-      }
-    };
-    ArrayService.shallowCopy(options, optionsCopy);
+  const optionsCopy = {
+    qs: {
+      'keyType': 'poster'
+    }
+  };
+  ArrayService.shallowCopy(options, optionsCopy);
 
-    requestLib(posterUrl, optionsCopy, function (error, tvdb_response, body) {
-      if (error) {
-        resolve();
-      } else if (tvdb_response.statusCode !== 200) {
-        resolve();
-      } else {
-        const posterData = body.data;
-        if (posterData.length === 0) {
-          resolve();
-        } else {
-          findFirstWorkingPoster(posterData)
-            .then(poster => {
-              seriesObj.poster = poster.fileName;
-              resolve();
-            })
-            .catch(() => {
-              seriesObj.poster = _.last(posterData).fileName;
-              resolve();
-            });
-        }
+  try {
+    const tvdbResponse = await requestLib(posterUrl, optionsCopy);
+
+    const posterData = tvdbResponse.data;
+    if (posterData.length !== 0) {
+
+      try {
+        const poster = await findFirstWorkingPoster(posterData);
+        seriesObj.poster = poster.fileName;
+      } catch (error) {
+        seriesObj.poster = _.last(posterData).fileName;
       }
-    });
-  });
+
+      const pending_poster = await getOrCreateCloudinary(seriesObj);
+      seriesObj.cloud_poster = pending_poster.cloudinary_id;
+    }
+  } catch (error) {
+    console.log("No poster results found for series '" + seriesObj.title + "'");
+  }
+
 }
 
+async function getOrCreateCloudinary(seriesObj) {
+  const existing = await getExistingCloudinary(seriesObj);
+  if (!existing) {
+    return await uploadPosterAndUpdate(seriesObj);
+  } else {
+    console.log("Existing poster found for series '" + seriesObj.title + "'");
+    return existing;
+  }
+}
+
+async function getExistingCloudinary(seriesObj) {
+  const sql = 'SELECT tvdb_series_ext_id, tvdb_poster, cloudinary_id ' +
+    'FROM pending_poster ' +
+    'WHERE tvdb_series_ext_id = $1 ' +
+    'AND retired = $2 ';
+
+  const values = [seriesObj.tvdb_series_ext_id, 0];
+
+  const results = await db.selectNoResponse(sql, values);
+  if (results.length === 0) {
+    return null;
+  } else {
+    return results[0];
+  }
+}
+
+async function uploadPosterAndUpdate(seriesObj) {
+  try {
+    const result = await updatePosterToCloudinary(seriesObj.poster);
+    const pending_poster = {
+      tvdb_series_ext_id: seriesObj.tvdb_series_ext_id,
+      tvdb_poster: seriesObj.poster,
+      cloudinary_id: result.public_id
+    };
+
+    await insertObject("pending_poster", pending_poster);
+
+    console.log("Uploaded new poster for series '" + seriesObj.title + "'.");
+    return pending_poster;
+  } catch (error) {
+    console.error("Error handling cloudinary photo: " + error.message);
+    return null;
+  }
+}
+
+async function updatePosterToCloudinary(tvdb_filename) {
+  try {
+    return await cloudinary.uploader.upload("https://www.thetvdb.com/banners/" + tvdb_filename);
+  } catch (error) {
+    throw new Error("Error uploading cloudinary photo: " + error.message);
+  }
+}
 
 /* START EPISODE FETCH */
 
