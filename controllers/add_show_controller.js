@@ -48,8 +48,7 @@ exports.getTVDBMatches = async function(request, response) {
       };
     });
 
-    for (const idx in prunedData) {
-      const prunedSeries = prunedData[idx];
+    for (const prunedSeries of prunedData) {
       await getTopPoster(prunedSeries, options);
     }
 
