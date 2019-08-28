@@ -246,7 +246,16 @@ exports.beginEpisodeFetch = function(request, response) {
 
 };
 
-async function updatePosters(tvdbSeries, tvdbSeriesObj, personId) {
+async function updatePosters(tvdbSeries, tvdbSeriesObj, personId, selectedPoster) {
+  const existing = await getExistingCloudinary(tvdbSeries);
+  if (!existing) {
+    const upload = await uploadPosterToCloudinary(selectedPoster);
+    tvdbSeries.cloud_poster = upload.public_id;
+  } else {
+    tvdbSeries.cloud_poster = existing.cloudinary_id;
+    retirePendingPoster(existing);
+  }
+
   const options = await tokens.getBaseOptions();
   const postersUrl = "https://api.thetvdb.com/series/" + tvdbSeries.tvdb_series_ext_id + "/images/query";
 
@@ -277,6 +286,7 @@ function updateNewSeries(tvdbSeries, tvdbSeriesObj, personId) {
   const series = {
     air_time: tvdbSeries.airs_time,
     poster: tvdbSeries.last_poster,
+    cloud_poster: tvdbSeries.cloud_poster,
     person_id: personId,
     title: tvdbSeries.name,
     date_added: new Date,
