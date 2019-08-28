@@ -58,10 +58,6 @@
       return 'https://res.cloudinary.com/media-mogul/image/upload/';
     }
 
-    function getTVDBPrefix() {
-      return 'https://thetvdb.com/banners/';
-    }
-
     function getNoImageImage() {
       return 'images/GenericSeries.gif';
     }
@@ -71,17 +67,11 @@
         const personPoster = getPersonPoster();
         if (!!personPoster.cloud_poster) {
           return getCloudinaryPrefix() + personPoster.cloud_poster;
-        } else if (!!personPoster.poster) {
-          return getTVDBPrefix() + personPoster.poster;
         } else {
           return getNoImageImage();
         }
       } else if (self.show.cloud_poster) {
         return getCloudinaryPrefix() + self.show.cloud_poster;
-      } else if (self.show.poster) {
-        return getTVDBPrefix() + self.show.poster;
-      } else if (self.show.poster_path) {
-        return getTVDBPrefix() + self.show.poster_path;
       } else {
         return getNoImageImage();
       }
