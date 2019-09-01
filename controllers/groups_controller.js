@@ -729,6 +729,7 @@ function markEpisodeWatchedForPersons(payload, persons) {
 
       const member_ids = payload.member_ids;
       const episode_id = payload.episode_id;
+      const person_id = payload.person_id;
 
       const sql = "SELECT er.person_id " +
         "FROM episode_rating er " +
@@ -750,12 +751,14 @@ function markEpisodeWatchedForPersons(payload, persons) {
         let episodeRatingInfo = {
           episode_id: episode_id,
           watched: payload.changedFields.watched,
-          watched_date: payload.changedFields.watched_date
+          watched_date: payload.changedFields.watched_date,
+          rating_value: parseInt(payload.rating_value)
         };
 
-        Promise.all(
-          [addRatingsForPersons(newRatingPersons, episodeRatingInfo, payload.changedFields.skipped),
-            editRatingsForPersons(existingRatings, episodeRatingInfo, persons)]
+        Promise.all([
+            addRatingsForPersons(newRatingPersons, episodeRatingInfo, payload.changedFields.skipped, person_id),
+            editRatingsForPersons(existingRatings, episodeRatingInfo, persons, person_id)
+          ]
         ).then(results => resolve(results))
           .catch(err => reject(err));
 
@@ -769,7 +772,22 @@ function isUndoingWatchOrSkip(watched, skipped) {
   return !watched && !skipped;
 }
 
-function addRatingsForPersons(member_ids, episodeRatingInfo, skipped) {
+function addRatingsForPersons(member_ids, episodeRatingInfo, skipped, person_id) {
+  return new Promise((resolve, reject) => {
+    const newPersonId = _.indexOf(member_ids, person_id) < 0 ? null : person_id;
+    const newRatingPersons = _.without(member_ids, person_id);
+
+    Promise.all([
+      addRatingWithValueForPerson(newPersonId, episodeRatingInfo, skipped),
+      addRatingsForOtherPersons(newRatingPersons, episodeRatingInfo, skipped)
+    ]).then(results => {
+      const flattened = _.flatten(results, true);
+      resolve(flattened);
+    }).catch(err => reject(err));
+  });
+}
+
+function addRatingsForOtherPersons(member_ids, episodeRatingInfo, skipped) {
   return new Promise((resolve, reject) => {
     if (member_ids.length < 1 || isUndoingWatchOrSkip(episodeRatingInfo.watched, skipped)) {
       resolve([]);
@@ -800,7 +818,54 @@ function addRatingsForPersons(member_ids, episodeRatingInfo, skipped) {
   });
 }
 
-function editRatingsForPersons(member_ids, episodeRatingInfo, persons) {
+function addRatingWithValueForPerson(person_id, episodeRatingInfo, skipped) {
+  return new Promise((resolve, reject) => {
+    if (!person_id || isUndoingWatchOrSkip(episodeRatingInfo.watched, skipped)) {
+      resolve([]);
+    } else {
+
+      const sql = "INSERT INTO episode_rating (person_id, episode_id, retired, watched, watched_date, rating_pending, rating_value) " +
+        "SELECT p.id, $1, $2, $3, $4, false, $6 " +
+        "FROM person p " +
+        "WHERE retired = $5 " +
+        "AND p.id = $7 " +
+        "RETURNING id as rating_id, person_id, watched, watched_date, rating_pending, episode_id, rating_value ";
+
+      const values = [
+        episodeRatingInfo.episode_id,
+        0,
+        episodeRatingInfo.watched,
+        episodeRatingInfo.watched_date,
+        0,
+        episodeRatingInfo.rating_value,
+        person_id
+      ];
+
+      db.selectNoResponse(sql, values).then(results => {
+        resolve(results);
+      }).catch(err => reject(err));
+    }
+
+  });
+}
+
+function editRatingsForPersons(member_ids, episodeRatingInfo, persons, person_id) {
+  return new Promise((resolve, reject) => {
+    const existingPersonId = _.indexOf(member_ids, person_id) < 0 ? null : person_id;
+    const existingRatingPersons = _.without(member_ids, person_id);
+
+    Promise.all([
+      editRatingWithValueForSinglePerson(existingPersonId, episodeRatingInfo, persons),
+      editRatingsForOtherPersons(existingRatingPersons, episodeRatingInfo, persons)
+    ]).then(results => {
+      const flattened = _.flatten(results, true);
+      resolve(flattened);
+    }).catch(err => reject(err));
+  });
+
+}
+
+function editRatingsForOtherPersons(member_ids, episodeRatingInfo, persons) {
   return new Promise((resolve, reject) => {
     if (member_ids.length < 1) {
       resolve([]);
@@ -839,6 +904,51 @@ function editRatingsForPersons(member_ids, episodeRatingInfo, persons) {
         });
 
         resolve(editedRows);
+
+      }).catch(err => reject(err));
+    }
+
+  });
+
+}
+
+function editRatingWithValueForSinglePerson(person_id, episodeRatingInfo, persons) {
+  return new Promise((resolve, reject) => {
+    if (!person_id) {
+      resolve([]);
+    } else {
+
+      const sql = "UPDATE episode_rating " +
+        "SET watched = $1, watched_date = $2, " +
+        "     rating_pending = false," +
+        "     rating_value = $6 " +
+        "WHERE retired = $3 " +
+        "AND episode_id = $4 " +
+        "AND watched = $5 " +
+        "AND person_id = $7 ";
+
+      const values = [
+        episodeRatingInfo.watched,
+        episodeRatingInfo.watched_date,
+        0,
+        episodeRatingInfo.episode_id,
+        false,
+        episodeRatingInfo.rating_value,
+        person_id
+      ];
+
+      db.updateNoResponse(sql, values).then(() => {
+        const rating_notifications = _.findWhere(persons, person => person.person_id === person_id).rating_notifications;
+        const editedRow = {
+          episode_id: episodeRatingInfo.episode_id,
+          person_id: person_id,
+          watched: episodeRatingInfo.watched,
+          watched_date: null,
+          rating_pending: rating_notifications,
+          rating_value: episodeRatingInfo.rating_value
+        };
+
+        resolve([editedRow]);
 
       }).catch(err => reject(err));
     }
