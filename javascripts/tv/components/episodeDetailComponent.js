@@ -84,7 +84,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   };
 
   function getRatingFromEpisode() {
-    const episodeViewer = self.episode.personEpisode;
+    const episodeViewer = getEpisodeViewerObject();
 
     return !!episodeViewer ?
       episodeViewer.rating_value :
@@ -338,7 +338,6 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
       episode_id: self.episode.id,
       person_id: LockService.getPersonID(),
-      rating_value: self.rating_value,
       series_id: self.episode.series_id,
       tv_group_id: groupEpisode.tv_group_id,
       client_id: SocketService.getClientID()
