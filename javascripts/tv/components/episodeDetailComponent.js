@@ -387,6 +387,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
         personEpisode.watched = incomingPersonEpisode.watched;
         personEpisode.watched_date = incomingPersonEpisode.watched_date;
         personEpisode.rating_pending = incomingPersonEpisode.rating_pending;
+        personEpisode.rating_value = incomingPersonEpisode.rating_value;
       }
 
       self.updating = false;

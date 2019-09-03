@@ -842,6 +842,7 @@ function addRatingWithValueForPerson(person_id, episodeRatingInfo, skipped) {
       ];
 
       db.selectNoResponse(sql, values).then(results => {
+        _.each(results, result => result.rating_value = parseFloat(result.rating_value));
         resolve(results);
       }).catch(err => reject(err));
     }
