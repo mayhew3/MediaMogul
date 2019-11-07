@@ -1118,6 +1118,12 @@ exports.updateSeriesDenorms = function(series, viewer, allEpisodes) {
   let unairedEpisodes = _.filter(eligibleEpisodes, isUnaired);
   let airedEpisodes = _.filter(eligibleEpisodes, isAired);
 
+  if (airedEpisodes.length !== parseInt(series.aired_episodes)) {
+    console.log("ERROR: Mismatched aired_episodes for series " + series.title + ".")
+    console.log("ERROR: DB: " + series.aired_episodes);
+    console.log("ERROR: Calculated: " + airedEpisodes.length);
+  }
+
   let nextEpisodeToAir = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
   if (nextEpisodeToAir !== null) {
     series.nextAirDate = nextEpisodeToAir.air_time === null ? nextEpisodeToAir.air_date : nextEpisodeToAir.air_time;
