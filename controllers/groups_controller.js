@@ -163,8 +163,8 @@ exports.getGroupShows = function(request, response) {
     "    where e.series_id = s.id " +
     "    and e.retired = $1" +
     "    and e.season <> $2 " +
-    "    and e.air_date IS NOT NULL" +
-    "    and e.air_date < NOW()) as aired_episodes, " +
+    "    and e.air_time IS NOT NULL" +
+    "    and e.air_time < NOW()) as aired_episodes, " +
     "(SELECT MAX(tge.watched_date) " +
     "  from tv_group_episode tge " +
     "  inner join episode e " +
@@ -365,8 +365,8 @@ exports.addToGroupShows = function(request, response) {
       "    where e.series_id = s.id " +
       "    and e.retired = $1" +
       "    and e.season <> $2 " +
-      "    and e.air_date IS NOT NULL" +
-      "    and e.air_date < NOW()) as aired_episodes " +
+      "    and e.air_time IS NOT NULL" +
+      "    and e.air_time < NOW()) as aired_episodes " +
       "FROM series s " +
       "INNER JOIN tv_group_series tgs " +
       "  ON tgs.series_id = s.id " +

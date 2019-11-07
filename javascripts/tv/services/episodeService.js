@@ -542,12 +542,17 @@ angular.module('mediaMogulApp')
       };
 
       self.updateGroupShowsIfNeeded = function(tv_group_id) {
-        const existing = self.getExistingGroupShowList(tv_group_id);
-        if (_.isUndefined(existing)) {
-          updateGroupShows(tv_group_id).then(() => {
-            self.updateMyShowsListIfDoesntExist();
-          });
-        }
+        return $q((resolve => {
+          const existing = self.getExistingGroupShowList(tv_group_id);
+          if (_.isUndefined(existing)) {
+            updateGroupShows(tv_group_id).then(() => {
+              self.updateMyShowsListIfDoesntExist();
+              resolve();
+            });
+          } else {
+            resolve();
+          }
+        }));
       };
 
       function getPersonId() {
