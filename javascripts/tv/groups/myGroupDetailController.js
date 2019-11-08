@@ -426,18 +426,22 @@ angular.module('mediaMogulApp')
       return getUnwatched(series) > 0;
     }
 
+    function hasUnwatchedEpisodesAiredOrUnaired(series) {
+      return getUnwatched(series) > 0 || !!series.nextAirDate;
+    }
+
     function hasWatchedEpisodes(series) {
       return getNumberOfWatchedEpisodes(series) > 0;
     }
 
     function needsFirstVote(series) {
-      return hasNeverBeenVotedOn(series) && hasUnwatchedEpisodes(series);
+      return hasNeverBeenVotedOn(series) && hasUnwatchedEpisodesAiredOrUnaired(series);
     }
 
     function needsPostBuffetVote(series) {
       return !needsFirstVote(series) &&
         getNumberOfWatchedEpisodes(series) >= 2 &&
-        hasUnwatchedEpisodes(series) &&
+        hasUnwatchedEpisodesAiredOrUnaired(series) &&
         !hasOpenBallots(series) &&
         !needsNewSeasonVote(series) &&
         !hasClosedPostBuffetBallot(series) &&
@@ -447,7 +451,7 @@ angular.module('mediaMogulApp')
     function needsNewSeasonVote(series) {
       return !needsFirstVote(series) &&
         currentSeasonHasntBeenVotedOn(series) &&
-        hasUnwatchedEpisodes(series) &&
+        hasUnwatchedEpisodesAiredOrUnaired(series) &&
         hasWatchedEpisodes(series) &&
         !hasOpenBallots(series) &&
         !hasClosedNewSeasonBallot(series);
@@ -488,7 +492,7 @@ angular.module('mediaMogulApp')
 
     function needsAbsenceRefresh(series) {
       return shouldGetAbsenceVote(series) &&
-        hasUnwatchedEpisodes(series) &&
+        hasUnwatchedEpisodesAiredOrUnaired(series) &&
         !hasOpenBallots(series) &&
         !needsPostBuffetVote(series);
     }
