@@ -104,6 +104,9 @@ angular.module('mediaMogulApp')
       }
 
       self.goTo = function(series) {
+        const stateParams = !self.searchString ? {} : {
+          initial_search: self.searchString
+        };
         $state.transitionTo('tv.show',
           {
             series_id: series.id,
@@ -112,6 +115,7 @@ angular.module('mediaMogulApp')
               group_id: null
             },
             from_sref: $state.current.name,
+            from_params: stateParams,
             from_label: 'Add Shows'
           },
           {
