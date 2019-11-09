@@ -54,6 +54,12 @@
         </div>
       </div>
 
+      <div class="row" ng-if="!!ctrl.getErrorText()">
+        <div class="col-xs-9 col-sm-6" style="text-align: center; padding-bottom: 20px">
+          <h2>{{ctrl.getErrorText()}}</h2>
+        </div>
+      </div>
+
       <div class="row" ng-if="!ctrl.showLoading()">
         <div class="col-xs-12 col-md-6 fade-repeat posterRow"
              ng-repeat="show in ctrl.getShowsNotInSystem() |

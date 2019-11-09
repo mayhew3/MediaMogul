@@ -39,6 +39,7 @@ angular.module('mediaMogulApp')
       self.pageSize = 6;
 
       let loading = false;
+      let errorText = null;
 
       self.showLoadingBrowse = function() {
         return self.EpisodeService.loadingNotMyShows;
@@ -55,6 +56,7 @@ angular.module('mediaMogulApp')
       self.updateTVDBMatches = function() {
         self.alternateText = "Retrieving matches...";
         loading = true;
+        errorText = null;
         self.searchStarted = true;
         $http.get('/api/tvdbMatches', {params: {series_name: self.searchString}}).then(function(results) {
           ArrayService.refreshArray(self.allMatches, results.data);
@@ -69,11 +71,14 @@ angular.module('mediaMogulApp')
           });
 
           if (self.allMatches.length > 0) {
-            self.alternateText = null;
+            errorText = null;
           } else {
-            self.alternateText = "No matches found.";
+            errorText = "No matches found.";
           }
 
+        }).catch(err => {
+          errorText = 'Error while fetching data: ' + JSON.stringify(err);
+        }).finally(() => {
           loading = false;
         });
       };
@@ -144,6 +149,10 @@ angular.module('mediaMogulApp')
 
       self.showLoading = function() {
         return loading;
+      };
+
+      self.getErrorText = function() {
+        return errorText;
       };
 
       self.initiateSeriesRequest = function(show) {

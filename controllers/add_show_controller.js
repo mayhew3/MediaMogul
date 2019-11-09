@@ -55,8 +55,13 @@ exports.getTVDBMatches = async function(request, response) {
     response.json(prunedData);
 
   } catch (error) {
-    console.log("Error getting TVDB data: " + error);
-    response.send("Error getting TVDB data: " + error);
+    if (error.statusCode === 404) {
+      console.log('404 no results found. Returning empty array.');
+      response.json([]);
+    } else {
+      console.log("Error getting TVDB data: " + error);
+      response.send("Error getting TVDB data: " + error);
+    }
   }
 
 };
@@ -115,7 +120,9 @@ async function getTopPoster(seriesObj, options) {
       }
 
       const pending_poster = await getOrCreateCloudinary(seriesObj);
-      seriesObj.cloud_poster = pending_poster.cloudinary_id;
+      if (!!pending_poster) {
+        seriesObj.cloud_poster = pending_poster.cloudinary_id;
+      }
     }
   } catch (error) {
     console.log("No poster results found for series '" + seriesObj.title + "'");
