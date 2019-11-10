@@ -52,6 +52,10 @@ angular.module('mediaMogulApp')
       return EpisodeService.getOrCreateGroupShowList(self.group.id);
     };
 
+    self.getVotesTooltipText = function() {
+      return "Test test";
+    };
+
     function textOverlay(show) {
       const hasNoTrailerLink = !show.trailer_link;
       return hasNoTrailerLink && !hasWatchedEpisodes(show) ? 'No Trailer' : null;
@@ -144,7 +148,8 @@ angular.module('mediaMogulApp')
         badgeValue: getRemainingVoteCount,
         badgeColor: 'posterBadgeRed',
         panelFormat: 'panel-success',
-        pageLimit: 6
+        pageLimit: 6,
+        tooltipFunction: self.getVotesTooltipText
       },
       {
         headerText: "Top Queue",
