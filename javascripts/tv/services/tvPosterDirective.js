@@ -7,7 +7,7 @@
   function tvPoster() {
     return {
       templateUrl: 'views/tv/tvPoster.html',
-      controller: ['$scope', 'ArrayService', 'ColorTransformService', tvPosterController],
+      controller: ['$scope', 'ArrayService', 'ColorTransformService', '$timeout', tvPosterController],
       controllerAs: 'ctrl',
       scope: {
         show: '=',
@@ -17,7 +17,7 @@
     }
   }
 
-  function tvPosterController($scope, ArrayService, ColorTransformService) {
+  function tvPosterController($scope, ArrayService, ColorTransformService, $timeout) {
     const self = this;
 
     self.show = $scope.show;
@@ -32,6 +32,10 @@
       return !self.posterInfo.badgeColor ? 'posterBadgeGreen' : self.posterInfo.badgeColor;
     };
 
+    self.getBadgeTooltipText = function() {
+      return self.posterInfo.tooltipFunction ? self.posterInfo.tooltipFunction() : null;
+    };
+
     self.scoreValue = function() {
       return !!self.posterInfo.scoreValue ? Math.round(self.posterInfo.scoreValue(self.show)) : null;
     };
@@ -43,6 +47,17 @@
     self.getScoreColor = function() {
       return ColorTransformService.colorStyle(self.posterInfo.scoreValue(self.show), 100);
     };
+
+    function refreshVotesTooltip() {
+      $timeout(() => {
+        $('.voterTooltip').tooltip({
+          placement: 'top',
+          html: true,
+          animation: false
+        });
+      }, 5000);
+    }
+    refreshVotesTooltip();
 
     function hasPersonPoster() {
       return !!self.show.my_poster;

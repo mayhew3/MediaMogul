@@ -167,7 +167,8 @@
       badgeColor: self.panelInfo.badgeColor,
       scoreValue: self.panelInfo.scoreValue,
       extraStyles: self.panelInfo.extraStyles,
-      textOverlay: self.panelInfo.textOverlay
+      textOverlay: self.panelInfo.textOverlay,
+      tooltipFunction: self.panelInfo.tooltipFunction
     };
 
     // PRIVATE METHODS
