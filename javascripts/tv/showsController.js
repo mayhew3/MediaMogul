@@ -33,6 +33,7 @@ angular.module('mediaMogulApp')
 
           self.categories.push(groupCategory);
 
+
         });
 
         initializeIncoming();
