@@ -17,7 +17,8 @@
   <div class="posterBadge"
        title="{{ctrl.getBadgeTooltipText()}}"
        ng-hide="ctrl.badgeValue() === null || ctrl.badgeValue() === 0"
-       ng-class="ctrl.badgeColor()">
+       ng-class="ctrl.badgeColor()"
+       ng-click="ctrl.cancelParentClick($event)">
     <span ng-bind="ctrl.badgeValue()"></span>
   </div>
 
