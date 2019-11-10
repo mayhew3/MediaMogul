@@ -14,16 +14,12 @@
 
   <!-- UNWATCHED BADGE -->
 
-  <div ng-hide="ctrl.badgeValue() === null || ctrl.badgeValue() === 0">
-    <div class="voterTooltip"
-         title="{{ctrl.getBadgeTooltipText()}}">
-      <div class="posterBadge"
-           ng-class="ctrl.badgeColor()">
-        <span ng-bind="ctrl.badgeValue()"></span>
-      </div>
-    </div>
+  <div class="posterBadge"
+       title="{{ctrl.getBadgeTooltipText()}}"
+       ng-hide="ctrl.badgeValue() === null || ctrl.badgeValue() === 0"
+       ng-class="ctrl.badgeColor()">
+    <span ng-bind="ctrl.badgeValue()"></span>
   </div>
-
 
   <div class="posterScore"
        ng-if="ctrl.showScore()"
