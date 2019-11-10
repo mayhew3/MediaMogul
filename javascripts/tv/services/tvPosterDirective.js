@@ -50,8 +50,8 @@
 
     function refreshVotesTooltip() {
       $timeout(() => {
-        $('.voterTooltip').tooltip({
-          placement: 'top',
+        $('.posterBadge').tooltip({
+          placement: 'left',
           html: true,
           animation: false
         });
