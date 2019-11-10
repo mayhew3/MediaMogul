@@ -79,6 +79,10 @@
               </span>
             </p>
 
+            <div ng-if="ctrl.childGroups.length > 0">
+              Will update {{ctrl.childGroups.length}} groups with same members.
+            </div>
+
             <div class="text-right"
                  ng-if="ctrl.hasPreviousUnwatched() && !!ctrl.watchedDate">
               (This episode only.)
@@ -134,7 +138,10 @@
         </div>
       </div>
 
+      <!-- Right Column (Viewers, Child Groups) -->
       <div class="col-lg-5 col-xs-4 seriesDetailElement" style="padding-right: 15px">
+
+        <!-- Viewers List -->
         <div ng-if="ctrl.getViewerInfos().length > 0" class="text-right">
           Viewers:
           <div ng-repeat="viewerInfo in ctrl.getViewerInfos()"
@@ -151,7 +158,30 @@
             </div>
           </div>
         </div>
+
+        <br>
+
+        <!-- Child Groups -->
+        <div ng-if="ctrl.getChildGroupEpisodes().length > 0" class="text-right">
+          Sub-Groups:
+          <div ng-repeat="childGroupEpisode in ctrl.getChildGroupEpisodes()"
+               style="margin-bottom: 5px">
+            <div class="label"
+                 ng-class="ctrl.getViewerClass(childGroupEpisode)">
+
+              <!--suppress CheckImageSize -->
+              <img src="../../images/CheckmarkWhite.svg"
+                   width="12"
+                   height="12"
+                   ng-if="childGroupEpisode.watched"
+                   alt="checked">
+              {{ctrl.getGroupName(childGroupEpisode.tv_group_id)}}
+            </div>
+          </div>
+        </div>
+
       </div>
+
     </div>
 
 
