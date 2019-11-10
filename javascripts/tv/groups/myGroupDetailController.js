@@ -54,10 +54,12 @@ angular.module('mediaMogulApp')
 
     self.getVotesTooltipText = function(series) {
       let remainingVoters = getRemainingVoters(series);
-      if (remainingVoters.length === 1) {
-        let remainingVoter = remainingVoters[0];
+      if (remainingVoters.length > 0) {
+        const voterNames = _.map(remainingVoters, voter => voter.first_name);
+        return voterNames.join('<br>');
+      } else {
+        return null;
       }
-      return "Test test";
     };
 
     function textOverlay(show) {
@@ -543,8 +545,7 @@ angular.module('mediaMogulApp')
       const votes = !ballot.votes ? [] : ballot.votes;
       const members = !self.group.members ? [] : self.group.members;
       const voter_ids = _.map(votes, vote => vote.person_id);
-      const non_voters = _.filter(members, vote => !_.contains(voter_ids, vote.person_id));
-      return non_voters;
+      return _.filter(members, vote => !_.contains(voter_ids, vote.person_id));
     }
 
     function isMidSeason(series) {
