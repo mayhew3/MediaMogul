@@ -33,7 +33,7 @@
     };
 
     self.getBadgeTooltipText = function() {
-      return self.posterInfo.tooltipFunction ? self.posterInfo.tooltipFunction() : null;
+      return self.posterInfo.tooltipFunction ? self.posterInfo.tooltipFunction(self.show) : null;
     };
 
     self.scoreValue = function() {

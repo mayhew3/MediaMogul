@@ -52,7 +52,11 @@ angular.module('mediaMogulApp')
       return EpisodeService.getOrCreateGroupShowList(self.group.id);
     };
 
-    self.getVotesTooltipText = function() {
+    self.getVotesTooltipText = function(series) {
+      let remainingVoters = getRemainingVoters(series);
+      if (remainingVoters.length === 1) {
+        let remainingVoter = remainingVoters[0];
+      }
       return "Test test";
     };
 
@@ -532,6 +536,15 @@ angular.module('mediaMogulApp')
       const votes = !ballot.votes ? 0 : ballot.votes.length;
       const memberCount = !self.group.members ? 0 : self.group.members.length;
       return memberCount - votes;
+    }
+
+    function getRemainingVoters(series) {
+      const ballot = getOpenBallotForShow(series);
+      const votes = !ballot.votes ? [] : ballot.votes;
+      const members = !self.group.members ? [] : self.group.members;
+      const voter_ids = _.map(votes, vote => vote.person_id);
+      const non_voters = _.filter(members, vote => !_.contains(voter_ids, vote.person_id));
+      return non_voters;
     }
 
     function isMidSeason(series) {
