@@ -16,8 +16,6 @@ angular.module('mediaMogulApp')
       id: parseInt($stateParams.group_id)
     };
 
-    self.childGroups = GroupService.getChildGroups(self.group.id);
-
     NavHelperService.changeSelectedTVGroup(self.group.id);
 
     self.quickFindResult = undefined;

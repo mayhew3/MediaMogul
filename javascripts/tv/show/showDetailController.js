@@ -40,6 +40,7 @@ angular.module('mediaMogulApp')
 
 
     self.episodes = [];
+    self.childGroups = [];
 
     self.possibleSeasons = [];
     self.selectedSeason = {
@@ -86,6 +87,9 @@ angular.module('mediaMogulApp')
         console.log('Delay finished! Populating tooltips!');
         refreshVotesTooltip();
       }, 100);
+      if (self.isInGroupMode()) {
+        self.childGroups = GroupService.getChildGroups(getOptionalGroupID());
+      }
     });
 
     function refreshVotesTooltip() {

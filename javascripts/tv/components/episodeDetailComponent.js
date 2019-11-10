@@ -21,12 +21,23 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
   self.updating = false;
   self.viewerInfos = [];
+  self.childGroups = [];
+  self.childGroupEpisodes = [];
 
   self.$onInit = function() {
     self.watchedDate = initWatchedDate();
     self.original_rating_value = initRating();
     self.rating_value = initRating();
+    maybeUpdateChildGroups();
   };
+
+  function maybeUpdateChildGroups() {
+    if (self.isInGroupMode()) {
+      const group_id = getOptionalGroupID();
+      self.childGroups = GroupService.getChildGroups(group_id);
+      self.childGroupEpisodes = _.map(self.childGroups, group => getGroupViewerInfo(group.id));
+    }
+  }
 
   function initRating() {
     const ratingFromEpisode = getRatingFromEpisode();
@@ -149,6 +160,28 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     } else {
       return 'label-watched';
     }
+  };
+
+  self.getChildGroupEpisodes = function() {
+    return self.childGroupEpisodes;
+  };
+
+  function getGroupViewerInfo(group_id) {
+    const existingGroupEpisode = GroupService.getGroupEpisode(self.episode, group_id);
+    if (!existingGroupEpisode) {
+      return {
+        tv_group_id: group_id,
+        name: self.getGroupName(group_id),
+        watched: false
+      }
+    } else {
+      return existingGroupEpisode;
+    }
+  }
+
+  self.getGroupName = function(group_id) {
+    const childGroup = _.findWhere(self.childGroups, {id: group_id});
+    return childGroup.name;
   };
 
   self.isInGroupMode = function() {
