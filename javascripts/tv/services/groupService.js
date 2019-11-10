@@ -125,8 +125,7 @@ angular.module('mediaMogulApp')
       self.getChildGroups = function(tv_group_id) {
         const parentGroup = self.getGroupWithID(tv_group_id);
         const otherGroups = _.without(groups, parentGroup);
-        const childGroups = _.filter(otherGroups, group => isChildGroup(group, parentGroup));
-        return childGroups;
+        return _.filter(otherGroups, group => isChildGroup(group, parentGroup));
       };
 
       function isChildGroup(group, parent_group) {
