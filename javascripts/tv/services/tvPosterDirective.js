@@ -48,6 +48,12 @@
       return ColorTransformService.colorStyle(self.posterInfo.scoreValue(self.show), 100);
     };
 
+    self.cancelParentClick = function($event) {
+      if (!!self.posterInfo.tooltipFunction) {
+        $event.stopPropagation();
+      }
+    };
+
     function refreshVotesTooltip() {
       $timeout(() => {
         $('.posterBadge').tooltip({
