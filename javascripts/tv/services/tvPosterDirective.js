@@ -55,7 +55,7 @@
           html: true,
           animation: false
         });
-      }, 5000);
+      }, 100);
     }
     refreshVotesTooltip();
 
