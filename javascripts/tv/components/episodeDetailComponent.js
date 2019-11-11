@@ -166,6 +166,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return self.childGroupEpisodes;
   };
 
+  self.getChildGroupIDs = function() {
+    return _.map(self.childGroups, childGroup => childGroup.id);
+  };
+
   function getGroupViewerInfo(group_id) {
     const existingGroupEpisode = GroupService.getGroupEpisode(self.episode, group_id);
     if (!existingGroupEpisode) {
@@ -374,6 +378,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       rating_value: self.rating_value,
       series_id: self.episode.series_id,
       tv_group_id: groupEpisode.tv_group_id,
+      child_group_episodes: self.getChildGroupEpisodes(),
       client_id: SocketService.getClientID()
     };
     if (!unwatching && self.hasPreviousUnwatched()) {
