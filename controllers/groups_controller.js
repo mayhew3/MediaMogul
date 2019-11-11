@@ -560,6 +560,8 @@ function handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastP
         });
       });
     });
+  }).catch(err => {
+    throw new Error('Error handling other persons: ' + err.message)
   });
 }
 
@@ -607,6 +609,9 @@ exports.markEpisodesWatchedByGroup = async function(request, response) {
   } catch (err) {
     errs.throwError(err, 'markEpisodesWatchedByGroup', response);
   }
+
+  await addOrEditChildGroupEpisodes(payload);
+
 };
 
 function getUpdatedDenormsForMultiplePersons(series_id, person_ids) {
@@ -699,12 +704,15 @@ function addOrEditChildGroupEpisodes(payload) {
   const add_or_update_actions = [];
   _.each(child_group_episodes, child_group_episode => {
     add_or_update_actions.push(new Promise((resolve, reject) => {
+      const changedFields = {};
+      ArrayService.shallowCopy(payload.changedFields, changedFields);
+      changedFields.tv_group_id = child_group_episode.tv_group_id;
       if (!child_group_episode.id) {
-        addTVGroupEpisode(child_group_episode).then(results => {
+        addTVGroupEpisode(changedFields).then(results => {
           resolve(results[0]);
         }).catch(err => reject(err));
       } else {
-        editTVGroupEpisode(child_group_episode, child_group_episode.id).then(function () {
+        editTVGroupEpisode(changedFields, child_group_episode.id).then(function () {
           resolve({
             tv_group_episode_id: child_group_episode.id,
             episode_id: payload.episode_id,
