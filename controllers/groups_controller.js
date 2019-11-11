@@ -563,7 +563,7 @@ function handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastP
   });
 }
 
-exports.markEpisodesWatchedByGroup = function(request, response) {
+exports.markEpisodesWatchedByGroup = async function(request, response) {
   const returnObj = {};
   returnObj.groupEpisodes = [];
   returnObj.personEpisodes = [];
@@ -571,46 +571,42 @@ exports.markEpisodesWatchedByGroup = function(request, response) {
   const series_id = payload.series_id;
   const tv_group_id = payload.tv_group_id;
 
-  addOrEditTVGroupEpisode(payload).then(groupEpResult => {
+  try {
+    const groupEpResult = await addOrEditTVGroupEpisode(payload);
     returnObj.groupEpisodes.push(groupEpResult);
 
-    updateTVGroupEpisodesAllPastWatched(payload).then(pastGroupEpResults => {
-      ArrayService.addToArray(returnObj.groupEpisodes, pastGroupEpResults);
+    const pastGroupEpResults = await updateTVGroupEpisodesAllPastWatched(payload);
+    ArrayService.addToArray(returnObj.groupEpisodes, pastGroupEpResults);
 
-      getPersonInformation(payload.tv_group_id).then(persons => {
+    const persons = await getPersonInformation(payload.tv_group_id);
+    const personResults = await markEpisodeWatchedForPersons(payload, persons);
 
-        markEpisodeWatchedForPersons(payload, persons).then(personResults => {
+    const person_ids = _.pluck(persons, 'person_id');
+    const pastPersonResults = await person_controller.updateEpisodeRatingsAllPastWatched(payload, true, person_ids, tv_group_id, response);
 
-          const person_ids = _.pluck(persons, 'person_id');
-          person_controller.updateEpisodeRatingsAllPastWatched(payload, true, person_ids, tv_group_id, response)
-            .then(pastPersonResults => {
+    const person_id = payload.person_id;
+    const insertedPersonEpisodes = personResults[0];
+    const personEpisode = _.findWhere(insertedPersonEpisodes, {person_id: person_id});
+    if (!!personEpisode) {
+      returnObj.personEpisodes.push(personEpisode);
+    }
 
-              const person_id = payload.person_id;
-              const insertedPersonEpisodes = personResults[0];
-              const personEpisode = _.findWhere(insertedPersonEpisodes, {person_id: person_id});
-              if (!!personEpisode) {
-                returnObj.personEpisodes.push(personEpisode);
-              }
+    const myPersonEpisodes = _.where(pastPersonResults, {person_id: person_id});
+    ArrayService.addToArray(returnObj.personEpisodes, myPersonEpisodes);
 
-              const myPersonEpisodes = _.where(pastPersonResults, {person_id: person_id});
-              ArrayService.addToArray(returnObj.personEpisodes, myPersonEpisodes);
+    const series = await person_controller.calculateSeriesRating(series_id, person_id);
+    if (!!series.personSeries) {
+      returnObj.dynamic_rating = series.personSeries.dynamic_rating;
+    }
+    response.json(returnObj);
 
-              person_controller.calculateSeriesRating(series_id, person_id).then(series => {
-                if (!!series.personSeries) {
-                  returnObj.dynamic_rating = series.personSeries.dynamic_rating;
-                }
-                response.json(returnObj);
-              });
+    ArrayService.removeFromArray(person_ids, person_id);
 
-              ArrayService.removeFromArray(person_ids, person_id);
+    handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults);
 
-              handleOtherPersons(series_id, person_ids, insertedPersonEpisodes, pastPersonResults);
-
-            }).catch(err => errs.throwError(err, 'updateEpisodeRatingsAllPastWatched', response));
-        }).catch(err => errs.throwError(err, 'markEpisodeWatchedForPersons', response));
-      }).catch(err => errs.throwError(err, 'getPersonInformation', response));
-    }).catch(err => errs.throwError(err, 'updateTVGroupEpisodesAllPastWatched', response));
-  }).catch(err => errs.throwError(err, 'addOrEditTVGroupEpisode', response));
+  } catch (err) {
+    errs.throwError(err, 'markEpisodesWatchedByGroup', response);
+  }
 };
 
 function getUpdatedDenormsForMultiplePersons(series_id, person_ids) {
@@ -696,6 +692,31 @@ function addOrEditTVGroupEpisode(payload) {
     }
   });
 
+}
+
+function addOrEditChildGroupEpisodes(payload) {
+  const child_group_episodes = payload.child_group_episodes;
+  const add_or_update_actions = [];
+  _.each(child_group_episodes, child_group_episode => {
+    add_or_update_actions.push(new Promise((resolve, reject) => {
+      if (!child_group_episode.id) {
+        addTVGroupEpisode(child_group_episode).then(results => {
+          resolve(results[0]);
+        }).catch(err => reject(err));
+      } else {
+        editTVGroupEpisode(child_group_episode, child_group_episode.id).then(function () {
+          resolve({
+            tv_group_episode_id: child_group_episode.id,
+            episode_id: payload.episode_id,
+            watched: payload.changedFields.watched,
+            watched_date: payload.changedFields.watched_date,
+            skipped: payload.changedFields.skipped
+          });
+        }).catch(err => reject(err));
+      }
+    }));
+  });
+  return Promise.all(add_or_update_actions);
 }
 
 function addTVGroupEpisode(tv_group_episode) {
