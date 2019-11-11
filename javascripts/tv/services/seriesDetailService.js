@@ -25,10 +25,9 @@ angular.module('mediaMogulApp')
 
       self.updateCacheWithMultiGroupViewPayload = function(payload, series, groupSeries) {
         if (alreadyHasSeries(payload.series_id)) {
-          const tv_group_id = payload.tv_group_id;
           const groupEpisodes = payload.groupEpisodes;
 
-          self.updateGroupEpisodes(tv_group_id, episodes, groupEpisodes);
+          self.updateGroupEpisodes(episodes, groupEpisodes);
           SeriesDenormService.updateMySeriesDenorms(series, episodes, doNothing, groupSeries);
         }
       };
@@ -64,27 +63,29 @@ angular.module('mediaMogulApp')
         }
       }
 
-      self.updateGroupEpisodes = function(tv_group_id, episodes, incomingGroupEpisodes) {
-        if (!!tv_group_id) {
+      self.updateGroupEpisodes = function(episodes, incomingGroupEpisodes) {
+        _.each(incomingGroupEpisodes, incomingGroupEpisode => {
+          const tv_group_id = incomingGroupEpisode.tv_group_id;
+          if (!tv_group_id) {
+            throw new Error("No group_id found on group episode ID " + incomingGroupEpisode.id);
+          }
           const member_ids = GroupService.getMemberIDs(tv_group_id);
           ArrayService.removeFromArray(member_ids, LockService.getPersonID());
-          _.each(incomingGroupEpisodes, incomingGroupEpisode => {
-            const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
-            if (!!episode) {
-              const groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
-              if (!!groupEpisode) {
-                ObjectCopyService.shallowCopy(incomingGroupEpisode, groupEpisode);
-              } else {
-                if (!_.isArray(episode.groups)) {
-                  episode.groups = [];
-                }
-                episode.groups.push(incomingGroupEpisode);
+          const episode = _.findWhere(episodes, {id: incomingGroupEpisode.episode_id});
+          if (!!episode) {
+            const groupEpisode = GroupService.getGroupEpisode(episode, tv_group_id);
+            if (!!groupEpisode) {
+              ObjectCopyService.shallowCopy(incomingGroupEpisode, groupEpisode);
+            } else {
+              if (!_.isArray(episode.groups)) {
+                episode.groups = [];
               }
-
-              updateOtherViewers(incomingGroupEpisode, episode, member_ids);
+              episode.groups.push(incomingGroupEpisode);
             }
-          });
-        }
+
+            updateOtherViewers(incomingGroupEpisode, episode, member_ids);
+          }
+        });
       };
 
       self.updateCacheWithPersonEpisodeWatched = function(msgPayload) {
