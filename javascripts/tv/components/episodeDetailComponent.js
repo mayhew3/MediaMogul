@@ -413,6 +413,9 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       const incomingGroupEpisodes = response.data.groupEpisodes;
       const incomingGroupEpisode = _.findWhere(incomingGroupEpisodes, {episode_id: self.episode.id});
 
+      const childGroupEpisodes = response.data.childGroupEpisodes;
+      ArrayService.addToArray(incomingGroupEpisodes, childGroupEpisodes);
+
       groupEpisode.tv_group_episode_id = incomingGroupEpisode.tv_group_episode_id;
       groupEpisode.watched = incomingGroupEpisode.watched;
       groupEpisode.watched_date = incomingGroupEpisode.watched_date;
