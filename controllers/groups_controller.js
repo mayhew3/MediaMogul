@@ -572,6 +572,7 @@ exports.markEpisodesWatchedByGroup = async function(request, response) {
   const payload = request.body.payload;
   const series_id = payload.series_id;
   const tv_group_id = payload.tv_group_id;
+  const person_id = payload.person_id;
 
   try {
     const groupEpResult = await addOrEditTVGroupEpisode(payload);
@@ -586,7 +587,6 @@ exports.markEpisodesWatchedByGroup = async function(request, response) {
     const person_ids = _.pluck(persons, 'person_id');
     const pastPersonResults = await person_controller.updateEpisodeRatingsAllPastWatched(payload, true, person_ids, tv_group_id, response);
 
-    const person_id = payload.person_id;
     const insertedPersonEpisodes = personResults[0];
     const personEpisode = _.findWhere(insertedPersonEpisodes, {person_id: person_id});
     if (!!personEpisode) {
@@ -600,6 +600,9 @@ exports.markEpisodesWatchedByGroup = async function(request, response) {
     if (!!series.personSeries) {
       returnObj.dynamic_rating = series.personSeries.dynamic_rating;
     }
+
+    returnObj.childGroupEpisodes = await addOrEditChildGroupEpisodes(payload);
+
     response.json(returnObj);
 
     ArrayService.removeFromArray(person_ids, person_id);
@@ -609,8 +612,6 @@ exports.markEpisodesWatchedByGroup = async function(request, response) {
   } catch (err) {
     errs.throwError(err, 'markEpisodesWatchedByGroup', response);
   }
-
-  await addOrEditChildGroupEpisodes(payload);
 
 };
 
