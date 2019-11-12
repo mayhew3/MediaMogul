@@ -578,7 +578,7 @@ exports.markEpisodesWatchedByGroup = async function(request, response) {
     const groupEpResult = await addOrEditTVGroupEpisode(payload);
     returnObj.groupEpisodes.push(groupEpResult);
 
-    const pastGroupEpResults = await updateTVGroupEpisodesAllPastWatched(payload);
+    const pastGroupEpResults = await updateTVGroupEpisodesAllPastWatchedForPayload(payload);
     ArrayService.addToArray(returnObj.groupEpisodes, pastGroupEpResults);
 
     const persons = await getPersonInformation(payload.tv_group_id);
@@ -1012,13 +1012,17 @@ function getPersonInformation(tv_group_id) {
 
 /* GROUP MULTI WATCH */
 
-function updateTVGroupEpisodesAllPastWatched(payload) {
-  return new Promise(function(resolve) {
-    const series_id = payload.series_id;
-    const lastWatched = payload.last_watched;
-    const tv_group_id = payload.tv_group_id;
-    const watched = payload.changedFields.watched;
+function updateTVGroupEpisodesAllPastWatchedForPayload(payload) {
+  const series_id = payload.series_id;
+  const lastWatched = payload.last_watched;
+  const tv_group_id = payload.tv_group_id;
+  const watched = payload.changedFields.watched;
 
+  return updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, lastWatched, watched);
+}
+
+function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, lastWatched, watched) {
+  return new Promise(function(resolve) {
     if (!lastWatched) {
       resolve([]);
     } else {
@@ -1089,10 +1093,8 @@ function updateTVGroupEpisodesAllPastWatched(payload) {
       });
 
     }
-
   });
 }
-
 
 // VOTING
 
