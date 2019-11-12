@@ -702,31 +702,37 @@ function addOrEditTVGroupEpisode(payload) {
 }
 
 function addOrEditChildGroupEpisodes(payload) {
-  const child_group_episodes = payload.child_group_episodes;
   const add_or_update_actions = [];
-  _.each(child_group_episodes, child_group_episode => {
-    add_or_update_actions.push(new Promise((resolve, reject) => {
-      const changedFields = {};
-      ArrayService.shallowCopy(payload.changedFields, changedFields);
-      changedFields.tv_group_id = child_group_episode.tv_group_id;
-      if (!child_group_episode.tv_group_episode_id) {
-        addTVGroupEpisode(changedFields).then(results => {
-          resolve(results[0]);
-        }).catch(err => reject(err));
-      } else {
-        editTVGroupEpisode(changedFields, child_group_episode.tv_group_episode_id).then(function () {
-          resolve({
-            tv_group_id: child_group_episode.tv_group_id,
-            tv_group_episode_id: child_group_episode.tv_group_episode_id,
-            episode_id: payload.episode_id,
-            watched: payload.changedFields.watched,
-            watched_date: payload.changedFields.watched_date,
-            skipped: payload.changedFields.skipped
-          });
-        }).catch(err => reject(err));
-      }
-    }));
-  });
+
+  if (!payload.changedFields.watched) {
+    console.log("Request to skip episode. Not propagating to child groups.");
+  } else {
+    const child_group_episodes = payload.child_group_episodes;
+
+    _.each(child_group_episodes, child_group_episode => {
+      add_or_update_actions.push(new Promise((resolve, reject) => {
+        const changedFields = {};
+        ArrayService.shallowCopy(payload.changedFields, changedFields);
+        changedFields.tv_group_id = child_group_episode.tv_group_id;
+        if (!child_group_episode.tv_group_episode_id) {
+          addTVGroupEpisode(changedFields).then(results => {
+            resolve(results[0]);
+          }).catch(err => reject(err));
+        } else {
+          editTVGroupEpisode(changedFields, child_group_episode.tv_group_episode_id).then(function () {
+            resolve({
+              tv_group_id: child_group_episode.tv_group_id,
+              tv_group_episode_id: child_group_episode.tv_group_episode_id,
+              episode_id: payload.episode_id,
+              watched: payload.changedFields.watched,
+              watched_date: payload.changedFields.watched_date,
+              skipped: payload.changedFields.skipped
+            });
+          }).catch(err => reject(err));
+        }
+      }));
+    });
+  }
   return Promise.all(add_or_update_actions);
 }
 
@@ -754,7 +760,7 @@ function editTVGroupEpisode(tv_group_episode, tv_group_episode_id) {
 function markEpisodeWatchedForPersons(payload, persons) {
   return new Promise((resolve, reject) => {
 
-    if (payload.changedFields.skipped) {
+    if (!payload.changedFields.watched) {
       console.log("Request to skip episode. Not propagating to persons.");
       resolve([[],[]]);
     } else {
