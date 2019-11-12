@@ -688,6 +688,7 @@ function addOrEditTVGroupEpisode(payload) {
     } else {
       editTVGroupEpisode(tv_group_episode, tv_group_episode_id).then(function () {
         resolve({
+          tv_group_id: payload.tv_group_id,
           tv_group_episode_id: tv_group_episode_id,
           episode_id: payload.episode_id,
           watched: payload.changedFields.watched,
@@ -708,14 +709,15 @@ function addOrEditChildGroupEpisodes(payload) {
       const changedFields = {};
       ArrayService.shallowCopy(payload.changedFields, changedFields);
       changedFields.tv_group_id = child_group_episode.tv_group_id;
-      if (!child_group_episode.id) {
+      if (!child_group_episode.tv_group_episode_id) {
         addTVGroupEpisode(changedFields).then(results => {
           resolve(results[0]);
         }).catch(err => reject(err));
       } else {
-        editTVGroupEpisode(changedFields, child_group_episode.id).then(function () {
+        editTVGroupEpisode(changedFields, child_group_episode.tv_group_episode_id).then(function () {
           resolve({
-            tv_group_episode_id: child_group_episode.id,
+            tv_group_id: child_group_episode.tv_group_id,
+            tv_group_episode_id: child_group_episode.tv_group_episode_id,
             episode_id: payload.episode_id,
             watched: payload.changedFields.watched,
             watched_date: payload.changedFields.watched_date,
