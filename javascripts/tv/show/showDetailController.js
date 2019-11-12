@@ -913,16 +913,18 @@ angular.module('mediaMogulApp')
       if (!_.isEmpty(groupEpisodes)) {
         const tv_group_id = groupEpisodes[0].tv_group_id;
         const groupSeries = GroupService.getGroupSeries(self.series, tv_group_id);
-        const payload = {
-          series_id: self.series_id,
-          tv_group_id: tv_group_id,
-          groupEpisodes: groupEpisodes,
-          first_unwatched: groupSeries.first_unwatched,
-          unwatched_all: groupSeries.unwatched_all,
-          nextEpisodeSeason: groupSeries.nextEpisodeSeason,
-          nextEpisodeNumber: groupSeries.nextEpisodeNumber
-        };
-        SocketService.emit('multi_group_episode_update', payload);
+        if (!!groupSeries) {
+          const payload = {
+            series_id: self.series_id,
+            tv_group_id: tv_group_id,
+            groupEpisodes: groupEpisodes,
+            first_unwatched: groupSeries.first_unwatched,
+            unwatched_all: groupSeries.unwatched_all,
+            nextEpisodeSeason: groupSeries.nextEpisodeSeason,
+            nextEpisodeNumber: groupSeries.nextEpisodeNumber
+          };
+          SocketService.emit('multi_group_episode_update', payload);
+        }
       }
     }
 
@@ -954,8 +956,10 @@ angular.module('mediaMogulApp')
           if (groupedByGroup.hasOwnProperty(tv_group_id_str)) {
             const tv_group_id = parseInt(tv_group_id_str);
             const groupSeries = GroupService.getGroupSeries(self.series, tv_group_id);
+            if (!!groupSeries) {
+              SeriesDenormService.updateMySeriesDenorms(self.series, self.episodes, doNothing, groupSeries);
+            }
             const singleGroupEpisodes = groupedByGroup[tv_group_id_str];
-            SeriesDenormService.updateMySeriesDenorms(self.series, self.episodes, doNothing, groupSeries);
             sendGroupMultiWatchPayload(singleGroupEpisodes);
           }
         }

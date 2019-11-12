@@ -602,6 +602,11 @@ exports.markEpisodesWatchedByGroup = async function(request, response) {
     }
 
     returnObj.childGroupEpisodes = await addOrEditChildGroupEpisodes(payload);
+    const childPastEpisodeGrouped = await updateChildGroupsPastWatched(payload);
+    _.each(childPastEpisodeGrouped, childPastEpisodes => {
+      ArrayService.addToArray(returnObj.childGroupEpisodes, childPastEpisodes);
+    });
+
 
     response.json(returnObj);
 
@@ -1019,6 +1024,21 @@ function updateTVGroupEpisodesAllPastWatchedForPayload(payload) {
   const watched = payload.changedFields.watched;
 
   return updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, lastWatched, watched);
+}
+
+function updateChildGroupsPastWatched(payload) {
+  const series_id = payload.series_id;
+  const lastWatched = payload.last_watched;
+  const groupIds = _.map(payload.child_group_episodes, childGroupEpisode => childGroupEpisode.tv_group_id);
+  const watched = payload.changedFields.watched;
+
+  const updates = [];
+
+  _.each(groupIds, tv_group_id => {
+    updates.push(updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, lastWatched, watched));
+  });
+
+  return Promise.all(updates);
 }
 
 function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, lastWatched, watched) {
