@@ -1191,9 +1191,10 @@ exports.addBallot = function(request, response) {
   const reason = request.body.reason;
   const skip = request.body.skip;
   const season = request.body.season;
+  const person_id = request.body.person_id;
 
-  const sql = 'INSERT INTO tv_group_ballot (voting_open, reason, tv_group_series_id, skip, voting_closed, season) ' +
-    'VALUES (now(), $1, $2, $3, $4, $5) ' +
+  const sql = 'INSERT INTO tv_group_ballot (voting_open, reason, tv_group_series_id, skip, voting_closed, season, person_id) ' +
+    'VALUES (now(), $1, $2, $3, $4, $5, $6) ' +
     'RETURNING id ';
 
   const values = [
@@ -1201,7 +1202,8 @@ exports.addBallot = function(request, response) {
     tv_group_series_id,
     skip,
     !skip ? null : new Date(),
-    season
+    season,
+    person_id
   ];
 
   db.selectSendResponse(response, sql, values);

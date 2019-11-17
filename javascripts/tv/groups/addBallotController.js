@@ -75,7 +75,8 @@ angular.module('mediaMogulApp')
       const payload = {
         reason: self.reason,
         tv_group_series_id: self.groupSeries.tv_group_series_id,
-        skip: skip
+        skip: skip,
+        person_id: self.LockService.getPersonID()
       };
 
       if (self.reason === 'New Season') {
@@ -91,7 +92,8 @@ angular.module('mediaMogulApp')
           reason: self.reason,
           skip: skip,
           votes: [],
-          season: payload.season
+          season: payload.season,
+          person_id: payload.person_id
         };
         if (!_.isArray(self.groupSeries.ballots)) {
           self.groupSeries.ballots = [ballot];
@@ -103,7 +105,8 @@ angular.module('mediaMogulApp')
           ballot: ballot,
           tv_group_id: self.groupSeries.tv_group_id,
           series_id: self.series.id,
-          season: payload.season
+          season: payload.season,
+          person_id: payload.person_id
         };
 
         if (!!self.inputTrailer) {
