@@ -1120,8 +1120,8 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
 
 exports.getBallots = function(tv_group_id, response, seriesResults) {
 
-  const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, tgb.skip, tgb.season, ' +
-    '  tgs.series_id  ' +
+  const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, ' +
+    'tgb.skip, tgb.season, tgb.person_id, tgs.series_id  ' +
     'FROM tv_group_ballot tgb ' +
     'INNER JOIN tv_group_series tgs ' +
     '  ON tgb.tv_group_series_id = tgs.id ' +
