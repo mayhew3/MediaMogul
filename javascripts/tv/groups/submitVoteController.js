@@ -187,6 +187,15 @@ angular.module('mediaMogulApp')
       return getFormattedDate(self.tv_group_ballot.voting_open);
     };
 
+    self.getOpenedBy = function() {
+      const personId = self.tv_group_ballot.person_id;
+      if (!personId) {
+        return '<unknown>';
+      } else {
+        return self.GroupService.getMemberName(tv_group.id, personId);
+      }
+    };
+
     self.canSubmit = function() {
       return ArrayService.exists(self.selectedVote);
     };

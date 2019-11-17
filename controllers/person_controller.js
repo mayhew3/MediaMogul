@@ -836,7 +836,7 @@ function attachBallotsToGroupSeries(series, groupSeries) {
   return new Promise(resolve => {
     const tv_group_series_id = groupSeries.tv_group_series_id;
 
-    const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, tgb.skip ' +
+    const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, tgb.skip, tgb.person_id ' +
       'FROM tv_group_ballot tgb ' +
       'WHERE tgb.tv_group_series_id = $1 ' +
       'AND tgb.retired = $2 ' +
