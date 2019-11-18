@@ -224,7 +224,14 @@
               <div class="row">
 
                 <div class="col-lg-9 col-md-8 col-sm-12 col-xs-12" style="padding: 0">
-                  <div ui-view></div>
+                  <div ng-if="ctrl.hasSelectedEpisode()">
+                    <episode-detail episode="ctrl.getSelectedEpisode()"
+                                    post-viewing-callback="ctrl.afterViewingChange"
+                                    post-rating-change-callback="ctrl.afterRatingChangeOnly"
+                                    viewer="ctrl.viewer"
+                                    is-in-viewer-collection="ctrl.isInViewerCollection"
+                                    previous-unwatched="ctrl.getPreviousUnwatched"></episode-detail>
+                  </div>
                 </div>
 
                 <!-- EPISODE LIST -->

@@ -99,10 +99,6 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             from_label: null
           }
         })
-        .state('tv.show.episode', {
-          url: '/episode/:episode_id',
-          templateUrl: 'views/tv/show/episodeDetail.html'
-        })
         .state('tv.addShows', {
           url: '/addShows',
           controller: 'addShowsController',
