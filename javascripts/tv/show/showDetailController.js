@@ -1,9 +1,10 @@
 angular.module('mediaMogulApp')
   .controller('showDetailController', ['$log', 'EpisodeService', '$uibModal', '$filter', 'LockService', 'DateService',
     '$http', 'YearlyRatingService', 'ArrayService', '$state', '$stateParams', 'GroupService', '$q', '$timeout',
-    'SeriesDetailService', 'BallotService', 'SocketService', 'SeriesDenormService',
+    'SeriesDetailService', 'BallotService', 'SocketService', 'SeriesDenormService', '$window',
   function($log, EpisodeService, $uibModal, $filter, LockService, DateService, $http, YearlyRatingService, ArrayService,
-           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService, SocketService, SeriesDenormService) {
+           $state, $stateParams, GroupService, $q, $timeout, SeriesDetailService, BallotService, SocketService,
+           SeriesDenormService, $window) {
     const self = this;
 
     self.LockService = LockService;
@@ -148,21 +149,7 @@ angular.module('mediaMogulApp')
     }
 
     self.goToEpisode = function(episode) {
-      $state.transitionTo('tv.show.episode',
-        {
-          series_id: self.series.id,
-          viewer: self.viewer,
-          episode_id: episode.id,
-          from_sref: self.from_sref,
-          from_params: self.from_params,
-          from_label: self.from_label
-        },
-        {
-          reload: true,
-          inherit: false,
-          notify: true
-        }
-      );
+      self.selectedEpisodeId = episode.id;
     };
 
     self.getDynamicValue = function() {
