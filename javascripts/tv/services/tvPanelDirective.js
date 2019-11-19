@@ -35,7 +35,7 @@
 
     self.titleSearch = undefined;
 
-    self.showFilterBar = false;
+    self.showFilterBar = !!self.panelInfo.initialStateFilters;
     self.filters = self.panelInfo.filters;
 
     self.filtersCached = false;
