@@ -92,7 +92,9 @@
           series_id: series.id,
           viewer: self.panelInfo.backInfo.viewer,
           from_sref: self.panelInfo.backInfo.from_sref,
-          from_params: mergeFilterParams(self.panelInfo.backInfo.from_params)
+          from_params: {
+            from_params: mergeFilterParams(self.panelInfo.backInfo.from_params)
+          }
         },
         {
           reload: true,
@@ -331,9 +333,37 @@
       }
     }
 
-    function createIsActiveBasedOnDefaults(cachedValues) {
+    function hasInitialStateOverride(filter) {
+      if (!!self.panelInfo.initialStateFilters) {
+        const matchingFilter = self.panelInfo.initialStateFilters.filters[filter.id];
+        if (!!matchingFilter) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function getOverrideState(cachedValue, filter) {
+      if (!!self.panelInfo.initialStateFilters) {
+        const matchingFilter = self.panelInfo.initialStateFilters.filters[filter.id];
+        if (!!matchingFilter) {
+          const matchingOption = _.find(matchingFilter, option => {
+            return option === cachedValue.valueID
+          });
+          return !!matchingOption;
+        }
+      }
+      return false;
+    }
+
+    function createIsActiveBasedOnDefaults(filter) {
+      const cachedValues = filter.cachedValues;
       _.each(cachedValues, cachedValue => {
-        cachedValue.isActive = cachedValue.defaultActive;
+        if (hasInitialStateOverride(filter)) {
+          cachedValue.isActive = getOverrideState(cachedValue, filter);
+        } else {
+          cachedValue.isActive = cachedValue.defaultActive;
+        }
       });
     }
 
@@ -341,7 +371,7 @@
       return $q(resolve => {
         filter.possibleValues().then(values => {
           filter.cachedValues = values;
-          createIsActiveBasedOnDefaults(filter.cachedValues);
+          createIsActiveBasedOnDefaults(filter);
           if (!!filter.allNone) {
             filter.cachedValues.push({
               valueLabel: 'All',

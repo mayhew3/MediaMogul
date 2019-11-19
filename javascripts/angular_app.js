@@ -35,7 +35,15 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           url: '/my',
           controller: 'myShowsController',
           controllerAs: 'ctrl',
-          templateUrl: 'views/tv/shows/my.html'
+          templateUrl: 'views/tv/shows/my.html',
+          resolve: {
+            from_params: function($stateParams) {
+              return $stateParams.from_params;
+            }
+          },
+          params: {
+            from_params: null
+          }
         })
         .state('tv.shows.my.dashboard', {
           url: '/dashboard',
