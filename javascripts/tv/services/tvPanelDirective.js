@@ -31,11 +31,13 @@
     self.showLoading = self.panelInfo.showLoading ? self.panelInfo.showLoading : () => false;
     self.showError = self.panelInfo.showError ? self.panelInfo.showError : () => false;
 
-    self.currentPageUpNext = 1;
+    self.currentPageUpNext = !!self.panelInfo.initialStateFilters && !!self.panelInfo.initialStateFilters.pageNumber ?
+      self.panelInfo.initialStateFilters.pageNumber :
+      1;
 
     self.titleSearch = undefined;
 
-    self.showFilterBar = !!self.panelInfo.initialStateFilters;
+    self.showFilterBar = !!self.panelInfo.initialStateFilters && !_.isEmpty(self.panelInfo.initialStateFilters.filters);
     self.filters = self.panelInfo.filters;
 
     self.filtersCached = false;
@@ -75,6 +77,7 @@
         }
       });
       from_params.filters = filters;
+      from_params.pageNumber = self.currentPageUpNext;
       return from_params;
     }
 
