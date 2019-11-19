@@ -53,17 +53,28 @@
       return filterOption.isActive;
     }
 
+    function hasChanged(filterOption) {
+      return filterOption.isActive !== filterOption.defaultActive;
+    }
+
+    function isChanged(filter) {
+      const changedRegulars = _.filter(getRegularOptions(filter), hasChanged);
+      return !_.isEmpty(changedRegulars);
+    }
+
     function getCheckedFiltersFor(filter) {
       const checkedRegulars = _.filter(getRegularOptions(filter), isActive);
       return _.map(checkedRegulars, filterOption => filterOption.valueID);
     }
 
     function mergeFilterParams(from_params) {
-      if (self.defaultFiltersChanged) {
-        _.each(self.filters, filter => {
-          from_params[filter.id] = getCheckedFiltersFor(filter);
-        });
-      }
+      const filters = {};
+      _.each(self.filters, filter => {
+        if (isChanged(filter)) {
+          filters[filter.id] = getCheckedFiltersFor(filter);
+        }
+      });
+      from_params.filters = filters;
       return from_params;
     }
 
@@ -320,10 +331,17 @@
       }
     }
 
+    function createIsActiveBasedOnDefaults(cachedValues) {
+      _.each(cachedValues, cachedValue => {
+        cachedValue.isActive = cachedValue.defaultActive;
+      });
+    }
+
     function cacheValuesForFilter(filter) {
       return $q(resolve => {
         filter.possibleValues().then(values => {
           filter.cachedValues = values;
+          createIsActiveBasedOnDefaults(filter.cachedValues);
           if (!!filter.allNone) {
             filter.cachedValues.push({
               valueLabel: 'All',

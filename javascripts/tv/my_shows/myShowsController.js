@@ -191,7 +191,7 @@ angular.module('mediaMogulApp')
         return {
           valueLabel: genre.name,
           valueID: genre.name.toLowerCase(),
-          isActive: true,
+          defaultActive: true,
           special: 0,
           applyFilter: show => {
             return _.isArray(show.genres) && _.contains(show.genres, genre.name);
@@ -211,14 +211,14 @@ angular.module('mediaMogulApp')
           {
             valueLabel: 'Has Unwatched',
             valueID: 'unwatched',
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => show.personSeries.unwatched_all > 0
           },
           {
             valueLabel: 'Up to Date',
             valueID: 'uptodate',
-            isActive: false,
+            defaultActive: false,
             special: 0,
             applyFilter: show => !show.personSeries.unwatched_all
           }
@@ -233,21 +233,21 @@ angular.module('mediaMogulApp')
           {
             valueLabel: 'Unstarted',
             valueID: 'unstarted',
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => !hasWatchedEpisodes(show)
           },
           {
             valueLabel: 'Mid-Season',
             valueID: 'mid',
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => !!show.personSeries.midSeason && hasWatchedEpisodes(show)
           },
           {
             valueLabel: 'Between Seasons',
             valueID: 'between',
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => !show.personSeries.midSeason && hasWatchedEpisodes(show)
           }
