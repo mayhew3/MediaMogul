@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService', 'GenreService', '$q',
+    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService', 'GenreService', '$q', '$stateParams',
   function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout,
-           $state, ShowFilterService, GenreService, $q) {
+           $state, ShowFilterService, GenreService, $q, $stateParams) {
     const self = this;
 
     self.LockService = LockService;
@@ -10,6 +10,7 @@ angular.module('mediaMogulApp')
     self.GenreService = GenreService;
 
     self.pendingShows = [];
+    self.initialFilterState = $stateParams.from_params;
 
     self.series_requests = [];
 
@@ -292,7 +293,8 @@ angular.module('mediaMogulApp')
       filters: filters,
       showLoading: self.showLoadingTierOne,
       showError: self.showErrorTierOne,
-      backInfo: getDashboardBackInfo()
+      backInfo: getDashboardBackInfo(),
+      initialStateFilters: self.initialFilterState
     };
 
     self.backlogPanel = {
