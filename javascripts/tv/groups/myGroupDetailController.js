@@ -252,7 +252,7 @@ angular.module('mediaMogulApp')
       return _.map(genres, genre => {
         return {
           valueLabel: genre.name,
-          isActive: true,
+          defaultActive: true,
           special: 0,
           applyFilter: show => {
             return _.isArray(show.genres) && _.contains(show.genres, genre.name);
@@ -266,13 +266,13 @@ angular.module('mediaMogulApp')
         const statuses = [
           {
             valueLabel: 'Has Unwatched',
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => hasUnwatchedEpisodes(show)
           },
           {
             valueLabel: 'Up to Date',
-            isActive: false,
+            defaultActive: false,
             special: 0,
             applyFilter: show => !hasUnwatchedEpisodes(show)
           }
@@ -286,19 +286,19 @@ angular.module('mediaMogulApp')
         const statuses = [
           {
             valueLabel: 'Unstarted',
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => !hasWatchedEpisodes(show)
           },
           {
             valueLabel: 'Mid-Season',
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => isMidSeason(show) && hasWatchedEpisodes(show)
           },
           {
             valueLabel: 'Between Seasons',
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => !isMidSeason(show) && hasWatchedEpisodes(show)
           }
