@@ -76,6 +76,20 @@ angular.module('mediaMogulApp')
     };
     self.groups = [];
 
+    self.episodeChangedCallback = null;
+
+    self.updateCallback = function(callback) {
+      self.episodeChangedCallback = callback;
+      tryToUpdateEpisodeCallback();
+    };
+
+    function tryToUpdateEpisodeCallback() {
+      const selectedEpisode = self.getSelectedEpisode();
+      if (!!selectedEpisode && !!self.episodeChangedCallback) {
+        self.episodeChangedCallback(selectedEpisode);
+      }
+    }
+
     GroupService.updateMyGroupsListIfDoesntExist().then(groups => {
       _.each(groups, group => {
         const groupObj = {
@@ -150,6 +164,7 @@ angular.module('mediaMogulApp')
 
     self.goToEpisode = function(episode) {
       self.selectedEpisodeId = episode.id;
+      tryToUpdateEpisodeCallback();
     };
 
     self.getDynamicValue = function() {
@@ -276,12 +291,16 @@ angular.module('mediaMogulApp')
             self.series.last_tvdb_update;
 
           loading = false;
+
           self.detailReady = true;
         }).then(function () {
           updateNextUp();
           goToNextUpIfNotOnEpisodeAlready();
           updateSeasonLabels();
           initSelectedSeason();
+          if (!!self.episodeChangedCallback) {
+            self.episodeChangedCallback(self.getSelectedEpisode());
+          }
         });
       });
     }

@@ -6,12 +6,12 @@ angular.module('mediaMogulApp')
       episodeDetailCompController],
     controllerAs: 'ctrl',
     bindings: {
-      episode: '=',
       postViewingCallback: '<',
       postRatingChangeCallback: '<',
       viewer: '<',
       isInViewerCollection: '<',
-      previousUnwatched: '<'
+      previousUnwatched: '<',
+      listenerUpdater: '<'
     }
   });
 
@@ -19,17 +19,23 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
                                      $http, SocketService, ObjectCopyService) {
   const self = this;
 
+  self.episode = null;
   self.updating = false;
   self.viewerInfos = [];
   self.childGroups = [];
   self.childGroupEpisodes = [];
 
   self.$onInit = function() {
+    self.listenerUpdater(onEpisodeChanged);
+  };
+
+  function onEpisodeChanged(episode) {
+    self.episode = episode;
     self.watchedDate = initWatchedDate();
     self.original_rating_value = initRating();
     self.rating_value = initRating();
     maybeUpdateChildGroups();
-  };
+  }
 
   function maybeUpdateChildGroups() {
     if (self.isInGroupMode()) {
