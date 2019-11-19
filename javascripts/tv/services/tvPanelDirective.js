@@ -7,7 +7,7 @@
   function tvPanel() {
     return {
       templateUrl: 'views/tv/tvPanel.html',
-      controller: ['$scope', 'ArrayService', 'EpisodeService', 'GroupService', '$q', tvPanelController],
+      controller: ['$scope', 'ArrayService', 'EpisodeService', 'GroupService', '$q', '$state', tvPanelController],
       controllerAs: 'ctrl',
       scope: {
         shows: '=',
@@ -17,7 +17,7 @@
     }
   }
 
-  function tvPanelController($scope, ArrayService, EpisodeService, GroupService, $q) {
+  function tvPanelController($scope, ArrayService, EpisodeService, GroupService, $q, $state) {
     const self = this;
 
     self.EpisodeService = EpisodeService;
@@ -41,11 +41,56 @@
     self.filtersCached = false;
     cachePossibleValues();
 
+    self.defaultFiltersChanged = false;
+
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
     if (!$scope.shows) {
       self.EpisodeService.registerAsObserver($scope);
     }
+
+    function isActive(filterOption) {
+      return filterOption.isActive;
+    }
+
+    function getCheckedFiltersFor(filter) {
+      const checkedRegulars = _.filter(getRegularOptions(filter), isActive);
+      return _.map(checkedRegulars, filterOption => filterOption.valueID);
+    }
+
+    function mergeFilterParams(from_params) {
+      if (self.defaultFiltersChanged) {
+        _.each(self.filters, filter => {
+          from_params[filter.id] = getCheckedFiltersFor(filter);
+        });
+      }
+      return from_params;
+    }
+
+    self.clickHandler = function(series) {
+      if (!self.onClick) {
+        self.goTo(series);
+      } else {
+        self.onClick(series);
+      }
+    };
+
+    self.goTo = function(series) {
+      $state.transitionTo('tv.show',
+        {
+          series_id: series.id,
+          viewer: self.panelInfo.backInfo.viewer,
+          from_sref: self.panelInfo.backInfo.from_sref,
+          from_params: mergeFilterParams(self.panelInfo.backInfo.from_params)
+        },
+        {
+          reload: true,
+          inherit: false,
+          notify: true
+        }
+      );
+    };
+
 
     self.toggleFilterBar = () => self.showFilterBar = !self.showFilterBar;
 
@@ -97,6 +142,7 @@
     };
 
     self.toggleActive = function(filter, filterOption) {
+      self.defaultFiltersChanged = true;
       filterOption.isActive = !filterOption.isActive;
       if (!!filterOption.allSpecial) {
         checkAllRegularOptions(filter);
@@ -337,7 +383,6 @@
         return (series[field] === null) ? 1: 0;
       }
     }
-
 
 
   }
