@@ -252,7 +252,7 @@ angular.module('mediaMogulApp')
         return _.map(genres, genre => {
           return {
             valueLabel: genre.name,
-            isActive: true,
+            defaultActive: true,
             special: 0,
             applyFilter: show => {
               return _.isArray(show.genres) && _.contains(show.genres, genre.name);
