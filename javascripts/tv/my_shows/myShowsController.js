@@ -46,6 +46,16 @@ angular.module('mediaMogulApp')
       return (angular.isDefined(series.personSeries.dynamic_rating) ? -1: 0);
     };
 
+    function getDashboardBackInfo() {
+      return {
+        viewer: {
+          type: 'my',
+          group_id: null
+        },
+        from_sref: $state.current.name,
+        from_params: {}
+      }
+    }
 
 
     /* DASHBOARD INFOS */
@@ -77,7 +87,8 @@ angular.module('mediaMogulApp')
         },
         seriesFunction: getMyShows,
         panelFormat: 'panel-pending',
-        badgeValue: ShowFilterService.getRatingsPending
+        badgeValue: ShowFilterService.getRatingsPending,
+        backInfo: getDashboardBackInfo()
       },
       {
         headerText: 'Aired Recently',
@@ -91,7 +102,8 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue
+        showError: self.showErrorQueue,
+        backInfo: getDashboardBackInfo()
       },
       {
         headerText: 'Watched Recently',
@@ -105,7 +117,8 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue
+        showError: self.showErrorQueue,
+        backInfo: getDashboardBackInfo()
       },
       {
         headerText: 'Pinned',
@@ -119,7 +132,8 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue
+        showError: self.showErrorQueue,
+        backInfo: getDashboardBackInfo()
       },
       {
         headerText: 'Added Recently',
@@ -133,7 +147,8 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue
+        showError: self.showErrorQueue,
+        backInfo: getDashboardBackInfo()
       },
       {
         headerText: "Upcoming",
@@ -146,7 +161,8 @@ angular.module('mediaMogulApp')
         seriesFunction: getMyShows,
         subtitle: ShowFilterService.nextAirDate,
         showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue
+        showError: self.showErrorQueue,
+        backInfo: getDashboardBackInfo()
       }
 
     ];
@@ -174,6 +190,7 @@ angular.module('mediaMogulApp')
       return _.map(genres, genre => {
         return {
           valueLabel: genre.name,
+          valueID: genre.name.toLowerCase(),
           isActive: true,
           special: 0,
           applyFilter: show => {
@@ -193,12 +210,14 @@ angular.module('mediaMogulApp')
         const statuses = [
           {
             valueLabel: 'Has Unwatched',
+            valueID: 'unwatched',
             isActive: true,
             special: 0,
             applyFilter: show => show.personSeries.unwatched_all > 0
           },
           {
             valueLabel: 'Up to Date',
+            valueID: 'uptodate',
             isActive: false,
             special: 0,
             applyFilter: show => !show.personSeries.unwatched_all
@@ -213,18 +232,21 @@ angular.module('mediaMogulApp')
         const statuses = [
           {
             valueLabel: 'Unstarted',
+            valueID: 'unstarted',
             isActive: true,
             special: 0,
             applyFilter: show => !hasWatchedEpisodes(show)
           },
           {
             valueLabel: 'Mid-Season',
+            valueID: 'mid',
             isActive: true,
             special: 0,
             applyFilter: show => !!show.personSeries.midSeason && hasWatchedEpisodes(show)
           },
           {
             valueLabel: 'Between Seasons',
+            valueID: 'between',
             isActive: true,
             special: 0,
             applyFilter: show => !show.personSeries.midSeason && hasWatchedEpisodes(show)
@@ -236,16 +258,19 @@ angular.module('mediaMogulApp')
 
     const filters = [
       {
+        id: 'unwatched',
         label: 'Unwatched',
         possibleValues: getAllWatchedStatuses,
         allNone: true
       },
       {
+        id: 'progress',
         label: 'Progress',
         possibleValues: getAllProgressStatuses,
         allNone: true
       },
       {
+        id: 'genres',
         label: 'Genres',
         possibleValues: getAllGenres,
         allNone: true
@@ -266,7 +291,8 @@ angular.module('mediaMogulApp')
       seriesFunction: getMyShows,
       filters: filters,
       showLoading: self.showLoadingTierOne,
-      showError: self.showErrorTierOne
+      showError: self.showErrorTierOne,
+      backInfo: getDashboardBackInfo()
     };
 
     self.backlogPanel = {
@@ -283,7 +309,8 @@ angular.module('mediaMogulApp')
       seriesFunction: getMyShows,
       filters: filters,
       showLoading: self.showLoadingTierTwo,
-      showError: self.showErrorTierTwo
+      showError: self.showErrorTierTwo,
+      backInfo: getDashboardBackInfo()
     };
 
     self.seriesRequestPanel = {
@@ -294,7 +321,8 @@ angular.module('mediaMogulApp')
       },
       panelFormat: 'panel-info',
       posterSize: 'large',
-      showEmpty: false
+      showEmpty: false,
+      backInfo: getDashboardBackInfo()
     };
 
 
