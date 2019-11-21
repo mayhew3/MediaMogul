@@ -38,8 +38,7 @@
 
     self.titleSearch = undefined;
 
-    self.showFilterBar = !!self.panelInfo.initialStateFilters && !_.isEmpty(self.panelInfo.initialStateFilters.filters);
-    self.filters = self.panelInfo.filters;
+    self.filterToggle = false;
     self.panel_id = self.panelInfo.panel_id;
 
     if (!!self.panel_id) {
@@ -47,7 +46,6 @@
     }
 
     self.filtersCached = false;
-    cachePossibleValues();
 
     self.defaultFiltersChanged = false;
 
@@ -57,9 +55,36 @@
       self.EpisodeService.registerAsObserver($scope);
     }
 
+    self.getFilters = function() {
+      return _.isArray(self.TVPanelFilterService.filters) ?
+        self.TVPanelFilterService.filters :
+        [];
+    };
+
+    function getUncachedFilters() {
+      return _.filter(self.getFilters(), filter => !filter.isCached);
+    }
+
+    self.getPageNumber = function() {
+      return !!self.TVPanelFilterService.pageNumber ?
+        self.TVPanelFilterService.pageNumber :
+        1;
+    };
+
+    cachePossibleValues();
+
     function isActive(filterOption) {
       return filterOption.isActive;
     }
+
+    self.hasAnyChanges = function() {
+      const changedFilters = _.filter(self.getFilters(), isChanged);
+      return !_.isEmpty(changedFilters);
+    };
+
+    self.showFilterBar = function() {
+      return self.filterToggle || self.hasAnyChanges();
+    };
 
     function hasChanged(filterOption) {
       return filterOption.isActive !== filterOption.defaultActive;
@@ -77,7 +102,7 @@
 
     function mergeFilterParams(from_params) {
       const filters = {};
-      _.each(self.filters, filter => {
+      _.each(self.getFilters(), filter => {
         if (isChanged(filter)) {
           filters[filter.id] = getCheckedFiltersFor(filter);
         }
@@ -114,7 +139,7 @@
     };
 
 
-    self.toggleFilterBar = () => self.showFilterBar = !self.showFilterBar;
+    self.toggleFilterBar = () => self.filterToggle = !self.filterToggle;
 
     self.showQuickFilter = function() {
       return !!self.panelInfo.showQuickFilter;
@@ -177,7 +202,7 @@
     };
 
     self.getDropDownAlignmentClass = function(filter) {
-      if (self.filters.length > 1 && _.last(self.filters) === filter) {
+      if (self.getFilters().length > 1 && _.last(self.getFilters()) === filter) {
         return 'dropdown-menu-right';
       } else {
         return 'dropdown-menu-left';
@@ -262,7 +287,7 @@
 
     function allFiltersBut(filter) {
       const myAllFilters = getBaseFilters();
-      const filtersToAdd = _.filter(self.filters, existingFilter => existingFilter !== filter);
+      const filtersToAdd = _.filter(self.getFilters(), existingFilter => existingFilter !== filter);
       ArrayService.addToArray(myAllFilters, _.map(filtersToAdd, getRealFilterFromFilter));
       return myAllFilters;
     }
@@ -272,7 +297,7 @@
     }
 
     function getRealFilterBarFilters() {
-      return _.map(self.filters, filter => getRealFilterFromFilter(filter));
+      return _.map(self.getFilters(), filter => getRealFilterFromFilter(filter));
     }
 
     function getRealFilterFromFilter(filter) {
@@ -405,25 +430,22 @@
     }
 
     function cachePossibleValues() {
-      if (_.isArray(self.filters)) {
-        $q.all(_.map(self.filters, cacheValuesForFilter)).then(() => {
-          self.filtersCached = true;
-          refreshCachedLabels();
-        });
-      }
+      $q.all(_.map(getUncachedFilters(), cacheValuesForFilter)).then(() => {
+        self.filtersCached = true;
+        refreshCachedLabels();
+      });
     }
 
     function refreshCachedLabels() {
-      if (_.isArray(self.filters)) {
-        _.each(self.filters, filter => {
-          const otherFilters = allFiltersBut(filter);
-          const filteredShows = _.filter(self.getShows(), show => runThroughFilterArray(otherFilters, show));
-          _.each(filter.cachedValues, cachedValue => {
-            const withSubFilter = _.filter(filteredShows, cachedValue.applyFilter);
-            cachedValue.valueCount = withSubFilter.length;
-          });
+      _.each(getUncachedFilters(), filter => {
+        const otherFilters = allFiltersBut(filter);
+        const filteredShows = _.filter(self.getShows(), show => runThroughFilterArray(otherFilters, show));
+        _.each(filter.cachedValues, cachedValue => {
+          const withSubFilter = _.filter(filteredShows, cachedValue.applyFilter);
+          cachedValue.valueCount = withSubFilter.length;
         });
-      }
+        filter.isCached = true;
+      });
     }
 
 

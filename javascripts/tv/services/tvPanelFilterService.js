@@ -10,9 +10,10 @@ function TVPanelFilterService() {
 
   self.registerPanel = function(incoming_panel_id, incoming_filters, incoming_page_number) {
     if (self.panel_id !== incoming_panel_id) {
-      self.panel_id = incoming_panel_id;
       self.filters = incoming_filters;
       self.page_number = incoming_page_number;
     }
-  }
+    self.panel_id = incoming_panel_id;
+  };
+
 }
