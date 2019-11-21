@@ -9,7 +9,7 @@
         </div>
         <div class="headerRight">
            <button type="button"
-                   ng-if="!!ctrl.filters"
+                   ng-if="!!ctrl.getFilters().length > 0"
                    ng-disabled="!ctrl.filtersCached"
                    ng-click="ctrl.toggleFilterBar()"
                    class="btn btn-default"><i class="glyphicon glyphicon-filter"></i></button>
@@ -24,13 +24,13 @@
       </div>
     </div>
     <div class="row"
-         ng-if="ctrl.showFilterBar"
+         ng-if="ctrl.showFilterBar()"
          style="margin-top: 9px">
       <div class="col-xs-12">
 
         <div class="btn-group"
              uib-dropdown
-             ng-repeat="showFilter in ctrl.filters"
+             ng-repeat="showFilter in ctrl.getFilters()"
              style="margin-right: 5px"
              auto-close="outsideClick">
 
@@ -99,7 +99,7 @@
            ng-repeat="show in ctrl.getShows() |
                     orderBy: ctrl.orderBy() : ctrl.reverseSort() |
                     filter: ctrl.allFilter |
-                    limitTo: ctrl.pageSize : (ctrl.currentPageUpNext - 1) * ctrl.pageSize">
+                    limitTo: ctrl.pageSize : (ctrl.TVPanelFilterService.page_number - 1) * ctrl.pageSize">
 
         <!-- POSTER -->
 
@@ -137,7 +137,7 @@
       <div class="col-lg-12" ng-show="ctrl.totalItems() > ctrl.pageSize">
         <ul uib-pagination
             total-items="ctrl.totalItems()"
-            ng-model="ctrl.currentPageUpNext"
+            ng-model="ctrl.TVPanelFilterService.page_number"
             items-per-page="ctrl.pageSize"
             max-size="16"></ul>
       </div>
