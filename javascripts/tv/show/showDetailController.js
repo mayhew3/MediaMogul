@@ -84,7 +84,7 @@ angular.module('mediaMogulApp')
         self.groups.push(groupObj);
       });
       $timeout(function() {
-        console.log('Delay finished! Populating tooltips!');
+        console.debug('Delay finished! Populating tooltips!');
         refreshVotesTooltip();
       }, 100);
       if (self.isInGroupMode()) {
