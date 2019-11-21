@@ -10,7 +10,6 @@ angular.module('mediaMogulApp')
     self.GenreService = GenreService;
 
     self.pendingShows = [];
-    self.initialFilterState = $stateParams.from_params;
 
     self.series_requests = [];
 
@@ -191,7 +190,6 @@ angular.module('mediaMogulApp')
       return _.map(genres, genre => {
         return {
           valueLabel: genre.name,
-          valueID: genre.name.toLowerCase(),
           defaultActive: true,
           special: 0,
           applyFilter: show => {
@@ -211,14 +209,12 @@ angular.module('mediaMogulApp')
         const statuses = [
           {
             valueLabel: 'Has Unwatched',
-            valueID: 'unwatched',
             defaultActive: true,
             special: 0,
             applyFilter: show => show.personSeries.unwatched_all > 0
           },
           {
             valueLabel: 'Up to Date',
-            valueID: 'uptodate',
             defaultActive: false,
             special: 0,
             applyFilter: show => !show.personSeries.unwatched_all
@@ -233,21 +229,18 @@ angular.module('mediaMogulApp')
         const statuses = [
           {
             valueLabel: 'Unstarted',
-            valueID: 'unstarted',
             defaultActive: true,
             special: 0,
             applyFilter: show => !hasWatchedEpisodes(show)
           },
           {
             valueLabel: 'Mid-Season',
-            valueID: 'mid',
             defaultActive: true,
             special: 0,
             applyFilter: show => !!show.personSeries.midSeason && hasWatchedEpisodes(show)
           },
           {
             valueLabel: 'Between Seasons',
-            valueID: 'between',
             defaultActive: true,
             special: 0,
             applyFilter: show => !show.personSeries.midSeason && hasWatchedEpisodes(show)
@@ -259,19 +252,16 @@ angular.module('mediaMogulApp')
 
     const filters = [
       {
-        id: 'unwatched',
         label: 'Unwatched',
         possibleValues: getAllWatchedStatuses,
         allNone: true
       },
       {
-        id: 'progress',
         label: 'Progress',
         possibleValues: getAllProgressStatuses,
         allNone: true
       },
       {
-        id: 'genres',
         label: 'Genres',
         possibleValues: getAllGenres,
         allNone: true
@@ -294,8 +284,7 @@ angular.module('mediaMogulApp')
       filters: filters,
       showLoading: self.showLoadingTierOne,
       showError: self.showErrorTierOne,
-      backInfo: getDashboardBackInfo(),
-      initialStateFilters: self.initialFilterState
+      backInfo: getDashboardBackInfo()
     };
 
     self.backlogPanel = {

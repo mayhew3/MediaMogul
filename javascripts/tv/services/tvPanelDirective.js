@@ -32,10 +32,6 @@
     self.showLoading = self.panelInfo.showLoading ? self.panelInfo.showLoading : () => false;
     self.showError = self.panelInfo.showError ? self.panelInfo.showError : () => false;
 
-    self.currentPageUpNext = !!self.panelInfo.initialStateFilters && !!self.panelInfo.initialStateFilters.pageNumber ?
-      self.panelInfo.initialStateFilters.pageNumber :
-      1;
-
     self.titleSearch = undefined;
 
     self.filterToggle = false;
@@ -46,8 +42,6 @@
     }
 
     self.filtersCached = false;
-
-    self.defaultFiltersChanged = false;
 
     self.pageSize = ArrayService.exists(self.panelInfo.pageLimit) ? self.panelInfo.pageLimit : 1000;
 
@@ -65,17 +59,7 @@
       return _.filter(self.getFilters(), filter => !filter.isCached);
     }
 
-    self.getPageNumber = function() {
-      return !!self.TVPanelFilterService.pageNumber ?
-        self.TVPanelFilterService.pageNumber :
-        1;
-    };
-
     cachePossibleValues();
-
-    function isActive(filterOption) {
-      return filterOption.isActive;
-    }
 
     self.hasAnyChanges = function() {
       const changedFilters = _.filter(self.getFilters(), isChanged);
@@ -94,50 +78,6 @@
       const changedRegulars = _.filter(getRegularOptions(filter), hasChanged);
       return !_.isEmpty(changedRegulars);
     }
-
-    function getCheckedFiltersFor(filter) {
-      const checkedRegulars = _.filter(getRegularOptions(filter), isActive);
-      return _.map(checkedRegulars, filterOption => filterOption.valueID);
-    }
-
-    function mergeFilterParams(from_params) {
-      const filters = {};
-      _.each(self.getFilters(), filter => {
-        if (isChanged(filter)) {
-          filters[filter.id] = getCheckedFiltersFor(filter);
-        }
-      });
-      from_params.filters = filters;
-      from_params.pageNumber = self.currentPageUpNext;
-      return from_params;
-    }
-
-    self.clickHandler = function(series) {
-      if (!self.onClick) {
-        self.goTo(series);
-      } else {
-        self.onClick(series);
-      }
-    };
-
-    self.goTo = function(series) {
-      $state.transitionTo('tv.show',
-        {
-          series_id: series.id,
-          viewer: self.panelInfo.backInfo.viewer,
-          from_sref: self.panelInfo.backInfo.from_sref,
-          from_params: {
-            from_params: mergeFilterParams(self.panelInfo.backInfo.from_params)
-          }
-        },
-        {
-          reload: true,
-          inherit: false,
-          notify: true
-        }
-      );
-    };
-
 
     self.toggleFilterBar = () => self.filterToggle = !self.filterToggle;
 
@@ -189,7 +129,6 @@
     };
 
     self.toggleActive = function(filter, filterOption) {
-      self.defaultFiltersChanged = true;
       filterOption.isActive = !filterOption.isActive;
       if (!!filterOption.allSpecial) {
         checkAllRegularOptions(filter);
@@ -367,37 +306,10 @@
       }
     }
 
-    function hasInitialStateOverride(filter) {
-      if (!!self.panelInfo.initialStateFilters) {
-        const matchingFilter = self.panelInfo.initialStateFilters.filters[filter.id];
-        if (!!matchingFilter) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    function getOverrideState(cachedValue, filter) {
-      if (!!self.panelInfo.initialStateFilters) {
-        const matchingFilter = self.panelInfo.initialStateFilters.filters[filter.id];
-        if (!!matchingFilter) {
-          const matchingOption = _.find(matchingFilter, option => {
-            return option === cachedValue.valueID
-          });
-          return !!matchingOption;
-        }
-      }
-      return false;
-    }
-
     function createIsActiveBasedOnDefaults(filter) {
       const cachedValues = filter.cachedValues;
       _.each(cachedValues, cachedValue => {
-        if (hasInitialStateOverride(filter)) {
-          cachedValue.isActive = getOverrideState(cachedValue, filter);
-        } else {
-          cachedValue.isActive = cachedValue.defaultActive;
-        }
+        cachedValue.isActive = cachedValue.defaultActive;
       });
     }
 
@@ -405,6 +317,7 @@
       return $q(resolve => {
         filter.possibleValues().then(values => {
           filter.cachedValues = values;
+          console.debug('Filter ' + filter.label + ": " + filter.cachedValues.length + " cached.");
           createIsActiveBasedOnDefaults(filter);
           if (!!filter.allNone) {
             filter.cachedValues.push({
@@ -424,27 +337,31 @@
             updateAllSpecialDenorm(filter);
             updateNoneSpecialDenorm(filter);
           }
+          filter.isCached = true;
           resolve();
         })
       });
     }
 
     function cachePossibleValues() {
-      $q.all(_.map(getUncachedFilters(), cacheValuesForFilter)).then(() => {
+      const uncachedFilters = getUncachedFilters();
+      console.log('Filters: ' + self.getFilters().length + ', Uncached: ' + uncachedFilters.length);
+      $q.all(_.map(uncachedFilters, cacheValuesForFilter)).then(() => {
         self.filtersCached = true;
         refreshCachedLabels();
       });
     }
 
     function refreshCachedLabels() {
-      _.each(getUncachedFilters(), filter => {
+      const uncachedFilters = getUncachedFilters();
+      console.debug('Refreshing labels, uncached: ' + uncachedFilters.length);
+      _.each(self.getFilters(), filter => {
         const otherFilters = allFiltersBut(filter);
         const filteredShows = _.filter(self.getShows(), show => runThroughFilterArray(otherFilters, show));
         _.each(filter.cachedValues, cachedValue => {
           const withSubFilter = _.filter(filteredShows, cachedValue.applyFilter);
           cachedValue.valueCount = withSubFilter.length;
         });
-        filter.isCached = true;
       });
     }
 
@@ -462,6 +379,7 @@
         return (series[field] === null) ? 1: 0;
       }
     }
+
 
 
   }
