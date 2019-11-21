@@ -303,6 +303,7 @@ angular.module('mediaMogulApp')
         posterSize: 'large',
         showEmpty: true,
         pageLimit: 18,
+        panel_id: 'add_shows',
         filters: filters,
         seriesFunction: getNotMyShows,
         subtitle: getTitle,

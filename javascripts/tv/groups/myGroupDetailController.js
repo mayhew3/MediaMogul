@@ -334,6 +334,7 @@ angular.module('mediaMogulApp')
       },
       tvFilter: allVotedFilter,
       posterSize: 'large',
+      panel_id: 'group_' + self.group.id,
       filters: filters,
       showEmpty: true,
       badgeValue: getUnwatched,
