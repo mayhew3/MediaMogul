@@ -7,7 +7,7 @@
   function tvPanel() {
     return {
       templateUrl: 'views/tv/tvPanel.html',
-      controller: ['$scope', 'ArrayService', 'EpisodeService', 'GroupService', '$q', '$state', tvPanelController],
+      controller: ['$scope', 'ArrayService', 'EpisodeService', 'GroupService', '$q', '$state', 'TVPanelFilterService', tvPanelController],
       controllerAs: 'ctrl',
       scope: {
         shows: '=',
@@ -17,10 +17,11 @@
     }
   }
 
-  function tvPanelController($scope, ArrayService, EpisodeService, GroupService, $q, $state) {
+  function tvPanelController($scope, ArrayService, EpisodeService, GroupService, $q, $state, TVPanelFilterService) {
     const self = this;
 
     self.EpisodeService = EpisodeService;
+    self.TVPanelFilterService = TVPanelFilterService;
 
     self.shows = $scope.shows;
     self.onClick = $scope.onClick;
@@ -39,6 +40,11 @@
 
     self.showFilterBar = !!self.panelInfo.initialStateFilters && !_.isEmpty(self.panelInfo.initialStateFilters.filters);
     self.filters = self.panelInfo.filters;
+    self.panel_id = self.panelInfo.panel_id;
+
+    if (!!self.panel_id) {
+      self.TVPanelFilterService.registerPanel(self.panel_id, self.panelInfo.filters, 1);
+    }
 
     self.filtersCached = false;
     cachePossibleValues();
