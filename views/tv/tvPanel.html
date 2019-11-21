@@ -9,7 +9,7 @@
         </div>
         <div class="headerRight">
            <button type="button"
-                   ng-if="!!ctrl.getFilters().length > 0"
+                   ng-if="!!ctrl.filtersEnabled"
                    ng-disabled="!ctrl.filtersCached"
                    ng-click="ctrl.toggleFilterBar()"
                    class="btn btn-default"><i class="glyphicon glyphicon-filter"></i></button>
@@ -48,8 +48,8 @@
               ng-class="ctrl.getDropDownAlignmentClass(showFilter)">
             <li role="menuitem"
                 ng-repeat="filterOption in showFilter.cachedValues |
-                          orderBy: ['special', 'valueLabel']">
-<!--                ng-if="ctrl.showFilterOption(filterOption)"-->
+                          orderBy: ['special', 'valueLabel']"
+                ng-if="ctrl.showFilterOption(filterOption)">
 
 
                 <a style="padding-left: 4px; padding-right: 0;"
