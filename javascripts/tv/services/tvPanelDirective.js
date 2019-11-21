@@ -321,7 +321,6 @@
       return $q(resolve => {
         filter.possibleValues().then(values => {
           filter.cachedValues = values;
-          console.debug('Filter ' + filter.label + ": " + filter.cachedValues.length + " cached.");
           createIsActiveBasedOnDefaults(filter);
           if (!!filter.allNone) {
             filter.cachedValues.push({
@@ -349,7 +348,6 @@
 
     function cachePossibleValues() {
       const uncachedFilters = getUncachedFilters();
-      console.log('Filters: ' + self.getFilters().length + ', Uncached: ' + uncachedFilters.length);
       $q.all(_.map(uncachedFilters, cacheValuesForFilter)).then(() => {
         self.filtersCached = true;
         refreshCachedLabels();
@@ -357,8 +355,6 @@
     }
 
     function refreshCachedLabels() {
-      const uncachedFilters = getUncachedFilters();
-      console.debug('Refreshing labels, uncached: ' + uncachedFilters.length);
       _.each(self.getFilters(), filter => {
         const otherFilters = allFiltersBut(filter);
         const filteredShows = _.filter(self.getShows(), show => runThroughFilterArray(otherFilters, show));
