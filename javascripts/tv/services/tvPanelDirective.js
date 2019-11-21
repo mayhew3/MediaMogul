@@ -54,7 +54,7 @@
     };
 
     self.getFilters = function() {
-      return _.isArray(self.TVPanelFilterService.filters) ?
+      return self.filtersEnabled() ?
         self.TVPanelFilterService.filters :
         [];
     };

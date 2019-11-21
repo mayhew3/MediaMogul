@@ -9,7 +9,7 @@
         </div>
         <div class="headerRight">
            <button type="button"
-                   ng-if="!!ctrl.filtersEnabled"
+                   ng-if="!!ctrl.filtersEnabled()"
                    ng-disabled="!ctrl.filtersCached"
                    ng-click="ctrl.toggleFilterBar()"
                    class="btn btn-default"><i class="glyphicon glyphicon-filter"></i></button>
