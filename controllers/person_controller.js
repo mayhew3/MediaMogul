@@ -616,7 +616,7 @@ exports.getSeriesDetailInfo = function(request, response) {
           "WHERE er.retired = $1 " +
           "AND er.person_id = $2 " +
           "AND e.series_id = $3 " +
-          "ORDER BY er.watched_date DESC, e.absolute_number DESC ";
+          "ORDER BY er.watched_date DESC NULLS LAST, e.absolute_number DESC ";
 
         const values = [
           0,
@@ -1182,7 +1182,7 @@ function addElement(ratingElements, weight, value) {
 
 function combineRatingElements(ratingElements) {
   if (ratingElements.length === 0) {
-    return 0;
+    return null;
   }
 
   let runningWeight = 0;
