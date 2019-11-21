@@ -49,6 +49,10 @@
       self.EpisodeService.registerAsObserver($scope);
     }
 
+    self.filtersEnabled = function() {
+      return !!self.panelInfo.filters;
+    };
+
     self.getFilters = function() {
       return _.isArray(self.TVPanelFilterService.filters) ?
         self.TVPanelFilterService.filters :
