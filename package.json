@@ -9,7 +9,7 @@
     "postinstall": "grunt"
   },
   "dependencies": {
-    "angular": "1.7.8",
+    "angular": "1.7.9",
     "angular-auth0": "3.0.0",
     "angular-cookies": "1.7.8",
     "angular-jwt": "0.1.11",
