@@ -17,7 +17,7 @@ angular.module('mediaMogulApp')
         $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
         const allPosters = response.data;
 
-        self.defaultPoster = getDefaultPoster(allPosters);
+        updateDefaultPoster(allPosters);
         if (!!self.series.my_poster) {
           self.selectedPoster = _.findWhere(allPosters, {tvdb_poster_id: series.my_poster.tvdb_poster_id});
         } else {
@@ -31,12 +31,28 @@ angular.module('mediaMogulApp')
         return !poster.imageDoesNotExist && self.isUnhiddenOrRecentlyHidden(poster);
       };
 
+      function updateDefaultPoster(allPosters) {
+        self.defaultPoster = getDefaultPoster(allPosters);
+      }
+
       function getDefaultPoster(allPosters) {
         if (self.series.cloud_poster) {
           return _.findWhere(allPosters, {cloud_poster: series.cloud_poster});
         } else {
           return _.findWhere(allPosters, {poster: series.poster});
         }
+      }
+
+      // get the most recent unhidden poster in case this poster becomes hidden.
+      function getAlternateDefaultIfNeeded(poster) {
+        if (self.defaultPoster.tvdb_poster_id !== poster.tvdb_poster_id) {
+          return null;
+        }
+
+        const eligiblePosters = _.filter(self.allPosters, allPoster => {
+          return !allPoster.hidden && allPoster.tvdb_poster_id !== poster.tvdb_poster_id
+        });
+        return _.last(eligiblePosters);
       }
 
       self.posterStyle = function(poster) {
@@ -63,6 +79,7 @@ angular.module('mediaMogulApp')
       };
 
       self.selectPoster = function(poster) {
+        const alternatePoster = getAlternateDefaultIfNeeded(poster);
         $uibModal.open({
           templateUrl: 'views/tv/modifyPoster.html',
           controller: 'modifyPosterController as ctrl',
@@ -82,6 +99,17 @@ angular.module('mediaMogulApp')
           .then(() => {
             if (!!poster.hidden) {
               self.recentlyHidden.push(poster);
+              if (!!alternatePoster) {
+                const changedFields = {
+                  poster: alternatePoster.poster,
+                  cloud_poster: alternatePoster.cloud_poster
+                };
+                EpisodeService.updateSeries(self.series.id, changedFields).then(() => {
+                  self.defaultPoster = alternatePoster;
+                  self.series.poster = alternatePoster.poster;
+                  self.series.cloud_poster = alternatePoster.cloud_poster;
+                });
+              }
             }
             if (poster.tvdb_poster_id === self.series.my_poster.tvdb_poster_id) {
               self.selectedPoster = poster;
