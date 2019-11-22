@@ -1,0 +1,32 @@
+<div class="modal-body clearfix">
+  <div class="col-xs-12">
+    <button class="btn btn-lg btn-success changePopupButton"
+            ng-click="ctrl.chooseFavorite()">
+      Favorite
+    </button>
+  </div>
+
+  <div class="col-xs-12">
+    <button class="btn btn-lg btn-warning changePopupButton"
+            ng-if="ctrl.LockService.isAdmin() && !ctrl.tvdb_poster.hidden"
+            ng-click="ctrl.toggleHidden()">
+      Flag
+    </button>
+  </div>
+
+  <div class="col-xs-12">
+    <button class="btn btn-lg btn-info changePopupButton"
+            ng-if="ctrl.LockService.isAdmin() && ctrl.tvdb_poster.hidden"
+            ng-click="ctrl.toggleHidden()">
+      Un-flag
+    </button>
+  </div>
+
+  <div class="col-xs-12">
+    <button class="btn btn-lg btn-default changePopupButton"
+            ng-click="ctrl.cancel()">
+      Cancel
+    </button>
+  </div>
+</div>
+

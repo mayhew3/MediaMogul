@@ -11,6 +11,7 @@ angular.module('mediaMogulApp')
 
       self.selectedPoster = null;
       self.defaultPoster = null;
+      self.recentlyHidden = [];
 
       $http.get('/api/allPosters', {params: {tvdb_series_id: series.tvdb_series_id}}).then(function(response) {
         $log.debug(response.data.length + " posters found for series tvdb id " + series.tvdb_series_id);
@@ -27,7 +28,7 @@ angular.module('mediaMogulApp')
       });
 
       self.posterFilter = function(poster) {
-        return !poster.imageDoesNotExist;
+        return !poster.imageDoesNotExist && self.isUnhiddenOrRecentlyHidden(poster);
       };
 
       function getDefaultPoster(allPosters) {
@@ -48,6 +49,10 @@ angular.module('mediaMogulApp')
           return {
             "border": "solid yellow"
           };
+        } else if (!!poster.hidden) {
+          return {
+            "opacity": 0.5
+          };
         } else {
           return {"border": "solid gray"};
         }
@@ -58,8 +63,34 @@ angular.module('mediaMogulApp')
       };
 
       self.selectPoster = function(poster) {
-        self.selectedPoster = poster;
-        self.submitAndClose();
+        $uibModal.open({
+          templateUrl: 'views/tv/modifyPoster.html',
+          controller: 'modifyPosterController as ctrl',
+          size: 'sm',
+          resolve: {
+            series: function() {
+              return self.series;
+            },
+            tvdb_poster: function() {
+              return poster;
+            },
+            previous_poster: function() {
+              return getPreviousSelectedPoster();
+            },
+          }
+        }).result
+          .then(() => {
+            if (!!poster.hidden) {
+              self.recentlyHidden.push(poster);
+            }
+            if (poster.tvdb_poster_id === self.series.my_poster.tvdb_poster_id) {
+              self.selectedPoster = poster;
+            }
+          });
+      };
+
+      self.isUnhiddenOrRecentlyHidden = function(poster) {
+        return !poster.hidden || _.contains(self.recentlyHidden, poster);
       };
 
       function hasPreviousPoster() {
@@ -70,43 +101,7 @@ angular.module('mediaMogulApp')
         return hasPreviousPoster() ? self.series.my_poster : self.defaultPoster;
       }
 
-      function hasChangedFromPrevious() {
-        const previousSelectedPoster = getPreviousSelectedPoster();
-        return !previousSelectedPoster ||
-          self.selectedPoster.tvdb_poster_id !== previousSelectedPoster.tvdb_poster_id;
-      }
-
-      self.submitAndClose = function() {
-        addOrUpdatePoster().then(() => $uibModalInstance.close());
-      };
-
-      function addOrUpdatePoster() {
-        return $q(resolve => {
-          if (hasChangedFromPrevious()) {
-            if (!!self.series.my_poster) {
-              EpisodeService.updateMyPoster(self.series.my_poster.id, self.selectedPoster.tvdb_poster_id).then(() => {
-                const myPoster = self.series.my_poster;
-                myPoster.tvdb_poster_id = self.selectedPoster.tvdb_poster_id;
-                myPoster.poster = self.selectedPoster.poster;
-                myPoster.cloud_poster = self.selectedPoster.cloud_poster;
-
-                resolve();
-              });
-            } else {
-              EpisodeService.addPoster(self.series.id, self.selectedPoster.tvdb_poster_id).then(results => {
-                const person_poster_id = results.data[0].id;
-                self.series.my_poster = self.selectedPoster;
-                self.series.my_poster.person_poster_id = person_poster_id;
-                resolve();
-              });
-            }
-          } else {
-            resolve();
-          }
-        });
-      }
-
-      self.cancel = function() {
-        $uibModalInstance.dismiss();
+      self.close = function() {
+        $uibModalInstance.close();
       };
     }]);

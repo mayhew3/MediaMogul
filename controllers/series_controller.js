@@ -528,3 +528,16 @@ exports.getUpcomingEpisodes = function(req, response) {
 
   return db.selectSendResponse(response, sql, [1, false, 0, 0]);
 };
+
+/* EDITING TVDB_POSTER */
+
+exports.hideTVDBPoster = function(request, response) {
+  const tvdb_poster_id = request.body.tvdb_poster_id;
+  const hidden = request.body.hidden;
+
+  const changedFields = {
+    hidden: hidden
+  };
+
+  db.updateObjectWithChangedFieldsSendResponse(response, changedFields, 'tvdb_poster', tvdb_poster_id);
+};
