@@ -57,14 +57,6 @@ module.exports = function(app) {
   privateGet('/tvdbMatches', addShow.getTVDBMatches);
   privateGet('/tvdbIDs', series.getMatchedTVDBIDs);
 
-  // ADMIN
-  privateGet('/tvdbErrors', admin.getTVDBErrors);
-  privateGet('/services', admin.getExternalServices);
-  
-  // API for iOS app
-  privateGet('/primeTV', series.getPrimeTV);
-  privateGet('/primeSeriesInfo', series.getPrimeSeriesInfo);
-
   privatePost('/updateEpisode', series.updateEpisode);
   privatePost('/changeTier', series.changeTier);
   privatePost('/addSeries', addShow.beginEpisodeFetch);
@@ -74,6 +66,15 @@ module.exports = function(app) {
   privatePost('/addViewingLocation', series.addViewingLocation);
   privatePost('/removeViewingLocation', series.removeViewingLocation);
   privatePost('/handleSeriesRequest', series.handleSeriesRequest);
+  privatePost('/posterHide', series.hideTVDBPoster);
+
+  // ADMIN
+  privateGet('/tvdbErrors', admin.getTVDBErrors);
+  privateGet('/services', admin.getExternalServices);
+
+  // API for iOS app
+  privateGet('/primeTV', series.getPrimeTV);
+  privateGet('/primeSeriesInfo', series.getPrimeSeriesInfo);
 
   // PERSONS
   privateGet('/person', persons.getPersonInfo);
