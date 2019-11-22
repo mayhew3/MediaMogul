@@ -20,7 +20,7 @@ angular.module('mediaMogulApp')
       self.toggleHidden = function() {
         const newHidden = !self.tvdb_poster.hidden ? new Date : null;
         const body = {
-          tvdb_poster_id: self.tvdb_poster.id,
+          tvdb_poster_id: self.tvdb_poster.tvdb_poster_id,
           hidden: newHidden
         };
         $http.post('/api/posterHide', body).then(() => {
