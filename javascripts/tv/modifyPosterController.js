@@ -12,7 +12,6 @@ angular.module('mediaMogulApp')
 
       self.chooseFavorite = function() {
         addOrUpdatePoster().then(() => {
-
           $uibModalInstance.close()
         });
       };
