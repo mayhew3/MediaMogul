@@ -75,8 +75,20 @@ angular.module('mediaMogulApp')
       };
 
       self.posterInfo = {
-        extraStyles: self.posterStyle
+        extraStyles: self.posterStyle,
+        textOverlay: textOverlay
       };
+
+      function textOverlay(poster) {
+        return isRecentlyHidden(poster) ? 'Flagged' : null;
+      }
+
+      function addRecentlyHidden(poster) {
+        const existing = _.findWhere(self.recentlyHidden, {tvdb_poster_id: poster.tvdb_poster_id});
+        if (!existing) {
+          self.recentlyHidden.push(poster);
+        }
+      }
 
       self.selectPoster = function(poster) {
         const alternatePoster = getAlternateDefaultIfNeeded(poster);
@@ -98,7 +110,7 @@ angular.module('mediaMogulApp')
         }).result
           .then(() => {
             if (!!poster.hidden) {
-              self.recentlyHidden.push(poster);
+              addRecentlyHidden(poster);
               if (!!alternatePoster) {
                 const changedFields = {
                   poster: alternatePoster.poster,
@@ -113,7 +125,9 @@ angular.module('mediaMogulApp')
             }
             if (posterEquals(poster, self.series.my_poster)) {
               if (!!self.selectedPoster.hidden) {
-                self.recentlyHidden.push(self.selectedPoster);
+                addRecentlyHidden(self.selectedPoster);
+              } else if (isRecentlyHidden(poster)) {
+                ArrayService.removeFromArray(self.recentlyHidden, poster);
               }
               self.selectedPoster = poster;
             }
