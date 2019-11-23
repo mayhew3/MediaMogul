@@ -28,7 +28,7 @@ angular.module('mediaMogulApp')
       });
 
       self.posterFilter = function(poster) {
-        return !poster.imageDoesNotExist && self.isUnhiddenOrRecentlyHidden(poster);
+        return !poster.imageDoesNotExist && self.isUnhiddenOrRecentlyHiddenOrFavorite(poster);
       };
 
       function updateDefaultPoster(allPosters) {
@@ -111,14 +111,29 @@ angular.module('mediaMogulApp')
                 });
               }
             }
-            if (poster.tvdb_poster_id === self.series.my_poster.tvdb_poster_id) {
+            if (posterEquals(poster, self.series.my_poster)) {
+              if (!!self.selectedPoster.hidden) {
+                self.recentlyHidden.push(self.selectedPoster);
+              }
               self.selectedPoster = poster;
             }
           });
       };
 
-      self.isUnhiddenOrRecentlyHidden = function(poster) {
-        return !poster.hidden || _.contains(self.recentlyHidden, poster);
+      function isRecentlyHidden(poster) {
+        return _.contains(self.recentlyHidden, poster)
+      }
+
+      function isFavorite(poster) {
+        return posterEquals(self.selectedPoster, poster);
+      }
+
+      function posterEquals(poster1, poster2) {
+        return poster1.tvdb_poster_id === poster2.tvdb_poster_id;
+      }
+
+      self.isUnhiddenOrRecentlyHiddenOrFavorite = function(poster) {
+        return !poster.hidden || isRecentlyHidden(poster) || isFavorite(poster);
       };
 
       function hasPreviousPoster() {
