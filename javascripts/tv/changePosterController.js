@@ -92,6 +92,7 @@ angular.module('mediaMogulApp')
 
       self.selectPoster = function(poster) {
         const alternatePoster = getAlternateDefaultIfNeeded(poster);
+        const noOverride = posterEquals(self.defaultPoster, self.selectedPoster);
         $uibModal.open({
           templateUrl: 'views/tv/modifyPoster.html',
           controller: 'modifyPosterController as ctrl',
@@ -118,6 +119,9 @@ angular.module('mediaMogulApp')
                 };
                 EpisodeService.updateSeries(self.series.id, changedFields).then(() => {
                   self.defaultPoster = alternatePoster;
+                  if (noOverride) {
+                    self.selectedPoster = alternatePoster;
+                  }
                   self.series.poster = alternatePoster.poster;
                   self.series.cloud_poster = alternatePoster.cloud_poster;
                 });
