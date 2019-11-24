@@ -214,6 +214,8 @@ exports.getGroupShows = function(request, response) {
     db.selectNoResponse(sql, values).then(function(episodeResults) {
 
       let groupedBySeries = _.groupBy(episodeResults, "series_id");
+      const keys = _.keys(groupedBySeries);
+      console.debug('Keys: ' + keys);
       for (let seriesId in groupedBySeries) {
         if (groupedBySeries.hasOwnProperty(seriesId)) {
           let unwatchedEpisodes = groupedBySeries[seriesId];
