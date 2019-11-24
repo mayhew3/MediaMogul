@@ -219,6 +219,9 @@ exports.getGroupShows = function(request, response) {
           let unwatchedEpisodes = groupedBySeries[seriesId];
 
           let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+          if (!series) {
+            throw new Error("No series found with id: " + seriesId);
+          }
           debug("Series: " + series.title);
 
           const groupSeries = getGroupShowFromSeries(series, tv_group_id);
