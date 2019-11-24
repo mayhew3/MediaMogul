@@ -214,13 +214,15 @@ exports.getGroupShows = function(request, response) {
     db.selectNoResponse(sql, values).then(function(episodeResults) {
 
       let groupedBySeries = _.groupBy(episodeResults, "series_id");
-      const keys = _.keys(groupedBySeries);
-      console.debug('Keys: ' + keys);
+      const seriesKeys = _.map(seriesResults, seriesResult => seriesResult.id).sort();
+      const stringKeys = _.filter(seriesKeys, key => typeof key === 'string');
+      console.debug('Keys: ' + seriesKeys);
+      console.debug('String keys: ' + stringKeys);
       for (let seriesId in groupedBySeries) {
         if (groupedBySeries.hasOwnProperty(seriesId)) {
           let unwatchedEpisodes = groupedBySeries[seriesId];
 
-          let series = _.findWhere(seriesResults, {id: parseInt(seriesId)});
+          let series = _.find(seriesResults, seriesResult => seriesResult.id === seriesId || seriesResult.id === parseInt(seriesId));
           if (!series) {
             throw new Error("No series found with id: " + seriesId);
           }
