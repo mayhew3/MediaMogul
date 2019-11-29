@@ -60,5 +60,10 @@ function DateService($filter) {
     return moment().add(days, 'day').isAfter(moment(referenceDate));
   };
 
+  self.datesEqual = function(date1, date2) {
+    const moment1 = moment(date1);
+    const moment2 = moment(date2);
+    return moment1.isSame(moment2);
+  };
 
 }

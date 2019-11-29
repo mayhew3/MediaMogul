@@ -23,9 +23,12 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   self.viewerInfos = [];
   self.childGroups = [];
   self.childGroupEpisodes = [];
+  self.LockService = LockService;
+  self.editingAirDate = false;
 
   self.$onInit = function() {
     self.watchedDate = initWatchedDate();
+    self.airDate = initAirDate();
     self.original_rating_value = initRating();
     self.rating_value = initRating();
     maybeUpdateChildGroups();
@@ -46,8 +49,16 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       null;
   }
 
+  self.editAirDate = function() {
+    self.editingAirDate = !self.editingAirDate;
+  };
+
   self.ratingIsChanged = function() {
     return self.original_rating_value !== self.rating_value;
+  };
+
+  self.airDateHasChanged = function() {
+    return !DateService.datesEqual(self.airDate, self.episode.air_date);
   };
 
   function initWatchedDate() {
@@ -58,6 +69,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     return ArrayService.exists(watchedDateFromEpisode) ?
       new Date(watchedDateFromEpisode) :
       null;
+  }
+
+  function initAirDate() {
+    return !!self.episode.air_date ? new Date(self.episode.air_date) : null;
   }
 
   self.hasPreviousUnwatched = function() {
@@ -234,6 +249,10 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     opened: false
   };
 
+  self.airDatePopup = {
+    opened: false
+  };
+
   self.dateOptions = {
     formatYear: 'yy',
     startingDay: 1
@@ -245,10 +264,29 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     self.popup.opened = true;
   };
 
+  self.openAirDate = function() {
+    self.airDatePopup.opened = true;
+  };
+
   self.airedFromNow = function() {
     return ArrayService.exists(self.episode.air_time) ?
       moment(self.episode.air_time).fromNow() :
       '';
+  };
+
+  self.changeAirDate = function() {
+    const diff = moment(self.airDate).diff(moment(self.episode.air_date));
+    const duration = moment.duration(diff);
+    const airTime = moment(self.episode.air_time).add(duration).toDate();
+    const changedFields = {
+      air_date: self.airDate,
+      air_time: airTime
+    };
+    EpisodeService.updateEpisode(self.episode.id, changedFields).then(() => {
+      self.episode.air_date = self.airDate;
+      self.episode.air_time = airTime;
+      self.editingAirDate = false;
+    });
   };
 
   self.isUnaired = function() {
@@ -314,7 +352,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
       const msgPayload = {
         series_id: self.episode.series_id,
-        person_id: LockService.getPersonID(),
+        person_id: self.LockService.getPersonID(),
         personEpisode: changedFields
       };
       msgPayload.personEpisode.episode_id = self.episode.id;
@@ -330,7 +368,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     const episode = self.episode;
     const ratingFields = {
       episode_id: episode.id,
-      person_id: LockService.getPersonID(),
+      person_id: self.LockService.getPersonID(),
       watched: !self.isWatched(),
       watched_date: self.isWatched() ? null : DateService.formatDateForDatabase(self.watchedDate),
       rating_value: self.rating_value,
@@ -349,7 +387,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
       const msgPayload = {
         series_id: self.episode.series_id,
-        person_id: LockService.getPersonID(),
+        person_id: self.LockService.getPersonID(),
         personEpisode: ratingFields
       };
 
@@ -374,7 +412,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       },
       member_ids: GroupService.getMemberIDs(getOptionalGroupID()),
       episode_id: self.episode.id,
-      person_id: LockService.getPersonID(),
+      person_id: self.LockService.getPersonID(),
       rating_value: self.rating_value,
       series_id: self.episode.series_id,
       tv_group_id: groupEpisode.tv_group_id,
