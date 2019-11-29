@@ -275,7 +275,9 @@ async function updatePosters(tvdbSeries, tvdbSeriesObj, personId, selectedPoster
 
     const posterData = tvdb_response.data;
     if (posterData.length > 0) {
-      _.each(posterData, posterObj => addPoster(tvdbSeries, posterObj.fileName)
+      await addTopPoster(tvdbSeries);
+      const withoutTopPoster = _.filter(posterData, posterObj => posterObj.fileName !== tvdbSeries.last_poster);
+      _.each(withoutTopPoster, posterObj => addPoster(tvdbSeries, posterObj.fileName)
         .catch(err => throwFetchEpisodesError(err,
           'Add poster',
           'Internal Database Error',
@@ -525,6 +527,16 @@ function updateMatchCompleted(series) {
 
   series.tvdb_match_status = 'Match Completed';
   return db.updateNoResponse(sql, values);
+}
+
+async function addTopPoster(tvdbSeries) {
+  const tvdb_poster = {
+    poster_path: tvdbSeries.last_poster,
+    cloud_poster: tvdbSeries.cloud_poster,
+    tvdb_series_id: tvdbSeries.id
+  };
+
+  return insertObject('tvdb_poster', tvdb_poster);
 }
 
 async function addPoster(tvdbSeries, fileName) {
