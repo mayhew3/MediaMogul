@@ -50,7 +50,9 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   }
 
   self.editAirDate = function() {
-    self.editingAirDate = !self.editingAirDate;
+    if (self.LockService.isAdmin()) {
+      self.editingAirDate = !self.editingAirDate;
+    }
   };
 
   self.ratingIsChanged = function() {

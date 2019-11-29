@@ -25,8 +25,7 @@
 
     <div class="row seriesDetailElement" style="margin-top: 15px">
       <div class="col-lg-12" ng-if="!ctrl.editingAirDate">
-        Aired: <span ng-bind="ctrl.getAirDate()"></span>
-        <span ng-if="ctrl.LockService.isAdmin()"><a href ng-click="ctrl.editAirDate()">(Change)</a></span>
+        Aired: <span ng-bind="ctrl.getAirDate()" ng-click="ctrl.editAirDate()"></span>
       </div>
       <div class="col-lg-12" ng-if="ctrl.editingAirDate">
         <div class="input-group">
