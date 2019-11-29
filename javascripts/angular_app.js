@@ -250,10 +250,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           LockService.scheduleRenewal();
 
           // return value is a "deregistration" function that can be called to detach from the event.
-          const onRouteChangeOff = $rootScope.$on('$locationChangeStart', routeChange);
+          const onRouteChangeOff = $rootScope.$on('$stateChangeStart', routeChange);
 
           self.sendHome = function(event) {
-            event.preventDefault();
+            if (!!event) {
+              event.preventDefault();
+            }
             onRouteChangeOff();
             $state.go('home');
           };
@@ -263,6 +265,10 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             var optional_port = $location.port() === 80 ? '' : ':' + $location.port();
             return protocol_host + optional_port;
           };
+
+          if (!store.get('token')) {
+            self.sendHome();
+          }
 
           function routeChange(event, next) {
             // Get the JWT that is saved in local storage
