@@ -1,4 +1,4 @@
-var env = {};
+const env = {};
 
 if (window) {
   Object.assign(env, window.__env);
@@ -203,7 +203,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       $locationProvider.html5Mode(true);
 
       function redirect($q, $injector, $timeout) {
-        var lockService;
+        let lockService;
         $timeout(function() {
           lockService = $injector.get('LockService');
         });
@@ -225,7 +225,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
       jwtInterceptorProvider.tokenGetter =
         ['store', '$http', 'jwtHelper',
           function(store, $http, jwtHelper) {
-            var token = store.get('token');
+            const token = store.get('token');
             if (token) {
               if (!jwtHelper.isTokenExpired(token)) {
                 return token;
@@ -261,8 +261,8 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           };
 
           self.callbackBase = function() {
-            var protocol_host = $location.protocol() + "://" + $location.host();
-            var optional_port = $location.port() === 80 ? '' : ':' + $location.port();
+            const protocol_host = $location.protocol() + "://" + $location.host();
+            const optional_port = $location.port() === 80 ? '' : ':' + $location.port();
             return protocol_host + optional_port;
           };
 
@@ -340,10 +340,13 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
 
     }])
   .directive('errSrc', function() {
+    // noinspection JSUnusedGlobalSymbols
     return {
       link: function(scope, element, attrs) {
         element.bind('error', function() {
+          // noinspection JSUnresolvedVariable
           if (attrs.src !== attrs.errSrc) {
+            // noinspection JSUnresolvedVariable
             attrs.$set('src', attrs.errSrc);
             if (scope.show) {
               console.log("Error reading image for series '" + scope.show.title + "'.");
