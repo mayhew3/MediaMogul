@@ -151,7 +151,7 @@ angular.module('mediaMogulApp')
       }
 
       self.isUnhiddenOrRecentlyHiddenOrFavorite = function(poster) {
-        return !poster.hidden || isRecentlyHidden(poster) || isFavorite(poster);
+        return (!poster.hidden && !!poster.cloud_poster) || isRecentlyHidden(poster) || isFavorite(poster);
       };
 
       function hasPreviousPoster() {
