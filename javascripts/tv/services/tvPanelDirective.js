@@ -38,7 +38,7 @@
     self.panel_id = self.panelInfo.panel_id;
 
     if (!!self.panel_id) {
-      self.TVPanelFilterService.registerPanel(self.panel_id, self.panelInfo.filters, 1);
+      self.panelFilterInfo = self.TVPanelFilterService.registerPanel(self.panel_id, self.panelInfo.filters, 1);
     }
 
     self.filtersCached = false;
@@ -50,12 +50,12 @@
     }
 
     self.filtersEnabled = function() {
-      return !!self.panelInfo.filters;
+      return !!self.panelInfo.filters && !!self.panelFilterInfo;
     };
 
     self.getFilters = function() {
       return self.filtersEnabled() ?
-        self.TVPanelFilterService.filters :
+        self.panelFilterInfo.filters :
         [];
     };
 

@@ -100,7 +100,7 @@
            ng-repeat="show in ctrl.getShows() |
                     orderBy: ctrl.orderBy() : ctrl.reverseSort() |
                     filter: ctrl.allFilter |
-                    limitTo: ctrl.pageSize : (ctrl.TVPanelFilterService.page_number - 1) * ctrl.pageSize">
+                    limitTo: ctrl.pageSize : (ctrl.panelFilterInfo.page_number - 1) * ctrl.pageSize">
 
         <!-- POSTER -->
 
@@ -138,7 +138,7 @@
       <div class="col-lg-12" ng-show="ctrl.totalItems() > ctrl.pageSize">
         <ul uib-pagination
             total-items="ctrl.totalItems()"
-            ng-model="ctrl.TVPanelFilterService.page_number"
+            ng-model="ctrl.panelFilterInfo.page_number"
             items-per-page="ctrl.pageSize"
             max-size="16"></ul>
       </div>

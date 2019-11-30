@@ -67,6 +67,10 @@ angular.module('mediaMogulApp')
       return hasNoTrailerLink && !hasWatchedEpisodes(show) ? 'No Trailer' : null;
     }
 
+    function createPanelID(prefix) {
+      return prefix + '_' + self.group.id;
+    }
+
     self.dashboardInfos = [
       {
         headerText: "Up for Vote",
@@ -80,7 +84,8 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-warning',
         clickOverride: submitVotePopup,
-        pageLimit: 6
+        pageLimit: 6,
+        panel_id: createPanelID('up_for_vote')
       },
       {
         headerText: "Needs First Vote",
@@ -95,7 +100,8 @@ angular.module('mediaMogulApp')
         panelFormat: 'panel-info',
         clickOverride: clickBallotPosterToStart,
         textOverlay: textOverlay,
-        pageLimit: 6
+        pageLimit: 6,
+        panel_id: createPanelID('needs_first_vote')
       },
       {
         headerText: "Needs Post-Buffet Vote",
@@ -109,7 +115,8 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
         clickOverride: clickBallotPosterPostBuffet,
-        pageLimit: 6
+        pageLimit: 6,
+        panel_id: createPanelID('needs_post_buffet')
       },
       {
         headerText: "Needs New Season Vote",
@@ -123,7 +130,8 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         panelFormat: 'panel-info',
         clickOverride: clickBallotPosterNewSeason,
-        pageLimit: 6
+        pageLimit: 6,
+        panel_id: createPanelID('needs_new_season')
       },
       {
         headerText: "Needs Refresh Vote",
@@ -139,7 +147,8 @@ angular.module('mediaMogulApp')
         subtitle: absenceRefreshSubtitle,
         clickOverride: clickBallotPosterAbsence,
         textOverlay: textOverlay,
-        pageLimit: 6
+        pageLimit: 6,
+        panel_id: createPanelID('needs_refresh')
       },
       {
         headerText: "Awaiting Votes",
@@ -155,6 +164,7 @@ angular.module('mediaMogulApp')
         badgeColor: 'posterBadgeRed',
         panelFormat: 'panel-success',
         pageLimit: 6,
+        panel_id: createPanelID('awaiting_votes'),
         tooltipFunction: self.getVotesTooltipText
       },
       {
@@ -168,7 +178,8 @@ angular.module('mediaMogulApp')
         seriesFunction: self.getGroupShows,
         scoreValue: getGroupScore,
         posterSize: 'large',
-        badgeValue: getUnwatched
+        badgeValue: getUnwatched,
+        panel_id: createPanelID('top_queue')
       },
       {
         headerText: 'Voted On',
@@ -182,7 +193,8 @@ angular.module('mediaMogulApp')
         showPanel: () => getActiveCount() < 2,
         pageLimit: 6,
         showLoading: self.showLoading,
-        seriesFunction: self.getGroupShows
+        seriesFunction: self.getGroupShows,
+        panel_id: createPanelID('voted_on')
       },
       {
         headerText: 'Not Voted On',
@@ -196,7 +208,8 @@ angular.module('mediaMogulApp')
         showPanel: () => getActiveCount() < 2,
         pageLimit: 6,
         showLoading: self.showLoading,
-        seriesFunction: self.getGroupShows
+        seriesFunction: self.getGroupShows,
+        panel_id: createPanelID('not_voted_on')
       },
       {
         headerText: "Recently Added",
@@ -210,7 +223,8 @@ angular.module('mediaMogulApp')
         scoreValue: getGroupScore,
         posterSize: 'large',
         pageLimit: 6,
-        badgeValue: getUnwatched
+        badgeValue: getUnwatched,
+        panel_id: createPanelID('recently_added')
       },
       {
         headerText: "Upcoming",
@@ -222,7 +236,8 @@ angular.module('mediaMogulApp')
         },
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
-        subtitle: nextAirDate
+        subtitle: nextAirDate,
+        panel_id: createPanelID('upcoming')
       },
       {
         headerText: "Up to Date",
@@ -235,7 +250,8 @@ angular.module('mediaMogulApp')
         subtitle: lastWatchedDate,
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
-        pageLimit: 6
+        pageLimit: 6,
+        panel_id: createPanelID('up_to_date')
       }
     ];
 
@@ -334,7 +350,7 @@ angular.module('mediaMogulApp')
       },
       tvFilter: allVotedFilter,
       posterSize: 'large',
-      panel_id: 'group_' + self.group.id,
+      panel_id: createPanelID('all_active'),
       filters: filters,
       showEmpty: true,
       badgeValue: getUnwatched,
@@ -683,19 +699,6 @@ angular.module('mediaMogulApp')
           notify: true
         }
       );
-    };
-
-    self.addShows = function() {
-      $uibModal.open({
-        templateUrl: 'views/tv/groups/addShows.html',
-        controller: 'addGroupShowsController as ctrl',
-        size: 'lg',
-        resolve: {
-          group: function() {
-            return self.group;
-          }
-        }
-      });
     };
 
     function submitVotePopup(show) {
