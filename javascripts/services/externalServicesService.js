@@ -21,6 +21,7 @@ angular.module('mediaMogulApp')
       };
 
       async function manualUpdate() {
+        console.debug('Manually getting external services.');
         const response = await $http.get('/api/services');
         ArrayService.refreshArray(self.externalServices, response.data);
         _.each(self.externalServices, externalService => {
