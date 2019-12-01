@@ -6,19 +6,35 @@ angular.module('mediaMogulApp')
 
       self.externalServices = [];
       self.nextTimeout = undefined;
+      const lastUpdates = [];
 
-      self.updateExternalServices = function() {
+      self.updateExternalServices = async function() {
         if (LockService.isAdmin()) {
-          return $http.get('/api/services').then(function (response) {
-            ArrayService.refreshArray(self.externalServices, response.data);
+          await manualUpdate();
 
-            self.SocketService.on('ext_service_update', function (externalService) {
-              addOrReplaceExternalService(externalService);
-            });
-
+          self.SocketService.on('ext_service_update', externalService => {
+            addOrReplaceExternalService(externalService);
           });
         }
       };
+
+      async function manualUpdate() {
+        const response = await $http.get('/api/services');
+        ArrayService.refreshArray(self.externalServices, response.data);
+        _.each(self.externalServices, externalService => {
+          lastUpdates[externalService.service_name] = moment();
+        });
+      }
+
+      function scheduleNextUpdate() {
+        if (self.nextTimeout) {
+          $timeout.cancel(self.nextTimeout);
+          self.nextTimeout = undefined;
+        }
+        self.nextTimeout = $timeout(scheduleNextUpdate, 1000 * 15);
+      }
+
+
 
       LockService.addCallback(self.updateExternalServices);
 
@@ -28,6 +44,7 @@ angular.module('mediaMogulApp')
           ArrayService.removeFromArray(self.externalServices, matching);
         }
         self.externalServices.push(externalService);
+        lastUpdates[externalService.service_name] = moment();
       }
 
       self.getThresholdTime = function(service) {
