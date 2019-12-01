@@ -15,6 +15,8 @@ angular.module('mediaMogulApp')
           self.SocketService.on('ext_service_update', externalService => {
             addOrReplaceExternalService(externalService);
           });
+
+          self.SocketService.on('reconnect', manualUpdate);
         }
       };
 
