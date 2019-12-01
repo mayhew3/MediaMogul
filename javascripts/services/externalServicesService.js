@@ -6,7 +6,6 @@ angular.module('mediaMogulApp')
 
       self.externalServices = [];
 
-      let isSocketConnected = false;
       let lastManualUpdate = undefined;
 
       self.updateExternalServices = async function() {
@@ -21,26 +20,26 @@ angular.module('mediaMogulApp')
 
           self.SocketService.on('connect', () => {
             debug('Socket connect event fired');
-            isSocketConnected = true;
           });
 
           self.SocketService.on('error', () => {
             debug('Socket error event fired');
-            isSocketConnected = false;
           });
 
           self.SocketService.on('disconnect', () => {
             debug('Socket disconnect event fired');
-            isSocketConnected = false;
           });
 
           self.SocketService.on('reconnect', () => {
             debug('Socket reconnect event fired');
-            isSocketConnected = true;
             manualUpdate();
           });
         }
       };
+
+      function isSocketConnected() {
+        return self.SocketService.isConnected();
+      }
 
       async function manualUpdate() {
         debug('Manually getting external services.');
@@ -83,7 +82,7 @@ angular.module('mediaMogulApp')
       };
 
       self.needsWarning = function(service) {
-        if (!recentlyManualUpdated() && !isSocketConnected) {
+        if (!recentlyManualUpdated() && !isSocketConnected()) {
           return false;
         }
 

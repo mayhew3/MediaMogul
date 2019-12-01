@@ -43,6 +43,10 @@ angular.module('mediaMogulApp')
         return !socket ? undefined : socket.id;
       };
 
+      self.isConnected = function() {
+        return !socket ? false : socket.connected;
+      };
+
       self.on = function(channel, callback) {
         let listener = () => {
           socket.on(channel, function () {
