@@ -5,8 +5,9 @@ angular.module('mediaMogulApp')
       self.SocketService = SocketService;
 
       self.externalServices = [];
-      self.nextTimeout = undefined;
-      const lastUpdates = [];
+
+      let isSocketConnected = false;
+      let lastManualUpdate = undefined;
 
       self.updateExternalServices = async function() {
         console.debug('ExternalServicesService: updateExternalServices.');
@@ -18,7 +19,26 @@ angular.module('mediaMogulApp')
             addOrReplaceExternalService(externalService);
           });
 
-          self.SocketService.on('reconnect', manualUpdate);
+          self.SocketService.on('connect', () => {
+            console.debug('ExternalServicesService: Socket connect event fired');
+            isSocketConnected = true;
+          });
+
+          self.SocketService.on('error', () => {
+            console.debug('ExternalServicesService: Socket error event fired');
+            isSocketConnected = false;
+          });
+
+          self.SocketService.on('disconnect', () => {
+            console.debug('ExternalServicesService: Socket disconnect event fired');
+            isSocketConnected = false;
+          });
+
+          self.SocketService.on('reconnect', () => {
+            console.debug('ExternalServicesService: Socket reconnect event fired');
+            isSocketConnected = true;
+            manualUpdate();
+          });
         }
       };
 
@@ -28,22 +48,19 @@ angular.module('mediaMogulApp')
           const response = await $http.get('/api/services');
           console.debug('ExternalServicesService: Response received.');
           ArrayService.refreshArray(self.externalServices, response.data);
-          _.each(self.externalServices, externalService => {
-            lastUpdates[externalService.service_name] = moment();
-          });
+          lastManualUpdate = moment();
         } catch (err) {
           console.log('ExternalServicesService ERROR: ' + err);
         }
       }
 
-      function scheduleNextUpdate() {
-        if (self.nextTimeout) {
-          $timeout.cancel(self.nextTimeout);
-          self.nextTimeout = undefined;
+      function recentlyManualUpdated() {
+        if (!lastManualUpdate) {
+          return false;
         }
-        self.nextTimeout = $timeout(scheduleNextUpdate, 1000 * 15);
+        const oneMinuteAfterLastUpdate = lastManualUpdate.add(1, 'minute');
+        return moment().isBefore(oneMinuteAfterLastUpdate);
       }
-
 
       console.debug('ExternalServicesService: Adding initial callback');
       LockService.addCallback(self.updateExternalServices);
@@ -54,7 +71,6 @@ angular.module('mediaMogulApp')
           ArrayService.removeFromArray(self.externalServices, matching);
         }
         self.externalServices.push(externalService);
-        lastUpdates[externalService.service_name] = moment();
       }
 
       self.getThresholdTime = function(service) {
@@ -67,6 +83,10 @@ angular.module('mediaMogulApp')
       };
 
       self.needsWarning = function(service) {
+        if (!recentlyManualUpdated() && !isSocketConnected) {
+          return false;
+        }
+
         const connectDate = service.last_connect ? moment(service.last_connect) : null;
 
         if (connectDate) {
