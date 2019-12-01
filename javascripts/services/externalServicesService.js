@@ -9,7 +9,9 @@ angular.module('mediaMogulApp')
       const lastUpdates = [];
 
       self.updateExternalServices = async function() {
+        console.debug('ExternalServicesService: updateExternalServices.');
         if (LockService.isAdmin()) {
+          console.debug('ExternalServicesService: isAdmin()');
           await manualUpdate();
 
           self.SocketService.on('ext_service_update', externalService => {
@@ -21,12 +23,17 @@ angular.module('mediaMogulApp')
       };
 
       async function manualUpdate() {
-        console.debug('Manually getting external services.');
-        const response = await $http.get('/api/services');
-        ArrayService.refreshArray(self.externalServices, response.data);
-        _.each(self.externalServices, externalService => {
-          lastUpdates[externalService.service_name] = moment();
-        });
+        console.debug('ExternalServicesService: Manually getting external services.');
+        try {
+          const response = await $http.get('/api/services');
+          console.debug('ExternalServicesService: Response received.');
+          ArrayService.refreshArray(self.externalServices, response.data);
+          _.each(self.externalServices, externalService => {
+            lastUpdates[externalService.service_name] = moment();
+          });
+        } catch (err) {
+          console.log('ExternalServicesService ERROR: ' + err);
+        }
       }
 
       function scheduleNextUpdate() {
@@ -38,7 +45,7 @@ angular.module('mediaMogulApp')
       }
 
 
-
+      console.debug('ExternalServicesService: Adding initial callback');
       LockService.addCallback(self.updateExternalServices);
 
       function addOrReplaceExternalService(externalService) {
