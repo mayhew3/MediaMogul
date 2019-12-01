@@ -10,9 +10,9 @@ angular.module('mediaMogulApp')
       let lastManualUpdate = undefined;
 
       self.updateExternalServices = async function() {
-        console.debug('ExternalServicesService: updateExternalServices.');
+        debug('updateExternalServices.');
         if (LockService.isAdmin()) {
-          console.debug('ExternalServicesService: isAdmin()');
+          debug('isAdmin()');
           await manualUpdate();
 
           self.SocketService.on('ext_service_update', externalService => {
@@ -20,22 +20,22 @@ angular.module('mediaMogulApp')
           });
 
           self.SocketService.on('connect', () => {
-            console.debug('ExternalServicesService: Socket connect event fired');
+            debug('Socket connect event fired');
             isSocketConnected = true;
           });
 
           self.SocketService.on('error', () => {
-            console.debug('ExternalServicesService: Socket error event fired');
+            debug('Socket error event fired');
             isSocketConnected = false;
           });
 
           self.SocketService.on('disconnect', () => {
-            console.debug('ExternalServicesService: Socket disconnect event fired');
+            debug('Socket disconnect event fired');
             isSocketConnected = false;
           });
 
           self.SocketService.on('reconnect', () => {
-            console.debug('ExternalServicesService: Socket reconnect event fired');
+            debug('Socket reconnect event fired');
             isSocketConnected = true;
             manualUpdate();
           });
@@ -43,14 +43,14 @@ angular.module('mediaMogulApp')
       };
 
       async function manualUpdate() {
-        console.debug('ExternalServicesService: Manually getting external services.');
+        debug('Manually getting external services.');
         try {
           const response = await $http.get('/api/services');
-          console.debug('ExternalServicesService: Response received.');
+          debug('Response received.');
           ArrayService.refreshArray(self.externalServices, response.data);
           lastManualUpdate = moment();
         } catch (err) {
-          console.log('ExternalServicesService ERROR: ' + err);
+          debug('ExternalServicesService ERROR: ' + err);
         }
       }
 
@@ -62,7 +62,7 @@ angular.module('mediaMogulApp')
         return moment().isBefore(oneMinuteAfterLastUpdate);
       }
 
-      console.debug('ExternalServicesService: Adding initial callback');
+      debug('Adding initial callback');
       LockService.addCallback(self.updateExternalServices);
 
       function addOrReplaceExternalService(externalService) {
@@ -105,6 +105,11 @@ angular.module('mediaMogulApp')
         });
         return overdueServices.length;
       };
+
+      function debug(msg) {
+        const dateStr = moment().format('M/D HH:mm:ss');
+        console.debug(dateStr + ' (ESS) - ' + msg);
+      }
     }]);
 
 
