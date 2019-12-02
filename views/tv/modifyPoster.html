@@ -8,6 +8,16 @@
   </div>
 
   <div class="col-xs-12">
+    <!--suppress JSIgnoredPromiseFromCall -->
+    <button class="btn btn-lg btn-info changePopupButton"
+            ng-if="ctrl.hasChangedFromPrevious()"
+            ng-click="ctrl.changeDefault()">
+      Make Default
+    </button>
+  </div>
+
+  <div class="col-xs-12">
+    <!--suppress JSIgnoredPromiseFromCall -->
     <button class="btn btn-lg btn-warning changePopupButton"
             ng-if="!ctrl.tvdb_poster.hidden"
             ng-click="ctrl.toggleHidden()">
@@ -16,6 +26,7 @@
   </div>
 
   <div class="col-xs-12">
+    <!--suppress JSIgnoredPromiseFromCall -->
     <button class="btn btn-lg btn-danger changePopupButton"
             ng-if="ctrl.LockService.isAdmin() && ctrl.tvdb_poster.hidden"
             ng-click="ctrl.toggleHidden()">

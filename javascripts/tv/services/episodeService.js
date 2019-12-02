@@ -352,6 +352,16 @@ angular.module('mediaMogulApp')
 
       }
 
+      self.changeDefaultPoster = async function(series, alternatePoster) {
+        const changedFields = {
+          poster: alternatePoster.poster,
+          cloud_poster: alternatePoster.cloud_poster
+        };
+        await self.updateSeries(series.id, changedFields);
+        series.poster = alternatePoster.poster;
+        series.cloud_poster = alternatePoster.cloud_poster;
+      };
+
       function formatAirTime(combinedDate) {
         const minutesPart = $filter('date')(combinedDate, 'mm');
         const timeFormat = (minutesPart === '00') ? 'EEEE ha' : 'EEEE h:mm a';

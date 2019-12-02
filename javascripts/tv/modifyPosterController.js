@@ -1,12 +1,13 @@
 angular.module('mediaMogulApp')
-  .controller('modifyPosterController', ['series', 'tvdb_poster', 'previous_poster', '$log', '$http', '$uibModalInstance',
+  .controller('modifyPosterController', ['series', 'tvdb_poster', 'previous_poster', 'alternate_poster', '$log', '$http', '$uibModalInstance',
     'EpisodeService', '$q', 'LockService',
-    function(series, tvdb_poster, previous_poster, $log, $http, $uibModalInstance, EpisodeService, $q, LockService) {
+    function(series, tvdb_poster, previous_poster, alternate_poster, $log, $http, $uibModalInstance, EpisodeService, $q, LockService) {
       const self = this;
 
       self.series = series;
       self.tvdb_poster = tvdb_poster;
       self.previous_poster = previous_poster;
+      self.alternate_poster = alternate_poster;
 
       self.LockService = LockService;
 
@@ -16,16 +17,29 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.toggleHidden = function() {
+      self.changeDefault = async function() {
+        if (self.LockService.isAdmin()) {
+          await EpisodeService.changeDefaultPoster(self.series, self.tvdb_poster);
+        }
+        $uibModalInstance.close();
+      };
+
+      self.toggleHidden = async function() {
         const newHidden = !self.tvdb_poster.hidden ? new Date : null;
         const body = {
           tvdb_poster_id: self.tvdb_poster.tvdb_poster_id,
           hidden: newHidden
         };
-        $http.post('/api/posterHide', body).then(() => {
-          self.tvdb_poster.hidden = newHidden;
-          $uibModalInstance.close();
-        });
+        await $http.post('/api/posterHide', body);
+        self.tvdb_poster.hidden = newHidden;
+        if (!!newHidden && !!self.alternate_poster) {
+          await EpisodeService.changeDefaultPoster(self.series, self.alternate_poster);
+        }
+        $uibModalInstance.close();
+      };
+
+      self.isNotDefault = function() {
+        return self.series.poster !== tvdb_poster.poster;
       };
 
       self.hasChangedFromPrevious = function() {
@@ -60,6 +74,6 @@ angular.module('mediaMogulApp')
       }
 
       self.cancel = function() {
-        $uibModalInstance.dismiss();
+        $uibModalInstance.close();
       };
     }]);
