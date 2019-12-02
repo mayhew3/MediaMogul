@@ -7,6 +7,7 @@ assert(!!backupDir, 'Expected E2E_DB_DIR environment variable.');
 
 let args = [
   '--host=localhost',
+  '--port=5434',
   '--dbname=tv_e2e',
   '--username=postgres',
   '--clean',
