@@ -93,6 +93,7 @@ angular.module('mediaMogulApp')
       self.selectPoster = function(poster) {
         const alternatePoster = getAlternateDefaultIfNeeded(poster);
         const noOverride = posterEquals(self.defaultPoster, self.selectedPoster);
+        const originalDefault = self.defaultPoster;
         $uibModal.open({
           templateUrl: 'views/tv/modifyPoster.html',
           controller: 'modifyPosterController as ctrl',
@@ -107,24 +108,20 @@ angular.module('mediaMogulApp')
             previous_poster: function() {
               return getPreviousSelectedPoster();
             },
+            alternate_poster: function() {
+              return alternatePoster;
+            },
           }
         }).result
-          .then(() => {
+          .then(async () => {
             if (!!poster.hidden) {
               addRecentlyHidden(poster);
-              if (!!alternatePoster) {
-                const changedFields = {
-                  poster: alternatePoster.poster,
-                  cloud_poster: alternatePoster.cloud_poster
-                };
-                EpisodeService.updateSeries(self.series.id, changedFields).then(() => {
-                  self.defaultPoster = alternatePoster;
-                  if (noOverride) {
-                    self.selectedPoster = alternatePoster;
-                  }
-                  self.series.poster = alternatePoster.poster;
-                  self.series.cloud_poster = alternatePoster.cloud_poster;
-                });
+            }
+            if (defaultHasChanged(originalDefault)) {
+              const newDefault = getPosterWithPath(self.series.poster);
+              self.defaultPoster = newDefault;
+              if (noOverride) {
+                self.selectedPoster = newDefault;
               }
             }
             if (posterEquals(poster, self.series.my_poster)) {
@@ -138,6 +135,15 @@ angular.module('mediaMogulApp')
           });
       };
 
+      function getPosterWithPath(poster_path) {
+        return _.findWhere(self.allPosters, {poster: poster_path});
+      }
+
+      function defaultHasChanged(originalDefault) {
+        return !originalDefault ||
+          self.series.poster !== originalDefault.poster;
+      }
+
       function isRecentlyHidden(poster) {
         return _.contains(self.recentlyHidden, poster)
       }
@@ -147,7 +153,8 @@ angular.module('mediaMogulApp')
       }
 
       function posterEquals(poster1, poster2) {
-        return poster1.tvdb_poster_id === poster2.tvdb_poster_id;
+        return !!poster1 && !!poster2 &&
+          poster1.tvdb_poster_id === poster2.tvdb_poster_id;
       }
 
       self.isUnhiddenOrRecentlyHiddenOrFavorite = function(poster) {
