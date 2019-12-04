@@ -38,9 +38,13 @@ angular.module('mediaMogulApp')
         $uibModalInstance.close();
       };
 
-      self.isNotDefault = function() {
-        return self.series.poster !== tvdb_poster.poster;
+      self.showMakeDefaultButton = function() {
+        return self.LockService.isAdmin() && isNotDefault();
       };
+      
+      function isNotDefault() {
+        return self.series.poster !== tvdb_poster.poster;
+      }
 
       self.hasChangedFromPrevious = function() {
         return !self.previous_poster ||
