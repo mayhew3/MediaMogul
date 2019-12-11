@@ -39,8 +39,8 @@ exports.getMyPendingShows = function(request, response) {
       "s.tvdb_manual_queue, " +
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
-      "COALESCE(tp.poster_path, s.poster) as poster, " +
-      "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, " +
+      "tp.poster_path, " +
+      "tp.cloud_poster, " +
       "s.person_id " +
       "FROM series s " +
       "LEFT OUTER JOIN tvdb_poster tp " +
@@ -314,14 +314,14 @@ function getCommonShowsQuery(personId) {
       "s.tvdb_manual_queue, " +
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
-      "COALESCE(tp.poster_path, s.poster) as poster, " +
+      "tp.poster_path, " +
       "(select string_agg(g.name, '|') " +
       "             from genre g " +
       "             inner join series_genre sg " +
       "               on sg.genre_id = g.id " +
       "              where sg.series_id = s.id " +
       "              and sg.retired = $4) as genres, " +
-      "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, " +
+      "tp.cloud_poster, " +
       "s.air_time, " +
       "s.trailer_link, " +
       "ps.rating as my_rating, " +
@@ -516,14 +516,14 @@ exports.getSeriesDetailInfo = function(request, response) {
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +
     "s.last_tvdb_error, " +
-    "COALESCE(tp.poster_path, s.poster) as poster, " +
+    "tp.poster_path, " +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +
     "               on sg.genre_id = g.id " +
     "              where sg.series_id = s.id " +
     "              and sg.retired = $1) as genres, " +
-    "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, " +
+    "tp.cloud_poster, " +
     "s.air_time, " +
     "s.trailer_link " +
     "FROM series s " +
@@ -1297,13 +1297,13 @@ exports.getNotMyShows = function(request, response) {
 
   const sql = "SELECT s.id," +
     "s.title, " +
-    "COALESCE(tp.poster_path, s.poster) as poster," +
+    "tp.poster_path, " +
     "(SELECT id " +
     "  FROM person_poster " +
     "  WHERE series_id = s.id " +
     "  AND person_id = $1 " +
     "  AND retired = $2) as poster_id, " +
-    "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster," +
+    "tp.cloud_poster, " +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +

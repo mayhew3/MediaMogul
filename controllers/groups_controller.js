@@ -142,13 +142,13 @@ exports.getGroupShows = function(request, response) {
   const sql = "SELECT s.id, " +
     "s.title, " +
     "s.metacritic, " +
-    "COALESCE(tp.poster_path, s.poster) as poster, " +
+    "tp.poster_path, " +
     "(SELECT id " +
     "  FROM person_poster " +
     "  WHERE series_id = s.id " +
     "  AND person_id = $5 " +
     "  AND retired = $1) as poster_id, " +
-    "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, " +
+    "tp.cloud_poster, " +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +
@@ -351,14 +351,14 @@ exports.addToGroupShows = function(request, response) {
     const sql = "SELECT s.id, " +
       "s.title, " +
       "s.metacritic, " +
-      "s.poster, " +
+      "tp.poster_path, " +
       "(select string_agg(g.name, '|') " +
       "             from genre g " +
       "             inner join series_genre sg " +
       "               on sg.genre_id = g.id " +
       "              where sg.series_id = s.id " +
       "              and sg.retired = $1) as genres, " +
-      "s.cloud_poster, " +
+      "tp.cloud_poster, " +
       "tgs.date_added, " +
       "tgs.id as tv_group_series_id, " +
       "s.trailer_link, " +
@@ -372,6 +372,8 @@ exports.addToGroupShows = function(request, response) {
       "FROM series s " +
       "INNER JOIN tv_group_series tgs " +
       "  ON tgs.series_id = s.id " +
+      "LEFT OUTER JOIN tvdb_poster tp " +
+      "  ON s.tvdb_poster_id = tp.id " +
       "WHERE tgs.id = $3 " +
       "AND s.retired = $1 " +
       "AND tgs.retired = $1";
