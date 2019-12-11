@@ -36,8 +36,8 @@ exports.getEpisodeGroupRatings = function(request, response) {
   var year = request.query.Year;
 
   var sql = 'SELECT s.title, ' +
-    's.poster, ' +
-    's.cloud_poster, ' +
+    'COALESCE(tp.poster_path, s.poster) as poster, ' +
+    'COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, ' +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +
@@ -48,6 +48,8 @@ exports.getEpisodeGroupRatings = function(request, response) {
     'FROM episode_group_rating egr ' +
     'INNER JOIN series s ' +
     ' ON egr.series_id = s.id ' +
+    "LEFT OUTER JOIN tvdb_poster tp " +
+    "  ON s.tvdb_poster_id = tp.id " +
     'WHERE year = $1 ' +
     'AND s.retired = $2 ';
 
@@ -157,13 +159,15 @@ exports.getPrimeTV = function(req, response) {
     's.title, ' +
     'CASE WHEN ps.rating IS NULL THEN s.metacritic ELSE ps.rating END as my_rating, ' +
     's.metacritic, ' +
-    's.poster, ' +
-    's.cloud_poster, ' +
+    'COALESCE(tp.poster_path, s.poster) as poster, ' +
+    'COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, ' +
     'ps.unwatched_episodes as unwatched, ' +
     'ps.first_unwatched ' +
     'FROM series s ' +
     'INNER JOIN person_series ps ' +
     ' ON ps.series_id = s.id ' +
+    "LEFT OUTER JOIN tvdb_poster tp " +
+    "  ON s.tvdb_poster_id = tp.id " +
     'WHERE ps.tier = $1 ' +
     'AND ps.unwatched_episodes > $2 ' +
     'AND s.tvdb_match_status = $3 ' +
