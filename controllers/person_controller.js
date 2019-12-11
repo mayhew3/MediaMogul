@@ -1314,7 +1314,7 @@ exports.getNotMyShows = function(request, response) {
     "FROM series s " +
     "LEFT OUTER JOIN tvdb_poster tp " +
     "  ON s.tvdb_poster_id = tp.id " +
-    "WHERE id NOT IN (SELECT ps.series_id " +
+    "WHERE s.id NOT IN (SELECT ps.series_id " +
     "                 FROM person_series ps " +
     "                 WHERE person_id = $1) " +
     "AND s.retired = $2 " +
