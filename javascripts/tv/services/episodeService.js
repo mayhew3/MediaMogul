@@ -354,8 +354,7 @@ angular.module('mediaMogulApp')
 
       self.changeDefaultPoster = async function(series, alternatePoster) {
         const changedFields = {
-          poster: alternatePoster.poster,
-          cloud_poster: alternatePoster.cloud_poster
+          tvdb_poster_id: alternatePoster.tvdb_poster_id
         };
         await self.updateSeries(series.id, changedFields);
         series.poster = alternatePoster.poster;
