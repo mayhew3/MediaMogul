@@ -39,7 +39,7 @@ exports.getMyPendingShows = function(request, response) {
       "s.tvdb_manual_queue, " +
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
-      "tp.poster_path, " +
+      "tp.poster_path as poster, " +
       "tp.cloud_poster, " +
       "s.person_id " +
       "FROM series s " +
@@ -314,7 +314,7 @@ function getCommonShowsQuery(personId) {
       "s.tvdb_manual_queue, " +
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
-      "tp.poster_path, " +
+      "tp.poster_path as poster, " +
       "(select string_agg(g.name, '|') " +
       "             from genre g " +
       "             inner join series_genre sg " +
@@ -516,7 +516,7 @@ exports.getSeriesDetailInfo = function(request, response) {
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +
     "s.last_tvdb_error, " +
-    "tp.poster_path, " +
+    "tp.poster_path as poster, " +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +
@@ -1297,7 +1297,7 @@ exports.getNotMyShows = function(request, response) {
 
   const sql = "SELECT s.id," +
     "s.title, " +
-    "tp.poster_path, " +
+    "tp.poster_path as poster, " +
     "(SELECT id " +
     "  FROM person_poster " +
     "  WHERE series_id = s.id " +

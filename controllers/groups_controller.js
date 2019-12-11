@@ -142,7 +142,7 @@ exports.getGroupShows = function(request, response) {
   const sql = "SELECT s.id, " +
     "s.title, " +
     "s.metacritic, " +
-    "tp.poster_path, " +
+    "tp.poster_path as poster, " +
     "(SELECT id " +
     "  FROM person_poster " +
     "  WHERE series_id = s.id " +
@@ -351,7 +351,7 @@ exports.addToGroupShows = function(request, response) {
     const sql = "SELECT s.id, " +
       "s.title, " +
       "s.metacritic, " +
-      "tp.poster_path, " +
+      "tp.poster_path as poster, " +
       "(select string_agg(g.name, '|') " +
       "             from genre g " +
       "             inner join series_genre sg " +
