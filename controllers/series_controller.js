@@ -36,7 +36,7 @@ exports.getEpisodeGroupRatings = function(request, response) {
   var year = request.query.Year;
 
   var sql = 'SELECT s.title, ' +
-    'tp.poster_path, ' +
+    'tp.poster_path as poster, ' +
     'tp.cloud_poster, ' +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
@@ -159,7 +159,7 @@ exports.getPrimeTV = function(req, response) {
     's.title, ' +
     'CASE WHEN ps.rating IS NULL THEN s.metacritic ELSE ps.rating END as my_rating, ' +
     's.metacritic, ' +
-    'tp.poster_path, ' +
+    'tp.poster_path as poster, ' +
     'tp.cloud_poster, ' +
     'ps.unwatched_episodes as unwatched, ' +
     'ps.first_unwatched ' +
