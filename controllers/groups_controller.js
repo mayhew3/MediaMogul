@@ -142,13 +142,13 @@ exports.getGroupShows = function(request, response) {
   const sql = "SELECT s.id, " +
     "s.title, " +
     "s.metacritic, " +
-    "s.poster, " +
+    "COALESCE(tp.poster_path, s.poster) as poster, " +
     "(SELECT id " +
     "  FROM person_poster " +
     "  WHERE series_id = s.id " +
     "  AND person_id = $5 " +
     "  AND retired = $1) as poster_id, " +
-    "s.cloud_poster, " +
+    "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, " +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +
@@ -176,6 +176,8 @@ exports.getGroupShows = function(request, response) {
     "FROM series s " +
     "INNER JOIN tv_group_series tgs " +
     "  ON tgs.series_id = s.id " +
+    "LEFT OUTER JOIN tvdb_poster tp " +
+    "  ON s.tvdb_poster_id = tp.id " +
     "WHERE tgs.tv_group_id = $3 " +
     "AND tgs.retired = $1 " +
     "AND s.retired = $1 " +

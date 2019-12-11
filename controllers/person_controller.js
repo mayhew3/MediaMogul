@@ -39,10 +39,12 @@ exports.getMyPendingShows = function(request, response) {
       "s.tvdb_manual_queue, " +
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
-      "s.poster, " +
-      "s.cloud_poster, " +
+      "COALESCE(tp.poster_path, s.poster) as poster, " +
+      "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, " +
       "s.person_id " +
       "FROM series s " +
+      "LEFT OUTER JOIN tvdb_poster tp " +
+      "  ON s.tvdb_poster_id = tp.id " +
       "WHERE s.tvdb_match_status = $1 " +
       "AND s.retired = $2 ";
   const values = [
@@ -312,14 +314,14 @@ function getCommonShowsQuery(personId) {
       "s.tvdb_manual_queue, " +
       "s.last_tvdb_update, " +
       "s.last_tvdb_error, " +
-      "s.poster, " +
+      "COALESCE(tp.poster_path, s.poster) as poster, " +
       "(select string_agg(g.name, '|') " +
       "             from genre g " +
       "             inner join series_genre sg " +
       "               on sg.genre_id = g.id " +
       "              where sg.series_id = s.id " +
       "              and sg.retired = $4) as genres, " +
-      "s.cloud_poster, " +
+      "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, " +
       "s.air_time, " +
       "s.trailer_link, " +
       "ps.rating as my_rating, " +
@@ -345,6 +347,8 @@ function getCommonShowsQuery(personId) {
       "FROM series s " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = s.id " +
+      "LEFT OUTER JOIN tvdb_poster tp " +
+      "  ON s.tvdb_poster_id = tp.id " +
       "WHERE ps.person_id = $1 " +
       "AND s.tvdb_match_status = $3 " +
       "AND s.retired = $4 " +
@@ -512,17 +516,19 @@ exports.getSeriesDetailInfo = function(request, response) {
     "s.tvdb_manual_queue, " +
     "s.last_tvdb_update, " +
     "s.last_tvdb_error, " +
-    "s.poster, " +
+    "COALESCE(tp.poster_path, s.poster) as poster, " +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +
     "               on sg.genre_id = g.id " +
     "              where sg.series_id = s.id " +
     "              and sg.retired = $1) as genres, " +
-    "s.cloud_poster, " +
+    "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster, " +
     "s.air_time, " +
     "s.trailer_link " +
     "FROM series s " +
+    "LEFT OUTER JOIN tvdb_poster tp " +
+    "  ON s.tvdb_poster_id = tp.id " +
     "WHERE s.tvdb_match_status = $3 " +
     "AND s.retired = $1 " +
     "AND s.id = $4 ";
@@ -1291,13 +1297,13 @@ exports.getNotMyShows = function(request, response) {
 
   const sql = "SELECT s.id," +
     "s.title, " +
-    "s.poster," +
+    "COALESCE(tp.poster_path, s.poster) as poster," +
     "(SELECT id " +
     "  FROM person_poster " +
     "  WHERE series_id = s.id " +
     "  AND person_id = $1 " +
     "  AND retired = $2) as poster_id, " +
-    "s.cloud_poster," +
+    "COALESCE(tp.cloud_poster, s.cloud_poster) as cloud_poster," +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +
@@ -1306,6 +1312,8 @@ exports.getNotMyShows = function(request, response) {
     "              and sg.retired = $2) as genres, " +
     "s.tvdb_series_ext_id " +
     "FROM series s " +
+    "LEFT OUTER JOIN tvdb_poster tp " +
+    "  ON s.tvdb_poster_id = tp.id " +
     "WHERE id NOT IN (SELECT ps.series_id " +
     "                 FROM person_series ps " +
     "                 WHERE person_id = $1) " +
