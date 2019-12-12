@@ -448,6 +448,7 @@ angular.module('mediaMogulApp')
 
       function listenForMyTVDBComplete() {
         self.SocketService.on('fetch_complete', function(show) {
+          console.debug('fetch_complete message received!');
           addNewShowAddedExternally(show);
           const seriesCallbacks = _.where(fetchEpisodeCallbacks, {tvdb_series_ext_id: show.tvdb_series_ext_id});
           _.each(seriesCallbacks, callbackObj => {
