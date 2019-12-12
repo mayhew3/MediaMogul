@@ -293,7 +293,7 @@ async function addNewSeries(tvdbSeries, tvdbSeriesObj, personId, firstWorking) {
     tvdb_series_ext_id: tvdbSeries.tvdb_series_ext_id,
     tvdb_series_id: tvdbSeries.id,
     tvdb_confirm_date: new Date,
-    tvdb_poster_id: firstWorking.id
+    tvdb_poster_id: !!firstWorking ? firstWorking.id : null
   };
 
   const seriesWithId = await insertObject('series', series);
