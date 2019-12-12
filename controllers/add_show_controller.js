@@ -218,8 +218,8 @@ exports.beginEpisodeFetch = function(request, response) {
           const posters = await addTVDBPosters(tvdbSeries, personId);
           const firstWorking = getFirstWorkingPoster(posters);
 
-          await addNewSeries(tvdbSeries, tvdbSeriesObj, personId, firstWorking);
           await updateTVDBSeries(tvdbSeries, firstWorking);
+          await addNewSeries(tvdbSeries, tvdbSeriesObj, personId, firstWorking);
         }
       });
     });
@@ -272,11 +272,13 @@ async function addTVDBPosters(tvdbSeries, personId) {
 }
 
 async function updateTVDBSeries(tvdbSeries, firstWorking) {
-  const changedFields = {
-    first_poster: firstWorking.poster_path
-  };
+  if (!!firstWorking) {
+    const changedFields = {
+      first_poster: firstWorking.poster_path
+    };
 
-  return await db.updateObjectWithChangedFieldsNoResponse(changedFields, 'tvdb_series', tvdbSeries.id);
+    return await db.updateObjectWithChangedFieldsNoResponse(changedFields, 'tvdb_series', tvdbSeries.id);
+  }
 }
 
 async function addNewSeries(tvdbSeries, tvdbSeriesObj, personId, firstWorking) {
@@ -527,11 +529,12 @@ async function addPoster(tvdbSeries, fileName) {
     const posterObj = await uploadPosterToCloudinary(fileName);
     tvdb_poster.cloud_poster = posterObj.public_id;
   } else {
-    tvdb_poster.cloud_poster = existing.cloud_poster;
+    tvdb_poster.cloud_poster = existing.cloudinary_id;
     retirePendingPoster(existing);
   }
 
-  return insertObject('tvdb_poster', tvdb_poster);
+  let promise = insertObject('tvdb_poster', tvdb_poster);
+  return promise;
 }
 
 function retirePendingPoster(pending_poster) {
