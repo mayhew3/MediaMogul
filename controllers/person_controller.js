@@ -830,6 +830,7 @@ exports.attachPosterInfoToSeriesObjects = function(seriesObjs) {
           series.my_poster = poster;
           delete series.poster_id;
         });
+        resolve(seriesObjs);
       });
     } else {
       resolve();

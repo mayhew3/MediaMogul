@@ -1,6 +1,7 @@
 const db = require('postgres-mmethods');
 const _ = require('underscore');
 const ArrayService = require('./array_util');
+const person_controller = require('./person_controller');
 
 exports.getNumberOfShowsToRate = function(request, response) {
   var year = request.query.Year;
@@ -32,8 +33,9 @@ exports.getEpisodeGroupRating = function(request, response) {
   return db.selectSendResponse(response, sql, [year, 0, seriesId]);
 };
 
-exports.getEpisodeGroupRatings = function(request, response) {
+exports.getEpisodeGroupRatings = async function(request, response) {
   var year = request.query.Year;
+  const person_id = 1;
 
   var sql = 'SELECT s.title, ' +
     'tp.poster_path as poster, ' +
@@ -44,6 +46,11 @@ exports.getEpisodeGroupRatings = function(request, response) {
     "               on sg.genre_id = g.id " +
     "              where sg.series_id = s.id " +
     "              and sg.retired = $2) as genres, " +
+    "(SELECT id " +
+    "  FROM person_poster " +
+    "  WHERE series_id = s.id " +
+    "  AND person_id = $3 " +
+    "  AND retired = $2) as poster_id, " +
     'egr.* ' +
     'FROM episode_group_rating egr ' +
     'INNER JOIN series s ' +
@@ -53,7 +60,9 @@ exports.getEpisodeGroupRatings = function(request, response) {
     'WHERE year = $1 ' +
     'AND s.retired = $2 ';
 
-  return db.selectSendResponse(response, sql, [year, 0]);
+  const episodeGroupRatings = await db.selectNoResponse(sql, [year, 0, person_id]);
+  await person_controller.attachPosterInfoToSeriesObjects(episodeGroupRatings);
+  response.json(episodeGroupRatings);
 };
 
 exports.getAllRatingYears = function(request, response) {
