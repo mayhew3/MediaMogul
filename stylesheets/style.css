@@ -849,6 +849,22 @@ div.gameCard {
   /*vertical-align: middle;*/
 }
 
+.top1HeaderTitleWhite {
+  font-size: 36pt;
+  color: white;
+  line-height: 0.9;
+  margin-bottom: 0;
+  font-weight: bold;
+  text-shadow: 1px 2px 3px black;
+  /*vertical-align: middle;*/
+}
+
+.top1HeaderSeasonWhite {
+  font-size: 20pt;
+  color: white;
+  /*vertical-align: middle;*/
+}
+
 .top20HeaderBottomSection {
   background-color: #1e2023;
   color: white;
