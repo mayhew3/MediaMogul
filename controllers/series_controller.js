@@ -547,9 +547,11 @@ exports.getUpcomingEpisodes = function(req, response) {
 exports.hideTVDBPoster = function(request, response) {
   const tvdb_poster_id = request.body.tvdb_poster_id;
   const hidden = request.body.hidden;
+  const person_id = request.body.person_id;
 
   const changedFields = {
-    hidden: hidden
+    hidden: hidden,
+    person_id: person_id
   };
 
   db.updateObjectWithChangedFieldsSendResponse(response, changedFields, 'tvdb_poster', tvdb_poster_id);
