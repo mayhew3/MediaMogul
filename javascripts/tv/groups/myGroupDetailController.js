@@ -429,6 +429,7 @@ angular.module('mediaMogulApp')
 
     function upToDateFilter(series) {
       return !hasUnwatchedEpisodes(series) &&
+        series.aired_episodes > 0 &&
         !upcomingFilter(series);
     }
 
