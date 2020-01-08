@@ -98,6 +98,7 @@ module.exports = function(app) {
   privatePost('/updateEpisodeRatings', persons.updateEpisodeRatings);
   privatePost('/increaseYear', persons.increaseYear);
   privatePost('/revertYear', persons.revertYear);
+  privatePost('/setRatingEndDate', persons.setRatingEndDate);
   privatePost('/seriesRequest', persons.seriesRequest);
   privatePost('/markEpisodesWatched', persons.markEpisodesWatched);
   privatePost('/pinToDashboard', persons.pinToDashboard);

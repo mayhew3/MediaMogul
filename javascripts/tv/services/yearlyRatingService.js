@@ -124,13 +124,13 @@ angular.module('mediaMogulApp')
 
       self.lockRatings = function() {
         let todaysDate = new Date;
-        $http.post('setRatingEndDate', {RatingEndDate: todaysDate}).then(function () {
+        $http.post('/api/setRatingEndDate', {RatingEndDate: todaysDate}).then(function () {
           ratingEndDate = todaysDate;
         });
       };
 
       self.unlockRatings = function() {
-        $http.post('setRatingEndDate', {RatingEndDate: null}).then(function () {
+        $http.post('/api/setRatingEndDate', {RatingEndDate: null}).then(function () {
           ratingEndDate = null;
         });
       };

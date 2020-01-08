@@ -1703,6 +1703,14 @@ exports.revertYear = function(request, response) {
   });
 };
 
+exports.setRatingEndDate = function(request, response) {
+  const ratingEndDate = request.body.RatingEndDate;
+  console.log("Changing rating end date to " + ratingEndDate);
+
+  const sql = "UPDATE system_vars SET rating_end_date = $1 ";
+  return db.updateSendResponse(response, sql, [ratingEndDate]);
+};
+
 exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notifications, person_ids, tv_group_id, response) {
   return new Promise(function(resolve) {
     const series_id = payload.series_id;
