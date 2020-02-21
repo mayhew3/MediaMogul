@@ -264,10 +264,12 @@ async function addTVDBPosters(tvdbSeries, personId) {
       }
     }
   } catch (error) {
-    throwFetchEpisodesError(error,
-      "Error getting TVDB posters.",
-      'Error getting TVDB Data.',
-      personId);
+    if (error.statusCode !== 404 || error.error.Error !== 'No results for your query') {
+      throwFetchEpisodesError(error,
+        "Error getting TVDB posters.",
+        'Error getting TVDB Data.',
+        personId);
+    }
   }
 }
 
