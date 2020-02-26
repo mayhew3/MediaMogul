@@ -54,8 +54,8 @@
     "grunt-contrib-watch": "1.1.0"
   },
   "engines": {
-    "node": "10.16.0",
-    "npm": "6.9.0"
+    "node": "12.14.1",
+    "npm": "6.13.4"
   },
   "keywords": [
     "node",
