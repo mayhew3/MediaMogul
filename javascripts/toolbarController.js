@@ -8,20 +8,21 @@
     return {
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
-        'SystemVarsService', 'SystemEnvService',
+        'SystemVarsService', 'SystemEnvService', 'SocketService',
         toolbarController],
       controllerAs: 'toolbar'
     }
   }
 
   function toolbarController(LockService, store, $location, NavHelperService, ExternalServicesService,
-                             SystemVarsService) {
+                             SystemVarsService, SocketService) {
     const self = this;
     self.login = login;
     self.logout = logout;
 
     self.LockService = LockService;
     self.lock = LockService.lock;
+    self.SocketService = SocketService;
 
     self.NavHelperService = NavHelperService;
     self.ExternalServicesService = ExternalServicesService;
@@ -29,6 +30,10 @@
 
     self.getEnvName = function() {
       return self.SystemVarsService.getVar('envName');
+    };
+
+    self.isSocketConnected = function() {
+      return !!self.SocketService && !!self.SocketService.isConnected();
     };
 
     self.getDisplayEnvName = function() {
