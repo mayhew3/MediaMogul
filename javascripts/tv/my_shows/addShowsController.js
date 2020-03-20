@@ -10,6 +10,8 @@ angular.module('mediaMogulApp')
       self.EpisodeService = EpisodeService;
       self.GenreService = GenreService;
 
+      const personID = self.LockService.getPersonID();
+
       self.allMatches = [];
       self.showsInSystem = [];
       self.showsNotInSystem = [];
@@ -53,12 +55,47 @@ angular.module('mediaMogulApp')
         return self.getShowsNotInSystem().length;
       };
 
+      function findSeriesInEitherCache(seriesObj) {
+        return _.findWhere(self.allMatches, {tvdb_series_ext_id: seriesObj.tvdb_series_ext_id});
+      }
+
+      function clearAllListeners() {
+        self.SocketService.off('poster_fetched');
+        self.SocketService.off('poster_error');
+        self.SocketService.off('posters_finished');
+      }
+
       self.updateTVDBMatches = function() {
         self.alternateText = "Retrieving matches...";
         loading = true;
         errorText = null;
         self.searchStarted = true;
-        $http.get('/api/tvdbMatches', {params: {series_name: self.searchString}}).then(function(results) {
+        $http.get('/api/tvdbMatches', {params: {series_name: self.searchString, client_id: SocketService.getClientID()}}).then(function(results) {
+          self.SocketService.on('poster_fetched', updatedSeries => {
+            const existing = findSeriesInEitherCache(updatedSeries);
+            if (!!existing) {
+              if (!!updatedSeries.cloud_poster) {
+                console.log('Found cloud_poster for series: ' + updatedSeries.title);
+              } else {
+                console.log('Finished fetch for series: ' + updatedSeries.title + " but no cloud_poster.");
+              }
+              existing.poster = updatedSeries.poster;
+              existing.cloud_poster = updatedSeries.cloud_poster;
+            } else {
+              console.log("Warning: poster update found for series that doesn't exist in client list!");
+            }
+          });
+
+          self.SocketService.on('posters_finished', () => {
+            console.log("Posters finished!");
+            clearAllListeners();
+          });
+
+          self.SocketService.on('poster_error', err => {
+            console.log("Error fetching posters: " + err);
+            clearAllListeners();
+          });
+
           ArrayService.refreshArray(self.allMatches, results.data);
 
           self.showsInSystem = _.filter(results.data, TVDBIDAlreadyExists);
@@ -156,7 +193,7 @@ angular.module('mediaMogulApp')
       };
 
       self.initiateSeriesRequest = function(show) {
-        show.person_id = self.LockService.getPersonID();
+        show.person_id = personID;
         show.request_processing = true;
         SeriesRequestService.initiateSeriesRequest(show).then(() => delete show.request_processing);
       };
@@ -174,7 +211,7 @@ angular.module('mediaMogulApp')
       self.addSeries = function(show) {
         show.request_processing = true;
         show.date_added = new Date;
-        show.person_id = self.LockService.getPersonID();
+        show.person_id = personID;
 
         EpisodeService.addSeries(show).then(() => {
           self.SocketService.on('fetch_failed', err => {
