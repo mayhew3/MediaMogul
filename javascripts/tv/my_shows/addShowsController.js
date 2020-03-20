@@ -81,6 +81,7 @@ angular.module('mediaMogulApp')
               }
               existing.poster = updatedSeries.poster;
               existing.cloud_poster = updatedSeries.cloud_poster;
+              existing.poster_loading = updatedSeries.poster_loading;
             } else {
               console.log("Warning: poster update found for series that doesn't exist in client list!");
             }
