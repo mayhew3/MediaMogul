@@ -40,6 +40,10 @@
         <li class="navbar-text" ng-show="toolbar.LockService.isAuthenticated() && !toolbar.LockService.isAdmin()" ng-bind="'Hi, ' + toolbar.LockService.getFirstName() + '!'"></li>
         <li ng-class="toolbar.getLinkClass('Admin')" ng-show="toolbar.LockService.isAdmin()">
           <a ui-sref="admin.services">
+            <span>
+              <i class="pillWarning glyphicon glyphicon-warning-sign"
+                 ng-if="!toolbar.isSocketConnected()"></i>
+            </span>
             Admin
             <span class="badge pillTabRed"
                   ng-if="toolbar.showServicesBadge()"

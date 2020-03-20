@@ -510,6 +510,10 @@ div.gameCard {
   border-radius: 3pt;
 }
 
+.pillWarning {
+  color: orangered !important;
+}
+
 .pillTabRed {
   background-color: red !important;
   color: white !important;
