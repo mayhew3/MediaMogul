@@ -1,8 +1,8 @@
 angular.module('mediaMogulApp')
   .controller('addShowsController', ['$log', 'LockService', '$http', 'ArrayService', 'EpisodeService',
-    'SeriesRequestService', '$state', '$stateParams', '$uibModal', 'SocketService', '$q', 'GenreService',
+    'SeriesRequestService', '$state', '$stateParams', '$uibModal', 'SocketService', '$q', 'GenreService', '$scope',
     function($log, LockService, $http, ArrayService, EpisodeService, SeriesRequestService, $state,
-             $stateParams, $uibModal, SocketService, $q, GenreService) {
+             $stateParams, $uibModal, SocketService, $q, GenreService, $scope) {
       const self = this;
 
       self.LockService = LockService;
@@ -119,6 +119,13 @@ angular.module('mediaMogulApp')
           loading = false;
         });
       };
+
+      $scope.$on('$destroy', () => {
+        if (self.SocketService.hasListeners('poster_fetched')) {
+          console.log('Leaving page! Destroying poster listeners.');
+          clearAllListeners();
+        }
+      });
 
       /**
        * @return {boolean}
