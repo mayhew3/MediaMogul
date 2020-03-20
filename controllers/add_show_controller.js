@@ -13,7 +13,10 @@ const cloudinary = require("cloudinary").v2;
 
 exports.getTVDBMatches = async function(request, response) {
   const series_name = request.query.series_name;
+  const client_id = request.query.client_id;
   console.log("Finding TVDB matches for series: " + series_name);
+
+  const prunedData = [];
 
   const options = await tokens.getBaseOptions();
 
@@ -35,7 +38,7 @@ exports.getTVDBMatches = async function(request, response) {
     const tvdbResponse = await requestLib(seriesUrl, optionsCopy);
 
     const seriesData = tvdbResponse.data;
-    const prunedData = _.map(seriesData, function(seriesObj) {
+    const newData = _.map(seriesData, function(seriesObj) {
       // noinspection JSUnresolvedVariable
       return {
         title: seriesObj.seriesName,
@@ -48,9 +51,7 @@ exports.getTVDBMatches = async function(request, response) {
       };
     });
 
-    for (const prunedSeries of prunedData) {
-      await getTopPoster(prunedSeries, options);
-    }
+    ArrayService.addToArray(prunedData, newData);
 
     response.json(prunedData);
 
@@ -62,6 +63,18 @@ exports.getTVDBMatches = async function(request, response) {
       console.log("Error getting TVDB data: " + error);
       response.send("Error getting TVDB data: " + error);
     }
+  }
+
+  try {
+    for (const prunedSeries of prunedData) {
+      await getTopPoster(prunedSeries, options);
+      sockets.emitToClient(client_id, 'poster_fetched', prunedSeries);
+    }
+
+    sockets.emitToClient(client_id, 'posters_finished', {});
+  } catch (error) {
+    console.log("Error getting TVDB Posters: " + error);
+    sockets.emitToClient(client_id,'poster_error', error);
   }
 
 };

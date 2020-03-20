@@ -118,6 +118,16 @@ exports.emitToPerson = function(person_id, channel, msg) {
   emitToClients(clientsForPerson, channel, msg);
 };
 
+exports.emitToClient = function(client_id, channel, msg) {
+  const client = getClientWithID(client_id);
+  if (!client) {
+    const clientIds = _.map(clients, client => client.id);
+    console.log('Unable to find client ' + client_id + '. Existing clients: ' + JSON.stringify(clientIds));
+  } else {
+    client.emit(channel, msg);
+  }
+};
+
 exports.emitToAllExceptPerson = function(person_id, channel, msg) {
   const clientsForEveryoneExceptPerson = getClientsForEveryoneExceptPerson(person_id);
   emitToClients(clientsForEveryoneExceptPerson, channel, msg);
@@ -167,4 +177,8 @@ function emitToClients(clients, channel, msg) {
   _.each(clients, client => {
     client.emit(channel, msg)
   });
+}
+
+function getClientWithID(client_id) {
+  return _.findWhere(clients, {id: client_id});
 }

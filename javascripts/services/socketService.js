@@ -64,6 +64,12 @@ angular.module('mediaMogulApp')
         }
       };
 
+      self.off = function(channel) {
+        if (!!socket) {
+          socket.off(channel);
+        }
+      };
+
       self.emit = function(channel, msg) {
         let listener = () => {
           socket.emit(channel, msg);
