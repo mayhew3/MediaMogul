@@ -80,6 +80,15 @@ angular.module('mediaMogulApp')
           pendingListeners.push(listener);
         }
       };
+
+      self.hasListeners = function(channel) {
+        if (!!socket) {
+          return socket.hasListeners(channel);
+        } else {
+          return false;
+        }
+      };
+
     }]);
 
 
