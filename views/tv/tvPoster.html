@@ -28,6 +28,10 @@
     <span ng-bind="ctrl.scoreValue()"></span>
   </div>
 
+  <div class="centeredInFrame"
+       ng-if="ctrl.showLoading()">
+    <img src="images/loading.svg" alt="loading">
+  </div>
 
   <div class="centeredInFrame posterTitle" ng-show="ctrl.showTitleOverPoster()">
     <span ng-bind="ctrl.show.title"></span>

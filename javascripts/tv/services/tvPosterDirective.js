@@ -44,6 +44,10 @@
       return !!self.posterInfo.scoreValue && self.posterInfo.scoreValue(self.show) > 0;
     };
 
+    self.showLoading = function() {
+      return !!self.show.poster_loading;
+    };
+
     self.getScoreColor = function() {
       return ColorTransformService.colorStyle(self.posterInfo.scoreValue(self.show), 100);
     };
@@ -103,7 +107,8 @@
     };
 
     self.showTitleOverPoster = function() {
-      return !!self.show.imageDoesNotExist || self.tvdbPosterPath() === 'images/GenericSeries.gif';
+      return (!!self.show.imageDoesNotExist || self.tvdbPosterPath() === 'images/GenericSeries.gif') &&
+        !self.showLoading();
     };
 
     self.textOverlay = function() {

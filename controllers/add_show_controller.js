@@ -47,7 +47,8 @@ exports.getTVDBMatches = async function(request, response) {
         first_aired: seriesObj.firstAired,
         network: seriesObj.network,
         overview: seriesObj.overview,
-        status: seriesObj.status
+        status: seriesObj.status,
+        poster_loading: true,
       };
     });
 
@@ -141,6 +142,7 @@ async function getTopPoster(seriesObj, options) {
     console.log("No poster results found for series '" + seriesObj.title + "'");
   }
 
+  seriesObj.poster_loading = false;
 }
 
 async function getOrCreateCloudinary(seriesObj) {
