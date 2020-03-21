@@ -15,15 +15,25 @@ function SystemEnvService($http, ArrayService) {
     }
   };
 
+  self.getEnvName = async function() {
+    if (!envName) {
+      await populateEnvName();
+    }
+    return envName;
+  };
+
   self.isInTestMode = function() {
     return envName === 'test';
   };
 
-  $http.get('/api/serverEnv').then((result) => {
+  async function populateEnvName() {
+    const result = await $http.get('/api/serverEnv');
     envName = result.data.envName;
     _.each(callbacks, callback => callback(envName));
     ArrayService.emptyArray(callbacks);
-  });
+  }
+
+  populateEnvName();
 
 }
 

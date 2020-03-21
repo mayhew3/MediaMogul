@@ -20,6 +20,7 @@ angular.module('mediaMogulApp')
 
           self.SocketService.on('connect', () => {
             debug('Socket connect event fired');
+            manualUpdate();
           });
 
           self.SocketService.on('error', () => {
@@ -32,7 +33,6 @@ angular.module('mediaMogulApp')
 
           self.SocketService.on('reconnect', () => {
             debug('Socket reconnect event fired');
-            manualUpdate();
           });
         }
       };

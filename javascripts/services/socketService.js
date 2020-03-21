@@ -89,6 +89,13 @@ angular.module('mediaMogulApp')
         }
       };
 
+      self.connect = function() {
+        socket.open();
+      };
+
+      self.disconnect = function() {
+        socket.close();
+      };
     }]);
 
 

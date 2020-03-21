@@ -8,11 +8,17 @@ angular.module('mediaMogulApp')
 
       const afterLoginCallbacks = [];
 
-      let envName;
+      const envName = SystemEnvService.getEnvName().then(() => {
+        doInitialLogin();
+      });
 
       self.isAuthenticated = function() {
-        return isLoggedInAsTest() || isLoggedInAsAuth();
+        return !!self.personInfo && !!self.personInfo.id;
       };
+
+      function isInternallyAuthenticated() {
+        return isLoggedInAsTest() || isLoggedInAsAuth();
+      }
 
       function isLoggedInAsTest() {
         const personInfo = getPersonInfo();
@@ -41,10 +47,21 @@ angular.module('mediaMogulApp')
         });
       };
 
-      function handleEnvName(env) {
-        envName = env;
-
+      function doInitialLogin() {
         if (envName !== 'test') {
+
+          if (isInternallyAuthenticated() || self.isInTestMode()) {
+            if (!self.personInfo) {
+              self.personInfo = store.get('person_info');
+              if (!self.personInfo) {
+                self.logout();
+                $state.go('home');
+              } else {
+                console.log("Setting LockService person id to: " + self.personInfo.id);
+                executeAfterLoginCallbacks();
+              }
+            }
+          }
 
           self.lock = new Auth0Lock(__env.auth0_client, __env.auth0_domain, self.options);
 
@@ -69,21 +86,9 @@ angular.module('mediaMogulApp')
 
         }
 
-        if (self.isAuthenticated() || self.isInTestMode()) {
-          if (!self.personInfo) {
-            self.personInfo = store.get('person_info');
-            if (!self.personInfo) {
-              self.logout();
-              $state.go('home');
-            } else {
-              console.log("Setting LockService person id to: " + self.personInfo.id);
-            }
-          }
-        }
-
       }
 
-      SystemEnvService.waitForEnvName(handleEnvName);
+
 
       function isInTestMode() {
         return envName === 'test';
