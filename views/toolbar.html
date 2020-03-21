@@ -39,16 +39,17 @@
         </li>
         <li class="navbar-text" ng-show="toolbar.LockService.isAuthenticated() && !toolbar.LockService.isAdmin()" ng-bind="'Hi, ' + toolbar.LockService.getFirstName() + '!'"></li>
         <li class="navbar-text">
-          <span ng-if="toolbar.isSocketConnected()"
+          <span ng-if="toolbar.isSocketConnected() && toolbar.LockService.isAdmin()"
                 ng-click="toolbar.socketDisconnect()">
             Disconnect
           </span>
-          <span ng-if="!toolbar.isSocketConnected()"
+          <span ng-if="!toolbar.isSocketConnected() && toolbar.LockService.isAdmin()"
                 ng-click="toolbar.socketConnect()">
             Reconnect
           </span>
         </li>
-        <li ng-class="toolbar.getLinkClass('Admin')" ng-show="toolbar.LockService.isAdmin()">
+        <li ng-class="toolbar.getLinkClass('Admin')"
+            ng-show="toolbar.LockService.isAdmin()">
           <a ui-sref="admin.services">
             Admin
             <span class="badge pillTabRed"
