@@ -8,7 +8,7 @@
     return {
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
-        'SystemVarsService', 'SystemEnvService', 'SocketService',
+        'SystemVarsService', 'SocketService',
         toolbarController],
       controllerAs: 'toolbar'
     }
@@ -34,6 +34,14 @@
 
     self.isSocketConnected = function() {
       return !!self.SocketService && !!self.SocketService.isConnected();
+    };
+
+    self.socketConnect = function() {
+      self.SocketService.connect();
+    };
+
+    self.socketDisconnect = function() {
+      self.SocketService.disconnect();
     };
 
     self.getDisplayEnvName = function() {
@@ -74,7 +82,7 @@
     };
 
     self.showServicesBadge = function() {
-      return isProduction() && self.getNumberOfOverdueServices() > 0;
+      return isProduction() && self.getNumberOfOverdueServices() > 0 && self.isSocketConnected();
     };
 
     function login() {
