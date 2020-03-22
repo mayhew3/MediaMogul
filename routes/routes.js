@@ -71,6 +71,7 @@ module.exports = function(app) {
   // ADMIN
   privateGet('/tvdbErrors', admin.getTVDBErrors);
   privateGet('/services', admin.getExternalServices);
+  privateGet('/tvdbApprovals', admin.getEpisodesNeedingApproval);
 
   // API for iOS app
   privateGet('/primeTV', series.getPrimeTV);

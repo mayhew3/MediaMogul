@@ -8,14 +8,14 @@
     return {
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
-        'SystemVarsService', 'SocketService',
+        'SystemVarsService', 'SocketService', 'TVDBApprovalService',
         toolbarController],
       controllerAs: 'toolbar'
     }
   }
 
   function toolbarController(LockService, store, $location, NavHelperService, ExternalServicesService,
-                             SystemVarsService, SocketService) {
+                             SystemVarsService, SocketService, TVDBApprovalService) {
     const self = this;
     self.login = login;
     self.logout = logout;
@@ -26,6 +26,7 @@
 
     self.NavHelperService = NavHelperService;
     self.ExternalServicesService = ExternalServicesService;
+    self.TVDBApprovalService = TVDBApprovalService;
     self.SystemVarsService = SystemVarsService;
 
     self.getEnvName = function() {
