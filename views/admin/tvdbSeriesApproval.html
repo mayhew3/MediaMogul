@@ -28,10 +28,12 @@
           <td ng-bind="series.lastAdded"></td>
           <td ng-bind="series.firstAirTime"></td>
           <td>
-            <button class="btn btn-sm btn-success">
+            <button class="btn btn-sm btn-success"
+                    ng-click="ctrl.approveAll(series)">
               <span ng-bind="ctrl.getApproveButtonLabel(series)"></span>
             </button>
-            <button class="btn btn-sm btn-warning">
+            <button class="btn btn-sm btn-warning"
+                    ng-click="ctrl.rejectAll(series)">
               <span ng-bind="ctrl.getRejectButtonLabel(series)"></span>
             </button>
           </td>
