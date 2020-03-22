@@ -16,11 +16,25 @@
         <tr>
           <th>Series</th>
           <th>Episodes</th>
+          <th>Last Added</th>
+          <th>First Aired</th>
+          <th>Approval</th>
         </tr>
         </thead>
-        <tr data-ng-repeat="series in ctrl.getSeriesNeedingApproval()">
+        <tr data-ng-repeat="series in ctrl.seriesObjs |
+              orderBy: 'lastAdded' ">
           <td ng-bind="series.series_title"></td>
-          <td ng-bind="series.episode_count"></td>
+          <td ng-bind="series.episodes.length"></td>
+          <td ng-bind="series.lastAdded"></td>
+          <td ng-bind="series.firstAirTime"></td>
+          <td>
+            <button class="btn btn-sm btn-success">
+              <span ng-bind="ctrl.getApproveButtonLabel(series)"></span>
+            </button>
+            <button class="btn btn-sm btn-warning">
+              <span ng-bind="ctrl.getRejectButtonLabel(series)"></span>
+            </button>
+          </td>
         </tr>
       </table>
     </div>

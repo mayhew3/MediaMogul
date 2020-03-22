@@ -24,9 +24,10 @@ exports.getExternalServices = function(request, response) {
 exports.getEpisodesNeedingApproval = async function(request, response) {
   console.log("TVDB Episode Approval request received");
 
-  const sql = 'SELECT e.id, e.series_title, e.series_id, e.title, e.season, e.episode_number ' +
+  const sql = 'SELECT e.id, e.series_title, e.series_id, e.title, e.season, e.episode_number, e.air_time, e.date_added ' +
     'FROM episode e ' +
-    'WHERE tvdb_approval = $1 ';
+    'WHERE tvdb_approval = $1 ' +
+    'AND retired = $2 ';
 
-  return db.selectSendResponse(response, sql, ['pending']);
+  return db.selectSendResponse(response, sql, ['pending', 0]);
 };
