@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('tvdbSeriesApprovalController', ['$log', 'LockService', 'TVDBApprovalService',
-    function($log, LockService, TVDBApprovalService) {
+  .controller('tvdbSeriesApprovalController', ['$log', 'LockService', 'TVDBApprovalService', '$http', '$q',
+    function($log, LockService, TVDBApprovalService, $http, $q) {
       const self = this;
 
       self.LockService = LockService;
@@ -36,7 +36,8 @@ angular.module('mediaMogulApp')
                 series_id: firstEp.series_id,
                 episodes: episodes,
                 lastAdded: formatDateObjectForDisplay(dateAdded),
-                firstAirTime: formatDateObjectForDisplay(airTime)
+                firstAirTime: formatDateObjectForDisplay(airTime),
+                status: 'pending'
               };
               self.seriesObjs.push(seriesObj);
             }
@@ -59,6 +60,31 @@ angular.module('mediaMogulApp')
           return 'Reject All';
         }
       };
+
+      self.approveAll = function(seriesObj) {
+        updateAll(seriesObj, 'approved');
+      };
+
+      self.rejectAll = function(seriesObj) {
+        updateAll(seriesObj, 'rejected');
+      };
+
+      function updateAll(seriesObj, approval) {
+        const promises = [];
+        _.forEach(seriesObj.episodes, episode => {
+          promises.push(updateEpisode(episode, approval));
+        });
+        $q.all(promises).then(() => {
+          seriesObj.status = approval;
+        }).catch(err => console.log('Error updating episodes: ' + err));
+      }
+
+      function updateEpisode(episode, approval) {
+        const changedFields = {
+          tvdb_approval: approval
+        };
+        return $http.post('/api/updateEpisode', {EpisodeId: episode.id, ChangedFields: changedFields});
+      }
 
       TVDBApprovalService.addListener(updateLocalSeriesList);
     }
