@@ -1,0 +1,28 @@
+<div class="container">
+
+  <div class="page-header" id="banner">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1>TVDB Approvals</h1>
+      </div>
+    </div>
+  </div>
+
+  <div class="bs-docs-section clearfix">
+    <div class="col-lg-12">
+
+      <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th>Series</th>
+          <th>Episodes</th>
+        </tr>
+        </thead>
+        <tr data-ng-repeat="series in ctrl.getSeriesNeedingApproval()">
+          <td ng-bind="series.series_title"></td>
+          <td ng-bind="series.episode_count"></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
