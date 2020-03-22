@@ -11,7 +11,7 @@ angular.module('mediaMogulApp')
       }
 
       getPendingApprovals().then(episodes => {
-        self.episodesWithNeededApproval = episodes;
+        self.episodesWithNeededApproval = episodes.data;
       });
     }]);
 

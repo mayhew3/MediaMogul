@@ -185,6 +185,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           controllerAs: 'ctrl',
           templateUrl: 'views/admin/services.html'
         })
+        .state('admin.tvdb_approval', {
+          url: '/tvdb_approval',
+          controller: 'tvdbSeriesApprovalController',
+          controllerAs: 'ctrl',
+          templateUrl: 'views/admin/tvdbSeriesApproval.html'
+        })
         .state('profile', {
           url: '/profile',
           templateUrl: 'views/profile.html',
