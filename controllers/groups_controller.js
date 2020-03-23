@@ -146,7 +146,7 @@ exports.getGroupShows = function(request, response) {
     "(SELECT id " +
     "  FROM person_poster " +
     "  WHERE series_id = s.id " +
-    "  AND person_id = $5 " +
+    "  AND person_id = $3 " +
     "  AND retired = $1) as poster_id, " +
     "tp.cloud_poster, " +
     "(select string_agg(g.name, '|') " +
@@ -159,12 +159,9 @@ exports.getGroupShows = function(request, response) {
     "tgs.id as tv_group_series_id, " +
     "s.trailer_link, " +
     "(SELECT COUNT(1) " +
-    "    from episode e " +
+    "    from regular_episode e " +
     "    where e.series_id = s.id " +
-    "    and e.retired = $1" +
-    "    and e.season <> $2 " +
     "    and e.air_time IS NOT NULL " +
-    "    and e.tvdb_approval = $6 " +
     "    and e.air_time < NOW()) as aired_episodes, " +
     "(SELECT MAX(tge.watched_date) " +
     "  from tv_group_episode tge " +
@@ -172,49 +169,39 @@ exports.getGroupShows = function(request, response) {
     "   on tge.episode_id = e.id " +
     "  where e.series_id = s.id " +
     "  and tge.retired = $1 " +
-    "  and e.retired = $1 " +
-    "  AND e.tvdb_approval = $6 " +
-    "  and tge.tv_group_id = $3) as last_watched " +
-    "FROM series s " +
+    "  and tge.tv_group_id = $2) as last_watched " +
+    "FROM matched_series s " +
     "INNER JOIN tv_group_series tgs " +
     "  ON tgs.series_id = s.id " +
     "LEFT OUTER JOIN tvdb_poster tp " +
     "  ON s.tvdb_poster_id = tp.id " +
-    "WHERE tgs.tv_group_id = $3 " +
-    "AND tgs.retired = $1 " +
-    "AND s.retired = $1 " +
-    "AND s.tvdb_match_status = $4 ";
+    "WHERE tgs.tv_group_id = $2 " +
+    "AND tgs.retired = $1 ";
 
-  db.selectNoResponse(sql, [0, 0, tv_group_id, 'Match Completed', person_id, 'approved'])
+  db.selectNoResponse(sql, [0, tv_group_id, person_id])
     .then(function (seriesResults) {
 
     extractGroupSeries(seriesResults, tv_group_id);
     person_controller.attachPosterInfoToSeriesObjects(seriesResults);
 
     const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
-      "FROM episode e " +
+      "FROM regular_episode e " +
       "INNER JOIN tv_group_series tgs " +
       "  ON tgs.series_id = e.series_id " +
-      "WHERE e.retired = $1 " +
-      "AND e.season <> $2 " +
-      "AND e.tvdb_approval = $7 " +
-      "AND e.id NOT IN (SELECT tge.episode_id " +
+      "WHERE e.id NOT IN (SELECT tge.episode_id " +
       "                   FROM tv_group_episode tge " +
-      "                   WHERE tge.tv_group_id = $3 " +
-      "                   AND (tge.watched = $4 OR tge.skipped = $5)" +
+      "                   WHERE tge.tv_group_id = $2 " +
+      "                   AND (tge.watched = $3 OR tge.skipped = $4)" +
       "                   AND tge.retired = $1) " +
-      "AND tgs.tv_group_id = $6 " +
+      "AND tgs.tv_group_id = $2 " +
       "AND tgs.retired = $1 " +
       "ORDER BY e.series_id, e.season, e.episode_number, e.air_time ";
 
     const values = [
       0,
-      0,
       tv_group_id,
       true,
-      true,
-      tv_group_id,
-      'approved'
+      true
     ];
 
     db.selectNoResponse(sql, values).then(function(episodeResults) {
@@ -367,24 +354,21 @@ exports.addToGroupShows = function(request, response) {
       "tgs.id as tv_group_series_id, " +
       "s.trailer_link, " +
       "(SELECT COUNT(1) " +
-      "    from episode e " +
+      "    from regular_episode e " +
       "    where e.series_id = s.id " +
-      "    and e.retired = $1" +
-      "    and e.season <> $2 " +
       "    and e.air_time IS NOT NULL" +
-      "    and e.air_time < NOW() " +
-      "    AND e.tvdb_approval = $4) as aired_episodes " +
+      "    and e.air_time < NOW() ) as aired_episodes " +
       "FROM series s " +
       "INNER JOIN tv_group_series tgs " +
       "  ON tgs.series_id = s.id " +
       "LEFT OUTER JOIN tvdb_poster tp " +
       "  ON s.tvdb_poster_id = tp.id " +
-      "WHERE tgs.id = $3 " +
+      "WHERE tgs.id = $2 " +
       "AND s.retired = $1 " +
       "AND tgs.retired = $1";
 
     const values = [
-      0, 0, tv_group_series_id, 'approved'
+      0, tv_group_series_id
     ];
 
     db.selectNoResponse(sql, values).then(seriesResults => {
@@ -394,28 +378,24 @@ exports.addToGroupShows = function(request, response) {
       person_controller.attachPossiblePosterToSeries(series, person_id);
 
       const sql = "SELECT e.series_id, e.air_time, e.air_date, e.season, e.episode_number " +
-        "FROM episode e " +
+        "FROM regular_episode e " +
         "INNER JOIN tv_group_series tgs " +
         "  ON tgs.series_id = e.series_id " +
         "WHERE e.retired = $1 " +
-        "AND e.season <> $2 " +
         "AND e.id NOT IN (SELECT tge.episode_id " +
         "                   FROM tv_group_episode tge " +
-        "                   WHERE tge.tv_group_id = $3 " +
-        "                   AND (tge.watched = $4 OR tge.skipped = $5)) " +
-        "AND e.tvdb_approval = $7 " +
-        "AND tgs.id = $6 " +
+        "                   WHERE tge.tv_group_id = $2 " +
+        "                   AND (tge.watched = $3 OR tge.skipped = $4)) " +
+        "AND tgs.id = $5 " +
         "AND tgs.retired = $1 " +
         "ORDER BY e.season, e.episode_number, e.air_time ";
 
       const values = [
         0,
-        0,
         tv_group_id,
         true,
         true,
-        tv_group_series_id,
-        'approved'
+        tv_group_series_id
       ];
 
       db.selectNoResponse(sql, values).then(episodeResults =>  {
@@ -642,25 +622,20 @@ function getUpdatedDenormsForMultiplePersons(series_id, person_ids) {
 function getUpdatedDenormsForSinglePerson(series_id, person_id) {
   return new Promise(resolve => {
     const sql = "SELECT MIN(e.air_time) as first_unwatched, COUNT(1) as unwatched_all " +
-      "FROM episode e " +
+      "FROM regular_episode e " +
       "WHERE e.series_id = $1 " +
-      "AND e.retired = $2 " +
-      "AND e.season <> $3 " +
       "AND e.air_time < now() " +
-      "AND e.tvdb_approval = $6 " +
       "AND e.id NOT IN (SELECT er.episode_id " +
       "                   FROM episode_rating er " +
-      "                   WHERE er.watched = $4 " +
-      "                   AND er.person_id = $5 " +
+      "                   WHERE er.watched = $3 " +
+      "                   AND er.person_id = $4 " +
       "                   AND er.retired = $2) ";
 
     const values = [
       series_id,
       0,
-      0,
       true,
-      person_id,
-      'approved'
+      person_id
     ];
 
     db.selectNoResponse(sql, values).then(results => {
@@ -1075,17 +1050,14 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
 
       const sql = 'UPDATE tv_group_episode ' +
         "SET watched = $1, watched_date = $2, skipped = $3 " +
-        'WHERE watched = $5 ' +
-        'AND skipped = $6 ' +
-        'AND tv_group_id = $7 ' +
+        'WHERE watched = $4 ' +
+        'AND skipped = $5 ' +
+        'AND tv_group_id = $6 ' +
         'AND episode_id IN (SELECT e.id ' +
-        'FROM episode e ' +
-        'WHERE e.series_id = $8 ' +
-        'AND e.absolute_number IS NOT NULL ' +
-        'AND e.absolute_number < $9 ' +
-        'AND e.season <> $10 ' +
-        'AND e.tvdb_approval = $11 ' +
-        'AND retired = $4) ' +
+                      'FROM episode e ' +
+                      'WHERE e.series_id = $7 ' +
+                      'AND e.absolute_number IS NOT NULL ' +
+                      'AND e.absolute_number < $8 ) ' +
         'RETURNING episode_id, id AS tv_group_episode_id, tv_group_id, watched, skipped ';
 
 
@@ -1093,30 +1065,24 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
         watched,             // watched or skipped
         null,             // !watched or skipped
         !watched,
-        0,                // retired
         false,            // !watched
         false,            // !skipped
         tv_group_id,         // person_id
         series_id,         // series_id
-        lastWatched,      // absolute_number <
-        0,                 // season
-        'approved'        // tvdb_approval
+        lastWatched      // absolute_number <
       ];
 
       db.selectNoResponse(sql, values).then(updateResults => {
         const sql = "INSERT INTO tv_group_episode (episode_id, tv_group_id, watched, skipped, date_added) " +
           "SELECT e.id, $1, $2, $3, now() " +
-          "FROM episode e " +
+          "FROM regular_episode e " +
           "WHERE e.series_id = $5 " +
-          "AND e.retired = $6 " +
           'AND e.absolute_number IS NOT NULL ' +
-          'AND e.absolute_number < $7 ' +
-          'AND e.season <> $8 ' +
+          'AND e.absolute_number < $6 ' +
           "AND e.id NOT IN (SELECT tge.episode_id " +
           "                 FROM tv_group_episode tge " +
-          "                 WHERE tge.tv_group_id = $9" +
+          "                 WHERE tge.tv_group_id = $7" +
           "                 AND tge.retired = $4) " +
-          "AND e.tvdb_approval = $10 " +
           "ORDER BY e.absolute_number " +
           "RETURNING episode_id, id AS tv_group_episode_id, tv_group_id, watched, skipped ";
         const values = [
@@ -1125,11 +1091,8 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
           !watched,  // skipped
           0,                                  // retired
           series_id,                          // series
-          0,                                  // retired
           lastWatched,                        // absolute number
-          0,                                  // !season
-          tv_group_id,                         // person
-          'approved'
+          tv_group_id                         // tv_group_id
         ];
 
         db.selectNoResponse(sql, values).then(groupEpisodes => {
