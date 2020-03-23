@@ -90,20 +90,18 @@ exports.getEpisodesForRating = function(req, response) {
       'er.review, ' +
       'er.watched_date, ' +
       'er.watched ' +
-      'FROM episode e ' +
+      'FROM valid_episode e ' +
       'INNER JOIN episode_rating er ' +
       ' ON er.episode_id = e.id ' +
       'INNER JOIN episode_group_rating egr ' +
       ' ON egr.series_id = e.series_id ' +
       'WHERE e.series_id = $1 ' +
       'AND er.person_id = $2 ' +
-      'AND e.retired = $3 ' +
       'AND er.retired = $3 ' +
       'AND egr.retired = $3 ' +
       'AND air_date IS NOT NULL ' +
       'AND air_date BETWEEN egr.start_date AND egr.end_date ' +
       'AND egr.year = $4 ' +
-      'AND e.tvdb_approval = $5 ' +
       'ORDER BY e.absolute_number';
 
 
@@ -111,8 +109,7 @@ exports.getEpisodesForRating = function(req, response) {
     series_id,
     person_id,
     0,
-    year,
-    'approved'
+    year
   ];
 
   db.selectNoResponse(sql, values).then(results => {
