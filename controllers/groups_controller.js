@@ -163,7 +163,8 @@ exports.getGroupShows = function(request, response) {
     "    where e.series_id = s.id " +
     "    and e.retired = $1" +
     "    and e.season <> $2 " +
-    "    and e.air_time IS NOT NULL" +
+    "    and e.air_time IS NOT NULL " +
+    "    and e.tvdb_approval = $6 " +
     "    and e.air_time < NOW()) as aired_episodes, " +
     "(SELECT MAX(tge.watched_date) " +
     "  from tv_group_episode tge " +
@@ -172,6 +173,7 @@ exports.getGroupShows = function(request, response) {
     "  where e.series_id = s.id " +
     "  and tge.retired = $1 " +
     "  and e.retired = $1 " +
+    "  AND e.tvdb_approval = $6 " +
     "  and tge.tv_group_id = $3) as last_watched " +
     "FROM series s " +
     "INNER JOIN tv_group_series tgs " +
@@ -183,7 +185,7 @@ exports.getGroupShows = function(request, response) {
     "AND s.retired = $1 " +
     "AND s.tvdb_match_status = $4 ";
 
-  db.selectNoResponse(sql, [0, 0, tv_group_id, 'Match Completed', person_id])
+  db.selectNoResponse(sql, [0, 0, tv_group_id, 'Match Completed', person_id, 'approved'])
     .then(function (seriesResults) {
 
     extractGroupSeries(seriesResults, tv_group_id);
@@ -195,6 +197,7 @@ exports.getGroupShows = function(request, response) {
       "  ON tgs.series_id = e.series_id " +
       "WHERE e.retired = $1 " +
       "AND e.season <> $2 " +
+      "AND e.tvdb_approval = $7 " +
       "AND e.id NOT IN (SELECT tge.episode_id " +
       "                   FROM tv_group_episode tge " +
       "                   WHERE tge.tv_group_id = $3 " +
@@ -210,7 +213,8 @@ exports.getGroupShows = function(request, response) {
       tv_group_id,
       true,
       true,
-      tv_group_id
+      tv_group_id,
+      'approved'
     ];
 
     db.selectNoResponse(sql, values).then(function(episodeResults) {
@@ -368,7 +372,8 @@ exports.addToGroupShows = function(request, response) {
       "    and e.retired = $1" +
       "    and e.season <> $2 " +
       "    and e.air_time IS NOT NULL" +
-      "    and e.air_time < NOW()) as aired_episodes " +
+      "    and e.air_time < NOW() " +
+      "    AND e.tvdb_approval = $4) as aired_episodes " +
       "FROM series s " +
       "INNER JOIN tv_group_series tgs " +
       "  ON tgs.series_id = s.id " +
@@ -379,7 +384,7 @@ exports.addToGroupShows = function(request, response) {
       "AND tgs.retired = $1";
 
     const values = [
-      0, 0, tv_group_series_id
+      0, 0, tv_group_series_id, 'approved'
     ];
 
     db.selectNoResponse(sql, values).then(seriesResults => {
@@ -398,6 +403,7 @@ exports.addToGroupShows = function(request, response) {
         "                   FROM tv_group_episode tge " +
         "                   WHERE tge.tv_group_id = $3 " +
         "                   AND (tge.watched = $4 OR tge.skipped = $5)) " +
+        "AND e.tvdb_approval = $7 " +
         "AND tgs.id = $6 " +
         "AND tgs.retired = $1 " +
         "ORDER BY e.season, e.episode_number, e.air_time ";
@@ -408,7 +414,8 @@ exports.addToGroupShows = function(request, response) {
         tv_group_id,
         true,
         true,
-        tv_group_series_id
+        tv_group_series_id,
+        'approved'
       ];
 
       db.selectNoResponse(sql, values).then(episodeResults =>  {
@@ -443,9 +450,10 @@ exports.getGroupEpisodes = function(request, response) {
     'WHERE e.series_id = $1 ' +
     'AND e.retired = $2 ' +
     'AND te.retired = $3 ' +
+    'AND e.tvdb_approval = $4 ' +
     'ORDER BY e.season, e.episode_number';
 
-  db.selectNoResponse(sql, [series_id, 0, 0]).then(function (episodeResult) {
+  db.selectNoResponse(sql, [series_id, 0, 0, 'approved']).then(function (episodeResult) {
     const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped " +
       "FROM tv_group_episode tge " +
       "INNER JOIN episode e " +
@@ -453,9 +461,10 @@ exports.getGroupEpisodes = function(request, response) {
       "WHERE e.series_id = $1 " +
       "AND e.retired = $2 " +
       "AND tge.retired = $3 " +
+      "AND e.tvdb_approval = $5 " +
       "AND tge.tv_group_id = $4 ";
 
-    db.selectNoResponse(sql, [series_id, 0, 0, tv_group_id]).then(function(groupResult) {
+    db.selectNoResponse(sql, [series_id, 0, 0, tv_group_id, 'approved']).then(function(groupResult) {
 
       const sql = "SELECT er.episode_id, tgp.person_id " +
         "FROM episode_rating er " +
@@ -470,7 +479,8 @@ exports.getGroupEpisodes = function(request, response) {
         "AND er.retired = $3 " +
         "AND tgp.retired = $4 " +
         "AND tgp.tv_group_id = $5 " +
-        "AND er.watched = $6 ";
+        "AND er.watched = $6 " +
+        "AND e.tvdb_approval = $7 ";
 
       const values = [
         series_id,
@@ -478,7 +488,8 @@ exports.getGroupEpisodes = function(request, response) {
         0,
         0,
         tv_group_id,
-        true
+        true,
+        'approved'
       ];
 
       db.selectNoResponse(sql, values).then(function(personResult) {
@@ -636,6 +647,7 @@ function getUpdatedDenormsForSinglePerson(series_id, person_id) {
       "AND e.retired = $2 " +
       "AND e.season <> $3 " +
       "AND e.air_time < now() " +
+      "AND e.tvdb_approval = $6 " +
       "AND e.id NOT IN (SELECT er.episode_id " +
       "                   FROM episode_rating er " +
       "                   WHERE er.watched = $4 " +
@@ -647,7 +659,8 @@ function getUpdatedDenormsForSinglePerson(series_id, person_id) {
       0,
       0,
       true,
-      person_id
+      person_id,
+      'approved'
     ];
 
     db.selectNoResponse(sql, values).then(results => {
@@ -668,13 +681,15 @@ function getRatingPendingEpisodesForSinglePerson(series_id, person_id) {
       "  AND e.retired = $2 " +
       "  AND er.retired = $2 " +
       "  AND er.rating_pending = $3" +
-      "  AND er.person_id = $4 ";
+      "  AND er.person_id = $4 " +
+      "  AND e.tvdb_approval = $5 ";
 
     const values = [
       series_id,
       0,
       true,
-      person_id
+      person_id,
+      'approved'
     ];
 
     db.selectNoResponse(sql, values).then(results => {
@@ -1069,6 +1084,7 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
         'AND e.absolute_number IS NOT NULL ' +
         'AND e.absolute_number < $9 ' +
         'AND e.season <> $10 ' +
+        'AND e.tvdb_approval = $11 ' +
         'AND retired = $4) ' +
         'RETURNING episode_id, id AS tv_group_episode_id, tv_group_id, watched, skipped ';
 
@@ -1083,7 +1099,8 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
         tv_group_id,         // person_id
         series_id,         // series_id
         lastWatched,      // absolute_number <
-        0                 // season
+        0,                 // season
+        'approved'        // tvdb_approval
       ];
 
       db.selectNoResponse(sql, values).then(updateResults => {
@@ -1098,7 +1115,8 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
           "AND e.id NOT IN (SELECT tge.episode_id " +
           "                 FROM tv_group_episode tge " +
           "                 WHERE tge.tv_group_id = $9" +
-          "                 AND tge.retired = $4)" +
+          "                 AND tge.retired = $4) " +
+          "AND e.tvdb_approval = $10 " +
           "ORDER BY e.absolute_number " +
           "RETURNING episode_id, id AS tv_group_episode_id, tv_group_id, watched, skipped ";
         const values = [
@@ -1110,7 +1128,8 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
           0,                                  // retired
           lastWatched,                        // absolute number
           0,                                  // !season
-          tv_group_id                         // person
+          tv_group_id,                         // person
+          'approved'
         ];
 
         db.selectNoResponse(sql, values).then(groupEpisodes => {
