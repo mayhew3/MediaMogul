@@ -15,7 +15,7 @@
   }
 
   function toolbarController(LockService, store, $location, NavHelperService, ExternalServicesService,
-                             SystemVarsService, SocketService, TVDBApprovalService) {
+                             SystemVarsService, SocketService) {
     const self = this;
     self.login = login;
     self.logout = logout;
@@ -26,7 +26,6 @@
 
     self.NavHelperService = NavHelperService;
     self.ExternalServicesService = ExternalServicesService;
-    self.TVDBApprovalService = TVDBApprovalService;
     self.SystemVarsService = SystemVarsService;
 
     self.getEnvName = function() {
