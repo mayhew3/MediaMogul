@@ -1691,8 +1691,8 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
       const updateGroupClause = !!tv_group_id ?
         'AND episode_id IN ' + '(SELECT tge.episode_id ' +
         'FROM tv_group_episode tge ' +
-        'WHERE tge.watched = $7 ' +
-        'AND tge.tv_group_id = $8 ' +
+        'WHERE tge.watched = $4 ' +
+        'AND tge.tv_group_id = $5 ' +
         'AND tge.retired = $6) ' :
         '';
 
@@ -1707,6 +1707,7 @@ exports.updateEpisodeRatingsAllPastWatched = function(payload, rating_notificati
       if (!!tv_group_id) {
         values.push(true);        // group episode watched
         values.push(tv_group_id);
+        values.push(0);
       }
 
       const sql = 'UPDATE episode_rating ' +
