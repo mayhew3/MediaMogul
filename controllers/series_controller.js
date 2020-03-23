@@ -193,7 +193,7 @@ exports.getPrimeSeriesInfo = function(req, response) {
   console.log("Prime Series Info call received. Params: " + req.query.SeriesId);
 
   // Items commented out which aren't in iOS UI yet, but could be of use.
-  var sql = 'SELECT ' +
+  const sql = 'SELECT ' +
     'e.id, ' +
     'e.title, ' +
     'e.season, ' +
@@ -208,27 +208,21 @@ exports.getPrimeSeriesInfo = function(req, response) {
     // 'er.rating_value, ' +
     // 'er.review, ' +
     // 'er.id as rating_id ' +
-    'FROM episode e ' +
+    'FROM regular_episode e ' +
     'LEFT OUTER JOIN tvdb_episode te ' +
     ' ON e.tvdb_episode_id = te.id ' +
     'WHERE e.series_id = $1 ' +
-    'AND e.retired = $2 ' +
-    'AND te.retired = $3 ' +
-    'AND e.season <> $4 ' +
-    'AND e.id NOT IN (SELECT episode_id FROM episode_rating WHERE person_id = $5 AND watched = $6 AND retired = $7) ' +
-    'AND e.tvdb_approval = $8 ' +
+    'AND te.retired = $2 ' +
+    'AND e.id NOT IN (SELECT episode_id FROM episode_rating WHERE person_id = $3 AND watched = $4 AND retired = $5) ' +
     'ORDER BY e.season, e.episode_number ' +
     'LIMIT 1 ';
 
   return db.selectSendResponse(response, sql, [
     req.query.SeriesId,
-    0,    // e.retired
     0,    // te.retired
-    0,    // e.season
     1,    // er.person_id
     true, // er.watched
-    0,  // er.watched
-    'approved'  // e.tvdb_approval
+    0     // er.retired
   ]);
 };
 
@@ -532,20 +526,17 @@ exports.addEpisodeGroupRating = function(request, response) {
 
 
 exports.getUpcomingEpisodes = function(req, response) {
-  var sql = "select e.series_id, e.title, e.season, e.episode_number, e.air_date, e.air_time " +
-      "from episode e " +
+  const sql = "select e.series_id, e.title, e.season, e.episode_number, e.air_date, e.air_time " +
+      "from regular_episode e " +
       "inner join series s " +
       "on e.series_id = s.id " +
       "where s.tier = $1 " +
       "and e.air_time is not null " +
       "and e.air_time >= current_timestamp " +
       "and e.watched = $2 " +
-      "and e.season <> $3 " +
-      "and e.retired = $4 " +
-      "AND e.tvdb_approval = $5 " +
       "order by e.air_time asc;";
 
-  return db.selectSendResponse(response, sql, [1, false, 0, 0, 'approved']);
+  return db.selectSendResponse(response, sql, [1, false]);
 };
 
 /* EDITING TVDB_POSTER */
