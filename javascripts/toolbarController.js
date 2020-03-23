@@ -8,7 +8,7 @@
     return {
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
-        'SystemVarsService', 'SocketService', 'TVDBApprovalService',
+        'SystemVarsService', 'SocketService',
         toolbarController],
       controllerAs: 'toolbar'
     }
