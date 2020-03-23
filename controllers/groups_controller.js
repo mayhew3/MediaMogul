@@ -672,7 +672,7 @@ function addOrEditTVGroupEpisode(payload) {
     if (!tv_group_episode_id) {
       addTVGroupEpisode(tv_group_episode).then(function (results) {
         resolve(results[0]);
-      }).catch(err => reject(err));
+      }).catch(err => reject('addTVGroupEpisode' + err));
     } else {
       editTVGroupEpisode(tv_group_episode, tv_group_episode_id).then(function () {
         resolve({
@@ -683,7 +683,7 @@ function addOrEditTVGroupEpisode(payload) {
           watched_date: payload.changedFields.watched_date,
           skipped: payload.changedFields.skipped
         });
-      }).catch(err => reject(err));
+      }).catch(err => reject('editTVGroupEpisode' + err));
     }
   });
 
@@ -705,7 +705,7 @@ function addOrEditChildGroupEpisodes(payload) {
         if (!child_group_episode.tv_group_episode_id) {
           addTVGroupEpisode(changedFields).then(results => {
             resolve(results[0]);
-          }).catch(err => reject(err));
+          }).catch(err => reject('addOrEditChildGroupEpisodes / add' + err));
         } else {
           editTVGroupEpisode(changedFields, child_group_episode.tv_group_episode_id).then(function () {
             resolve({
@@ -716,7 +716,7 @@ function addOrEditChildGroupEpisodes(payload) {
               watched_date: payload.changedFields.watched_date,
               skipped: payload.changedFields.skipped
             });
-          }).catch(err => reject(err));
+          }).catch(err => reject('addOrEditChildGroupEpisodes / edit' + err));
         }
       }));
     });
@@ -786,9 +786,9 @@ function markEpisodeWatchedForPersons(payload, persons) {
             editRatingsForPersons(existingRatings, episodeRatingInfo, persons, person_id)
           ]
         ).then(results => resolve(results))
-          .catch(err => reject(err));
+          .catch(err => reject('markEpisodeWatchedForPersons / select' + err));
 
-      }).catch(err => reject(err));
+      }).catch(err => reject('markEpisodeWatchedForPersons / add-edit' + err));
     }
 
   });
@@ -1028,7 +1028,7 @@ function updateChildGroupsPastWatched(payload) {
 }
 
 function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, lastWatched, watched) {
-  return new Promise(function(resolve) {
+  return new Promise(function(resolve, reject) {
     if (!lastWatched) {
       resolve([]);
     } else {
@@ -1087,8 +1087,8 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
         db.selectNoResponse(sql, values).then(groupEpisodes => {
           ArrayService.addToArray(updateResults, groupEpisodes);
           resolve(updateResults);
-        });
-      });
+        }).catch(err => reject('updateTVGroupEpisodesAllPastWatchedForGroup / insert' + err));
+      }).catch(err => reject('updateTVGroupEpisodesAllPastWatchedForGroup / update' + err));
 
     }
   });
