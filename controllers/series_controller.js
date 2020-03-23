@@ -86,23 +86,24 @@ exports.getEpisodesForRating = function(req, response) {
       'e.episode_number, ' +
       'e.air_time, ' +
       'e.title, ' +
-      'er.rating_value,\n' +
+      'er.rating_value, ' +
       'er.review, ' +
       'er.watched_date, ' +
       'er.watched ' +
-      'FROM episode e\n' +
-      'INNER JOIN episode_rating er\n' +
-      ' ON er.episode_id = e.id\n' +
-      'INNER JOIN episode_group_rating egr\n' +
-      ' ON egr.series_id = e.series_id\n' +
-      'WHERE e.series_id = $1\n' +
-      'AND er.person_id = $2\n' +
-      'AND e.retired = $3\n' +
-      'AND er.retired = $3\n' +
-      'AND egr.retired = $3\n' +
-      'AND air_date IS NOT NULL\n' +
-      'AND air_date BETWEEN egr.start_date AND egr.end_date\n' +
-      'AND egr.year = $4\n' +
+      'FROM episode e ' +
+      'INNER JOIN episode_rating er ' +
+      ' ON er.episode_id = e.id ' +
+      'INNER JOIN episode_group_rating egr ' +
+      ' ON egr.series_id = e.series_id ' +
+      'WHERE e.series_id = $1 ' +
+      'AND er.person_id = $2 ' +
+      'AND e.retired = $3 ' +
+      'AND er.retired = $3 ' +
+      'AND egr.retired = $3 ' +
+      'AND air_date IS NOT NULL ' +
+      'AND air_date BETWEEN egr.start_date AND egr.end_date ' +
+      'AND egr.year = $4 ' +
+      'AND e.tvdb_approval = $5 ' +
       'ORDER BY e.absolute_number';
 
 
@@ -110,7 +111,8 @@ exports.getEpisodesForRating = function(req, response) {
     series_id,
     person_id,
     0,
-    year
+    year,
+    'approved'
   ];
 
   db.selectNoResponse(sql, values).then(results => {
@@ -214,6 +216,7 @@ exports.getPrimeSeriesInfo = function(req, response) {
     'AND te.retired = $3 ' +
     'AND e.season <> $4 ' +
     'AND e.id NOT IN (SELECT episode_id FROM episode_rating WHERE person_id = $5 AND watched = $6 AND retired = $7) ' +
+    'AND e.tvdb_approval = $8 ' +
     'ORDER BY e.season, e.episode_number ' +
     'LIMIT 1 ';
 
@@ -224,7 +227,9 @@ exports.getPrimeSeriesInfo = function(req, response) {
     0,    // e.season
     1,    // er.person_id
     true, // er.watched
-    0]);  // er.watched
+    0,  // er.watched
+    'approved'  // e.tvdb_approval
+  ]);
 };
 
 exports.changeTier = function(req, response) {
@@ -537,9 +542,10 @@ exports.getUpcomingEpisodes = function(req, response) {
       "and e.watched = $2 " +
       "and e.season <> $3 " +
       "and e.retired = $4 " +
+      "AND e.tvdb_approval = $5 " +
       "order by e.air_time asc;";
 
-  return db.selectSendResponse(response, sql, [1, false, 0, 0]);
+  return db.selectSendResponse(response, sql, [1, false, 0, 0, 'approved']);
 };
 
 /* EDITING TVDB_POSTER */
