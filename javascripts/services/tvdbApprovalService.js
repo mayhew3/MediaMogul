@@ -7,7 +7,7 @@ angular.module('mediaMogulApp')
       const episodesWithNeededApproval = [];
       self.isLoading = true;
 
-      self.updateListeners = [];
+      self.initializeListeners = [];
 
       function getPendingApprovals() {
         return $http.get('/api/tvdbApprovals');
@@ -17,25 +17,25 @@ angular.module('mediaMogulApp')
         if (!self.isLoading) {
           listener(episodesWithNeededApproval);
         } else {
-          self.updateListeners.push(listener);
+          self.initializeListeners.push(listener);
         }
       };
 
       getPendingApprovals().then(episodes => {
         ArrayService.refreshArray(episodesWithNeededApproval, episodes.data);
         self.isLoading = false;
-        runListeners();
+        runInitializeListeners();
 
         self.SocketService.on('tvdb_pending', msg => {
           addOrReplacePendingEpisode(msg);
         });
       });
 
-      function runListeners() {
-        _.forEach(self.updateListeners, listener => {
+      function runInitializeListeners() {
+        _.forEach(self.initializeListeners, listener => {
           listener(episodesWithNeededApproval);
         });
-        ArrayService.emptyArray(self.updateListeners);
+        ArrayService.emptyArray(self.initializeListeners);
       }
 
       self.getNumberOfPendingEpisodes = function() {
