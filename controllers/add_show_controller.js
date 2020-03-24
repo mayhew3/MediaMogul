@@ -461,7 +461,8 @@ function addTVDBEpisode(tvdbEpisodeObj, series) {
       absolute_number: tvdbEpisodeObj.absoluteNumber,
       season: tvdbEpisodeObj.airedSeason,
       title: tvdbEpisodeObj.episodeName,
-      air_date: tvdbEpisodeObj.firstAired
+      air_date: tvdbEpisodeObj.firstAired,
+      tvdb_approval: 'approved'
     };
 
     updateAirTime(episode, series);
