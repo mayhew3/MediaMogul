@@ -19,8 +19,9 @@ angular.module('mediaMogulApp')
       }
 
       function updateLocalSeriesList(episodes) {
+        self.seriesObjs = [];
         if (episodes.length > 0) {
-          const groupedBySeries = _.groupBy(episodes);
+          const groupedBySeries = _.groupBy(episodes, 'series_id');
           for (const seriesId in groupedBySeries) {
             if (groupedBySeries.hasOwnProperty(seriesId)) {
               const episodes = groupedBySeries[seriesId];
