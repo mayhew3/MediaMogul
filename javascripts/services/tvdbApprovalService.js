@@ -41,6 +41,10 @@ angular.module('mediaMogulApp')
         return episodesWithNeededApproval.length;
       };
 
+      self.resolveEpisode = function(episode) {
+        ArrayService.removeFromArray(episodesWithNeededApproval, episode);
+      };
+
       function addOrReplacePendingEpisode(pendingEpisodeObj) {
         const matching = _.findWhere(episodesWithNeededApproval, {id: pendingEpisodeObj.id});
         if (!!matching) {

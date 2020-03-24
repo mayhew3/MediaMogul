@@ -77,6 +77,9 @@ angular.module('mediaMogulApp')
         });
         $q.all(promises).then(() => {
           seriesObj.status = approval;
+          _.forEach(seriesObj.episodes, episode => {
+            self.TVDBApprovalService.resolveEpisode(episode);
+          })
         }).catch(err => console.log('Error updating episodes: ' + err));
       }
 
