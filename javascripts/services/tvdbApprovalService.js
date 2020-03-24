@@ -25,6 +25,10 @@ angular.module('mediaMogulApp')
         ArrayService.refreshArray(episodesWithNeededApproval, episodes.data);
         self.isLoading = false;
         runListeners();
+
+        self.SocketService.on('tvdb_pending', msg => {
+          addOrReplacePendingEpisode(msg);
+        });
       });
 
       function runListeners() {
@@ -38,6 +42,13 @@ angular.module('mediaMogulApp')
         return episodesWithNeededApproval.length;
       };
 
+      function addOrReplacePendingEpisode(pendingEpisodeObj) {
+        const matching = _.findWhere(episodesWithNeededApproval, {id: pendingEpisodeObj.id});
+        if (!!matching) {
+          ArrayService.removeFromArray(episodesWithNeededApproval, matching);
+        }
+        episodesWithNeededApproval.push(pendingEpisodeObj);
+      }
     }]);
 
 
