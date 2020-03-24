@@ -4,7 +4,7 @@ angular.module('mediaMogulApp')
       const self = this;
       self.SocketService = SocketService;
 
-      self.episodesWithNeededApproval = [];
+      const episodesWithNeededApproval = [];
       self.isLoading = true;
 
       self.updateListeners = [];
@@ -15,24 +15,28 @@ angular.module('mediaMogulApp')
 
       self.addListener = function(listener) {
         if (!self.isLoading) {
-          listener(self.episodesWithNeededApproval);
+          listener(episodesWithNeededApproval);
         } else {
           self.updateListeners.push(listener);
         }
       };
 
       getPendingApprovals().then(episodes => {
-        self.episodesWithNeededApproval = episodes.data;
+        ArrayService.refreshArray(episodesWithNeededApproval, episodes.data);
         self.isLoading = false;
         runListeners();
       });
 
       function runListeners() {
         _.forEach(self.updateListeners, listener => {
-          listener(self.episodesWithNeededApproval);
+          listener(episodesWithNeededApproval);
         });
         ArrayService.emptyArray(self.updateListeners);
       }
+
+      self.getNumberOfPendingEpisodes = function() {
+        return episodesWithNeededApproval.length;
+      };
 
     }]);
 

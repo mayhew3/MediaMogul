@@ -54,6 +54,9 @@
             <span class="badge pillTabRed"
                   ng-if="toolbar.showServicesBadge()"
                   ng-bind="toolbar.getNumberOfOverdueServices()"></span>
+            <span class="badge pillTabYellow"
+                  ng-if="toolbar.showPendingBadge()"
+                  ng-bind="toolbar.getNumberOfPendingEpisodes()"></span>
             <span>
               <i class="pillWarning glyphicon glyphicon-warning-sign"
                  ng-if="!toolbar.isSocketConnected()"></i>

@@ -21,6 +21,9 @@
       <li ui-sref="admin.tvdb_approval">
         <a>
           Episode Approval
+          <span class="badge pillTabYellow"
+                ng-show="ctrl.getNumberOfPendingEpisodes() > 0"
+                ng-bind="ctrl.getNumberOfPendingEpisodes()"></span>
         </a>
       </li>
       <li ui-sref="admin.tv.tvdb">

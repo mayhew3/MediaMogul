@@ -519,6 +519,11 @@ div.gameCard {
   color: white !important;
 }
 
+.pillTabYellow {
+  background-color: yellow !important;
+  color: black !important;
+}
+
 .pillTabGreen {
   background-color: #55BB33;
 }
