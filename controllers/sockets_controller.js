@@ -21,6 +21,10 @@ const personalChannels = [
   'my_episode_viewed'
 ];
 
+const globalChannels = [
+  'tvdb_pending'
+];
+
 let io;
 
 exports.initIO = function(in_io) {
@@ -29,15 +33,23 @@ exports.initIO = function(in_io) {
     console.log('Connection established. Adding client.');
     clients.push(client);
 
-    let person_id = parseInt(client.handshake.query.person_id);
-    addClientForPerson(person_id, client);
+    const person_id_str = client.handshake.query.person_id;
+
+    let person_id;
+    if (!!person_id_str) {
+      person_id = parseInt(person_id_str);
+      addClientForPerson(person_id, client);
+    }
 
     initAllRooms(client, person_id);
 
     client.on('disconnect', () => {
       console.log('Client disconnected. Removing from array.');
       arrayService.removeFromArray(clients, client);
-      removeClientForPerson(person_id, client);
+
+      if (!!person_id) {
+        removeClientForPerson(person_id, client);
+      }
     });
   });
 };
@@ -61,6 +73,7 @@ function initAllRooms(client, person_id) {
   initGroupRooms(client, person_id);
   initPersonalChannels(client);
   initGroupChannels(client);
+  initGlobalChannels(client);
 }
 
 function initPersonRoom(client, person_id) {
@@ -99,6 +112,15 @@ function initGroupChannels(client) {
       console.log('Message received on channel \'' + channelName + '\' to group ' + msg.tv_group_id);
       const room_name = 'group_' + msg.tv_group_id;
       client.to(room_name).emit(channelName, msg);
+    });
+  });
+}
+
+function initGlobalChannels(client) {
+  _.each(globalChannels, channelName => {
+    client.on(channelName, msg => {
+      console.log(`Message received on channel ${channelName} to everyone: ` + JSON.stringify(msg));
+      io.emit(channelName, msg);
     });
   });
 }
