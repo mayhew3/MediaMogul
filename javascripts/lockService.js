@@ -8,7 +8,9 @@ angular.module('mediaMogulApp')
 
       const afterLoginCallbacks = [];
 
-      const envName = SystemEnvService.getEnvName().then(() => {
+      let envName;
+      SystemEnvService.getEnvName().then((en) => {
+        envName = en;
         doInitialLogin();
       });
 
