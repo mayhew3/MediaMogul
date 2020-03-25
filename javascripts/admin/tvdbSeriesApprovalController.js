@@ -1,12 +1,18 @@
 angular.module('mediaMogulApp')
-  .controller('tvdbSeriesApprovalController', ['$log', 'LockService', 'TVDBApprovalService', '$http', '$q',
-    function($log, LockService, TVDBApprovalService, $http, $q) {
+  .controller('tvdbSeriesApprovalController', ['$log', 'LockService', 'TVDBApprovalService', '$http', '$q', '$scope',
+    function($log, LockService, TVDBApprovalService, $http, $q, $scope) {
       const self = this;
 
       self.LockService = LockService;
       self.TVDBApprovalService = TVDBApprovalService;
 
       self.seriesObjs = [];
+
+      self.id = '' + $scope.$id;
+
+      $scope.$on('$destroy', () => {
+        self.TVDBApprovalService.removeListener(updateLocalSeriesList);
+      });
 
       function formatDateObjectForDisplay(dateObject) {
         const options = {
@@ -17,6 +23,7 @@ angular.module('mediaMogulApp')
         return dateObject === null ? null :
           dateObject.toLocaleDateString("en-US", options);
       }
+
 
       function updateLocalSeriesList(episodes) {
         self.seriesObjs = [];
