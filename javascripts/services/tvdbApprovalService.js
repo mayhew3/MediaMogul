@@ -20,6 +20,10 @@ angular.module('mediaMogulApp')
         listeners.push(listener);
       };
 
+      self.removeListener = function(listener) {
+        ArrayService.removeFromArray(listeners, listener);
+      };
+
       getPendingApprovals().then(episodes => {
         ArrayService.refreshArray(episodesWithNeededApproval, episodes.data);
         _.forEach(episodesWithNeededApproval, episode => episode.tvdb_approval = 'pending');
