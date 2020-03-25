@@ -22,6 +22,7 @@ angular.module('mediaMogulApp')
 
       getPendingApprovals().then(episodes => {
         ArrayService.refreshArray(episodesWithNeededApproval, episodes.data);
+        _.forEach(episodesWithNeededApproval, episode => episode.tvdb_approval = 'pending');
         self.isLoading = false;
         runListeners();
 
@@ -38,7 +39,7 @@ angular.module('mediaMogulApp')
       }
 
       self.getNumberOfPendingEpisodes = function() {
-        return episodesWithNeededApproval.length;
+        return _.where(episodesWithNeededApproval, {tvdb_approval: 'pending'}).length;
       };
 
       self.resolveEpisode = function(episode) {
@@ -50,6 +51,7 @@ angular.module('mediaMogulApp')
         if (!!matching) {
           ArrayService.removeFromArray(episodesWithNeededApproval, matching);
         }
+        pendingEpisodeObj.tvdb_approval = 'pending';
         episodesWithNeededApproval.push(pendingEpisodeObj);
       }
     }]);
