@@ -20,8 +20,9 @@ angular.module('mediaMogulApp')
 
       function updateLocalSeriesList(episodes) {
         self.seriesObjs = [];
-        if (episodes.length > 0) {
-          const groupedBySeries = _.groupBy(episodes, 'series_id');
+        const pendingEpisodes = _.where(episodes, {tvdb_approval: 'pending'});
+        if (pendingEpisodes.length > 0) {
+          const groupedBySeries = _.groupBy(pendingEpisodes, 'series_id');
           for (const seriesId in groupedBySeries) {
             if (groupedBySeries.hasOwnProperty(seriesId)) {
               const episodes = groupedBySeries[seriesId];
@@ -62,12 +63,40 @@ angular.module('mediaMogulApp')
         }
       };
 
+      self.getApproveButtonClass = function(seriesObj) {
+        const classes = [];
+        if (seriesObj.status === 'rejected') {
+          classes.push('btn-default');
+        } else {
+          classes.push('btn-success');
+        }
+        return classes.join(' ');
+      };
+
+      self.getRejectButtonClass = function(seriesObj) {
+        const classes = [];
+        if (seriesObj.status === 'approved') {
+          classes.push('btn-default');
+        } else {
+          classes.push('btn-warning');
+        }
+        return classes.join(' ');
+      };
+
       self.approveAll = function(seriesObj) {
-        updateAll(seriesObj, 'approved');
+        if (seriesObj.status === 'approved') {
+          updateAll(seriesObj, 'pending');
+        } else {
+          updateAll(seriesObj, 'approved');
+        }
       };
 
       self.rejectAll = function(seriesObj) {
-        updateAll(seriesObj, 'rejected');
+        if (seriesObj.status === 'rejected') {
+          updateAll(seriesObj, 'pending');
+        } else {
+          updateAll(seriesObj, 'rejected');
+        }
       };
 
       function updateAll(seriesObj, approval) {
@@ -78,7 +107,7 @@ angular.module('mediaMogulApp')
         $q.all(promises).then(() => {
           seriesObj.status = approval;
           _.forEach(seriesObj.episodes, episode => {
-            self.TVDBApprovalService.resolveEpisode(episode);
+            episode.tvdb_approval = approval;
           })
         }).catch(err => console.log('Error updating episodes: ' + err));
       }
