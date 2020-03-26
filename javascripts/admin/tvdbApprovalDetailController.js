@@ -24,6 +24,20 @@ angular.module('mediaMogulApp')
           dateObject.toLocaleDateString("en-US", options);
       }
 
+      function formatDateStringForDisplay(dateStr) {
+        return formatDateObjectForDisplay(new Date(dateStr));
+      }
+
+
+      self.getDisplayAirDate = function(episode) {
+        return formatDateStringForDisplay(episode.air_time);
+      };
+
+      self.getDisplayDateAdded = function(episode) {
+        return formatDateStringForDisplay(episode.date_added);
+      };
+
+
       function updateLocalSeries(episodes) {
         const pendingEpisodes = _.where(episodes, {tvdb_approval: 'pending', series_id: self.seriesObj.id});
         if (pendingEpisodes.length > 0) {
