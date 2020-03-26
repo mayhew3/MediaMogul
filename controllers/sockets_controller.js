@@ -22,7 +22,8 @@ const personalChannels = [
 ];
 
 const globalChannels = [
-  'tvdb_pending'
+  'tvdb_pending',
+  'tvdb_episode_resolve'
 ];
 
 let io;
