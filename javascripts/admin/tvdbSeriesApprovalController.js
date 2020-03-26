@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('tvdbSeriesApprovalController', ['$log', 'LockService', 'TVDBApprovalService', '$q', '$scope',
-    function($log, LockService, TVDBApprovalService, $q, $scope) {
+  .controller('tvdbSeriesApprovalController', ['$log', 'LockService', 'TVDBApprovalService', '$q', '$scope', '$state',
+    function($log, LockService, TVDBApprovalService, $q, $scope, $state) {
       const self = this;
 
       self.LockService = LockService;
@@ -21,6 +21,16 @@ angular.module('mediaMogulApp')
         return dateObject === null ? null :
           dateObject.toLocaleDateString("en-US", options);
       }
+
+      self.navigateTo = function(series_id) {
+        $state.transitionTo('admin.tvdb_approval_detail',
+          {series_id: series_id},
+          {
+            reload: true,
+            inherit: false,
+            notify: true
+          });
+      };
 
 
       function updateLocalSeriesList(episodes) {
