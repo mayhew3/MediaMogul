@@ -1,14 +1,12 @@
 angular.module('mediaMogulApp')
-  .controller('tvdbSeriesApprovalController', ['$log', 'LockService', 'TVDBApprovalService', '$http', '$q', '$scope',
-    function($log, LockService, TVDBApprovalService, $http, $q, $scope) {
+  .controller('tvdbSeriesApprovalController', ['$log', 'LockService', 'TVDBApprovalService', '$q', '$scope',
+    function($log, LockService, TVDBApprovalService, $q, $scope) {
       const self = this;
 
       self.LockService = LockService;
       self.TVDBApprovalService = TVDBApprovalService;
 
       self.seriesObjs = [];
-
-      self.id = '' + $scope.$id;
 
       $scope.$on('$destroy', () => {
         self.TVDBApprovalService.removeListener(updateLocalSeriesList);
@@ -45,8 +43,7 @@ angular.module('mediaMogulApp')
                 series_id: firstEp.series_id,
                 episodes: episodes,
                 lastAdded: formatDateObjectForDisplay(dateAdded),
-                firstAirTime: formatDateObjectForDisplay(airTime),
-                status: 'pending'
+                firstAirTime: formatDateObjectForDisplay(airTime)
               };
               self.seriesObjs.push(seriesObj);
             }
@@ -70,9 +67,19 @@ angular.module('mediaMogulApp')
         }
       };
 
+      function getStatus(seriesObj) {
+        const statuses = _.map(seriesObj.episodes, episode => episode.tvdb_approval);
+        const uniqued = _.uniq(statuses);
+        if (uniqued.length === 1) {
+          return uniqued[0];
+        } else {
+          return 'pending';
+        }
+      }
+
       self.getApproveButtonClass = function(seriesObj) {
         const classes = [];
-        if (seriesObj.status === 'rejected') {
+        if (getStatus(seriesObj) === 'rejected') {
           classes.push('btn-default');
         } else {
           classes.push('btn-success');
@@ -82,7 +89,7 @@ angular.module('mediaMogulApp')
 
       self.getRejectButtonClass = function(seriesObj) {
         const classes = [];
-        if (seriesObj.status === 'approved') {
+        if (getStatus(seriesObj) === 'approved') {
           classes.push('btn-default');
         } else {
           classes.push('btn-warning');
@@ -91,7 +98,7 @@ angular.module('mediaMogulApp')
       };
 
       self.approveAll = function(seriesObj) {
-        if (seriesObj.status === 'approved') {
+        if (getStatus(seriesObj) === 'approved') {
           updateAll(seriesObj, 'pending');
         } else {
           updateAll(seriesObj, 'approved');
@@ -99,7 +106,7 @@ angular.module('mediaMogulApp')
       };
 
       self.rejectAll = function(seriesObj) {
-        if (seriesObj.status === 'rejected') {
+        if (getStatus(seriesObj) === 'rejected') {
           updateAll(seriesObj, 'pending');
         } else {
           updateAll(seriesObj, 'rejected');
@@ -109,21 +116,9 @@ angular.module('mediaMogulApp')
       function updateAll(seriesObj, approval) {
         const promises = [];
         _.forEach(seriesObj.episodes, episode => {
-          promises.push(updateEpisode(episode, approval));
+          promises.push(self.TVDBApprovalService.updateEpisode(episode, approval));
         });
-        $q.all(promises).then(() => {
-          seriesObj.status = approval;
-          _.forEach(seriesObj.episodes, episode => {
-            episode.tvdb_approval = approval;
-          })
-        }).catch(err => console.log('Error updating episodes: ' + err));
-      }
-
-      function updateEpisode(episode, approval) {
-        const changedFields = {
-          tvdb_approval: approval
-        };
-        return $http.post('/api/updateEpisode', {EpisodeId: episode.id, ChangedFields: changedFields});
+        $q.all(promises).catch(err => console.log('Error updating episodes: ' + err));
       }
 
       TVDBApprovalService.addListener(updateLocalSeriesList);
