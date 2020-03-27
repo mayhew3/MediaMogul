@@ -31,6 +31,8 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     self.airDate = initAirDate();
     self.original_rating_value = initRating();
     self.rating_value = initRating();
+    self.original_review = initReview();
+    self.review = initReview();
     maybeUpdateChildGroups();
   };
 
@@ -49,14 +51,22 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       null;
   }
 
+  function initReview() {
+    const reviewFromEpisode = getReviewFromEpisode();
+    return !!reviewFromEpisode ?
+      reviewFromEpisode :
+      null;
+  }
+
   self.editAirDate = function() {
     if (self.LockService.isAdmin()) {
       self.editingAirDate = !self.editingAirDate;
     }
   };
 
-  self.ratingIsChanged = function() {
-    return self.original_rating_value !== self.rating_value;
+  self.ratingOrReviewIsChanged = function() {
+    return self.original_rating_value !== self.rating_value ||
+      self.original_review !== self.review;
   };
 
   self.airDateHasChanged = function() {
@@ -116,6 +126,14 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
 
     return !!episodeViewer ?
       episodeViewer.rating_value :
+      undefined;
+  }
+
+  function getReviewFromEpisode() {
+    const episodeViewer = self.episode.personEpisode;
+
+    return !!episodeViewer ?
+      episodeViewer.review :
       undefined;
   }
 
@@ -374,7 +392,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
       watched: !self.isWatched(),
       watched_date: self.isWatched() ? null : DateService.formatDateForDatabase(self.watchedDate),
       rating_value: self.rating_value,
-      review: null,
+      review: self.review,
       rating_pending: false
     };
     const unwatching = self.isWatched();
@@ -508,7 +526,7 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
   }
 
   self.showIgnoreButton = function() {
-    return self.hasMyRating() && !self.ratingIsChanged() && hasRatingPending();
+    return self.hasMyRating() && !self.ratingOrReviewIsChanged() && hasRatingPending();
   };
 
   self.addOrUpdateRating = function() {
@@ -575,13 +593,16 @@ function episodeDetailCompController(EpisodeService, ArrayService, LockService, 
     self.updating = true;
     const changedFields = {
       rating_value: self.rating_value,
-      rating_pending: false
+      rating_pending: false,
+      review: self.review
     };
     const personEpisode = self.episode.personEpisode;
     EpisodeService.updateMyEpisodeRating(personEpisode, changedFields, personEpisode.rating_id, self.episode.series_id).then(function (result) {
       self.episode.personEpisode.rating_value = self.rating_value;
       self.episode.personEpisode.rating_pending = false;
+      self.episode.personEpisode.review = self.review;
       self.original_rating_value = self.rating_value;
+      self.original_review = self.review;
       self.updating = false;
       self.postRatingChangeCallback();
     });
