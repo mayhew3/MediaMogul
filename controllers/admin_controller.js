@@ -1,5 +1,6 @@
 const db = require('postgres-mmethods');
 const _ = require('underscore');
+const sockets = require('./sockets_controller');
 
 exports.getTVDBErrors = function(req, response) {
   console.log("TVDB Errors request received.");
@@ -30,4 +31,13 @@ exports.getEpisodesNeedingApproval = async function(request, response) {
     'AND retired = $2 ';
 
   return db.selectSendResponse(response, sql, ['pending', 0]);
+};
+
+exports.getUpdaterStatus = async function(request, response) {
+  console.log("Updater status request received");
+
+  const updaterConnected = sockets.isUpdaterConnected();
+  const backupConnected = sockets.isBackupConnected();
+
+  response.json({updater_connected: updaterConnected, backup_connected: backupConnected});
 };

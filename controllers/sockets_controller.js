@@ -4,6 +4,8 @@ const _ = require('underscore');
 
 const clients = [];
 const persons = [];
+let updaterClient;
+let backupClient;
 const existing_person_rooms = [];
 const existing_group_rooms = [];
 
@@ -23,7 +25,11 @@ const personalChannels = [
 
 const globalChannels = [
   'tvdb_pending',
-  'tvdb_episode_resolve'
+  'tvdb_episode_resolve',
+  'updater_connect',
+  'updater_disconnect',
+  'backup_connect',
+  'backup_disconnect'
 ];
 
 let io;
@@ -35,11 +41,27 @@ exports.initIO = function(in_io) {
     clients.push(client);
 
     const person_id_str = client.handshake.query.person_id;
+    const updater = client.handshake.query.updater;
+    const backup = client.handshake.query.backup;
 
     let person_id;
     if (!!person_id_str) {
       person_id = parseInt(person_id_str);
       addClientForPerson(person_id, client);
+    } else if (!!updater) {
+      if (!!updaterClient) {
+        console.warn('WARNING: Overwriting existing updater client!');
+      }
+      updaterClient = client;
+      console.log('Updater client connected!');
+      exports.emitToAll('updater_connect', {});
+    } else if (!!backup) {
+      if (!!backupClient) {
+        console.warn('WARNING: Overwriting existing backup client!');
+      }
+      backupClient = client;
+      console.log('Backup client connected!');
+      exports.emitToAll('backup_connect', {});
     }
 
     initAllRooms(client, person_id);
@@ -50,6 +72,14 @@ exports.initIO = function(in_io) {
 
       if (!!person_id) {
         removeClientForPerson(person_id, client);
+      } else if (!!updater) {
+        console.log('Updater client disconnected!');
+        updaterClient = undefined;
+        exports.emitToAll('updater_disconnect', {});
+      } else if (!!backup) {
+        console.log('Backup client disconnected!');
+        backupClient = undefined;
+        exports.emitToAll('backup_disconnect', {});
       }
     });
   });
@@ -154,6 +184,14 @@ exports.emitToClient = function(client_id, channel, msg) {
 exports.emitToAllExceptPerson = function(person_id, channel, msg) {
   const clientsForEveryoneExceptPerson = getClientsForEveryoneExceptPerson(person_id);
   emitToClients(clientsForEveryoneExceptPerson, channel, msg);
+};
+
+exports.isUpdaterConnected = function() {
+  return !!updaterClient;
+};
+
+exports.isBackupConnected = function() {
+  return !!backupClient;
 };
 
 

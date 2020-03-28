@@ -1,12 +1,13 @@
 angular.module('mediaMogulApp')
   .controller('adminTopController', ['LockService', 'EpisodeService', 'NavHelperService', 'ExternalServicesService',
-    'TVDBApprovalService',
-    function(LockService, EpisodeService, NavHelperService, ExternalServicesService, TVDBApprovalService) {
+    'TVDBApprovalService', 'UpdaterStatusService',
+    function(LockService, EpisodeService, NavHelperService, ExternalServicesService, TVDBApprovalService, UpdaterStatusService) {
       const self = this;
 
       self.LockService = LockService;
       self.ExternalServicesService = ExternalServicesService;
       self.TVDBApprovalService = TVDBApprovalService;
+      self.UpdaterStatusService = UpdaterStatusService;
 
       NavHelperService.changeSelectedNav('Admin');
 
@@ -18,6 +19,9 @@ angular.module('mediaMogulApp')
         return self.TVDBApprovalService.getNumberOfPendingEpisodes();
       };
 
+      self.isUpdaterConnected = function() {
+        return self.UpdaterStatusService.isUpdaterConnected();
+      };
     }
   ]);
 
