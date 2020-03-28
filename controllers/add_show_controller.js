@@ -72,7 +72,7 @@ exports.getTVDBMatches = async function(request, response) {
     for (const prunedSeries of prunedData) {
       const existing = _.findWhere(existingPosters, {tvdb_series_ext_id: prunedSeries.tvdb_series_ext_id});
       if (!!existing) {
-        prunedSeries.poster = existing.poster;
+        prunedSeries.poster = existing.poster_path;
         prunedSeries.cloud_poster = existing.cloud_poster;
       } else {
         await getTopPoster(prunedSeries, options);
