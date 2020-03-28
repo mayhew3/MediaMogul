@@ -8,14 +8,14 @@
     return {
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
-        'SystemVarsService', 'SocketService', 'TVDBApprovalService',
+        'SystemVarsService', 'SocketService', 'TVDBApprovalService', 'UpdaterStatusService',
         toolbarController],
       controllerAs: 'toolbar'
     }
   }
 
   function toolbarController(LockService, store, $location, NavHelperService, ExternalServicesService,
-                             SystemVarsService, SocketService, TVDBApprovalService) {
+                             SystemVarsService, SocketService, TVDBApprovalService, UpdaterStatusService) {
     const self = this;
     self.login = login;
     self.logout = logout;
@@ -28,6 +28,7 @@
     self.ExternalServicesService = ExternalServicesService;
     self.TVDBApprovalService = TVDBApprovalService;
     self.SystemVarsService = SystemVarsService;
+    self.UpdaterStatusService = UpdaterStatusService;
 
     self.getEnvName = function() {
       return self.SystemVarsService.getVar('envName');
@@ -84,6 +85,14 @@
 
     self.getNumberOfPendingEpisodes = function() {
       return self.TVDBApprovalService.getNumberOfPendingEpisodes();
+    };
+
+    self.isUpdaterConnected = function() {
+      return self.UpdaterStatusService.isUpdaterConnected();
+    };
+
+    self.isBackupConnected = function() {
+      return self.UpdaterStatusService.isBackupConnected();
     };
 
     self.showServicesBadge = function() {

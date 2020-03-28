@@ -514,6 +514,14 @@ div.gameCard {
   color: orangered !important;
 }
 
+.pillUpdater {
+  color: mediumpurple !important;
+}
+
+.pillBackup {
+  color: lightseagreen !important;
+}
+
 .pillTabRed {
   background-color: red !important;
   color: white !important;

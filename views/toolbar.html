@@ -61,6 +61,22 @@
               <i class="pillWarning glyphicon glyphicon-warning-sign"
                  ng-if="!toolbar.isSocketConnected()"></i>
             </span>
+            <span>
+              <i class="pillUpdater glyphicon glyphicon-warning-sign"
+                 ng-if="toolbar.isUpdaterConnected() !== undefined && !toolbar.isUpdaterConnected()"></i>
+            </span>
+            <span>
+              <i class="pillUpdater glyphicon glyphicon glyphicon-question-sign"
+                 ng-if="toolbar.isSocketConnected() && toolbar.isUpdaterConnected() === undefined"></i>
+            </span>
+            <span>
+              <i class="pillBackup glyphicon glyphicon-warning-sign"
+                 ng-if="toolbar.isBackupConnected() !== undefined && !toolbar.isBackupConnected()"></i>
+            </span>
+            <span>
+              <i class="pillBackup glyphicon glyphicon glyphicon-question-sign"
+                 ng-if="toolbar.isSocketConnected() && toolbar.isBackupConnected() === undefined"></i>
+            </span>
           </a>
         </li>
         <li ng-show="toolbar.LockService.isAuthenticated()">
