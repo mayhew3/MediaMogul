@@ -67,8 +67,17 @@ exports.getTVDBMatches = async function(request, response) {
   }
 
   try {
+    const existingPosters = await getSeriesIDsAndPosters();
+
     for (const prunedSeries of prunedData) {
-      await getTopPoster(prunedSeries, options);
+      const existing = _.findWhere(existingPosters, {tvdb_series_ext_id: prunedSeries.tvdb_series_ext_id});
+      if (!!existing) {
+        prunedSeries.poster = existing.poster;
+        prunedSeries.cloud_poster = existing.cloud_poster;
+      } else {
+        await getTopPoster(prunedSeries, options);
+      }
+      prunedSeries.poster_loading = false;
       sockets.emitToClient(client_id, 'poster_fetched', prunedSeries);
     }
 
@@ -79,6 +88,18 @@ exports.getTVDBMatches = async function(request, response) {
   }
 
 };
+
+async function getSeriesIDsAndPosters() {
+  const sql = 'SELECT s.tvdb_series_ext_id, tp.poster_path, tp.cloud_poster ' +
+    'FROM series s ' +
+    'INNER JOIN tvdb_poster tp ' +
+    ' ON s.tvdb_poster_id = tp.id ' +
+    'WHERE s.retired = $1 ' +
+    'AND tp.retired = $1 ' +
+    'AND s.tvdb_series_ext_id IS NOT NULL ' +
+    'AND tp.cloud_poster IS NOT NULL ';
+  return await db.selectNoResponse(sql, [0]);
+}
 
 function urlExists(url) {
   return new Promise(resolve => {
@@ -141,8 +162,6 @@ async function getTopPoster(seriesObj, options) {
   } catch (error) {
     console.log("No poster results found for series '" + seriesObj.title + "'");
   }
-
-  seriesObj.poster_loading = false;
 }
 
 async function getOrCreateCloudinary(seriesObj) {
