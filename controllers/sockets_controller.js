@@ -49,21 +49,21 @@ exports.initIO = function(in_io) {
       person_id = parseInt(person_id_str);
       addClientForPerson(person_id, client);
     } else if (!!updater) {
-      addClientForUpdater(client);
       if (exports.isUpdaterConnected()) {
         console.warn('WARNING: Adding second updater client!');
       } else {
         console.log('Updater client connected!');
         exports.emitToAll('updater_connect', {});
       }
+      addClientForUpdater(client);
     } else if (!!backup) {
-      addClientForBackup(client);
       if (exports.isBackupConnected()) {
         console.warn('WARNING: Adding second backup client!');
       } else {
         console.log('Backup client connected!');
         exports.emitToAll('backup_connect', {});
       }
+      addClientForBackup(client);
     }
 
     initAllRooms(client, person_id);
