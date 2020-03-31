@@ -4,8 +4,8 @@ const _ = require('underscore');
 
 const clients = [];
 const persons = [];
-let updaterClient;
-let backupClient;
+const updaters = [];
+const backups = [];
 const existing_person_rooms = [];
 const existing_group_rooms = [];
 
@@ -49,19 +49,21 @@ exports.initIO = function(in_io) {
       person_id = parseInt(person_id_str);
       addClientForPerson(person_id, client);
     } else if (!!updater) {
-      if (!!updaterClient) {
-        console.warn('WARNING: Overwriting existing updater client!');
+      addClientForUpdater(client);
+      if (exports.isUpdaterConnected()) {
+        console.warn('WARNING: Adding second updater client!');
+      } else {
+        console.log('Updater client connected!');
+        exports.emitToAll('updater_connect', {});
       }
-      updaterClient = client;
-      console.log('Updater client connected!');
-      exports.emitToAll('updater_connect', {});
     } else if (!!backup) {
-      if (!!backupClient) {
-        console.warn('WARNING: Overwriting existing backup client!');
+      addClientForBackup(client);
+      if (exports.isBackupConnected()) {
+        console.warn('WARNING: Adding second backup client!');
+      } else {
+        console.log('Backup client connected!');
+        exports.emitToAll('backup_connect', {});
       }
-      backupClient = client;
-      console.log('Backup client connected!');
-      exports.emitToAll('backup_connect', {});
     }
 
     initAllRooms(client, person_id);
@@ -73,13 +75,21 @@ exports.initIO = function(in_io) {
       if (!!person_id) {
         removeClientForPerson(person_id, client);
       } else if (!!updater) {
-        console.log('Updater client disconnected!');
-        updaterClient = undefined;
-        exports.emitToAll('updater_disconnect', {});
+        removeClientForUpdater(client);
+        if (exports.isUpdaterConnected()) {
+          console.log('One updater client disconnected, but there is still an updater connected.');
+        } else {
+          console.log('Updater client disconnected!');
+          exports.emitToAll('updater_disconnect', {});
+        }
       } else if (!!backup) {
-        console.log('Backup client disconnected!');
-        backupClient = undefined;
-        exports.emitToAll('backup_disconnect', {});
+        removeClientForBackup(client);
+        if (isBackupConnected()) {
+          console.log('One backup client disconnected, but there is still an updater connected.');
+        } else {
+          console.log('Backup client disconnected!');
+          exports.emitToAll('backup_disconnect', {});
+        }
       }
     });
   });
@@ -187,15 +197,31 @@ exports.emitToAllExceptPerson = function(person_id, channel, msg) {
 };
 
 exports.isUpdaterConnected = function() {
-  return !!updaterClient;
+  return updaters.length > 0;
 };
 
 exports.isBackupConnected = function() {
-  return !!backupClient;
+  return backups.length > 0;
 };
 
 
 /* PRIVATE METHODS */
+
+function addClientForUpdater(client) {
+  updaters.push(client);
+}
+
+function removeClientForUpdater(client) {
+  arrayService.removeFromArray(updaters, client);
+}
+
+function addClientForBackup(client) {
+  backups.push(client);
+}
+
+function removeClientForBackup(client) {
+  arrayService.removeFromArray(backups, client);
+}
 
 function addClientForPerson(person_id, client) {
   const existingArray = _.findWhere(persons, {person_id: person_id});
