@@ -141,19 +141,6 @@ angular.module('mediaMogulApp')
 
     ];
 
-    self.combinedActive = function(series) {
-      return ShowFilterService.justAired(series) ||
-        ShowFilterService.otherQueue(series) ||
-        ShowFilterService.pinnedToDashboard(series) ||
-        ShowFilterService.addedSection(series);
-    };
-
-    self.getCombinedActiveCount = function() {
-      const myShows = getMyShows();
-      const allFiltered = _.filter(myShows, self.combinedActive);
-      return allFiltered.length;
-    };
-
     function getAllGenres() {
       return $q(resolve => {
         self.GenreService.eventuallyGetGenres().then(genres => resolve(wrapGenresAsFilters(genres)));

@@ -12,71 +12,24 @@ function ShowFilterService(ArrayService, DateService) {
     return series.personSeries.my_tier === 1;
   };
 
-  self.secondTier = function(series) {
-    return series.personSeries.my_tier === 2
-      && hasUnwatchedEpisodes(series)
-      ;
-  };
-
-  self.secondTierIncludingWatched = function(series) {
-    return series.personSeries.my_tier === 2;
-  };
-
   self.upcomingSoon = function(series) {
     return DateService.dateIsInNextDays(series.nextAirDate, 7) &&
       (!hasUnwatchedEpisodes(series) ||
-        self.justAired(series));
-  };
-
-  self.allUnaired = function(series) {
-    return ArrayService.exists(series.nextAirDate) && series.nextAirDate > Date.now();
+        self.combinedQueue(series));
   };
 
   function lastActivityIsRecent(series) {
     return DateService.dateIsWithinLastDays(series.personSeries.lastActivity, 15);
   }
 
-  function firstUnwatchedAiredRecently(series) {
-    return DateService.dateIsWithinLastDays(series.personSeries.first_unwatched, 8);
-  }
-
-  function watchedRecently(series) {
-    return DateService.dateIsWithinLastDays(series.personSeries.last_watched, 14);
-  }
-
-  function addedRecently(series) {
-    return DateService.dateIsWithinLastDays(series.personSeries.date_added, 8);
-  }
-
   self.ratingsPending = function(series) {
     return series.personSeries.rating_pending_episodes > 0;
-  };
-
-  self.showInQueue = function(series) {
-    return self.firstTier(series) &&
-      !self.ratingsPending(series) &&
-      (firstUnwatchedAiredRecently(series) || watchedRecently(series) || addedRecently(series));
   };
 
   self.combinedQueue = function(series) {
     return self.firstTier(series) &&
       !self.ratingsPending(series) &&
       lastActivityIsRecent(series);
-  };
-
-  self.justAired = function(series) {
-    const isRecentlyAired = self.firstTier(series) &&
-      !self.ratingsPending(series) &&
-      firstUnwatchedAiredRecently(series);
-    return isRecentlyAired;
-  };
-
-  self.otherQueue = function(series) {
-    const isWatchedRecently = self.firstTier(series) &&
-      !self.ratingsPending(series) &&
-      !self.justAired(series) &&
-      watchedRecently(series);
-    return isWatchedRecently;
   };
 
   self.pinnedToDashboard = function(series) {
@@ -86,25 +39,12 @@ function ShowFilterService(ArrayService, DateService) {
       hasUnwatchedEpisodes(series);
   };
 
-  self.addedSection = function(series) {
-    return self.firstTier(series) &&
-      !self.ratingsPending(series) &&
-      !self.justAired(series) &&
-      !self.otherQueue(series) &&
-      !self.pinnedToDashboard(series) &&
-      addedRecently(series);
-  };
-
   self.allShows = function(series) {
     return self.firstTierIncludingWatched(series);
   };
 
   self.backlogShows = function(series) {
-    return self.secondTierIncludingWatched(series);
-  };
-
-  self.newlyAdded = function(series) {
-    return series.personSeries.my_tier === null;
+    return series.personSeries.my_tier === 2;
   };
 
   self.orderByRating = function(series) {
