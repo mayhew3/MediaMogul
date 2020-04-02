@@ -101,23 +101,8 @@ angular.module('mediaMogulApp')
         seriesFunction: getMyShows,
         showEmpty: true,
         posterSize: 'large',
+        pageLimit: 12,
         panel_id: 'aired_recently',
-        badgeValue: ShowFilterService.getUnwatched,
-        showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue,
-        backInfo: getDashboardBackInfo()
-      },
-      {
-        headerText: 'Pinned',
-        tvFilter: ShowFilterService.pinnedToDashboard,
-        sort: {
-          field: ShowFilterService.getDynamicRating,
-          direction: 'desc'
-        },
-        seriesFunction: getMyShows,
-        showEmpty: false,
-        posterSize: 'large',
-        panel_id: 'pinned',
         badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue,

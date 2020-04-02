@@ -15,11 +15,15 @@ function ShowFilterService(ArrayService, DateService) {
   self.upcomingSoon = function(series) {
     return DateService.dateIsInNextDays(series.nextAirDate, 7) &&
       (!hasUnwatchedEpisodes(series) ||
-        self.combinedQueue(series));
+        self.justAired(series));
   };
 
+  function firstUnwatchedAiredRecently(series) {
+    return DateService.dateIsWithinLastDays(series.personSeries.first_unwatched, 8);
+  }
+
   function lastActivityIsRecent(series) {
-    return DateService.dateIsWithinLastDays(series.personSeries.lastActivity, 15);
+    return DateService.dateIsWithinLastDays(series.personSeries.lastActivity, 180);
   }
 
   self.ratingsPending = function(series) {
@@ -30,6 +34,13 @@ function ShowFilterService(ArrayService, DateService) {
     return self.firstTier(series) &&
       !self.ratingsPending(series) &&
       lastActivityIsRecent(series);
+  };
+
+  self.justAired = function(series) {
+    const isRecentlyAired = self.firstTier(series) &&
+      !self.ratingsPending(series) &&
+      firstUnwatchedAiredRecently(series);
+    return isRecentlyAired;
   };
 
   self.pinnedToDashboard = function(series) {
