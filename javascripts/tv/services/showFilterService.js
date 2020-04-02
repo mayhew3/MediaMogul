@@ -32,6 +32,10 @@ function ShowFilterService(ArrayService, DateService) {
     return ArrayService.exists(series.nextAirDate) && series.nextAirDate > Date.now();
   };
 
+  function lastActivityIsRecent(series) {
+    return DateService.dateIsWithinLastDays(series.personSeries.lastActivity, 15);
+  }
+
   function firstUnwatchedAiredRecently(series) {
     return DateService.dateIsWithinLastDays(series.personSeries.first_unwatched, 8);
   }
@@ -54,6 +58,12 @@ function ShowFilterService(ArrayService, DateService) {
       (firstUnwatchedAiredRecently(series) || watchedRecently(series) || addedRecently(series));
   };
 
+  self.combinedQueue = function(series) {
+    return self.firstTier(series) &&
+      !self.ratingsPending(series) &&
+      lastActivityIsRecent(series);
+  };
+
   self.justAired = function(series) {
     const isRecentlyAired = self.firstTier(series) &&
       !self.ratingsPending(series) &&
@@ -72,8 +82,7 @@ function ShowFilterService(ArrayService, DateService) {
   self.pinnedToDashboard = function(series) {
     return !!series.personSeries.pinned &&
       !self.ratingsPending(series) &&
-      !self.justAired(series) &&
-      !self.otherQueue(series) &&
+      !self.combinedQueue(series) &&
       hasUnwatchedEpisodes(series);
   };
 
@@ -94,41 +103,6 @@ function ShowFilterService(ArrayService, DateService) {
     return self.secondTierIncludingWatched(series);
   };
 
-  self.continueBacklog = function(series) {
-    return self.secondTier(series) &&
-      !self.ratingsPending(series) &&
-      series.personSeries.midSeason === true &&
-      hasWatchedEpisodes(series);
-  };
-
-  self.newSeasonPinned = function(series) {
-    return self.firstTier(series) &&
-      !self.ratingsPending(series) &&
-      !self.showInQueue(series) &&
-      series.personSeries.midSeason !== true &&
-      hasWatchedEpisodes(series);
-  };
-
-  self.newSeasonBacklog = function(series) {
-    return self.secondTier(series) &&
-      !self.ratingsPending(series) &&
-      series.personSeries.midSeason !== true &&
-      hasWatchedEpisodes(series);
-  };
-
-  self.toStartPinned = function(series) {
-    return self.firstTier(series) &&
-      !self.ratingsPending(series) &&
-      !self.showInQueue(series) &&
-      !hasWatchedEpisodes(series);
-  };
-
-  self.toStartBacklog = function(series) {
-    return self.secondTier(series) &&
-      !self.ratingsPending(series) &&
-      !hasWatchedEpisodes(series);
-  };
-
   self.newlyAdded = function(series) {
     return series.personSeries.my_tier === null;
   };
@@ -141,12 +115,12 @@ function ShowFilterService(ArrayService, DateService) {
     return series.personSeries.dynamic_rating;
   };
 
+  self.getLastActivity = function(series) {
+    return series.personSeries.lastActivity;
+  };
+
   function hasUnwatchedEpisodes(series) {
     return series.personSeries.unwatched_all > 0;
-  }
-
-  function hasWatchedEpisodes(series) {
-    return (series.aired_episodes - series.personSeries.unwatched_all) !== 0;
   }
 
   self.nextAirDate = function(show) {

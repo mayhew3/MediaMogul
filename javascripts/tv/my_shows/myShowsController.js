@@ -92,32 +92,16 @@ angular.module('mediaMogulApp')
         backInfo: getDashboardBackInfo()
       },
       {
-        headerText: 'Aired Recently',
-        tvFilter: ShowFilterService.justAired,
+        headerText: 'Recent',
+        tvFilter: ShowFilterService.combinedQueue,
         sort: {
-          field: ShowFilterService.getDynamicRating,
+          field: ShowFilterService.getLastActivity,
           direction: 'desc'
         },
         seriesFunction: getMyShows,
         showEmpty: true,
         posterSize: 'large',
         panel_id: 'aired_recently',
-        badgeValue: ShowFilterService.getUnwatched,
-        showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue,
-        backInfo: getDashboardBackInfo()
-      },
-      {
-        headerText: 'Watched Recently',
-        tvFilter: ShowFilterService.otherQueue,
-        sort: {
-          field: ShowFilterService.getDynamicRating,
-          direction: 'desc'
-        },
-        seriesFunction: getMyShows,
-        showEmpty: false,
-        posterSize: 'large',
-        panel_id: 'watched_recently',
         badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue,
@@ -134,22 +118,6 @@ angular.module('mediaMogulApp')
         showEmpty: false,
         posterSize: 'large',
         panel_id: 'pinned',
-        badgeValue: ShowFilterService.getUnwatched,
-        showLoading: self.showLoadingQueue,
-        showError: self.showErrorQueue,
-        backInfo: getDashboardBackInfo()
-      },
-      {
-        headerText: 'Added Recently',
-        tvFilter: ShowFilterService.addedSection,
-        sort: {
-          field: ShowFilterService.getDynamicRating,
-          direction: 'desc'
-        },
-        seriesFunction: getMyShows,
-        showEmpty: false,
-        posterSize: 'large',
-        panel_id: 'added_recently',
         badgeValue: ShowFilterService.getUnwatched,
         showLoading: self.showLoadingQueue,
         showError: self.showErrorQueue,

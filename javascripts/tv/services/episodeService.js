@@ -260,6 +260,7 @@ angular.module('mediaMogulApp')
         self.formatNextAirDate(show);
         formatSeriesGroups(show);
         splitGenresIntoArray(show);
+        setActivityDate(show);
       }
 
       function splitGenresIntoArray(show) {
@@ -522,6 +523,14 @@ angular.module('mediaMogulApp')
           show.nextAirDate = new Date(show.nextAirDate);
         }
       };
+
+      function setActivityDate(show) {
+        if (!!show.personSeries) {
+          const dates = [show.personSeries.first_unwatched, show.personSeries.last_watched, show.personSeries.date_added];
+          const cleaned = _.map(_.compact(dates), date => new Date(date));
+          show.personSeries.lastActivity = _.max(cleaned);
+        }
+      }
 
       self.combineDateAndTime = function(date, time) {
         let combinedStr = $filter('date')(date, 'shortDate', '+0000') + " " + time;

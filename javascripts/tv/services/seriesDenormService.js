@@ -110,6 +110,10 @@ angular.module('mediaMogulApp')
         viewer.nextEpisodeSeason = !firstUnwatchedEpisode ? null : firstUnwatchedEpisode.season;
         viewer.unwatched_all = unwatchedEpisodes;
 
+        const dates = [viewer.first_unwatched, viewer.last_watched, viewer.date_added];
+        const cleaned = _.map(_.compact(dates), date => new Date(date));
+        viewer.lastActivity = _.max(cleaned);
+
         if (!isGroup) {
           viewer.rating_pending_episodes = _.filter(eligibleEpisodes, function(episode) {
             const personEpisode = episode.personEpisode;
