@@ -84,7 +84,7 @@ exports.initIO = function(in_io) {
         }
       } else if (!!backup) {
         removeClientForBackup(client);
-        if (isBackupConnected()) {
+        if (exports.isBackupConnected()) {
           console.log('One backup client disconnected, but there is still an updater connected.');
         } else {
           console.log('Backup client disconnected!');
