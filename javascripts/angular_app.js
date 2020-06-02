@@ -19,6 +19,12 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
           templateUrl: 'views/callback.html',
           controllerAs: 'ctrl'
         })
+        .state('friends', {
+          url: '/friends',
+          controller: 'friendsController',
+          templateUrl: 'views/friends/friends.html',
+          controllerAs: 'ctrl'
+        })
         .state('tv', {
           url: '/tv',
           controller: 'mytvTopController',
