@@ -14,8 +14,13 @@
 
     <div class="navbar-collapse collapse" id="navbar-main">
       <ul class="nav navbar-nav navbar-left">
-        <li ng-class="toolbar.getLinkClass('TV')" ng-show="toolbar.LockService.isUser()">
+        <li ng-class="toolbar.getLinkClass('TV')"
+            ng-show="toolbar.LockService.isUser()">
           <a ui-sref="tv.shows.my.dashboard">TV</a>
+        </li>
+        <li ng-class="toolbar.getLinkClass('Friends')"
+            ng-show="toolbar.LockService.isUser()">
+          <a ui-sref="friends">Friends</a>
         </li>
         <li ng-class="toolbar.getLinkClass('Games')" ng-show="false">
           <a ui-sref="games.dashboard">Games</a>
