@@ -1,9 +1,30 @@
 <div class="container">
 
   <h1>Friends</h1>
-  <h1>Friends</h1>
-  <h1>Friends</h1>
-  <h1>Friends</h1>
-  <h1>Friends</h1>
+
+
+  <table class="table table-striped table-hover">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>E-Mail</th>
+      <th>Add</th>
+    </tr>
+    </thead>
+    <tr data-ng-repeat="person in ctrl.getPersons() |
+                          orderBy:['last_name', 'first_name']"
+        ng-class="ctrl.rowClass(person)">
+      <td ng-bind="person.name"></td>
+      <td ng-bind="person.email"></td>
+      <td>
+        <input type="button"
+               class="btn btn-sm"
+               ng-class="ctrl.getButtonClass(person)"
+               ng-click="ctrl.sendRequest(person)"
+               ng-value="ctrl.getButtonText(person)">
+      </td>
+    </tr>
+  </table>
+
 
 </div>
