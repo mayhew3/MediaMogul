@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('FriendService', ['$log', '$http', 'LockService', 'ArrayService',
-    function($log, $http, LockService, ArrayService) {
+  .service('FriendService', ['$log', '$http', 'LockService', 'ArrayService', 'SocketService',
+    function($log, $http, LockService, ArrayService, SocketService) {
       const self = this;
 
       self.friendships = [];
@@ -70,13 +70,15 @@ angular.module('mediaMogulApp')
         }
         const payload = {
           params: {
-            friendship_id: friendship.id
+            friendship_id: friendship.id,
+            person_id: LockService.getPersonID(),
+            hugged_person_id: person.id
           }
         }
         $http.delete('/api/friendshipRequests', payload).then(() => {
           self.removeFriendship(friendship);
         });
-      }
+      };
 
       self.approveRequest = function(person) {
         const friendshipRequest = self.getFriendshipRequest(person);
@@ -90,12 +92,13 @@ angular.module('mediaMogulApp')
           self.addFriendship(result.data);
           friendshipRequest.status = 'approved';
         });
-      }
+      };
 
       self.ignoreRequest = function(person) {
         const friendshipRequest = self.getFriendshipRequest(person);
         const payload = {
-          friendship_id: friendshipRequest.id
+          friendship_id: friendshipRequest.id,
+          person_id: LockService.getPersonID()
         }
 
         $http.patch('/api/ignoreRequest', payload).then(() => {
@@ -106,19 +109,22 @@ angular.module('mediaMogulApp')
       self.unIgnoreRequest = function(person) {
         const friendshipRequest = self.getFriendshipRequest(person);
         const payload = {
-          friendship_id: friendshipRequest.id
+          friendship_id: friendshipRequest.id,
+          person_id: LockService.getPersonID()
         }
 
         $http.patch('/api/unIgnoreRequest', payload).then(() => {
           friendshipRequest.status = 'pending';
         });
-      }
+      };
 
       self.removeFriend = function(person) {
         const friendship = self.getFriendship(person);
         const payload = {
           params: {
-            friendship_id: friendship.id
+            friendship_id: friendship.id,
+            person_id: LockService.getPersonID(),
+            hugged_person_id: person.id
           }
         };
 

@@ -44,10 +44,15 @@ exports.addFriendRequest = async function(request, response) {
 
 exports.removeFriendRequest = async function(request, response) {
   const friendship_id = request.query.friendship_id;
+  const person_id = request.query.person_id;
+  const hugged_person_id = request.query.hugged_person_id;
 
   const sql = 'DELETE FROM friendship ' +
     'WHERE id = $1 ' +
     'AND status = $2 ';
+
+  sockets.emitToPerson(hugged_person_id, 'request_removed', friendship_id);
+  sockets.emitToPerson(person_id, 'request_removed', friendship_id);
 
   db.updateSendResponse(response, sql, [friendship_id, 'pending']);
 };
@@ -74,19 +79,32 @@ exports.approveFriendRequest = async function(request, response) {
 };
 
 exports.ignoreFriendRequest = async function(request, response) {
-  await updateFriendship(request.body.friendship_id, 'ignored');
+  const person_id = request.query.person_id;
+
+  const friendship_id = request.body.friendship_id;
+  await updateFriendship(friendship_id, 'ignored');
+
+  sockets.emitToPerson(person_id, 'request_ignored', friendship_id);
 
   response.json({msg: 'Success!'});
 };
 
 exports.unIgnoreFriendRequest = async function(request, response) {
-  await updateFriendship(request.body.friendship_id, 'pending');
+  const person_id = request.query.person_id;
+
+  const friendship_id = request.body.friendship_id;
+  await updateFriendship(friendship_id, 'pending');
+
+  sockets.emitToPerson(person_id, 'request_unignored', friendship_id);
 
   response.json({msg: 'Success!'});
 };
 
 
 exports.removeFriendship = async function(request, response) {
+  const person_id = request.body.person_id;
+  const hugged_person_id = request.body.hugged_person_id;
+
   const friendship_id = request.query.friendship_id;
   const reverse_id = await findReverseFriendshipID(friendship_id);
 
@@ -95,6 +113,12 @@ exports.removeFriendship = async function(request, response) {
 
   await db.updateNoResponse(sql, [friendship_id]);
   await db.updateNoResponse(sql, [reverse_id]);
+
+  sockets.emitToPerson(hugged_person_id, 'friendship_removed', friendship_id);
+  sockets.emitToPerson(person_id, 'friendship_removed', friendship_id);
+
+  sockets.emitToPerson(hugged_person_id, 'friendship_removed', reverse_id);
+  sockets.emitToPerson(person_id, 'friendship_removed', reverse_id);
 
   response.json({msg: 'Success!'});
 };
