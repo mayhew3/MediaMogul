@@ -20,7 +20,13 @@
         </li>
         <li ng-class="toolbar.getLinkClass('Friends')"
             ng-show="toolbar.LockService.isUser()">
-          <a ui-sref="friends">Friends</a>
+          <a ui-sref="friends">
+            Friends
+            <span class="badge pillTabRed"
+                  ng-if="toolbar.showFriendsBadge()"
+                  ng-bind="toolbar.getNumberOfPendingFriendRequests()"></span>
+          </a>
+
         </li>
         <li ng-class="toolbar.getLinkClass('Games')" ng-show="false">
           <a ui-sref="games.dashboard">Games</a>

@@ -47,6 +47,10 @@ angular.module('mediaMogulApp')
         ArrayService.removeFromArray(self.friendshipRequests, friendshipRequest);
       };
 
+      self.getNumberOfPendingFriendRequests = function() {
+        return _.filter(self.friendshipRequests, friendshipRequest => friendshipRequest.status === 'pending').length;
+      };
+
     }]);
 
 
