@@ -68,7 +68,7 @@ angular.module('mediaMogulApp')
 
       self.getButtonText = function(person) {
         if (isFriendsWith(person)) {
-          return "Friends";
+          return "Remove";
         } else if (hasSentPendingRequest(person)) {
           return "Request Sent";
         } else if (hasReceivedPendingRequest(person)) {
@@ -82,7 +82,7 @@ angular.module('mediaMogulApp')
 
       self.getButtonClass = function(person) {
         if (isFriendsWith(person)) {
-          return "btn-success";
+          return "btn-danger";
         } else if (hasSentPendingRequest(person)) {
           return "btn-info";
         } else if (hasReceivedPendingRequest(person)) {
@@ -103,12 +103,26 @@ angular.module('mediaMogulApp')
       }
 
       self.getPersons = function() {
-        return _.filter(PersonService.persons, person => person.id !== LockService.getPersonID());
+        return _.filter(PersonService.persons, potentialFriendsFilter);
+      }
+
+      self.getFriends = function() {
+        return _.filter(PersonService.persons, friendsFilter);
+      };
+
+      function friendsFilter(person) {
+        return isFriendsWith(person);
+      }
+
+      function potentialFriendsFilter(person) {
+        return person.id !== LockService.getPersonID() &&
+          person.user_role !== 'test' &&
+          !isFriendsWith(person);
       }
 
       self.handleClick = async function(person) {
         if (isFriendsWith(person)) {
-          // do nothing
+          removeFriend(person);
         } else if (hasSentPendingRequest(person)) {
           unsendRequest(person);
         } else if (hasReceivedPendingRequest(person)) {

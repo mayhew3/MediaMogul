@@ -230,7 +230,7 @@ angular.module('mediaMogulApp')
       };
 
       self.isUser = function () {
-        return self.isAuthenticated() && _.contains(['user', 'admin'], self.getUserRole());
+        return self.isAuthenticated() && _.contains(['user', 'admin', 'test'], self.getUserRole());
       };
 
       // accessors
