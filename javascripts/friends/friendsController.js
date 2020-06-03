@@ -8,21 +8,23 @@ angular.module('mediaMogulApp')
       const friendships = [];
       const friendshipRequests = [];
 
-      async function fetchFriendships() {
+      function fetchFriendships() {
         const payload = {
           person_id: LockService.getPersonID()
         }
-        const results = await $http.get('/api/friendships', {params: payload});
-        ArrayService.refreshArray(friendships, results.data);
+        $http.get('/api/friendships', {params: payload}).then(results => {
+          ArrayService.refreshArray(friendships, results.data);
+        });
       }
       fetchFriendships();
 
-      async function fetchFriendshipRequests() {
+      function fetchFriendshipRequests() {
         const payload = {
           person_id: LockService.getPersonID()
         }
-        const results = await $http.get('/api/friendshipRequests', {params: payload});
-        ArrayService.refreshArray(friendshipRequests, results.data);
+        $http.get('/api/friendshipRequests', {params: payload}).then(results => {
+          ArrayService.refreshArray(friendshipRequests, results.data);
+        });
       }
       fetchFriendshipRequests();
 
@@ -48,13 +50,29 @@ angular.module('mediaMogulApp')
         return !!matching && matching.status === 'approved';
       }
 
+      self.showIgnoreButton = function(person) {
+        return hasReceivedPendingRequest(person) && !isFriendsWith(person) && !hasSentPendingRequest(person);
+      };
+
+      self.showRemoveButton = function(person) {
+        return isFriendsWith(person);
+      };
+
+      self.ignoreClicked = function(person) {
+        return ignoreRequest(person);
+      };
+
+      self.removeClicked = function(person) {
+        removeFriend(person);
+      };
+
       self.getButtonText = function(person) {
         if (isFriendsWith(person)) {
           return "Friends";
         } else if (hasSentPendingRequest(person)) {
           return "Request Sent";
         } else if (hasReceivedPendingRequest(person)) {
-          return "Request Received";
+          return "Approve";
         } else if (hasIgnoredRequest(person)) {
           return "You Ignored";
         } else {
@@ -70,7 +88,7 @@ angular.module('mediaMogulApp')
         } else if (hasReceivedPendingRequest(person)) {
           return "btn-tv-primary";
         } else if (hasIgnoredRequest(person)) {
-          return "btn-danger";
+          return "btn-warning";
         } else {
           return "btn-default";
         }
@@ -90,13 +108,13 @@ angular.module('mediaMogulApp')
 
       self.handleClick = async function(person) {
         if (isFriendsWith(person)) {
-          // todo
+          // do nothing
         } else if (hasSentPendingRequest(person)) {
-          // todo
+          unsendRequest(person);
         } else if (hasReceivedPendingRequest(person)) {
-          // todo
+          approveRequest(person);
         } else if (hasIgnoredRequest(person)) {
-          // todo
+          unIgnoreRequest(person);
         } else {
           sendRequest(person);
         }
@@ -111,6 +129,62 @@ angular.module('mediaMogulApp')
           friendships.push(result.data);
         });
       }
+
+      function unsendRequest(person) {
+        const friendship = getFriendship(person);
+        if (!friendship) {
+          throw new Error('No friendship found for person: ' + person.name);
+        }
+        const payload = {
+          params: {
+            friendship_id: friendship.id
+          }
+        }
+        $http.delete('/api/friendshipRequests', payload).then(() => {
+          ArrayService.removeFromArray(friendships, friendship);
+        });
+      }
+
+      function approveRequest(person) {
+        const friendshipRequest = getFriendshipRequest(person);
+        const payload = {
+          friendship_id: friendshipRequest.id,
+          person_id: LockService.getPersonID(),
+          hugged_person_id: friendshipRequest.hugging_person_id
+        }
+
+        $http.patch('/api/approveRequest', payload).then(result => {
+          friendships.push(result.data);
+          friendshipRequest.status = 'approved';
+        });
+      }
+
+      function ignoreRequest(person) {
+        const friendshipRequest = getFriendshipRequest(person);
+        const payload = {
+          friendship_id: friendshipRequest.id
+        }
+
+        $http.patch('/api/ignoreRequest', payload).then(() => {
+          friendshipRequest.status = 'ignored';
+        });
+      }
+
+      function unIgnoreRequest(person) {
+        // todo
+      }
+
+      function removeFriend(person) {
+        const friendship = getFriendship(person);
+        const payload = {
+          params: {
+            friendship_id: friendship.id
+          }
+        };
+
+        $http.delete('/api/friendships', payload);
+      }
+
     }
 
   ]);

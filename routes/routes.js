@@ -89,6 +89,8 @@ module.exports = function(app) {
   privatePost('/friendshipRequests', friends.addFriendRequest);
   privatePatch('/approveRequest', friends.approveFriendRequest);
   privatePatch('/ignoreRequest', friends.ignoreFriendRequest);
+  privateDelete('/friendships', friends.removeFriendship);
+  privateDelete('/friendshipRequests', friends.removeFriendRequest);
 
   // MY SHOWS
   privateGet('/myShows', persons.getMyShows);
@@ -164,6 +166,14 @@ module.exports = function(app) {
       router.patch(endpoint, callback);
     } else {
       router.patch(endpoint, authCheck, callback);
+    }
+  }
+
+  function privateDelete(endpoint, callback) {
+    if (envName === 'test') {
+      router.delete(endpoint, callback);
+    } else {
+      router.delete(endpoint, authCheck, callback);
     }
   }
 
