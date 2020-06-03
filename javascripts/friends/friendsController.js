@@ -87,7 +87,7 @@ angular.module('mediaMogulApp')
       function potentialFriendsFilter(person) {
         return person.id !== LockService.getPersonID() &&
           !isFriendsWith(person) &&
-          (hasReceivedPendingRequest(person) ||
+          (LockService.isAdmin() ||
             (person.user_role !== 'test' &&
             person.user_role !== 'guest'));
       }

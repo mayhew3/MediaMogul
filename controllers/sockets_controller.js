@@ -177,6 +177,9 @@ exports.emitToAll = function(channel, msg) {
 };
 
 exports.emitToPerson = function(person_id, channel, msg) {
+  if (typeof person_id !== 'number') {
+    person_id = parseInt(person_id);
+  }
   const clientsForPerson = getClientsForPerson(person_id);
   emitToClients(clientsForPerson, channel, msg);
 };
