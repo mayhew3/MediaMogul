@@ -81,7 +81,7 @@ exports.unIgnoreFriendRequest = async function(request, response) {
 
 exports.removeFriendship = async function(request, response) {
   const friendship_id = request.query.friendship_id;
-  const reverse_id = findReverseFriendshipID(friendship_id);
+  const reverse_id = await findReverseFriendshipID(friendship_id);
 
   const sql = 'DELETE FROM friendship ' +
     'WHERE id = $1 ';

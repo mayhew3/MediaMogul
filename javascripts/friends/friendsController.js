@@ -189,7 +189,11 @@ angular.module('mediaMogulApp')
           }
         };
 
-        $http.delete('/api/friendships', payload);
+        $http.delete('/api/friendships', payload).then(() => {
+          const friendshipRequest = getFriendshipRequest(person);
+          ArrayService.removeFromArray(friendships, friendship);
+          ArrayService.removeFromArray(friendshipRequests, friendshipRequest);
+        });
       }
 
     }
