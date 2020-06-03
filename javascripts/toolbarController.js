@@ -8,14 +8,14 @@
     return {
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
-        'SystemVarsService', 'SocketService', 'TVDBApprovalService', 'UpdaterStatusService',
+        'SystemVarsService', 'SocketService', 'TVDBApprovalService', 'UpdaterStatusService', 'FriendService',
         toolbarController],
       controllerAs: 'toolbar'
     }
   }
 
   function toolbarController(LockService, store, $location, NavHelperService, ExternalServicesService,
-                             SystemVarsService, SocketService, TVDBApprovalService, UpdaterStatusService) {
+                             SystemVarsService, SocketService, TVDBApprovalService, UpdaterStatusService, FriendService) {
     const self = this;
     self.login = login;
     self.logout = logout;
@@ -101,6 +101,14 @@
 
     self.showPendingBadge = function() {
       return self.getNumberOfPendingEpisodes() > 0 && self.isSocketConnected();
+    };
+
+    self.showFriendsBadge = function() {
+      return self.getNumberOfPendingFriendRequests() > 0;
+    };
+
+    self.getNumberOfPendingFriendRequests = function() {
+      return FriendService.getNumberOfPendingFriendRequests();
     };
 
     function login() {
