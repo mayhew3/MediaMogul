@@ -14,7 +14,6 @@ angular.module('mediaMogulApp')
           ArrayService.refreshArray(self.friendships, results.data);
         });
       }
-      fetchFriendships();
 
       function fetchFriendshipRequests() {
         const payload = {
@@ -24,8 +23,9 @@ angular.module('mediaMogulApp')
           ArrayService.refreshArray(self.friendshipRequests, results.data);
         });
       }
-      fetchFriendshipRequests();
 
+      LockService.addCallback(fetchFriendships);
+      LockService.addCallback(fetchFriendshipRequests);
 
       self.getFriendship = function(person) {
         return _.findWhere(self.friendships, {hugged_person_id: person.id});
