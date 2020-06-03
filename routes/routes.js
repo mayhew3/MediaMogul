@@ -4,6 +4,7 @@ const admin = require('../controllers/admin_controller');
 const games = require('../controllers/games_controller');
 const series = require('../controllers/series_controller');
 const persons = require('../controllers/person_controller');
+const friends = require('../controllers/friends_controller');
 const groups = require('../controllers/groups_controller');
 const addShow = require('../controllers/add_show_controller');
 const testing = require('../controllers/testing_controller');
@@ -81,6 +82,13 @@ module.exports = function(app) {
   // PERSONS
   privateGet('/person', persons.getPersonInfo);
   privateGet('/persons', persons.getPersons);
+
+  // FRIENDS
+  privateGet('/friendships', friends.getFriendships);
+  privateGet('/friendshipRequests', friends.getFriendRequests);
+  privatePost('/friendshipRequests', friends.addFriendRequest);
+  privatePatch('/approveRequest', friends.approveFriendRequest);
+  privatePatch('/ignoreRequest', friends.ignoreFriendRequest);
 
   // MY SHOWS
   privateGet('/myShows', persons.getMyShows);
