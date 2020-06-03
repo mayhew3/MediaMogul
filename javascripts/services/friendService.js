@@ -35,8 +35,16 @@ angular.module('mediaMogulApp')
         return _.findWhere(self.friendshipRequests, {hugging_person_id: person.id});
       };
 
+      function getFriendshipWithID(friendship_id) {
+        return _.findWhere(self.friendships, {id: friendship_id});
+      }
+
+      function getFriendshipRequestWithID(friendship_request_id) {
+        return _.findWhere(self.friendshipRequests, {id: friendship_request_id});
+      }
+
       function hasFriendshipWithID(friendship_id) {
-        return !!_.findWhere(self.friendships, {id: friendship_id});
+        return !!getFriendshipWithID(friendship_id);
       }
 
       function hasFriendshipRequestWithID(friendship_request_id) {
@@ -104,6 +112,16 @@ angular.module('mediaMogulApp')
         });
       };
 
+      SocketService.on('request_removed', friendship_request_id => {
+        const friendshipRequest = getFriendshipRequestWithID(parseInt(friendship_request_id));
+        self.removeFriendshipRequest(friendshipRequest);
+      });
+
+      SocketService.on('friendship_removed', friendship_id => {
+        const friendship = getFriendshipWithID(parseInt(friendship_id));
+        self.removeFriendship(friendship);
+      });
+
       self.approveRequest = function(person) {
         const friendshipRequest = self.getFriendshipRequest(person);
         const payload = {
@@ -118,6 +136,18 @@ angular.module('mediaMogulApp')
         });
       };
 
+      SocketService.on('friendship_approved', friendshipRequest => {
+        self.addFriendshipRequest(friendshipRequest);
+        const friendship = _.findWhere(self.friendships, {hugged_person_id: friendshipRequest.hugging_person_id});
+        friendship.status = 'approved';
+      });
+
+      SocketService.on('request_approved', friendship => {
+        self.addFriendship(friendship);
+        const friendshipRequest = _.findWhere(self.friendshipRequests, {hugging_person_id: friendship.hugged_person_id});
+        friendshipRequest.status = 'approved';
+      });
+
       self.ignoreRequest = function(person) {
         const friendshipRequest = self.getFriendshipRequest(person);
         const payload = {
@@ -130,6 +160,11 @@ angular.module('mediaMogulApp')
         });
       };
 
+      SocketService.on('request_ignored', friendship_request_id => {
+        const friendshipRequest = _.findWhere(self.friendshipRequests, {id: friendship_request_id});
+        friendshipRequest.status = 'ignored';
+      });
+
       self.unIgnoreRequest = function(person) {
         const friendshipRequest = self.getFriendshipRequest(person);
         const payload = {
@@ -141,6 +176,11 @@ angular.module('mediaMogulApp')
           friendshipRequest.status = 'pending';
         });
       };
+
+      SocketService.on('request_unignored', friendship_request_id => {
+        const friendshipRequest = _.findWhere(self.friendshipRequests, {id: friendship_request_id});
+        friendshipRequest.status = 'pending';
+      });
 
       self.removeFriend = function(person) {
         const friendship = self.getFriendship(person);
