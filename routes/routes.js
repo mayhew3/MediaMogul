@@ -89,6 +89,7 @@ module.exports = function(app) {
   privatePost('/friendshipRequests', friends.addFriendRequest);
   privatePatch('/approveRequest', friends.approveFriendRequest);
   privatePatch('/ignoreRequest', friends.ignoreFriendRequest);
+  privatePatch('/unIgnoreRequest', friends.unIgnoreFriendRequest);
   privateDelete('/friendships', friends.removeFriendship);
   privateDelete('/friendshipRequests', friends.removeFriendRequest);
 

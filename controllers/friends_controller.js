@@ -72,6 +72,13 @@ exports.ignoreFriendRequest = async function(request, response) {
   response.json({msg: 'Success!'});
 };
 
+exports.unIgnoreFriendRequest = async function(request, response) {
+  await updateFriendship(request.body.friendship_id, 'pending');
+
+  response.json({msg: 'Success!'});
+};
+
+
 exports.removeFriendship = async function(request, response) {
   const friendship_id = request.query.friendship_id;
   const reverse_id = findReverseFriendshipID(friendship_id);
