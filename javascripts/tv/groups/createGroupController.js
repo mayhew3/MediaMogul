@@ -1,30 +1,22 @@
 angular.module('mediaMogulApp')
   .controller('createGroupController', ['$http', 'LockService', '$uibModalInstance', 'ArrayService',
-    'GroupService',
-    function createGroupController($http, LockService, $uibModalInstance, ArrayService, GroupService) {
+    'GroupService', 'PersonService',
+    function createGroupController($http, LockService, $uibModalInstance, ArrayService, GroupService, PersonService) {
       const self = this;
 
       self.name = null;
       self.LockService = LockService;
+      self.PersonService = PersonService;
 
-      self.persons = [];
       self.selectedPersons = [];
 
       self.addPerson = function(person) {
         self.selectedPersons.push(person);
       };
 
-      self.fetchPersons = function() {
-        $http.get('/api/persons').then(function(results) {
-          const persons = results.data;
-          persons.forEach(function(person) {
-            person.name = person.first_name + ' ' + person.last_name;
-          });
-
-          ArrayService.addToArray(self.persons, persons);
-        });
-      };
-      self.fetchPersons();
+      self.getPersons = function() {
+        return self.PersonService.persons;
+      }
 
       self.rowClass = function(person) {
         return _.contains(self.selectedPersons, person) ? "success" : "";

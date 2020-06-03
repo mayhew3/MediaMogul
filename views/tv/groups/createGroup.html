@@ -24,7 +24,7 @@
       <th>Add</th>
     </tr>
     </thead>
-    <tr data-ng-repeat="person in ctrl.persons |
+    <tr data-ng-repeat="person in ctrl.getPersons() |
                           orderBy:['last_name', 'first_name']"
         ng-class="ctrl.rowClass(person)">
       <td ng-bind="person.name"></td>
