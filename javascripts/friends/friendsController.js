@@ -88,7 +88,21 @@ angular.module('mediaMogulApp')
         return _.filter(PersonService.persons, person => person.id !== LockService.getPersonID());
       }
 
-      self.sendRequest = async function(person) {
+      self.handleClick = async function(person) {
+        if (isFriendsWith(person)) {
+          // todo
+        } else if (hasSentPendingRequest(person)) {
+          // todo
+        } else if (hasReceivedPendingRequest(person)) {
+          // todo
+        } else if (hasIgnoredRequest(person)) {
+          // todo
+        } else {
+          sendRequest(person);
+        }
+      }
+
+      function sendRequest(person) {
         const payload = {
           person_id: LockService.getPersonID(),
           hugged_person_id: person.id
