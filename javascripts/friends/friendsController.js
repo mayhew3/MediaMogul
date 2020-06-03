@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .controller('friendsController', ['$http', 'LockService', 'NavHelperService', 'PersonService', 'ArrayService', 'FriendService',
-    function ($http, LockService, NavHelperService, PersonService, ArrayService, FriendService) {
+  .controller('friendsController', ['LockService', 'NavHelperService', 'PersonService', 'ArrayService', 'FriendService',
+    function (LockService, NavHelperService, PersonService, ArrayService, FriendService) {
       const self = this;
 
       self.LockService = LockService;
@@ -37,11 +37,11 @@ angular.module('mediaMogulApp')
       };
 
       self.ignoreClicked = function(person) {
-        return ignoreRequest(person);
+        return FriendService.ignoreRequest(person);
       };
 
       self.removeClicked = function(person) {
-        removeFriend(person);
+        FriendService.removeFriend(person);
       };
 
       self.getButtonText = function(person) {
@@ -93,92 +93,16 @@ angular.module('mediaMogulApp')
 
       self.handleClick = async function(person) {
         if (isFriendsWith(person)) {
-          removeFriend(person);
+          FriendService.removeFriend(person);
         } else if (hasSentPendingRequest(person)) {
-          unsendRequest(person);
+          FriendService.unsendRequest(person);
         } else if (hasReceivedPendingRequest(person)) {
-          approveRequest(person);
+          FriendService.approveRequest(person);
         } else if (hasIgnoredRequest(person)) {
-          unIgnoreRequest(person);
+          FriendService.unIgnoreRequest(person);
         } else {
-          sendRequest(person);
+          FriendService.sendRequest(person);
         }
-      }
-
-      function sendRequest(person) {
-        const payload = {
-          person_id: LockService.getPersonID(),
-          hugged_person_id: person.id
-        }
-        $http.post('/api/friendshipRequests', payload).then(result => {
-          FriendService.addFriendship(result.data);
-        });
-      }
-
-      function unsendRequest(person) {
-        const friendship = FriendService.getFriendship(person);
-        if (!friendship) {
-          throw new Error('No friendship found for person: ' + person.name);
-        }
-        const payload = {
-          params: {
-            friendship_id: friendship.id
-          }
-        }
-        $http.delete('/api/friendshipRequests', payload).then(() => {
-          FriendService.removeFriendship(friendship);
-        });
-      }
-
-      function approveRequest(person) {
-        const friendshipRequest = FriendService.getFriendshipRequest(person);
-        const payload = {
-          friendship_id: friendshipRequest.id,
-          person_id: LockService.getPersonID(),
-          hugged_person_id: friendshipRequest.hugging_person_id
-        }
-
-        $http.patch('/api/approveRequest', payload).then(result => {
-          FriendService.addFriendship(result.data);
-          friendshipRequest.status = 'approved';
-        });
-      }
-
-      function ignoreRequest(person) {
-        const friendshipRequest = FriendService.getFriendshipRequest(person);
-        const payload = {
-          friendship_id: friendshipRequest.id
-        }
-
-        $http.patch('/api/ignoreRequest', payload).then(() => {
-          friendshipRequest.status = 'ignored';
-        });
-      }
-
-      function unIgnoreRequest(person) {
-        const friendshipRequest = FriendService.getFriendshipRequest(person);
-        const payload = {
-          friendship_id: friendshipRequest.id
-        }
-
-        $http.patch('/api/unIgnoreRequest', payload).then(() => {
-          friendshipRequest.status = 'pending';
-        });
-      }
-
-      function removeFriend(person) {
-        const friendship = FriendService.getFriendship(person);
-        const payload = {
-          params: {
-            friendship_id: friendship.id
-          }
-        };
-
-        $http.delete('/api/friendships', payload).then(() => {
-          const friendshipRequest = FriendService.getFriendshipRequest(person);
-          FriendService.removeFriendship(friendship);
-          FriendService.removeFriendshipRequest(friendshipRequest);
-        });
       }
 
     }
