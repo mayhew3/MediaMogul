@@ -1,5 +1,6 @@
 const db = require('postgres-mmethods');
 const _ = require('underscore');
+const sockets = require('./sockets_controller');
 
 /* GET POSSIBLE MATCHES */
 
@@ -35,6 +36,9 @@ exports.addFriendRequest = async function(request, response) {
 
   const friendship = await insertObject('friendship', payload);
 
+  sockets.emitToPerson(hugged_person_id, 'request_received', friendship);
+  sockets.emitToPerson(person_id, 'request_sent', friendship);
+
   response.json(friendship);
 };
 
@@ -62,6 +66,9 @@ exports.approveFriendRequest = async function(request, response) {
   const friendship = await insertObject('friendship', payload);
 
   await updateFriendship(request.body.friendship_id, 'approved');
+
+  sockets.emitToPerson(hugged_person_id, 'request_approved', friendship);
+  sockets.emitToPerson(person_id, 'request_approved', friendship);
 
   response.json(friendship);
 };
