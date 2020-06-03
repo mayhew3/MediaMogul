@@ -35,8 +35,24 @@ angular.module('mediaMogulApp')
         return _.findWhere(self.friendshipRequests, {hugging_person_id: person.id});
       };
 
+      function hasFriendshipWithID(friendship_id) {
+        return !!_.findWhere(self.friendships, {id: friendship_id});
+      }
+
+      function hasFriendshipRequestWithID(friendship_request_id) {
+        return !!_.findWhere(self.friendshipRequests, {id: friendship_request_id});
+      }
+
       self.addFriendship = function(friendship) {
-        self.friendships.push(friendship);
+        if (!hasFriendshipWithID(friendship.id)) {
+          self.friendships.push(friendship);
+        }
+      };
+
+      self.addFriendshipRequest = function(friendshipRequest) {
+        if (!hasFriendshipRequestWithID(friendshipRequest.id)) {
+          self.friendshipRequests.push(friendshipRequest);
+        }
       };
 
       self.removeFriendship = function(friendship) {
@@ -62,6 +78,14 @@ angular.module('mediaMogulApp')
           self.addFriendship(result.data);
         });
       };
+
+      SocketService.on('request_sent', friendship => {
+        self.addFriendship(friendship);
+      });
+
+      SocketService.on('request_received', friendshipRequest => {
+        self.addFriendshipRequest(friendshipRequest);
+      });
 
       self.unsendRequest = function(person) {
         const friendship = self.getFriendship(person);
