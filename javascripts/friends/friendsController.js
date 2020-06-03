@@ -171,7 +171,14 @@ angular.module('mediaMogulApp')
       }
 
       function unIgnoreRequest(person) {
-        // todo
+        const friendshipRequest = getFriendshipRequest(person);
+        const payload = {
+          friendship_id: friendshipRequest.id
+        }
+
+        $http.patch('/api/unIgnoreRequest', payload).then(() => {
+          friendshipRequest.status = 'pending';
+        });
       }
 
       function removeFriend(person) {
