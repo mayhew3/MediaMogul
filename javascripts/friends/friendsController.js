@@ -87,6 +87,7 @@ angular.module('mediaMogulApp')
       function potentialFriendsFilter(person) {
         return person.id !== LockService.getPersonID() &&
           person.user_role !== 'test' &&
+          person.user_role !== 'guest' &&
           !isFriendsWith(person);
       }
 
