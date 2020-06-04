@@ -44,17 +44,33 @@ angular.module('mediaMogulApp')
         FriendService.removeFriend(person);
       };
 
+      self.showAdd = function(person) {
+        return !hasSentPendingRequest(person) && !hasReceivedPendingRequest(person) && !hasIgnoredRequest(person);
+      };
+
+      self.showSent = function(person) {
+        return hasSentPendingRequest(person);
+      };
+
+      self.showApprove = function(person) {
+        return !hasSentPendingRequest(person) && hasReceivedPendingRequest(person);
+      };
+
+      self.showUnIgnore = function(person) {
+        return !hasSentPendingRequest(person) && !hasReceivedPendingRequest(person) && hasIgnoredRequest(person);
+      };
+
       self.getButtonText = function(person) {
         if (isFriendsWith(person)) {
           return "Remove";
         } else if (hasSentPendingRequest(person)) {
-          return "Request Sent";
+          return "Sent";
         } else if (hasReceivedPendingRequest(person)) {
           return "Approve";
         } else if (hasIgnoredRequest(person)) {
-          return "You Ignored";
+          return "Un-Ignore";
         } else {
-          return "Send Request";
+          return "Add";
         }
       };
 
@@ -72,7 +88,7 @@ angular.module('mediaMogulApp')
         }
       }
 
-      self.getPersons = function() {
+      self.getPotentialFriends = function() {
         return _.filter(PersonService.persons, potentialFriendsFilter);
       }
 
