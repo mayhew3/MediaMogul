@@ -6,7 +6,17 @@ angular.module('mediaMogulApp')
       self.LockService = LockService;
       self.FriendService = FriendService;
 
+      let groupCreateMode = false;
+
       NavHelperService.changeSelectedNav('Friends');
+
+      self.isInGroupMode = function() {
+        return groupCreateMode;
+      };
+
+      self.toggleGroupMode = function() {
+        groupCreateMode = !groupCreateMode;
+      }
 
       self.showIgnoreButton = function(person) {
         return hasReceivedPendingRequest(person) && !isFriendsWith(person) && !hasSentPendingRequest(person);
