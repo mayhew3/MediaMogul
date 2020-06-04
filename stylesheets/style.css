@@ -139,6 +139,32 @@ h1 {
   text-align: center;
 }
 
+/* FRIENDS */
+
+.friendCardContainer {
+  padding: 5px;
+}
+
+.friendCard {
+  background-color: #232931;
+  border-radius: 5px;
+
+  padding: 10px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friendName {
+  font-size: 1.3em;
+}
+
+.friendEmail {
+  font-size: 0.9em;
+  color: #636E87;
+}
+
 /* SUBMIT VOTES */
 
 .myVote {
