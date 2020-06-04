@@ -36,8 +36,24 @@ angular.module('mediaMogulApp')
         return isFriendsWith(person);
       };
 
+      self.addClicked = function(person) {
+        FriendService.sendRequest(person);
+      };
+
+      self.approveClicked = function(person) {
+        FriendService.approveRequest(person);
+      };
+
       self.ignoreClicked = function(person) {
-        return FriendService.ignoreRequest(person);
+        FriendService.ignoreRequest(person);
+      };
+
+      self.unIgnoreClicked = function(person) {
+        FriendService.unIgnoreRequest(person);
+      };
+
+      self.unsendClicked = function(person) {
+        FriendService.unsendRequest(person);
       };
 
       self.removeClicked = function(person) {

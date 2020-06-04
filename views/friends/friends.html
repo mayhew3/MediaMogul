@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <h1>Friends</h1>
+  <h3>Friends</h3>
 
   <div class="panel-body">
     <div class="row">
@@ -42,7 +42,7 @@
     </div>
   </div>
 
-  <h1>Potential Friends</h1>
+  <h3>Potential Friends</h3>
 
 
   <div class="panel-body">
@@ -65,7 +65,7 @@
               <button type="button"
                       class="btn btn-sm btn-default"
                       ng-if="ctrl.showAdd(person)"
-                      ng-click="ctrl.sendRequest(person)">
+                      ng-click="ctrl.addClicked(person)">
                 Add Friend
               </button>
 
@@ -73,7 +73,7 @@
               <button type="button"
                       class="btn btn-sm btn-success"
                       ng-if="ctrl.showApprove(person)"
-                      ng-click="ctrl.approveRequest(person)">
+                      ng-click="ctrl.approveClicked(person)">
                 Confirm
               </button>
 
@@ -81,13 +81,15 @@
               <button type="button"
                       class="btn btn-sm btn-warning"
                       ng-if="ctrl.showIgnoreButton(person)"
-                      ng-click="ctrl.ignoreClicked(person)">Ignore</button>
+                      ng-click="ctrl.ignoreClicked(person)">
+                Ignore
+              </button>
 
               <!-- UN-SEND -->
               <button type="button"
                       class="btn btn-sm btn-info"
                       ng-show="ctrl.showSent(person)"
-                      ng-click="ctrl.unsendRequest(person)">
+                      ng-click="ctrl.unsendClicked(person)">
                 Friend Request Sent
               </button>
 
@@ -95,7 +97,7 @@
               <button type="button"
                       class="btn btn-sm btn-warning"
                       ng-show="ctrl.showUnIgnore(person)"
-                      ng-click="ctrl.unIgnoreRequest(person)">
+                      ng-click="ctrl.unIgnoreClicked(person)">
                 Un-Ignore
               </button>
 
