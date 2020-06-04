@@ -8,15 +8,13 @@ viewBox="0 0 1000 870"
  <defs>
   <style type="text/css">
    <![CDATA[
-    .fil1 {fill:#FEFEFE}
-    .fil0 {fill:#333333}
+    .fil0 {fill:#FEFEFE}
    ]]>
   </style>
  </defs>
- <rect class="fil0" width="1000" height="870"/>
  <g id="Layer_x0020_1">
   <metadata id="CorelCorpID_0Corel-Layer"/>
-  <rect class="fil1" x="385.33" y="12.5" width="229.33" height="845"/>
-  <rect class="fil1" transform="matrix(2.64845E-14 0.957995 -1 2.53721E-14 922.5 315.577)" width="249.31" height="845"/>
+  <rect class="fil0" x="385.33" y="12.5" width="229.33" height="845"/>
+  <rect class="fil0" transform="matrix(2.64845E-14 0.957995 -1 2.53721E-14 922.5 315.577)" width="249.31" height="845"/>
  </g>
 </svg>
