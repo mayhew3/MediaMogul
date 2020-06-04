@@ -8,107 +8,133 @@
     </div>
   </div>
 
-  <h3>Friends</h3>
+  <div class="panel panel-default">
 
-  <div class="panel-body">
-    <div class="row">
-      <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
-           ng-repeat="person in ctrl.getFriends() |
+    <div class="panel-heading">
+
+      <div class="row">
+        <div class="col-xs-9">
+          <h3>Friends</h3>
+        </div>
+        <div class="col-xs-3 text-right">
+          <button class="btn btn-primary">Create Group</button>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
+             ng-repeat="person in ctrl.getFriends() |
                       orderBy:['last_name', 'first_name']">
 
-        <div class="friendCard">
-          <div class="row">
-            <div class="col-xs-9">
-              <span class="friendName">{{person.name}}</span>
+          <div class="friendCard">
+            <div class="row">
+              <div class="col-xs-9">
+                <span class="friendName">{{person.name}}</span>
 
-            </div>
+              </div>
 
-            <div class="col-xs-3 text-right">
-              <button type="button"
-                      class="btn btn-sm btn-danger"
-                      ng-click="ctrl.removeClicked(person)">
-                <img src="../../images/XSignWhite.svg"
-                     width="16"
-                     height="16"
-                     alt="checked">
-              </button>
+              <div class="col-xs-3 text-right">
+                <button type="button"
+                        class="btn btn-sm btn-danger"
+                        ng-click="ctrl.removeClicked(person)">
+                  <img src="../../images/XSignWhite.svg"
+                       width="16"
+                       height="16"
+                       alt="checked">
+                </button>
+
+              </div>
 
             </div>
 
           </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+  <div class="panel panel-default">
+
+    <div class="panel-heading">
+      <h3>Potential Friends</h3>
+    </div>
+
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
+             ng-repeat="person in ctrl.getPotentialFriends() |
+                      orderBy:['last_name', 'first_name']">
+
+          <div class="friendCard">
+            <div class="row">
+              <div class="col-md-12">
+                <span class="friendName">{{person.name}}</span>
+              </div>
+            </div>
+            <div class="row"
+                 style="margin-top: 5px">
+              <div class="col-md-12 text-right">
+
+                <!-- SEND -->
+                <button type="button"
+                        class="btn btn-sm btn-default"
+                        ng-if="ctrl.showAdd(person)"
+                        ng-click="ctrl.addClicked(person)">
+                  Add Friend
+                </button>
+
+                <!-- APPROVE -->
+                <button type="button"
+                        class="btn btn-sm btn-success"
+                        ng-if="ctrl.showApprove(person)"
+                        ng-click="ctrl.approveClicked(person)">
+                  Confirm
+                </button>
+
+                <!-- IGNORE -->
+                <button type="button"
+                        class="btn btn-sm btn-warning"
+                        ng-if="ctrl.showIgnoreButton(person)"
+                        ng-click="ctrl.ignoreClicked(person)">
+                  Ignore
+                </button>
+
+                <!-- UN-SEND -->
+                <button type="button"
+                        class="btn btn-sm btn-info"
+                        ng-show="ctrl.showSent(person)"
+                        ng-click="ctrl.unsendClicked(person)">
+                  Friend Request Sent
+                </button>
+
+                <!-- UN-IGNORE -->
+                <button type="button"
+                        class="btn btn-sm btn-warning"
+                        ng-show="ctrl.showUnIgnore(person)"
+                        ng-click="ctrl.unIgnoreClicked(person)">
+                  Un-Ignore
+                </button>
+
+              </div>
+            </div>
+          </div>
+
 
         </div>
       </div>
     </div>
+
   </div>
 
-  <h3>Potential Friends</h3>
 
 
-  <div class="panel-body">
-    <div class="row">
-      <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
-           ng-repeat="person in ctrl.getPotentialFriends() |
-                      orderBy:['last_name', 'first_name']">
-
-        <div class="friendCard">
-          <div class="row">
-            <div class="col-md-12">
-              <span class="friendName">{{person.name}}</span>
-            </div>
-          </div>
-          <div class="row"
-          style="margin-top: 5px">
-            <div class="col-md-12 text-right">
-
-              <!-- SEND -->
-              <button type="button"
-                      class="btn btn-sm btn-default"
-                      ng-if="ctrl.showAdd(person)"
-                      ng-click="ctrl.addClicked(person)">
-                Add Friend
-              </button>
-
-              <!-- APPROVE -->
-              <button type="button"
-                      class="btn btn-sm btn-success"
-                      ng-if="ctrl.showApprove(person)"
-                      ng-click="ctrl.approveClicked(person)">
-                Confirm
-              </button>
-
-              <!-- IGNORE -->
-              <button type="button"
-                      class="btn btn-sm btn-warning"
-                      ng-if="ctrl.showIgnoreButton(person)"
-                      ng-click="ctrl.ignoreClicked(person)">
-                Ignore
-              </button>
-
-              <!-- UN-SEND -->
-              <button type="button"
-                      class="btn btn-sm btn-info"
-                      ng-show="ctrl.showSent(person)"
-                      ng-click="ctrl.unsendClicked(person)">
-                Friend Request Sent
-              </button>
-
-              <!-- UN-IGNORE -->
-              <button type="button"
-                      class="btn btn-sm btn-warning"
-                      ng-show="ctrl.showUnIgnore(person)"
-                      ng-click="ctrl.unIgnoreClicked(person)">
-                Un-Ignore
-              </button>
-
-            </div>
-          </div>
-        </div>
-
-
-      </div>
-    </div>
-  </div>
 
 
 </div>
