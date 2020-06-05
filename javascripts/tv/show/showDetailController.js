@@ -75,6 +75,10 @@ angular.module('mediaMogulApp')
     };
     self.groups = [];
 
+    self.isInGroupMode = function() {
+      return self.viewer.type === 'group';
+    };
+
     function initializeGroups(groups) {
       _.each(groups, group => {
         const groupObj = {
@@ -333,10 +337,6 @@ angular.module('mediaMogulApp')
 
     self.shouldHide = function(episode) {
       return episode.air_time === null;
-    };
-
-    self.isInGroupMode = function() {
-      return self.viewer.type === 'group';
     };
 
     self.isInGroupShows = function() {
