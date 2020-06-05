@@ -12,7 +12,7 @@ angular.module('mediaMogulApp')
       self.errorGroups = false;
 
       const afterUpdateCallbacks = [];
-      const groupsFetched = false;
+      let groupsFetched = false;
 
       self.updateMyGroupsList = function() {
         self.uninitialized = false;
@@ -25,6 +25,7 @@ angular.module('mediaMogulApp')
           self.loadingGroups = false;
 
           ArrayService.refreshArray(groups, results.data);
+          groupsFetched = true;
           executeAfterLoginCallbacks(groups);
 
         }).catch(err => {
