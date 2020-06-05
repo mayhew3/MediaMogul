@@ -29,7 +29,8 @@ const globalChannels = [
   'updater_connect',
   'updater_disconnect',
   'backup_connect',
-  'backup_disconnect'
+  'backup_disconnect',
+  'group_created'
 ];
 
 let io;
