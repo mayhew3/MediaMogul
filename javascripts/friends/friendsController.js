@@ -71,15 +71,7 @@ angular.module('mediaMogulApp')
       }
 
       self.submitNewGroup = function() {
-        const data = {
-          group: {
-            name: self.groupName,
-            person_ids: _.pluck(groupPersons, 'id')
-          }
-        };
-        $http.post('/api/createGroup', data).then(function(result) {
-          data.group.id = result.data.tv_group_id;
-          GroupService.addToMyGroups(data.group);
+        GroupService.createNewGroup(self.groupName, groupPersons).then(() => {
           resetGroupStuff();
         });
       };

@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q',
-    function ($http, ArrayService, LockService, $q) {
+  .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q', 'SocketService', 'PersonService',
+    function ($http, ArrayService, LockService, $q, SocketService, PersonService) {
       const self = this;
 
       self.LockService = LockService;
@@ -74,6 +74,46 @@ angular.module('mediaMogulApp')
           groups.push(group);
         }
       };
+
+      self.createNewGroup = function(groupName, groupPersons) {
+        const data = {
+          group: {
+            name: groupName,
+            person_ids: _.pluck(groupPersons, 'id')
+          }
+        };
+        return $q(resolve => {
+          $http.post('/api/createGroup', data).then(function(result) {
+            data.group.id = result.data.tv_group_id;
+            addGroupFromInfo(data.group);
+            SocketService.emit('group_created', data.group);
+            resolve();
+          });
+        });
+      };
+
+      function addGroupFromInfo(groupInfo) {
+        const members = _.map(groupInfo.person_ids, person_id => {
+          return {
+            person_id: person_id,
+            first_name: PersonService.getFirstName(person_id)
+          };
+        });
+        const group = {
+          id: groupInfo.id,
+          name: groupInfo.name,
+          members: members
+        };
+        self.addToMyGroups(group);
+      }
+
+      SocketService.on('group_created', groupInfo => {
+        const containsMe = groupInfo.person_ids.includes(LockService.getPersonID());
+        const existing = _.findWhere(groups, {id: groupInfo.id});
+        if (containsMe && !existing) {
+          addGroupFromInfo(groupInfo);
+        }
+      });
 
       self.groupHasSeries = function(series, tv_group_id) {
         return ArrayService.exists(self.getGroupSeries(series, tv_group_id));
