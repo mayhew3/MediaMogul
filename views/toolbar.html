@@ -1,6 +1,6 @@
 <nav class="navbar navbar-fixed-top"
      ng-class="toolbar.getNavbarClass()">
-  <div class="container" style="padding-left: 0">
+  <div class="container-fluid" style="padding-left: 0">
 
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed"
@@ -45,10 +45,13 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-          <p class="navbar-text" style="margin-right: 20px">{{toolbar.getDisplayEnvName()}}</p>
+          <p class="navbar-text hidden-xs" style="margin-right: 20px">{{toolbar.getDisplayEnvName()}}</p>
         </li>
-        <li class="navbar-text" ng-show="toolbar.LockService.isAuthenticated() && !toolbar.LockService.isAdmin()" ng-bind="'Hi, ' + toolbar.LockService.getFirstName() + '!'"></li>
-        <li class="navbar-text">
+        <li class="navbar-text"
+            ng-show="toolbar.LockService.isAuthenticated() && !toolbar.LockService.isAdmin()"
+            ng-bind="'Hi, ' + toolbar.LockService.getFirstName() + '!'">
+        </li>
+        <li class="navbar-text hidden-xs">
           <span ng-if="toolbar.isSocketConnected() && toolbar.LockService.isAdmin()"
                 ng-click="toolbar.socketDisconnect()">
             Disconnect
