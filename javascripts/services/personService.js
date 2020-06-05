@@ -4,6 +4,11 @@ angular.module('mediaMogulApp')
       const self = this;
 
       self.persons = [];
+      let me;
+
+      let personsFetched = false;
+
+      const afterPersonAvailableCallbacks = [];
 
       self.fetchPersons = function() {
         $http.get('/api/persons').then(function(results) {
@@ -13,10 +18,33 @@ angular.module('mediaMogulApp')
           });
 
           ArrayService.addToArray(self.persons, persons);
+
+          const myID = LockService.getPersonID();
+          me = _.findWhere(self.persons, {id: myID});
+
+          personsFetched = true;
+
+          executeAfterLoginCallbacks();
         });
       };
-      self.fetchPersons();
+      LockService.addCallback(self.fetchPersons);
 
+      self.addCallback = function(callback) {
+        if (personsFetched) {
+          callback();
+        } else {
+          afterPersonAvailableCallbacks.push(callback);
+        }
+      };
+
+      function executeAfterLoginCallbacks() {
+        _.forEach(afterPersonAvailableCallbacks, callback => callback());
+        ArrayService.emptyArray(afterPersonAvailableCallbacks);
+      }
+
+      self.getMe = function() {
+        return me;
+      };
     }]);
 
 

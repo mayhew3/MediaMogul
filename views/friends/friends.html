@@ -45,14 +45,16 @@
                  class="form-control input-lg"
                  placeholder="Group Name"
                  id="groupName"
-                 ng-model="ctrl.name"
+                 ng-model="ctrl.groupName"
                  required>
 
         </div>
 
         <div class="col-xs-2 text-right">
 
-          <button class="btn btn-lg btn-success">
+          <button class="btn btn-lg btn-success"
+                  ng-disabled="!ctrl.readyToSubmit() || !ctrl.LockService.isAuthenticated()"
+                  ng-click="ctrl.submitNewGroup()">
             Submit
           </button>
 

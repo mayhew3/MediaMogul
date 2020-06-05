@@ -1,6 +1,9 @@
 angular.module('mediaMogulApp')
-  .controller('friendsController', ['LockService', 'NavHelperService', 'PersonService', 'ArrayService', 'FriendService',
-    function (LockService, NavHelperService, PersonService, ArrayService, FriendService) {
+  .controller('friendsController',
+            ['LockService', 'NavHelperService', 'PersonService', 'ArrayService', 'FriendService',
+             'GroupService', '$http',
+    function (LockService, NavHelperService, PersonService, ArrayService, FriendService,
+              GroupService, $http) {
       const self = this;
 
       self.LockService = LockService;
@@ -8,6 +11,9 @@ angular.module('mediaMogulApp')
 
       let groupCreateMode = false;
       const groupPersons = [];
+
+      self.groupName = '';
+      PersonService.addCallback(resetGroupStuff);
 
       NavHelperService.changeSelectedNav('Friends');
 
@@ -38,6 +44,34 @@ angular.module('mediaMogulApp')
           'tile-ready' :
           'friendCardStandard';
       };
+
+      self.readyToSubmit = function() {
+        return self.groupName !== null && self.groupName !== '' && !_.isUndefined(self.groupName) &&
+          groupPersons.length > 1;
+      };
+
+      function resetGroupStuff() {
+        groupCreateMode = false;
+        self.groupName = '';
+        ArrayService.emptyArray(groupPersons);
+        const me = PersonService.getMe();
+        groupPersons.push(me);
+      }
+
+      self.submitNewGroup = function() {
+        const data = {
+          group: {
+            name: self.groupName,
+            person_ids: _.pluck(groupPersons, 'id')
+          }
+        };
+        $http.post('/api/createGroup', data).then(function(result) {
+          data.group.id = result.data.tv_group_id;
+          GroupService.addToMyGroups(data.group);
+          resetGroupStuff();
+        });
+      };
+
 
       /* FRIENDSHIP BUTTONS */
 
