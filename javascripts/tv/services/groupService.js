@@ -96,7 +96,7 @@ angular.module('mediaMogulApp')
         const members = _.map(groupInfo.person_ids, person_id => {
           return {
             person_id: person_id,
-            first_name: PersonService.getFirstName(person_id)
+            first_name: PersonService.getPersonWithID(person_id).first_name
           };
         });
         const group = {
