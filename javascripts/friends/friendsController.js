@@ -7,8 +7,11 @@ angular.module('mediaMogulApp')
       self.FriendService = FriendService;
 
       let groupCreateMode = false;
+      const groupPersons = [];
 
       NavHelperService.changeSelectedNav('Friends');
+
+      /* GROUPS */
 
       self.isInGroupMode = function() {
         return groupCreateMode;
@@ -16,7 +19,27 @@ angular.module('mediaMogulApp')
 
       self.toggleGroupMode = function() {
         groupCreateMode = !groupCreateMode;
-      }
+      };
+
+      self.addToGroupPersons = function(person) {
+        groupPersons.push(person);
+      };
+
+      self.removeFromGroupPersons = function(person) {
+        ArrayService.removeFromArray(groupPersons, person);
+      };
+
+      self.isPersonInGroup = function(person) {
+        return groupPersons.includes(person);
+      };
+
+      self.getFriendTileClass = function(person) {
+        return self.isInGroupMode() && self.isPersonInGroup(person) ?
+          'tile-ready' :
+          'friendCardStandard';
+      };
+
+      /* FRIENDSHIP BUTTONS */
 
       self.showIgnoreButton = function(person) {
         return hasReceivedPendingRequest(person) && !isFriendsWith(person) && !hasSentPendingRequest(person);
@@ -65,6 +88,9 @@ angular.module('mediaMogulApp')
       self.showUnIgnore = function(person) {
         return !hasSentPendingRequest(person) && !hasReceivedPendingRequest(person) && hasIgnoredRequest(person);
       };
+
+
+      /* FRIENDSHIP FILTERS */
 
       self.getPotentialFriends = function() {
         return _.filter(PersonService.persons, potentialFriendsFilter);

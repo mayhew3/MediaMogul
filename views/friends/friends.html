@@ -34,7 +34,12 @@
 
       <div class="row"
            ng-if="ctrl.isInGroupMode()">
-        <div class="col-xs-6">
+
+        <div class="col-xs-5">
+
+        </div>
+
+        <div class="col-xs-5">
 
           <input type="text"
                  class="form-control input-lg"
@@ -45,14 +50,23 @@
 
         </div>
 
+        <div class="col-xs-2 text-right">
+
+          <button class="btn btn-lg btn-success">
+            Submit
+          </button>
+
+        </div>
+
       </div>
 
-      <div class="row">
+      <div class="row" style="margin-top: 15px">
         <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
              ng-repeat="person in ctrl.getFriends() |
                       orderBy:['last_name', 'first_name']">
 
-          <div class="friendCard">
+          <div class="friendCard"
+               ng-class="ctrl.getFriendTileClass(person)">
             <div class="row">
               <div class="col-xs-9">
                 <span class="friendName">{{person.name}}</span>
@@ -69,10 +83,22 @@
                        height="16"
                        alt="checked">
                 </button>
+
                 <button type="button"
                         class="btn btn-sm btn-success"
-                        ng-if="ctrl.isInGroupMode()">
+                        ng-if="ctrl.isInGroupMode() && !ctrl.isPersonInGroup(person)"
+                        ng-click="ctrl.addToGroupPersons(person)">
                   <img src="../../images/PlusSignWhite.svg"
+                       width="16"
+                       height="16"
+                       alt="checked">
+                </button>
+
+                <button type="button"
+                        class="btn btn-sm btn-tv-primary"
+                        ng-if="ctrl.isInGroupMode() && ctrl.isPersonInGroup(person)"
+                        ng-click="ctrl.removeFromGroupPersons(person)">
+                  <img src="../../images/Checkmark.svg"
                        width="16"
                        height="16"
                        alt="checked">
