@@ -9,6 +9,83 @@
   </div>
 
 
+  <!-- FRIEND REQUESTS PANEL -->
+
+  <div class="panel panel-default"
+       ng-if="!ctrl.isInGroupMode() && ctrl.hasPendingFriendRequests()">
+
+    <div class="panel-heading">
+      <h3>Friend Requests</h3>
+    </div>
+
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
+             ng-repeat="person in ctrl.getPendingFriendRequests() |
+                      orderBy:['last_name', 'first_name']">
+
+          <div class="friendCard friendCardStandard">
+            <div class="row">
+              <div class="col-md-12">
+                <span class="friendName">{{person.name}}</span>
+              </div>
+            </div>
+            <div class="row"
+                 style="margin-top: 5px">
+              <div class="col-md-12 text-right">
+
+                <!-- SEND -->
+                <button type="button"
+                        class="btn btn-sm btn-default"
+                        ng-if="ctrl.showAdd(person)"
+                        ng-click="ctrl.addClicked(person)">
+                  Add Friend
+                </button>
+
+                <!-- APPROVE -->
+                <button type="button"
+                        class="btn btn-sm btn-success"
+                        ng-if="ctrl.showApprove(person)"
+                        ng-click="ctrl.approveClicked(person)">
+                  Confirm
+                </button>
+
+                <!-- IGNORE -->
+                <button type="button"
+                        class="btn btn-sm btn-warning"
+                        ng-if="ctrl.showIgnoreButton(person)"
+                        ng-click="ctrl.ignoreClicked(person)">
+                  Ignore
+                </button>
+
+                <!-- UN-SEND -->
+                <button type="button"
+                        class="btn btn-sm btn-info"
+                        ng-show="ctrl.showSent(person)"
+                        ng-click="ctrl.unsendClicked(person)">
+                  Friend Request Sent
+                </button>
+
+                <!-- UN-IGNORE -->
+                <button type="button"
+                        class="btn btn-sm btn-warning"
+                        ng-show="ctrl.showUnIgnore(person)"
+                        ng-click="ctrl.unIgnoreClicked(person)">
+                  Un-Ignore
+                </button>
+
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
   <!-- FRIENDS PANEL -->
 
   <div class="panel panel-default">
@@ -167,6 +244,7 @@
 
 
   </div>
+
 
 
   <!-- POTENTIAL FRIENDS PANEL -->

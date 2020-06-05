@@ -137,13 +137,26 @@ angular.module('mediaMogulApp')
         return _.filter(PersonService.persons, friendsFilter);
       };
 
+      self.getPendingFriendRequests = function() {
+        return _.filter(PersonService.persons, friendRequestsFilter);
+      };
+
+      self.hasPendingFriendRequests = function() {
+        return self.getPendingFriendRequests().length > 0;
+      };
+
       function friendsFilter(person) {
         return isFriendsWith(person);
+      }
+
+      function friendRequestsFilter(person) {
+        return !isFriendsWith(person) && hasReceivedPendingRequest(person);
       }
 
       function potentialFriendsFilter(person) {
         return person.id !== LockService.getPersonID() &&
           !isFriendsWith(person) &&
+          !friendRequestsFilter(person) &&
           (LockService.isAdmin() ||
             (person.user_role !== 'test' &&
             person.user_role !== 'guest'));
