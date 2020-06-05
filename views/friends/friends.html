@@ -16,10 +16,10 @@
     <div class="panel-heading">
 
       <div class="row">
-        <div class="col-xs-9">
+        <div class="col-md-9 col-xs-7">
           <h3>Friends</h3>
         </div>
-        <div class="col-xs-3 text-right">
+        <div class="col-md-3 col-xs-5 text-right">
           <button class="btn btn-primary"
                   ng-click="ctrl.toggleGroupMode()">
             Create Group
@@ -35,14 +35,14 @@
       <div class="row"
            ng-if="ctrl.isInGroupMode()">
 
-        <div class="col-xs-5">
+        <div class="col-md-5 col-xs-12">
 
           <div class="alert alert-warning"
                ng-if="ctrl.hasExistingGroup()">{{ctrl.getExistingGroups().length}} existing group(s) with these people.</div>
 
         </div>
 
-        <div class="col-xs-5">
+        <div class="col-md-5 col-xs-8">
 
           <input type="text"
                  class="form-control input-lg"
@@ -53,7 +53,7 @@
 
         </div>
 
-        <div class="col-xs-2 text-right">
+        <div class="col-md-2 col-xs-4 text-right">
 
           <button class="btn btn-lg btn-success"
                   ng-disabled="!ctrl.readyToSubmit() || !ctrl.LockService.isAuthenticated()"
