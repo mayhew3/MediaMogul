@@ -37,6 +37,9 @@
 
         <div class="col-xs-5">
 
+          <div class="alert alert-warning"
+               ng-if="ctrl.hasExistingGroup()">{{ctrl.getExistingGroups().length}} existing group(s) with these people.</div>
+
         </div>
 
         <div class="col-xs-5">
