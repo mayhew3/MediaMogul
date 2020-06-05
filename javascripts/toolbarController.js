@@ -9,13 +9,15 @@
       templateUrl: 'views/toolbar.html',
       controller: ['LockService', 'store', '$location', 'NavHelperService', 'ExternalServicesService',
         'SystemVarsService', 'SocketService', 'TVDBApprovalService', 'UpdaterStatusService', 'FriendService',
+        'NotificationService',
         toolbarController],
       controllerAs: 'toolbar'
     }
   }
 
   function toolbarController(LockService, store, $location, NavHelperService, ExternalServicesService,
-                             SystemVarsService, SocketService, TVDBApprovalService, UpdaterStatusService, FriendService) {
+                             SystemVarsService, SocketService, TVDBApprovalService, UpdaterStatusService, FriendService,
+                             NotificationService) {
     const self = this;
     self.login = login;
     self.logout = logout;

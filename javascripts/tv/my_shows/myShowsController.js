@@ -1,8 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('myShowsController', ['$log', '$uibModal', '$interval', 'EpisodeService', 'LockService', '$filter',
-    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService', 'GenreService', '$q', '$stateParams',
+    '$http', 'ArrayService', '$scope', '$timeout', '$state', 'ShowFilterService', 'GenreService', '$q', 'NotificationService',
+    '$stateParams',
   function($log, $uibModal, $interval, EpisodeService, LockService, $filter, $http, ArrayService, $scope, $timeout,
-           $state, ShowFilterService, GenreService, $q, $stateParams) {
+           $state, ShowFilterService, GenreService, $q, NotificationService, $stateParams) {
     const self = this;
 
     self.LockService = LockService;
@@ -44,6 +45,10 @@ angular.module('mediaMogulApp')
 
     self.orderByRating = function(series) {
       return (angular.isDefined(series.personSeries.dynamic_rating) ? -1: 0);
+    };
+
+    self.getNotifications = function() {
+      return NotificationService.notifications;
     };
 
     function getDashboardBackInfo() {

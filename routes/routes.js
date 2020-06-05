@@ -5,6 +5,7 @@ const games = require('../controllers/games_controller');
 const series = require('../controllers/series_controller');
 const persons = require('../controllers/person_controller');
 const friends = require('../controllers/friends_controller');
+const notifications = require('../controllers/notification_controller');
 const groups = require('../controllers/groups_controller');
 const addShow = require('../controllers/add_show_controller');
 const testing = require('../controllers/testing_controller');
@@ -92,6 +93,9 @@ module.exports = function(app) {
   privatePatch('/unIgnoreRequest', friends.unIgnoreFriendRequest);
   privateDelete('/friendships', friends.removeFriendship);
   privateDelete('/friendshipRequests', friends.removeFriendRequest);
+
+  // NOTIFICATIONS
+  privateGet('/notifications', notifications.getNotifications);
 
   // MY SHOWS
   privateGet('/myShows', persons.getMyShows);
