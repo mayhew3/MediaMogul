@@ -9,6 +9,8 @@ angular.module('mediaMogulApp')
       self.LockService = LockService;
       self.FriendService = FriendService;
 
+      self.me = undefined;
+
       let groupCreateMode = false;
       const groupPersons = [];
 
@@ -64,8 +66,8 @@ angular.module('mediaMogulApp')
         groupCreateMode = false;
         self.groupName = '';
         ArrayService.emptyArray(groupPersons);
-        const me = PersonService.getMe();
-        groupPersons.push(me);
+        self.me = PersonService.getMe();
+        groupPersons.push(self.me);
       }
 
       self.submitNewGroup = function() {
