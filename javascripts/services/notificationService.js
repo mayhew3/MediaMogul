@@ -16,8 +16,19 @@ angular.module('mediaMogulApp')
 
       LockService.addCallback(fetchNotifications);
 
+      function getNotificationWithID(notification_id) {
+        return _.findWhere(self.notifications, {id: notification_id});
+      }
+
+      SocketService.on('notification_create', notification => {
+        const matching = getNotificationWithID(notification.id);
+        if (!matching) {
+          self.notifications.push(notification);
+        }
+      });
+
       SocketService.on('notification_update', msg => {
-        const matching = _.findWhere(self.notifications, {id: msg.notification_id});
+        const matching = getNotificationWithID(msg.notification_id);
         if (!!matching && msg.changedFields.status === 'dismissed') {
           removeNotification(matching);
         }

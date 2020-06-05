@@ -30,6 +30,7 @@ exports.getFriendRequests = function(request, response) {
 exports.addFriendRequest = async function(request, response) {
   const person_id = request.body.person_id;
   const hugged_person_id = request.body.hugged_person_id;
+  const hugging_person_name = request.body.hugging_person_name;
 
   assert(!!person_id);
   assert(!!hugged_person_id);
@@ -44,6 +45,17 @@ exports.addFriendRequest = async function(request, response) {
 
   sockets.emitToPerson(hugged_person_id, 'request_received', friendship);
   sockets.emitToPerson(person_id, 'request_sent', friendship);
+
+  const notification = {
+    person_id: hugged_person_id,
+    type: 'friend_request',
+    message: 'You have a new friend request from ' + hugging_person_name + ".",
+    related_row: friendship.id
+  }
+
+  await insertObject('notification', notification);
+
+  sockets.emitToPerson(hugged_person_id, 'notification_create', notification);
 
   response.json(friendship);
 };
