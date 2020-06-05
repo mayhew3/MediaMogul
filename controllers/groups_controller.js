@@ -112,6 +112,20 @@ exports.createGroup = function(request, response) {
   });
 };
 
+exports.updateGroup = async function(request, response) {
+  const tv_group_id = request.body.tv_group_id;
+  const changedFields = request.body.changedFields;
+
+  await db.updateObjectWithChangedFieldsNoResponse(changedFields, 'tv_group', tv_group_id);
+
+  sockets.emit('group_updated', {
+    tv_group_id: tv_group_id,
+    changedFields: changedFields
+  });
+
+  response.json({msg: 'Success!'});
+};
+
 exports.getGroupPersons = function(request, response) {
   const tv_group_id = request.query.tv_group_id;
 

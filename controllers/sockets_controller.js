@@ -16,7 +16,8 @@ const groupChannels = [
   'group_episode_update',
   'multi_group_episode_update',
   'add_ballot',
-  'close_ballot'
+  'close_ballot',
+  'group_updated'
 ];
 
 const personalChannels = [
@@ -171,6 +172,10 @@ function initGlobalChannels(client) {
 
 exports.getNumberOfClients = function() {
   return clients.length;
+};
+
+exports.emit = function(channel, msg) {
+  io.emit(channel, msg);
 };
 
 exports.emitToAll = function(channel, msg) {
