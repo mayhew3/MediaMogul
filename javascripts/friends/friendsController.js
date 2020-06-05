@@ -8,6 +8,7 @@ angular.module('mediaMogulApp')
 
       self.LockService = LockService;
       self.FriendService = FriendService;
+      self.GroupService = GroupService;
 
       self.me = undefined;
 
@@ -138,7 +139,7 @@ angular.module('mediaMogulApp')
       };
 
       self.getGroups = function() {
-        return GroupService.getGroups();
+        return GroupService.getMyGroups();
       };
 
       function friendsFilter(person) {
