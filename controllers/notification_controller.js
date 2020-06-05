@@ -17,7 +17,7 @@ exports.getNotifications = function(request, response) {
   db.selectSendResponse(response, sql, [person_id, 'pending']);
 }
 
-exports.updateNotification = function(request, response) {
+exports.updateNotification = async function(request, response) {
   const person_id = request.body.person_id;
   const notification_id = request.body.notification_id;
   const changedFields = request.body.changedFields;
@@ -26,7 +26,14 @@ exports.updateNotification = function(request, response) {
   assert(!!notification_id);
   assert(!!changedFields);
 
-  db.updateObjectWithChangedFieldsSendResponse(response, changedFields, 'notification', notification_id);
+  await db.updateObjectWithChangedFieldsNoResponse(changedFields, 'notification', notification_id);
+
+  sockets.emitToPerson(person_id, 'notification_update', {
+    notification_id: notification_id,
+    changedFields: changedFields
+  });
+
+  response.json({msg: 'Success!'});
 };
 
 async function insertObject(tableName, object) {

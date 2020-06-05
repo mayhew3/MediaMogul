@@ -16,6 +16,17 @@ angular.module('mediaMogulApp')
 
       LockService.addCallback(fetchNotifications);
 
+      SocketService.on('notification_update', msg => {
+        const matching = _.findWhere(self.notifications, {id: msg.notification_id});
+        if (!!matching && msg.changedFields.status === 'dismissed') {
+          removeNotification(matching);
+        }
+      });
+
+      function removeNotification(notification) {
+        ArrayService.removeFromArray(self.notifications, notification);
+      }
+
       self.dismissNotification = function(notification) {
         const payload = {
           person_id: LockService.getPersonID(),
@@ -25,7 +36,7 @@ angular.module('mediaMogulApp')
           }
         }
         $http.patch('/api/notifications', payload).then(() => {
-          ArrayService.removeFromArray(self.notifications, notification);
+          removeNotification(notification);
         });
       };
 
