@@ -5,6 +5,7 @@ angular.module('mediaMogulApp')
 
       const self = this;
       let tokenRenewalTimeout;
+      let isAuthenticating = true;
 
       const afterLoginCallbacks = [];
 
@@ -43,6 +44,7 @@ angular.module('mediaMogulApp')
             } else {
               self.personInfo = person;
               store.set('person_info', person);
+              isAuthenticating = false;
               resolve(person);
             }
           }).catch(err => reject(err));
@@ -57,9 +59,11 @@ angular.module('mediaMogulApp')
               self.personInfo = store.get('person_info');
               if (!self.personInfo) {
                 self.logout();
+                isAuthenticating = false;
                 $state.go('home');
               } else {
                 console.log("Setting LockService person id to: " + self.personInfo.id);
+                isAuthenticating = false;
                 executeAfterLoginCallbacks();
               }
             }
@@ -72,6 +76,7 @@ angular.module('mediaMogulApp')
             console.log("Authenticated event detected.");
             if (authResult && authResult.accessToken && authResult.idToken) {
               console.log('Authenticated!', authResult);
+              isAuthenticating = false;
               // self.isAuthenticated = true;
               self.setSession(authResult, function() {
                 executeAfterLoginCallbacks();
@@ -83,6 +88,7 @@ angular.module('mediaMogulApp')
           self.lock.on('authorization_error', function(err) {
             // self.isAuthenticated = false;
             console.log(err);
+            isAuthenticating = false;
             alert('Error: ' + err.error + ". Check the console for further details.");
           });
 
@@ -136,10 +142,16 @@ angular.module('mediaMogulApp')
         ArrayService.emptyArray(afterLoginCallbacks);
       }
 
+      self.isAuthenticating = function() {
+        return isAuthenticating;
+      }
+
       self.renew = function() {
         let deferred = $q.defer();
         console.log("Attempting to renew token...");
+        isAuthenticating = true;
         self.lock.checkSession({}, function(err, authResult) {
+                                isAuthenticating = false;
           if (err || !authResult) {
             // self.isAuthenticated = false;
             if (err) {
