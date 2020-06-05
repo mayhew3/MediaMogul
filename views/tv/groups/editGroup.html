@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h3>Edit Group</h3>
+</div>
+
+<div class="modal-body clearfix">
+
+  <input type="text"
+         class="form-control input-lg"
+         placeholder="Group Name"
+         id="groupName"
+         ng-model="ctrl.name"
+         required>
+
+</div>
+
+<div class="modal-footer">
+  <input type="button"
+         class="btn btn-success"
+         ng-disabled="!ctrl.canSubmit()"
+         ng-click="ctrl.submitChanges()"
+         value="Submit">
+  <input type="button"
+         class="btn btn-default"
+         ng-click="ctrl.cancel()"
+         value="Cancel">
+</div>
+
+
