@@ -46,9 +46,8 @@ angular.module('mediaMogulApp')
         return me;
       };
 
-      self.getFirstName = function(person_id) {
-        const matching = _.findWhere(self.persons, {id: person_id});
-        return !matching ? undefined : matching.first_name;
+      self.getPersonWithID = function(person_id) {
+        return _.findWhere(self.persons, {id: person_id});
       };
     }]);
 
