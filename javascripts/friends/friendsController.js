@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('friendsController',
             ['LockService', 'NavHelperService', 'PersonService', 'ArrayService', 'FriendService',
-             'GroupService', '$http',
+             'GroupService', '$uibModal',
     function (LockService, NavHelperService, PersonService, ArrayService, FriendService,
-              GroupService, $http) {
+              GroupService, $uibModal) {
       const self = this;
 
       self.LockService = LockService;
@@ -76,6 +76,20 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.openEditGroupPopup = function(group) {
+        $uibModal.open({
+          templateUrl: 'views/tv/groups/editGroup.html',
+          controller: 'editGroupController',
+          controllerAs: 'ctrl',
+          size: 'lg',
+          resolve: {
+            group: function() {
+              return group;
+            }
+          }
+        });
+      };
+
 
       /* FRIENDSHIP BUTTONS */
 
@@ -142,13 +156,26 @@ angular.module('mediaMogulApp')
         return GroupService.getMyGroups();
       };
 
+      self.getPendingFriendRequests = function() {
+        return _.filter(PersonService.persons, friendRequestsFilter);
+      };
+
+      self.hasPendingFriendRequests = function() {
+        return self.getPendingFriendRequests().length > 0;
+      };
+
       function friendsFilter(person) {
         return isFriendsWith(person);
+      }
+
+      function friendRequestsFilter(person) {
+        return !isFriendsWith(person) && hasReceivedPendingRequest(person);
       }
 
       function potentialFriendsFilter(person) {
         return person.id !== LockService.getPersonID() &&
           !isFriendsWith(person) &&
+          !friendRequestsFilter(person) &&
           (LockService.isAdmin() ||
             (person.user_role !== 'test' &&
             person.user_role !== 'guest'));

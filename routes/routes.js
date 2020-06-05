@@ -132,6 +132,7 @@ module.exports = function(app) {
   privatePost('/ballots', groups.addBallot);
 
   privatePatch('/ballots', groups.editBallot);
+  privatePatch('/groups', groups.updateGroup);
 
   // TESTING
   privateGet('/testData', testing.createTestData);

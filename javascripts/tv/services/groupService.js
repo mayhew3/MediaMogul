@@ -100,6 +100,20 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.updateGroup = function(tv_group_id, changedFields) {
+        return $q(resolve => {
+          const payload = {
+            tv_group_id: tv_group_id,
+            changedFields: changedFields
+          };
+          $http.patch('/api/groups', payload).then(() => {
+            const matching = self.getGroupWithID(tv_group_id);
+            matching.name = changedFields.name;
+            resolve();
+          });
+        });
+      };
+
       function addGroupFromInfo(groupInfo) {
         const members = _.map(groupInfo.person_ids, person_id => {
           return {
