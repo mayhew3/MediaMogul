@@ -137,6 +137,10 @@ angular.module('mediaMogulApp')
         return _.filter(PersonService.persons, friendsFilter);
       };
 
+      self.getGroups = function() {
+        return GroupService.getGroups();
+      };
+
       function friendsFilter(person) {
         return isFriendsWith(person);
       }
