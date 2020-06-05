@@ -8,8 +8,63 @@
     </div>
   </div>
 
+  <!-- GROUPS PANEL -->
 
-  <!-- FRIENDS PANEL -->
+  <div class="panel panel-default"
+       ng-if="!ctrl.isInGroupMode()">
+
+    <div class="panel-heading">
+
+      <div class="row">
+        <div class="col-md-9 col-xs-7">
+          <h3>Groups</h3>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel-body">
+
+      <div class="row"
+           style="margin-top: 15px">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
+             ng-repeat="group in ctrl.getGroups() |
+                      orderBy:['id']">
+
+          <div class="friendCard">
+            <div class="row">
+              <div class="col-xs-9">
+                <span class="friendName">{{group.name}}</span>
+              </div>
+
+              <div class="col-xs-3 text-right">
+                <button type="button"
+                        class="btn btn-sm btn-danger"
+                        ng-if="!ctrl.isInGroupMode()"
+                        ng-click="ctrl.removeClicked(person)">
+                  <img src="../../images/XSignWhite.svg"
+                       width="16"
+                       height="16"
+                       alt="checked">
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+
+    <!-- FRIENDS PANEL -->
 
   <div class="panel panel-default">
 
