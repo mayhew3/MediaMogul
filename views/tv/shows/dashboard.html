@@ -4,7 +4,11 @@
        role="alert"
        style="margin-bottom: 10px">
     {{notification.message}}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <button type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+            ng-click="ctrl.dismissNotification(notification)">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>

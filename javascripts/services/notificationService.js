@@ -16,6 +16,18 @@ angular.module('mediaMogulApp')
 
       LockService.addCallback(fetchNotifications);
 
+      self.dismissNotification = function(notification) {
+        const payload = {
+          person_id: LockService.getPersonID(),
+          notification_id: notification.id,
+          changedFields: {
+            status: 'dismissed'
+          }
+        }
+        $http.patch('/api/notifications', payload).then(() => {
+          ArrayService.removeFromArray(self.notifications, notification);
+        });
+      };
 
     }]);
 

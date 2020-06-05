@@ -96,6 +96,7 @@ module.exports = function(app) {
 
   // NOTIFICATIONS
   privateGet('/notifications', notifications.getNotifications);
+  privatePatch('/notifications', notifications.updateNotification);
 
   // MY SHOWS
   privateGet('/myShows', persons.getMyShows);

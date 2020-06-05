@@ -51,6 +51,10 @@ angular.module('mediaMogulApp')
       return NotificationService.notifications;
     };
 
+    self.dismissNotification = function(notification) {
+      NotificationService.dismissNotification(notification);
+    };
+
     function getDashboardBackInfo() {
       return {
         viewer: {

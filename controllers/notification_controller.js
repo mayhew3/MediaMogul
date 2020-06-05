@@ -17,6 +17,18 @@ exports.getNotifications = function(request, response) {
   db.selectSendResponse(response, sql, [person_id, 'pending']);
 }
 
+exports.updateNotification = function(request, response) {
+  const person_id = request.body.person_id;
+  const notification_id = request.body.notification_id;
+  const changedFields = request.body.changedFields;
+
+  assert(!!person_id);
+  assert(!!notification_id);
+  assert(!!changedFields);
+
+  db.updateObjectWithChangedFieldsSendResponse(response, changedFields, 'notification', notification_id);
+};
+
 async function insertObject(tableName, object) {
   return new Promise((resolve, reject) => {
     const fieldNames = _.keys(object);
