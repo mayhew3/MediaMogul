@@ -25,8 +25,7 @@
 
     <div class="panel-body">
 
-      <div class="row"
-           style="margin-top: 15px">
+      <div class="row">
         <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
              ng-repeat="group in ctrl.getGroups() |
                       orderBy:['id']">
@@ -122,7 +121,6 @@
       </div>
 
       <div class="row"
-           style="margin-top: 15px"
            ng-if="ctrl.isInGroupMode() && !!ctrl.me">
         <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer">
 
@@ -166,8 +164,7 @@
         </div>
       </div>
 
-      <div class="row"
-           style="margin-top: 15px">
+      <div class="row">
         <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
              ng-repeat="person in ctrl.getFriends() |
                       orderBy:['last_name', 'first_name']">
