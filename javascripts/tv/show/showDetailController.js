@@ -75,7 +75,7 @@ angular.module('mediaMogulApp')
     };
     self.groups = [];
 
-    GroupService.updateMyGroupsListIfDoesntExist().then(groups => {
+    function initializeGroups(groups) {
       _.each(groups, group => {
         const groupObj = {
           label: group.name,
@@ -90,7 +90,8 @@ angular.module('mediaMogulApp')
       if (self.isInGroupMode()) {
         self.childGroups = GroupService.getChildGroups(getOptionalGroupID());
       }
-    });
+    }
+    GroupService.addCallback(initializeGroups);
 
     function refreshVotesTooltip() {
       $('.votesTooltip').tooltip({

@@ -15,7 +15,6 @@ angular.module('mediaMogulApp')
       const groupPersons = [];
 
       self.groupName = '';
-      GroupService.updateMyGroupsListIfDoesntExist();
       PersonService.addCallback(resetGroupStuff);
 
       NavHelperService.changeSelectedNav('Friends');

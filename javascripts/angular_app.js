@@ -284,7 +284,7 @@ angular.module('mediaMogulApp', ['auth0.lock', 'angular-storage', 'angular-jwt',
             return protocol_host + optional_port;
           };
 
-          if (!store.get('token')) {
+          if (!store.get('token') && !LockService.isAuthenticating()) {
             self.sendHome();
           }
 

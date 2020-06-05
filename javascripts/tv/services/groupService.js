@@ -11,25 +11,40 @@ angular.module('mediaMogulApp')
       self.loadingGroups = true;
       self.errorGroups = false;
 
+      const afterUpdateCallbacks = [];
+      const groupsFetched = false;
+
       self.updateMyGroupsList = function() {
         self.uninitialized = false;
         self.loadingGroups = true;
         self.errorGroups = false;
 
-        return $q((resolve, reject) => {
-          $http.get('/api/myGroups', {params: {person_id: LockService.getPersonID()}}).then(function(results) {
-            self.loadingGroups = false;
+        const personID = LockService.getPersonID();
 
-            ArrayService.refreshArray(groups, results.data);
-            resolve(groups);
+        $http.get('/api/myGroups', {params: {person_id: personID}}).then(function(results) {
+          self.loadingGroups = false;
 
-          }).catch(err => {
-            console.error('Error while fetching groups list: ' + err);
-            reject();
-          });
+          ArrayService.refreshArray(groups, results.data);
+          executeAfterLoginCallbacks(groups);
+
+        }).catch(err => {
+          console.error('Error while fetching groups list: ' + err);
         });
 
       };
+
+      self.addCallback = function(callback) {
+        if (groupsFetched) {
+          callback(groups);
+        } else {
+          afterUpdateCallbacks.push(callback);
+        }
+      };
+
+      function executeAfterLoginCallbacks(groups) {
+        _.forEach(afterUpdateCallbacks, callback => callback(groups));
+        ArrayService.emptyArray(afterUpdateCallbacks);
+      }
 
       self.addBallotToGroupSeries = function(ballot, groupSeries) {
         if (!_.isArray(groupSeries.ballots)) {
@@ -49,15 +64,7 @@ angular.module('mediaMogulApp')
         });
       };
 
-      self.updateMyGroupsListIfDoesntExist = function() {
-        return $q(resolve => {
-          if (self.uninitialized) {
-            self.updateMyGroupsList().then((groups) => resolve(groups));
-          } else {
-            resolve(groups);
-          }
-        });
-      };
+      LockService.addCallback(self.updateMyGroupsList);
 
       self.isInMyGroups = function(tv_group_id) {
         const existing = _.findWhere(groups, {id: tv_group_id});

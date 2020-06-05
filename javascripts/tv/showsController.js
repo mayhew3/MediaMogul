@@ -22,7 +22,7 @@ angular.module('mediaMogulApp')
         }
       ];
 
-      self.GroupService.updateMyGroupsListIfDoesntExist().then((groups) => {
+      function initializeGroups(groups) {
         _.each(groups, group => {
           const groupCategory = {
             label: group.name,
@@ -32,13 +32,12 @@ angular.module('mediaMogulApp')
           };
 
           self.categories.push(groupCategory);
-
-
         });
 
         initializeIncoming();
         self.groupsInitialized = true;
-      });
+      }
+      GroupService.addCallback(initializeGroups);
 
       self.subCategories = getMyShowsSubCategories();
 
