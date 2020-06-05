@@ -13,6 +13,7 @@ angular.module('mediaMogulApp')
       const groupPersons = [];
 
       self.groupName = '';
+      GroupService.updateMyGroupsListIfDoesntExist();
       PersonService.addCallback(resetGroupStuff);
 
       NavHelperService.changeSelectedNav('Friends');
@@ -48,6 +49,15 @@ angular.module('mediaMogulApp')
       self.readyToSubmit = function() {
         return self.groupName !== null && self.groupName !== '' && !_.isUndefined(self.groupName) &&
           groupPersons.length > 1;
+      };
+
+      self.getExistingGroups = function() {
+        const member_ids = _.pluck(groupPersons, 'id');
+        return GroupService.getGroupsWithMembers(member_ids);
+      };
+
+      self.hasExistingGroup = function() {
+        return groupPersons.length > 1 && self.getExistingGroups().length > 0;
       };
 
       function resetGroupStuff() {

@@ -128,6 +128,15 @@ angular.module('mediaMogulApp')
         return _.filter(otherGroups, group => isChildGroup(group, parentGroup));
       };
 
+      self.getGroupsWithMembers = function(member_ids) {
+        return _.filter(groups, group => {
+          const group_member_ids = _.pluck(group.members, 'person_id');
+          const intersection = _.intersection(group_member_ids, member_ids);
+          return intersection.length === member_ids.length &&
+            intersection.length === group_member_ids.length;
+        });
+      };
+
       function isChildGroup(group, parent_group) {
         const parent_ids = _.map(parent_group.members, member => member.person_id);
         const person_ids = _.map(group.members, member => member.person_id);
