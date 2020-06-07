@@ -17,7 +17,19 @@ module.exports = function(config) {
     files: [
       './node_modules/angular/angular.js',
       './node_modules/angular-ui-router/release/angular-ui-router.js',
+      './node_modules/angular-lock/angular-lock.js',
       './node_modules/angular-mocks/angular-mocks.js',
+      './node_modules/angular-storage/dist/angular-storage.min.js',
+
+      'https://cdn.auth0.com/js/lock/11.14.1/lock.min.js',
+      './node_modules/angular-lock/dist/angular-lock.min.js',
+      './node_modules/auth0-js/dist/auth0.min.js',
+      './node_modules/angular-jwt/dist/angular-jwt.min.js',
+      './node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
+
+      './javascripts/angular_app.js',
+      './javascripts/lockService.js',
+      './javascripts/services/systemEnvService.js',
       './javascripts/services/arrayService.js',
       './javascripts/services/arrayService.spec.js'
     ],

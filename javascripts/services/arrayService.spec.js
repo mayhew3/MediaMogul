@@ -1,13 +1,25 @@
 describe('ArrayService', function() {
 
-  let ArrayService;
+  let arraySrv;
 
-  beforeEach(inject(function(_ArrayService_) {
-    ArrayService = _ArrayService_;
+  beforeEach(function() {
+    module(function($provide) {
+      $provide.provider('lockProvider', function() {
+        this.$get = function() {
+          return undefined;
+        }
+      });
+    });
+
+    module('mediaMogulApp');
+  });
+
+  beforeEach(inject(function($log, $injector) {
+    arraySrv = $injector.get('ArrayService');
   }));
 
   it('should exist', function() {
-    expect(ArrayService).toBeDefined();
+    expect(arraySrv).toBeDefined();
   });
 
 });
