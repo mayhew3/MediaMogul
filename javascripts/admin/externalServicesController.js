@@ -15,7 +15,7 @@ angular.module('mediaMogulApp')
       };
 
       self.getLastConnect = function(service) {
-        return service.last_connect ? self.timeAgo(service.last_connect) : 'never';
+        return !!service.last_connect ? self.timeAgo(service.last_connect) : 'never';
       };
 
       self.getLastFailure = function(service) {
