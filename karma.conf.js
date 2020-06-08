@@ -27,7 +27,9 @@ module.exports = function(config) {
       './node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
       './node_modules/underscore/underscore-min.js',
 
-      './javascripts/*',
+      {pattern: './javascripts/*.js', included: true, watched: false, served: true},
+      {pattern: './javascripts/**/*.js', included: true, watched: false, served: true},
+      {pattern: './tests/**/*.js', included: true, watched: false, served: true},
     ],
 
 
