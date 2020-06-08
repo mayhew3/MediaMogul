@@ -1,15 +1,15 @@
 describe('ArrayService', function() {
 
-  let arraySrv;
+  let ArrayService;
 
   beforeEach(module('mediaMogulApp'));
 
-  beforeEach(inject(($log, ArrayService) => {
-    arraySrv = ArrayService;
+  beforeEach(inject(($log, _ArrayService_) => {
+    ArrayService = _ArrayService_;
   }));
 
   it('should exist', function() {
-    expect(arraySrv).toBeDefined();
+    expect(ArrayService).toBeDefined();
   });
 
   it('addToArray works', () => {
@@ -17,7 +17,7 @@ describe('ArrayService', function() {
     const addedArray = [2, 4, 3];
     const expectedArray = [1, 3, 2, 4, 3];
 
-    arraySrv.addToArray(originalArray, addedArray);
+    ArrayService.addToArray(originalArray, addedArray);
 
     expect(originalArray).toEqual(expectedArray);
   });
@@ -27,7 +27,7 @@ describe('ArrayService', function() {
     const addedArray = [2, 4, 3];
     const expectedArray = [2, 4, 3];
 
-    arraySrv.refreshArray(originalArray, addedArray);
+    ArrayService.refreshArray(originalArray, addedArray);
 
     expect(originalArray).toEqual(expectedArray);
   });
@@ -36,7 +36,7 @@ describe('ArrayService', function() {
     const originalArray = [1, 3];
     const expectedArray = [];
 
-    arraySrv.emptyArray(originalArray);
+    ArrayService.emptyArray(originalArray);
 
     expect(originalArray).toEqual(expectedArray);
   });
@@ -45,16 +45,16 @@ describe('ArrayService', function() {
     const originalArray = [1, 3, 4];
     const expectedArray = [1, 4];
 
-    arraySrv.removeFromArray(originalArray, 3);
+    ArrayService.removeFromArray(originalArray, 3);
 
     expect(originalArray).toEqual(expectedArray);
   });
 
   it('exists works', () => {
-    expect(arraySrv.exists(undefined)).toBeFalse();
-    expect(arraySrv.exists(false)).toBeTrue();
-    expect(arraySrv.exists(null)).toBeFalse();
-    expect(arraySrv.exists(0)).toBeTrue();
+    expect(ArrayService.exists(undefined)).toBeFalse();
+    expect(ArrayService.exists(false)).toBeTrue();
+    expect(ArrayService.exists(null)).toBeFalse();
+    expect(ArrayService.exists(0)).toBeTrue();
   });
 
 
