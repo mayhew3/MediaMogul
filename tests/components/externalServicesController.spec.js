@@ -1,32 +1,38 @@
 describe('ExternalServicesController', function() {
 
-  let $controller;
+  let $controller, LockService, ExternalServicesService, ExternalServicesController;
 
   beforeEach(module('mediaMogulApp'));
 
-  beforeEach(
-    module(function($provide) {
-      $provide.service('LockService', function() {
-      });
-    })
-  );
-
-  beforeEach(
-    module(function($provide) {
-      $provide.service('ExternalServiceService', function() {
-        this.needsWarning = jasmine.createSpy('needsWarning').andCallFake(() => false);
-      });
-    })
-  );
-
-  beforeEach(inject(function(_$controller_) {
+  beforeEach(inject(function(_$controller_, _$log_, _LockService_, _ExternalServicesService_) {
     $controller = _$controller_;
+    LockService = _LockService_;
+    ExternalServicesService = _ExternalServicesService_;
+
+    ExternalServicesController = $controller('externalServicesController',
+      {
+        $log: _$log_,
+        LockService: LockService,
+        ExternalServicesService: ExternalServicesService
+      });
   }));
 
+  function overrideNeedsWarning(needsWarning) {
+    spyOn(ExternalServicesService, 'needsWarning').and.callFake(() => needsWarning);
+  }
 
   it('should exist', function() {
-    expect($controller).toBeDefined();
+    expect(ExternalServicesController).toBeDefined();
   });
 
+  it('row class no warning', () => {
+    overrideNeedsWarning(false);
+    expect(ExternalServicesController.getRowClass({})).toEqual('');
+  });
+
+  it('row class with warning', () => {
+    overrideNeedsWarning(true);
+    expect(ExternalServicesController.getRowClass({})).toEqual('danger');
+  });
 
 });
