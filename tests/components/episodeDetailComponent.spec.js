@@ -31,6 +31,32 @@ describe('episodeDetail', function() {
     watched_date: '2020-05-30T15:23:54.126Z'
   }
 
+  const groupViewers = [{
+    first_name: 'Mayhew',
+    person_id: 1,
+    watched: true
+  }, {
+    first_name: 'Shirley',
+    person_id: 4,
+    watched: false
+  }];
+
+  const groupUnwatchedEpisode = {
+    skipped: false,
+    tv_group_id: 1,
+    viewerInfos: groupViewers,
+    watched: false
+  }
+
+  const groupWatchedEpisode = {
+    skipped: false,
+    tv_group_episode_id: 1234,
+    tv_group_id: 1,
+    viewerInfos: groupViewers,
+    watched: true,
+    watched_date: '2020-05-30T15:23:54.126Z'
+  }
+
   const myViewerObj = {
     type: 'my',
     group_id: NaN
@@ -52,13 +78,9 @@ describe('episodeDetail', function() {
   }));
 
   function create(viewerObj, watched) {
-    spyOn(GroupService, 'getGroupEpisode').and.callFake((episode, group_id) => {
+    spyOn(GroupService, 'getGroupEpisode').and.callFake((episode) => {
       expect(episode).toEqual(episodeObj);
-      return {
-        id: group_id,
-        name: 'Fake Group',
-        members: []
-      };
+      return !watched ? groupUnwatchedEpisode : groupWatchedEpisode;
     });
 
     const dependencies = {
@@ -92,8 +114,16 @@ describe('episodeDetail', function() {
     createAsMy(false);
   }
 
-  function createAsGroup() {
-    create(groupViewerObj, false);
+  function createAsGroup(watched) {
+    create(groupViewerObj, watched);
+  }
+
+  function createAsGroupWatched() {
+    createAsGroup(true);
+  }
+
+  function createAsGroupUnwatched() {
+    createAsGroup(false);
   }
 
   function init() {
@@ -149,6 +179,30 @@ describe('episodeDetail', function() {
 
   it('init my watched', () => {
     createAsMyWatched();
+    expect(EpisodeDetailController.watchedDate).toBeUndefined();
+    init();
+    expect(EpisodeDetailController.watchedDate).toEqual(new Date(myWatchedEpisode.watched_date));
+    expect(EpisodeDetailController.airDate).toEqual(new Date(episodeObj.air_date));
+    expect(EpisodeDetailController.original_rating_value).toEqual(87);
+    expect(EpisodeDetailController.rating_value).toEqual(87);
+    expect(EpisodeDetailController.original_review).toEqual('It was okay');
+    expect(EpisodeDetailController.review).toEqual('It was okay');
+  });
+
+  it('init group unwatched', () => {
+    createAsGroupUnwatched();
+    expect(EpisodeDetailController.watchedDate).toBeUndefined();
+    init();
+    expect(EpisodeDetailController.watchedDate).toBeCloseTo(new Date());
+    expect(EpisodeDetailController.airDate).toEqual(new Date(episodeObj.air_date));
+    expect(EpisodeDetailController.original_rating_value).toBeNull();
+    expect(EpisodeDetailController.rating_value).toBeNull();
+    expect(EpisodeDetailController.original_review).toBeNull();
+    expect(EpisodeDetailController.review).toBeNull();
+  });
+
+  it('init group watched', () => {
+    createAsGroupWatched();
     expect(EpisodeDetailController.watchedDate).toBeUndefined();
     init();
     expect(EpisodeDetailController.watchedDate).toEqual(new Date(myWatchedEpisode.watched_date));
