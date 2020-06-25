@@ -602,9 +602,12 @@ exports.getSeriesDetailInfo = function(request, response) {
         ];
 
         db.selectNoResponse(sql, values).then(function(ratingResults) {
+          console.info(`Retrieved ${ratingResults.length} ratings.`);
 
           if (ArrayService.exists(series.personSeries)) {
+            console.info(`Calculating ratings...`);
             calculateRating(series, ratingResults);
+            console.info(`Finished calculating ratings.`);
           }
 
           ratingResults.forEach(function (episodeRating) {
@@ -646,6 +649,7 @@ exports.getSeriesDetailInfo = function(request, response) {
 
           db.selectNoResponse(sql, values).then(groupResults => {
             series.groups = groupResults;
+            console.info(`Retrieved ${series.groups.length} groups.`);
 
             const sql = "SELECT tge.id, tge.watched, tge.watched_date, tge.episode_id, tge.skipped, tge.tv_group_id  " +
               "FROM tv_group_episode tge " +
@@ -663,6 +667,7 @@ exports.getSeriesDetailInfo = function(request, response) {
             const values = [series_id, 0, person_id];
 
             db.selectNoResponse(sql, values).then(groupEpisodeResults => {
+              console.info(`Retrieved ${groupEpisodeResults.length} groupEpisodes.`);
 
               const sql = 'SELECT tgp.person_id, er.episode_id ' +
                 'FROM episode_rating er ' +
@@ -693,6 +698,7 @@ exports.getSeriesDetailInfo = function(request, response) {
               ];
 
               db.selectNoResponse(sql, values).then(otherViewerResults => {
+                console.info(`Retrieved ${otherViewerResults.length} other viewer results.`);
 
                 _.each(groupEpisodeResults, groupEpisode => {
                   const episodeMatch = _.find(series.episodes, function (episode) {
@@ -729,7 +735,9 @@ exports.getSeriesDetailInfo = function(request, response) {
                   exports.updateSeriesDenorms(series, groupSeries, series.episodes);
                 });
 
+                console.info('About to attach ballots.');
                 Promise.all(updates).then(() => {
+                  console.info('Finished processing series. Returning.');
                   response.json(series);
                 });
 
