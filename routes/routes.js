@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('express-jwt');
+const jwks = require('jwks-rsa');
 const admin = require('../controllers/admin_controller');
 const games = require('../controllers/games_controller');
 const series = require('../controllers/series_controller');
@@ -23,9 +24,21 @@ module.exports = function(app) {
   assert(!!database_url, "No environment variable: DATABASE_URL");
   assert(!!envName, "No environment variable: envName");
 
+  const authConfig = {
+    domain: 'mayhew3.auth0.com',
+    audience: 'https://media-mogul.herokuapp.com'
+  }
+
   const authCheck = jwt({
-    secret: new Buffer(secret, 'base64'),
-    audience: clientID
+    secret: jwks.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+      jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
+    }),
+    audience: authConfig.audience,
+    issuer: `https://${authConfig.domain}/`,
+    algorithms: ['RS256']
   });
 
   const router = express.Router();
