@@ -24,21 +24,10 @@ module.exports = function(app) {
   assert(!!database_url, "No environment variable: DATABASE_URL");
   assert(!!envName, "No environment variable: envName");
 
-  const authConfig = {
-    domain: 'mayhew3.auth0.com',
-    audience: 'https://media-mogul.herokuapp.com'
-  }
-
   const authCheck = jwt({
-    secret: jwks.expressJwtSecret({
-      cache: true,
-      rateLimit: true,
-      jwksRequestsPerMinute: 5,
-      jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
-    }),
-    audience: authConfig.audience,
-    issuer: `https://${authConfig.domain}/`,
-    algorithms: ['RS256']
+    secret: new Buffer(secret, 'base64'),
+    audience: clientID,
+    algorithms: ['HS256']
   });
 
   const router = express.Router();
