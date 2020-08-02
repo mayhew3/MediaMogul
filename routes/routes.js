@@ -1,6 +1,5 @@
 const express = require('express');
 const jwt = require('express-jwt');
-const jwks = require('jwks-rsa');
 const admin = require('../controllers/admin_controller');
 const games = require('../controllers/games_controller');
 const series = require('../controllers/series_controller');
