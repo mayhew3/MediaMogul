@@ -25,7 +25,8 @@ module.exports = function(app) {
 
   const authCheck = jwt({
     secret: new Buffer(secret, 'base64'),
-    audience: clientID
+    audience: clientID,
+    algorithms: ['HS256']
   });
 
   const router = express.Router();
