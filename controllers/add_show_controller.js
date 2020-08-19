@@ -213,7 +213,14 @@ async function uploadPosterToCloudinary(tvdb_filename) {
   try {
     return await cloudinary.uploader.upload("https://www.thetvdb.com/banners/" + tvdb_filename);
   } catch (error) {
-    throw new Error("Error uploading cloudinary photo: " + error.message);
+    throw new TVDBPosterError("Error uploading cloudinary photo: " + error.message);
+  }
+}
+
+class TVDBPosterError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "TVDBPosterError";
   }
 }
 
@@ -288,7 +295,8 @@ async function addTVDBPosters(tvdbSeries, personId) {
     if (posterData.length > 0) {
       try {
         const posterQueries = _.map(posterData, posterObj => addPoster(tvdbSeries, posterObj.fileName));
-        return await Promise.all(posterQueries);
+        const posterObjs = await Promise.all(posterQueries);
+        return _.compact(posterObjs);
 
       } catch(err) {
         throwFetchEpisodesError(err,
@@ -562,16 +570,24 @@ async function addPoster(tvdbSeries, fileName) {
   };
 
   const existing = await getExistingCloudinary({tvdb_series_ext_id: tvdbSeries.tvdb_series_ext_id});
-  if (!existing) {
-    const posterObj = await uploadPosterToCloudinary(fileName);
-    tvdb_poster.cloud_poster = posterObj.public_id;
-  } else {
-    tvdb_poster.cloud_poster = existing.cloudinary_id;
-    retirePendingPoster(existing);
-  }
 
-  let promise = insertObject('tvdb_poster', tvdb_poster);
-  return promise;
+  try {
+
+    if (!existing) {
+      const posterObj = await uploadPosterToCloudinary(fileName);
+      tvdb_poster.cloud_poster = posterObj.public_id;
+    } else {
+      tvdb_poster.cloud_poster = existing.cloudinary_id;
+      retirePendingPoster(existing);
+    }
+
+    let promise = insertObject('tvdb_poster', tvdb_poster);
+    return promise;
+
+  } catch (err) {
+    console.error("Error fetching and uploading TVDB Poster: " + fileName);
+    return new Promise((resolve) => resolve(undefined));
+  }
 }
 
 function retirePendingPoster(pending_poster) {
