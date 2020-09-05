@@ -464,7 +464,9 @@ angular.module('mediaMogulApp')
     }
 
     function needsFirstVote(series) {
-      return hasNeverBeenVotedOn(series) && hasUnwatchedEpisodesAiredOrUnaired(series);
+      return hasNeverBeenVotedOn(series) &&
+        hasUnwatchedEpisodesAiredOrUnaired(series) &&
+        getNumberOfWatchedEpisodes(series) < 2;
     }
 
     function needsPostBuffetVote(series) {
@@ -482,8 +484,13 @@ angular.module('mediaMogulApp')
         currentSeasonHasntBeenVotedOn(series) &&
         hasUnwatchedEpisodesAiredOrUnaired(series) &&
         hasWatchedEpisodes(series) &&
-        !hasOpenBallots(series) &&
-        !hasClosedNewSeasonBallot(series);
+        hasUpToDateBallotsOrFullyWatchedSeason(series);
+    }
+
+    function hasUpToDateBallotsOrFullyWatchedSeason(series) {
+      return (!hasOpenBallots(series) &&
+        !hasClosedNewSeasonBallot(series)) ||
+        hasWatchedFullSeason(series);
     }
 
     function hasClosedPostBuffetBallot(series) {
@@ -534,6 +541,10 @@ angular.module('mediaMogulApp')
     function hasNeverBeenVotedOn(series) {
       const ballots = getBallots(series);
       return !ArrayService.exists(ballots) || ballots.length === 0;
+    }
+
+    function hasWatchedFullSeason(series) {
+      return getGroupSeries(series).nextEpisodeSeason > 2;
     }
 
     function hasClosedBallot(series) {

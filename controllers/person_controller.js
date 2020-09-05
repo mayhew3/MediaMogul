@@ -1097,7 +1097,6 @@ function getGroupEpisode(episode, tv_group_id) {
 exports.updateSeriesDenorms = function(series, viewer, allEpisodes) {
   const eligibleEpisodes = _.filter(allEpisodes, isEligible);
   let unairedEpisodes = _.filter(eligibleEpisodes, isUnaired);
-  let airedEpisodes = _.filter(eligibleEpisodes, isAired);
 
   let nextEpisodeToAir = unairedEpisodes.length === 0 ? null : _.first(unairedEpisodes);
   if (nextEpisodeToAir !== null) {
@@ -1111,15 +1110,20 @@ exports.updateSeriesDenorms = function(series, viewer, allEpisodes) {
       (episode) => getGroupEpisode(episode, viewer.tv_group_id) :
       (episode) => episode.personEpisode;
 
-    const unwatchedEpisodes = _.filter(airedEpisodes, episode => isUnwatchedAndUnskipped(getEpisodeViewer(episode)));
+    const unwatchedEpisodes = _.filter(allEpisodes, episode => isUnwatchedAndUnskipped(getEpisodeViewer(episode)));
+    const unwatchedAiredEpisodes = _.filter(unwatchedEpisodes, isAired);
 
-    viewer.unwatched_all = unwatchedEpisodes.length;
+    viewer.unwatched_all = unwatchedAiredEpisodes.length;
 
-    let nextEpisodeToWatch = unwatchedEpisodes.length === 0 ? null : _.first(unwatchedEpisodes);
+    let nextEpisodeToWatch = unwatchedAiredEpisodes.length === 0 ? null : _.first(unwatchedAiredEpisodes);
     if (nextEpisodeToWatch !== null) {
       viewer.first_unwatched = nextEpisodeToWatch.air_time === null ? nextEpisodeToWatch.air_date : nextEpisodeToWatch.air_time;
-      viewer.nextEpisodeNumber = nextEpisodeToWatch.episode_number;
-      viewer.nextEpisodeSeason = nextEpisodeToWatch.season;
+    }
+
+    let nextEpisode = unwatchedEpisodes.length === 0 ? null : _.first(unwatchedEpisodes);
+    if (!!nextEpisode) {
+      viewer.nextEpisodeNumber = nextEpisode.episode_number;
+      viewer.nextEpisodeSeason = nextEpisode.season;
     }
 
     viewer.midSeason = stoppedMidseason(nextEpisodeToWatch);
