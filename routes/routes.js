@@ -24,7 +24,7 @@ module.exports = function(app) {
   assert(!!envName, "No environment variable: envName");
 
   const authCheck = jwt({
-    secret: new Buffer(secret, 'base64'),
+    secret: Buffer.from(secret, 'base64'),
     audience: clientID,
     algorithms: ['HS256']
   });

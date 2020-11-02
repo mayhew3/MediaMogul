@@ -37,8 +37,6 @@
     "morgan": "1.10.0",
     "pg": "8.4.2",
     "postgres-mmethods": "0.9.7",
-    "request": "2.88.2",
-    "request-promise": "4.2.6",
     "randomstring": "1.1.5",
     "serve-favicon": "2.5.0",
     "socket.io": "2.3.0",
