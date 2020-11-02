@@ -1,17 +1,17 @@
 angular.module('mediaMogulApp')
-    .service('BallotService', ['$http', 'ArrayService', 'LockService', '$q', 'GroupService', '$uibModal',
-      function ($http, ArrayService, LockService, $q, GroupService, $uibModal) {
+    .service('BallotService', ['$http', 'ArrayService', 'LockService', '$q', 'GroupService', '$uibModal', '$filter',
+      function ($http, ArrayService, LockService, $q, GroupService, $uibModal, $filter) {
         const self = this;
 
         self.LockService = LockService;
 
         self.getMostRecentClosedBallot = function(groupSeries) {
-          const ordered = sort.js(groupSeries.ballots).desc('voting_closed');
+          const ordered = $filter('orderBy')(groupSeries.ballots, 'voting_closed', true);
           return _.find(ordered, ballot => !!ballot.voting_closed && !ballot.skip);
         };
 
         self.getMostRecentClosedOrSkippedBallot = function(groupSeries) {
-          const ordered = sort.js(groupSeries.ballots).desc('voting_closed');
+          const ordered = $filter('orderBy')(groupSeries.ballots, 'voting_closed', true);
           return _.find(ordered, ballot => !!ballot.voting_closed);
         };
 
