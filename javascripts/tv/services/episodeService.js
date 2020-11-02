@@ -1090,7 +1090,7 @@ angular.module('mediaMogulApp')
 
         const groupObj = _.findWhere(groupShows, {tv_group_id: tv_group_id});
         if (!!groupObj) {
-          ArrayService.removeFromArray(groupObj.shows, show);
+          groupObj.shows = _.filter(groupObj.shows, groupShow => groupShow.id !== show.id);
         }
       }
 
