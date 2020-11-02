@@ -22,7 +22,7 @@
       <div class="row">
         <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 friendCardContainer"
              ng-repeat="person in ctrl.getPendingFriendRequests() |
-                      orderBy:['last_name', 'first_name']">
+                      orderBy:['last_name', 'middle_name', 'first_name']">
 
           <div class="friendCard friendCardStandard">
             <div class="row">

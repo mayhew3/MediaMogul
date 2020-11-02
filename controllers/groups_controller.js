@@ -26,7 +26,7 @@ exports.getMyGroups = function(request, response) {
       return response.json([]);
     }
 
-    const sql = "SELECT tgp.tv_group_id, tgp.person_id, p.first_name " +
+    const sql = "SELECT tgp.tv_group_id, tgp.person_id, p.first_name, p.middle_name, p.last_name " +
       "FROM person p " +
       "INNER JOIN tv_group_person tgp " +
       "  ON tgp.person_id = p.id " +
