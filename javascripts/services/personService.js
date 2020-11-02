@@ -14,7 +14,8 @@ angular.module('mediaMogulApp')
         $http.get('/api/persons').then(function(results) {
           const persons = results.data;
           persons.forEach(function(person) {
-            person.name = person.first_name + ' ' + person.last_name;
+            const middlePart = !!person.middle_name ? person.middle_name.substring(0, 1) + ' ' : '';
+            person.name = person.first_name + ' ' + middlePart + person.last_name;
           });
 
           ArrayService.addToArray(self.persons, persons);

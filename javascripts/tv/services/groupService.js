@@ -116,9 +116,12 @@ angular.module('mediaMogulApp')
 
       function addGroupFromInfo(groupInfo) {
         const members = _.map(groupInfo.person_ids, person_id => {
+          const personWithID = PersonService.getPersonWithID(person_id);
           return {
             person_id: person_id,
-            first_name: PersonService.getPersonWithID(person_id).first_name
+            first_name: personWithID.first_name,
+            middle_name: personWithID.middle_name,
+            last_name: personWithID.last_name
           };
         });
         const group = {
@@ -165,7 +168,28 @@ angular.module('mediaMogulApp')
         const membersWithoutMe = _.filter(group.members, function(member) {
           return member.person_id !== self.LockService.getPersonID();
         });
-        const memberNames = _.pluck(membersWithoutMe, 'first_name');
+        const groupedByFirstName = _.groupBy(membersWithoutMe, person => person.first_name);
+        const memberNames = [];
+        _.forEach(groupedByFirstName, nameGroup => {
+          if (nameGroup.length === 1) {
+            memberNames.push(nameGroup[0].first_name);
+          } else {
+            const groupedByLastInitial = _.groupBy(nameGroup, person => person.last_name.substring(0, 1));
+            _.forEach(groupedByLastInitial, lastGroup => {
+              if (lastGroup.length === 1) {
+                const member = lastGroup[0];
+                memberNames.push(member.first_name + ' ' + member.last_name.substring(0, 1));
+              } else {
+                _.forEach(lastGroup, person => {
+                  const secondPart = !!person.middle_name ?
+                    ' ' + person.middle_name.substring(0, 1) :
+                    ' ' + person.last_name.substring(0, 1);
+                  memberNames.push(person.first_name + secondPart);
+                });
+              }
+            });
+          }
+        });
         return memberNames.join(', ');
       };
 
