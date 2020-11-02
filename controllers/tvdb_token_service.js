@@ -1,5 +1,5 @@
 const _ = require('underscore');
-const requestLib = require('request');
+const axios = require('axios');
 let token = null;
 
 exports.maybeRefreshToken = function() {
@@ -47,23 +47,21 @@ function getToken() {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: {
+      data: {
         'apikey': apiKey
       },
       json: true
     };
 
-    requestLib(options, function(error, response, body) {
-      if (error) {
-        response.send("Error getting TVDB token: " + error);
-        reject(error);
-      } else if (response.statusCode !== 200) {
-        response.send("Unexpected status code from TVDB API: " + response.statusCode);
-        reject("Bad status code: " + response.statusCode);
+    axios(options).then(tvdb_response => {
+      if (tvdb_response.status !== 200) {
+        reject("Bad status code: " + tvdb_response.status);
       } else {
-        token = body.token;
+        token = tvdb_response.data.token;
         resolve(token);
       }
+    }).catch(error => {
+      reject(error);
     });
   });
 }
