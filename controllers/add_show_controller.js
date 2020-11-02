@@ -8,6 +8,7 @@ const moment = require('moment');
 const person_controller = require('./person_controller');
 const sockets = require('./sockets_controller');
 const cloudinary = require("cloudinary").v2;
+const axios = require('axios');
 
 /* GET POSSIBLE MATCHES */
 
@@ -28,16 +29,16 @@ exports.getTVDBMatches = async function(request, response) {
   const seriesUrl = 'https://api.thetvdb.com/search/series';
 
   const optionsCopy = {
-    qs: {
+    params: {
       'name': formatted_name
     }
   };
   ArrayService.shallowCopy(options, optionsCopy);
 
   try {
-    const tvdbResponse = await requestLib(seriesUrl, optionsCopy);
+    const tvdbResponse = await axios.get(seriesUrl, optionsCopy);
 
-    const seriesData = tvdbResponse.data;
+    const seriesData = tvdbResponse.data.data;
     const newData = _.map(seriesData, function(seriesObj) {
       // noinspection JSUnresolvedVariable
       return {
