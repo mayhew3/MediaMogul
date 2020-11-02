@@ -1435,10 +1435,6 @@ function addOrEditRating(request) {
   });
 }
 
-exports.calculateUnwatchedDenormsAfterGettingEpisodes = function(series_id, viewer) {
-
-};
-
 exports.calculateSeriesRating = function(series_id, person_id) {
   return new Promise(function(resolve) {
 
