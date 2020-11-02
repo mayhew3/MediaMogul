@@ -1110,7 +1110,7 @@ exports.updateSeriesDenorms = function(series, viewer, allEpisodes) {
       (episode) => getGroupEpisode(episode, viewer.tv_group_id) :
       (episode) => episode.personEpisode;
 
-    const unwatchedEpisodes = _.filter(allEpisodes, episode => isUnwatchedAndUnskipped(getEpisodeViewer(episode)));
+    const unwatchedEpisodes = _.filter(eligibleEpisodes, episode => isUnwatchedAndUnskipped(getEpisodeViewer(episode)));
     const unwatchedAiredEpisodes = _.filter(unwatchedEpisodes, isAired);
 
     viewer.unwatched_all = unwatchedAiredEpisodes.length;
@@ -1201,11 +1201,11 @@ function isUnwatchedAndUnskipped(viewerEpisode) {
 }
 
 function isWatched(viewerEpisode) {
-  return viewerEpisode && !!viewerEpisode.watched;
+  return !!viewerEpisode && !!viewerEpisode.watched;
 }
 
 function isSkipped(viewerEpisode) {
-  return viewerEpisode && !!viewerEpisode.skipped;
+  return !!viewerEpisode && !!viewerEpisode.skipped;
 }
 
 function stoppedMidseason(nextEpisode) {
