@@ -1,5 +1,4 @@
 const db = require('postgres-mmethods');
-const requestLib = require('request-promise');
 const _ = require('underscore');
 const ArrayService = require('./array_util');
 const tokens = require('./tvdb_token_service');
@@ -104,8 +103,8 @@ async function getSeriesIDsAndPosters() {
 
 function urlExists(url) {
   return new Promise(resolve => {
-    requestLib(url, function(error, response) {
-      resolve(!!response && response.statusCode < 400);
+    axios.get(url).then(response => {
+      resolve(!!response && response.status < 400);
     });
   });
 }
@@ -136,16 +135,16 @@ async function getTopPoster(seriesObj, options) {
   const posterUrl = 'https://api.thetvdb.com/series/' + seriesObj.tvdb_series_ext_id + '/images/query';
 
   const optionsCopy = {
-    qs: {
+    params: {
       'keyType': 'poster'
     }
   };
   ArrayService.shallowCopy(options, optionsCopy);
 
   try {
-    const tvdbResponse = await requestLib(posterUrl, optionsCopy);
+    const tvdbResponse = await axios.get(posterUrl, optionsCopy);
 
-    const posterData = tvdbResponse.data;
+    const posterData = tvdbResponse.data.data;
     if (posterData.length !== 0) {
 
       try {
@@ -242,19 +241,14 @@ exports.beginEpisodeFetch = function(request, response) {
 
       const seriesUrl = 'https://api.thetvdb.com/series/' + tvdbSeriesExtId;
 
-      requestLib(seriesUrl, options, async function (error, tvdb_response, body) {
-        if (error) {
-          throwFetchEpisodesError(error,
-            "Error getting TVDB series.",
-            'Error getting TVDB Data. ',
-            personId);
-        } else if (tvdb_response.statusCode !== 200) {
+      axios.get(seriesUrl, options).then(async tvdb_response => {
+        if (tvdb_response.status !== 200) {
           throwFetchEpisodesError(new Error("Unexpected status code from TVDB API: " + tvdb_response.statusCode),
             "Error fetching series data from TVDB: " + tvdb_response.statusText,
             'Error fetching series from TVDB',
             personId);
         } else {
-          const tvdbSeriesObj = body.data;
+          const tvdbSeriesObj = tvdb_response.data.data;
 
           const tvdbSeries = await insertTVDBSeries(tvdbSeriesObj, tvdbSeriesExtId, selectedPoster);
           const posters = await addTVDBPosters(tvdbSeries, personId);
@@ -263,7 +257,14 @@ exports.beginEpisodeFetch = function(request, response) {
           await updateTVDBSeries(tvdbSeries, firstWorking);
           await addNewSeries(tvdbSeries, tvdbSeriesObj, personId, firstWorking);
         }
+
+      }).catch(error => {
+        throwFetchEpisodesError(error,
+          "Error getting TVDB series.",
+          'Error getting TVDB Data. ',
+          personId);
       });
+
     });
 
   } catch (err) {
@@ -285,14 +286,14 @@ async function addTVDBPosters(tvdbSeries, personId) {
   const options = await tokens.getBaseOptions();
   const postersUrl = "https://api.thetvdb.com/series/" + tvdbSeries.tvdb_series_ext_id + "/images/query";
 
-  options.qs = {
+  options.params = {
     'keyType': 'poster'
   };
 
   try {
-    const tvdb_response = await requestLib(postersUrl, options);
+    const tvdb_response = await axios.get(postersUrl, options);
 
-    const posterData = tvdb_response.data;
+    const posterData = tvdb_response.data.data;
     if (posterData.length > 0) {
       try {
         const posterQueries = _.map(posterData, posterObj => addPoster(tvdbSeries, posterObj.fileName));
@@ -354,7 +355,7 @@ async function addNewSeries(tvdbSeries, tvdbSeriesObj, personId, firstWorking) {
   updateEpisodes(seriesWithId);
 }
 
-function getEpisodesForPage(tvdbSeriesExtId, pageNumber, options, callback) {
+function getEpisodesForPage(tvdbSeriesExtId, pageNumber, options, callback, errCallback) {
   const optionsCopy = {
     qs: {
       'page': pageNumber
@@ -362,25 +363,22 @@ function getEpisodesForPage(tvdbSeriesExtId, pageNumber, options, callback) {
   };
   ArrayService.shallowCopy(options, optionsCopy);
 
-  return requestLib('https://api.thetvdb.com/series/' + tvdbSeriesExtId + '/episodes', optionsCopy, callback);
+  return axios.get('https://api.thetvdb.com/series/' + tvdbSeriesExtId + '/episodes', optionsCopy)
+    .then(callback)
+    .catch(errCallback);
 }
 
 function updateEpisodesForPage(series, pageNumber, options, addCallbacks, finalCallback) {
-  getEpisodesForPage(series.tvdb_series_ext_id, pageNumber, options, function(error, tvdb_response, body) {
-    if (error) {
-      throwFetchEpisodesError(error,
-        "Error getting TVDB episodes.",
-        'Error getting TVDB episode data.',
-        series.person_id);
-    } else if (tvdb_response.statusCode !== 200) {
+  getEpisodesForPage(series.tvdb_series_ext_id, pageNumber, options, tvdb_response => {
+    if (tvdb_response.status !== 200) {
       throwFetchEpisodesError(new Error("Unexpected status code from TVDB API: " + tvdb_response.statusCode),
         "Error fetching episode data from TVDB: " + tvdb_response.statusText,
         'Error fetching episode data from TVDB',
         series.person_id);
     } else {
-      const lastPage = body.links.last;
+      const lastPage = tvdb_response.data.links.last;
       console.log('Updating page ' + pageNumber + ' of ' + lastPage);
-      const episodeData = body.data;
+      const episodeData = tvdb_response.data.data;
 
       const tempCallbacks = _.map(episodeData, episode => addTVDBEpisode(episode, series));
       ArrayService.addToArray(addCallbacks, tempCallbacks);
@@ -391,7 +389,14 @@ function updateEpisodesForPage(series, pageNumber, options, addCallbacks, finalC
         finalCallback();
       }
     }
-  });
+  },
+    error => {
+      throwFetchEpisodesError(error,
+        "Error getting TVDB episodes.",
+        'Error getting TVDB episode data.',
+        series.person_id);
+    }
+    );
 }
 
 function updateEpisodes(series) {
