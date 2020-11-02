@@ -1088,9 +1088,9 @@ angular.module('mediaMogulApp')
       function removeFromGroupShowsInternal(show, tv_group_id) {
         GroupService.removeGroupFromSeries(show, tv_group_id);
 
-        const groupList = self.getExistingGroupShowList(tv_group_id);
-        if (!!groupList) {
-          ArrayService.removeFromArray(groupList, show);
+        const groupObj = _.findWhere(groupShows, {tv_group_id: tv_group_id});
+        if (!!groupObj) {
+          ArrayService.removeFromArray(groupObj.shows, show);
         }
       }
 
