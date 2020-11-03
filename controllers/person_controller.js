@@ -1284,6 +1284,7 @@ exports.getNotMyShows = function(request, response) {
     "  AND person_id = $1 " +
     "  AND retired = $2) as poster_id, " +
     "tp.cloud_poster, " +
+    "ts.network, " +
     "(select string_agg(g.name, '|') " +
     "             from genre g " +
     "             inner join series_genre sg " +
@@ -1292,6 +1293,8 @@ exports.getNotMyShows = function(request, response) {
     "              and sg.retired = $2) as genres, " +
     "s.tvdb_series_ext_id " +
     "FROM series s " +
+    "INNER JOIN tvdb_series ts " +
+    "  ON s.tvdb_series_id = ts.id " +
     "LEFT OUTER JOIN tvdb_poster tp " +
     "  ON s.tvdb_poster_id = tp.id " +
     "WHERE s.id NOT IN (SELECT ps.series_id " +

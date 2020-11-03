@@ -367,6 +367,7 @@ exports.addToGroupShows = function(request, response) {
       "              where sg.series_id = s.id " +
       "              and sg.retired = $1) as genres, " +
       "tp.cloud_poster, " +
+      "ts.network, " +
       "tgs.date_added, " +
       "tgs.id as tv_group_series_id, " +
       "s.trailer_link, " +
@@ -378,6 +379,8 @@ exports.addToGroupShows = function(request, response) {
       "FROM series s " +
       "INNER JOIN tv_group_series tgs " +
       "  ON tgs.series_id = s.id " +
+      "INNER JOIN tvdb_series ts " +
+      "  ON s.tvdb_series_id = ts.id " +
       "LEFT OUTER JOIN tvdb_poster tp " +
       "  ON s.tvdb_poster_id = tp.id " +
       "WHERE tgs.id = $2 " +
