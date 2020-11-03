@@ -171,6 +171,7 @@ exports.getGroupShows = function(request, response) {
     "              and sg.retired = $1) as genres, " +
     "tgs.date_added, " +
     "tgs.id as tv_group_series_id, " +
+    "ts.network, " +
     "s.trailer_link, " +
     "(SELECT COUNT(1) " +
     "    from regular_episode e " +
@@ -187,6 +188,8 @@ exports.getGroupShows = function(request, response) {
     "FROM matched_series s " +
     "INNER JOIN tv_group_series tgs " +
     "  ON tgs.series_id = s.id " +
+    "INNER JOIN tvdb_series ts " +
+    "  ON s.tvdb_series_id = ts.id " +
     "LEFT OUTER JOIN tvdb_poster tp " +
     "  ON s.tvdb_poster_id = tp.id " +
     "WHERE tgs.tv_group_id = $2 " +

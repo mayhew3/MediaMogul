@@ -314,6 +314,7 @@ function getCommonShowsQuery(personId) {
       "ps.tier AS my_tier, " +
       "ps.date_added, " +
       "ps.pinned, " +
+      "ts.network, " +
       "(SELECT id " +
       "  FROM person_poster " +
       "  WHERE series_id = s.id " +
@@ -331,6 +332,8 @@ function getCommonShowsQuery(personId) {
       "FROM matched_series s " +
       "INNER JOIN person_series ps " +
       "  ON ps.series_id = s.id " +
+      "INNER JOIN tvdb_series ts " +
+      "  ON s.tvdb_series_id = ts.id " +
       "LEFT OUTER JOIN tvdb_poster tp " +
       "  ON s.tvdb_poster_id = tp.id " +
       "WHERE ps.person_id = $1 " +
