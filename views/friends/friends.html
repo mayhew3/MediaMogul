@@ -251,6 +251,10 @@
                ng-class="ctrl.getFriendTileClass(person)">
             <div class="row">
               <div class="col-xs-9">
+                <img src="{{ctrl.getGravatarUrl(person)}}"
+                     width="50"
+                     height="50"
+                     alt="Gravatar">
                 <span class="friendName">{{person.name}}</span>
 
               </div>

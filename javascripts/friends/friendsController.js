@@ -1,9 +1,9 @@
 angular.module('mediaMogulApp')
   .controller('friendsController',
             ['LockService', 'NavHelperService', 'PersonService', 'ArrayService', 'FriendService',
-             'GroupService', '$uibModal',
+             'GroupService', '$uibModal', 'md5',
     function (LockService, NavHelperService, PersonService, ArrayService, FriendService,
-              GroupService, $uibModal) {
+              GroupService, $uibModal, md5) {
       const self = this;
 
       self.LockService = LockService;
@@ -60,6 +60,12 @@ angular.module('mediaMogulApp')
 
       self.hasExistingGroup = function() {
         return groupPersons.length > 1 && self.getExistingGroups().length > 0;
+      };
+
+      self.getGravatarUrl = function(person) {
+        const personEmail = person.email.trim().toLowerCase();
+        const emailHash = md5.createHash(personEmail);
+        return 'https://www.gravatar.com/avatar/' + emailHash;
       };
 
       function resetGroupStuff() {
