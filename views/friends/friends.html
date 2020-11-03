@@ -27,6 +27,8 @@
           <div class="friendCard friendCardStandard">
             <div class="row">
               <div class="col-md-12">
+                <img src="{{ctrl.getGravatarUrl(person)}}"
+                     class="friendGravatar">
                 <span class="friendName">{{person.name}}</span>
               </div>
             </div>
@@ -251,6 +253,8 @@
                ng-class="ctrl.getFriendTileClass(person)">
             <div class="row">
               <div class="col-xs-9">
+                <img src="{{ctrl.getGravatarUrl(person)}}"
+                     class="friendGravatar">
                 <span class="friendName">{{person.name}}</span>
 
               </div>
@@ -318,6 +322,8 @@
           <div class="friendCard friendCardStandard">
             <div class="row">
               <div class="col-md-12">
+                <img src="{{ctrl.getGravatarUrl(person)}}"
+                     class="friendGravatar">
                 <span class="friendName">{{person.name}}</span>
               </div>
             </div>

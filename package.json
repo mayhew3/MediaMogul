@@ -18,6 +18,7 @@
     "angular-storage": "0.0.15",
     "angular-ui-bootstrap": "2.5.6",
     "angular-ui-router": "1.0.28",
+    "angular-md5": "0.1.10",
     "assert": "2.0.0",
     "axios": "0.21.0",
     "auth0-js": "9.14.0",
