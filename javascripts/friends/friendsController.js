@@ -65,7 +65,7 @@ angular.module('mediaMogulApp')
       self.getGravatarUrl = function(person) {
         const personEmail = person.email.trim().toLowerCase();
         const emailHash = md5.createHash(personEmail);
-        return 'https://www.gravatar.com/avatar/' + emailHash;
+        return 'https://www.gravatar.com/avatar/' + emailHash + "/?d=mp";
       };
 
       function resetGroupStuff() {

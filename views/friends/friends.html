@@ -27,6 +27,8 @@
           <div class="friendCard friendCardStandard">
             <div class="row">
               <div class="col-md-12">
+                <img src="{{ctrl.getGravatarUrl(person)}}"
+                     class="friendGravatar">
                 <span class="friendName">{{person.name}}</span>
               </div>
             </div>
@@ -252,9 +254,7 @@
             <div class="row">
               <div class="col-xs-9">
                 <img src="{{ctrl.getGravatarUrl(person)}}"
-                     width="50"
-                     height="50"
-                     alt="Gravatar">
+                     class="friendGravatar">
                 <span class="friendName">{{person.name}}</span>
 
               </div>
@@ -322,6 +322,8 @@
           <div class="friendCard friendCardStandard">
             <div class="row">
               <div class="col-md-12">
+                <img src="{{ctrl.getGravatarUrl(person)}}"
+                     class="friendGravatar">
                 <span class="friendName">{{person.name}}</span>
               </div>
             </div>
