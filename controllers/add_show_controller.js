@@ -357,7 +357,7 @@ async function addNewSeries(tvdbSeries, tvdbSeriesObj, personId, firstWorking) {
 
 function getEpisodesForPage(tvdbSeriesExtId, pageNumber, options, callback, errCallback) {
   const optionsCopy = {
-    qs: {
+    params: {
       'page': pageNumber
     }
   };
