@@ -172,7 +172,7 @@ angular.module('mediaMogulApp')
     };
 
     self.ratedGroupFilter = function(episodeGroup) {
-      return episodeGroup.rating !== null;
+      return episodeGroup.rating !== null && episodeGroup.watched > 0;
     };
 
     self.unratedGroupFilter = function(episodeGroup) {
@@ -180,7 +180,7 @@ angular.module('mediaMogulApp')
     };
 
     self.unreviewedGroupFilter = function(episodeGroup) {
-      return (episodeGroup.rating !== null && episodeGroup.review === null);
+      return (episodeGroup.rating !== null && episodeGroup.review === null && episodeGroup.watched > 0);
     };
 
     self.reviewOutOfDateGroupFilter = function(episodeGroup) {
@@ -188,11 +188,11 @@ angular.module('mediaMogulApp')
     };
 
     self.fullyWatchedGroupFilter = function(episodeGroup) {
-      return (self.getUnwatched(episodeGroup) === 0);
+      return (self.getUnwatched(episodeGroup) === 0) && episodeGroup.watched > 0;
     };
 
     self.allGroupFilter = function(episodeGroup) {
-      return true;
+      return episodeGroup.watched > 0;
     };
 
     self.unairedGroupFilter = function(episodeGroup) {
