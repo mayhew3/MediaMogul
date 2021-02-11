@@ -176,7 +176,7 @@ angular.module('mediaMogulApp')
     };
 
     self.unratedGroupFilter = function(episodeGroup) {
-      return (self.getUnwatched(episodeGroup) === 0 && self.getUnaired(episodeGroup) === 0) && episodeGroup.rating === null;
+      return (self.getUnwatched(episodeGroup) === 0 && self.getUnaired(episodeGroup) === 0 && episodeGroup.watched > 0) && episodeGroup.rating === null;
     };
 
     self.unreviewedGroupFilter = function(episodeGroup) {
