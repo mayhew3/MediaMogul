@@ -798,7 +798,7 @@ function markEpisodeWatchedForPersons(payload, persons) {
           episode_id: episode_id,
           watched: payload.changedFields.watched,
           watched_date: payload.changedFields.watched_date,
-          rating_value: parseInt(payload.rating_value)
+          rating_value: !!payload.rating_value ? parseInt(payload.rating_value) : null
         };
 
         Promise.all([
