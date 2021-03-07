@@ -34,7 +34,10 @@ dbEventEmitter.on('tvdb_match_notifications', (msg) => {
 */
 
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 // Connect to Postgres (replace with your own connection string)
