@@ -37,7 +37,7 @@
     "moment": "2.29.1",
     "morgan": "1.10.0",
     "pg": "8.4.2",
-    "postgres-mmethods": "0.9.7",
+    "postgres-mmethods": "0.9.8",
     "randomstring": "1.1.5",
     "serve-favicon": "2.5.0",
     "socket.io": "2.4.0",
