@@ -37,15 +37,18 @@ dbEventEmitter.on('tvdb_match_notifications', (msg) => {
 });
 */
 
-const pool = new pg.Pool({
+const options = {
   connectionString: process.env.DATABASE_URL
-});
+};
 
 if (envName.includes('heroku')) {
-  pool.ssl = {
+  console.log('Connecting to SSL...');
+  options.ssl = {
     rejectUnauthorized: false
   }
 }
+
+const pool = new pg.Pool(options);
 
 // Connect to Postgres (replace with your own connection string)
 pool.connect(function(err, client) {
