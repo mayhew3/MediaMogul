@@ -2,6 +2,10 @@ const pg = require('pg');
 const EventEmitter = require('events');
 const util = require('util');
 const socket = require('./sockets_controller');
+const assert = require('assert');
+
+const envName = process.env.envName;
+assert(!!envName, "No environment variable: envName");
 
 
 // Build and instantiate our custom event emitter
@@ -34,11 +38,14 @@ dbEventEmitter.on('tvdb_match_notifications', (msg) => {
 */
 
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
+  connectionString: process.env.DATABASE_URL
+});
+
+if (envName.includes('heroku')) {
+  pool.ssl = {
     rejectUnauthorized: false
   }
-});
+}
 
 // Connect to Postgres (replace with your own connection string)
 pool.connect(function(err, client) {
