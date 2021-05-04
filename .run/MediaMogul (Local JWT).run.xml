@@ -1,0 +1,23 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MediaMogul (Local JWT)" type="NodeJSConfigurationType" path-to-js-file="bin/www.js" working-dir="$PROJECT_DIR$">
+    <envs>
+      <env name="MEDIAMOGULSECRET" value="buttertaco$auc&amp;" />
+      <env name="AUTH0_CLIENT_ID" value="mZQhiBRg7QSZPzWhM6n1jyXwq8YFS9RP" />
+      <env name="AUTH0_CLIENT_SECRET" value="w65xSsWRbBJEFwVFvj182dWXq4g1wCdQH3HGmDhcwHPCnppx-j7ezHAUiiQ7RPXU" />
+      <env name="DEBUG" value="MediaMogul" />
+      <env name="DATABASE_URL" value="postgres://postgres:m3mysql@localhost:5434/tv" />
+      <env name="envName" value="local" />
+    </envs>
+    <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
+      <browser name="a7bb68e0-33c0-4d6f-a81a-aac1fdb870c8" start="true" url="http://localhost:5000/tv/shows/my/dashboard" />
+    </EXTENSION>
+    <method v="2">
+      <option name="NpmBeforeRunTask" enabled="true">
+        <package-json value="$PROJECT_DIR$/package.json" />
+        <command value="install" />
+        <node-interpreter value="project" />
+        <envs />
+      </option>
+    </method>
+  </configuration>
+</component>

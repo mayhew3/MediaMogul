@@ -1,0 +1,36 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MediaMogul (Test Server)" type="NodeJSConfigurationType" path-to-js-file="bin/www.js" working-dir="$PROJECT_DIR$">
+    <envs>
+      <env name="MEDIAMOGULSECRET" value="buttertaco$auc&amp;" />
+      <env name="AUTH0_CLIENT_ID" value="QdwQv7LcXgmiUpYhXnTYyGQsXie2UQNb" />
+      <env name="AUTH0_CLIENT_SECRET" value="1EqUeeAaEEBy3XXPDVQSv7Ng7h6YgatX6eZbjK2tFG2Tvi7Tvk4JRhcEszc9t5Of" />
+      <env name="DEBUG" value="MediaMogul" />
+      <env name="PORT" value="1441" />
+      <env name="PGPASSFILE" value="D:\OneDrive\Projects\MediaMogul\PostgreSQL\pgpass_localhost.conf" />
+      <env name="envName" value="test" />
+      <env name="DATABASE_URL" value="postgres://postgres:m3mysql@localhost:5434/tv_e2e" />
+    </envs>
+    <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
+      <browser name="98ca6316-2f89-46d9-a9e5-fa9e2b0625b3" start="true" url="http://localhost:1441/tv/shows/my/dashboard" />
+    </EXTENSION>
+    <method v="2">
+      <option name="NpmBeforeRunTask" enabled="true">
+        <package-json value="$PROJECT_DIR$/package.json" />
+        <command value="install" />
+        <node-interpreter value="project" />
+        <envs />
+      </option>
+      <option name="NpmBeforeRunTask" enabled="true">
+        <package-json value="$PROJECT_DIR$/package.json" />
+        <command value="run" />
+        <scripts>
+          <script value="db_restore" />
+        </scripts>
+        <node-interpreter value="project" />
+        <envs>
+          <env name="PGPASSFILE" value="D:\OneDrive\Projects\MediaMogul\PostgreSQL\pgpass_localhost.conf" />
+        </envs>
+      </option>
+    </method>
+  </configuration>
+</component>
