@@ -114,8 +114,7 @@ angular.module('mediaMogulApp')
         autoclose: true,
         auth: {
           responseType: 'token id_token',
-          redirectUrl: self.callbackBase() + "/callback",
-          audience: 'https://media-mogul-two.herokuapp.com'
+          redirectUrl: self.callbackBase() + "/callback"
         }
       };
 

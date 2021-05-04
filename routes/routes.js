@@ -21,8 +21,7 @@ module.exports = function(app) {
   assert(!!envName, "No environment variable: envName");
 
   const authConfig = {
-    domain: 'mayhew3.auth0.com',
-    audience: 'https://media-mogul-two.herokuapp.com'
+    domain: 'mayhew3.auth0.com'
   }
 
   const authCheck = jwt({
@@ -32,7 +31,6 @@ module.exports = function(app) {
       jwksRequestsPerMinute: 5,
       jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
     }),
-    audience: authConfig.audience,
     issuer: `https://${authConfig.domain}/`,
     algorithms: ['RS256']
   });
