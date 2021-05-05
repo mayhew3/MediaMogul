@@ -65,6 +65,18 @@ angular.module('mediaMogulApp')
         });
       };
 
+      self.updateVotesForBallot = function(votes, ballot) {
+        if (!_.isArray(ballot.votes)) {
+          ballot.votes = [];
+        }
+        _.each(votes, vote => {
+          const existing = _.findWhere(ballot.votes, {person_id: vote.person_id});
+          if (!existing) {
+            ballot.votes.push(vote);
+          }
+        });
+      }
+
       LockService.addCallback(self.updateMyGroupsList);
 
       self.isInMyGroups = function(tv_group_id) {

@@ -1227,7 +1227,7 @@ exports.submitVote = function(request, response) {
   ];
 
   db.updateNoResponse(sql, values).then(function() {
-    const sql = 'SELECT vote_value ' +
+    const sql = 'SELECT * ' +
       'FROM tv_group_vote ' +
       'WHERE tv_group_ballot_id = $1 ' +
       'AND retired = $2 ';
@@ -1240,11 +1240,10 @@ exports.submitVote = function(request, response) {
     db.selectNoResponse(sql, values).then(function(votesResult) {
       const group_score = exports.calculateGroupRating({votes: votesResult});
 
-      response.json({group_score: group_score});
+      response.json({group_score: group_score, votes: votesResult});
     });
   });
 };
-
 
 
 // GROUP RATING

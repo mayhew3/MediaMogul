@@ -218,7 +218,7 @@ angular.module('mediaMogulApp')
         };
 
         SocketService.emit('vote_submitted', msgPayload);
-        GroupService.addVoteToBallot(vote, tv_group_ballot);
+        GroupService.updateVotesForBallot(result.data.votes, tv_group_ballot);
 
         maybeCloseBallot(result.data.group_score).then(function() {
           $uibModalInstance.close();
