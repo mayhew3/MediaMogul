@@ -217,6 +217,8 @@ angular.module('mediaMogulApp')
         GroupService.updateVotesForBallot(result.data.votes, tv_group_ballot);
 
         self.groupSeries.group_score = result.data.group_score;
+
+        $uibModalInstance.close();
       });
     };
 

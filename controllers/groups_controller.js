@@ -1247,6 +1247,8 @@ exports.submitVote = async function(request, response) {
   const tv_group_id = request.body.tv_group_id;
   const series_id = request.body.series_id;
 
+  console.debug(`Processing vote for series ID ${series_id}, person ${vote.person_id}, group ${tv_group_id}...`);
+
   await insertVote(vote);
 
   const votesResult = await getVotesForBallotID(vote.tv_group_ballot_id);
@@ -1254,10 +1256,13 @@ exports.submitVote = async function(request, response) {
 
   const group_score = exports.calculateGroupRating({votes: votesResult});
 
-  sendVoteMessage(vote, group_score);
+  sendVoteMessage(vote, group_score, tv_group_id, series_id);
 
   if (votesResult.length === members.length) {
+    console.debug('Closing ballot because final vote received!');
     await closeBallotInternal(vote.tv_group_ballot_id, false, tv_group_id, series_id);
+  } else {
+    console.debug(`${votesResult.length} of ${members.length} votes received.`);
   }
 
   response.json({group_score: group_score, votes: votesResult});
