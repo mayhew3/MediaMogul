@@ -1220,7 +1220,12 @@ exports.editBallot = function(request, response) {
 };
 
 exports.closeBallot = async function(request, response) {
-  await closeBallotInternal(request.body.tv_group_ballot_id, request.body.skip);
+  const tv_group_id = request.body.tv_group_id;
+  const series_id = request.body.series_id;
+  const tvGroupBallotId = request.body.tv_group_ballot_id;
+  const skip = request.body.skip;
+
+  await closeBallotInternal(tvGroupBallotId, skip, tv_group_id, series_id);
   response.json({msg: 'Success!'});
 }
 

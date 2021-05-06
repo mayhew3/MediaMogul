@@ -48,15 +48,13 @@ angular.module('mediaMogulApp')
           });
         };
 
-        self.closeBallot = function(ballot, skip) {
+        self.closeBallot = function(ballot, skip, tv_group_id, series_id) {
           return $q((resolve, reject) => {
-            const changedFields = {
-              voting_closed: new Date,
-              skip: skip
-            };
-            $http.patch('api/ballots', {
-              changedFields: changedFields,
-              tv_group_ballot_id: ballot.id
+            $http.patch('/api/closeBallot', {
+              skip: skip,
+              tv_group_ballot_id: ballot.id,
+              tv_group_id: tv_group_id,
+              series_id: series_id
             }).then(() => {
               ballot.voting_closed = new Date;
               ballot.skip = skip;

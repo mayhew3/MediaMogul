@@ -137,6 +137,7 @@ module.exports = function(app) {
   privatePost('/removeGroupShow', groups.removeFromGroupShows);
   privatePost('/votes', groups.submitVote);
   privatePost('/ballots', groups.addBallot);
+  privatePatch('/closeBallot', groups.closeBallot);
 
   privatePatch('/ballots', groups.editBallot);
   privatePatch('/groups', groups.updateGroup);
