@@ -207,40 +207,20 @@ angular.module('mediaMogulApp')
         person_id: self.LockService.getPersonID()
       };
 
-      $http.post('/api/votes', {vote: vote}).then(function(result) {
-        const msgPayload = {
-          tv_group_ballot_id: tv_group_ballot.id,
-          person_id: self.LockService.getPersonID(),
-          vote_value: self.selectedVote,
-          group_score: result.data.group_score,
-          tv_group_id: tv_group.id,
-          series_id: self.series.id
-        };
+      const body = {
+        vote: vote,
+        tv_group_id: tv_group.id,
+        series_id: self.series.id
+      };
+      $http.post('/api/votes', body).then(function(result) {
 
-        SocketService.emit('vote_submitted', msgPayload);
-        GroupService.addVoteToBallot(vote, tv_group_ballot);
+        GroupService.updateVotesForBallot(result.data.votes, tv_group_ballot);
 
-        maybeCloseBallot(result.data.group_score).then(function() {
-          $uibModalInstance.close();
-        }).catch((err) => {
-          console.error(err);
-          $uibModalInstance.close()
-        });
+        self.groupSeries.group_score = result.data.group_score;
+
+        $uibModalInstance.close();
       });
     };
-
-    function maybeCloseBallot(group_score) {
-      return $q(resolve => {
-        if (tv_group.members.length === tv_group_ballot.votes.length) {
-          BallotService.closeBallot(tv_group_ballot).then(() => {
-            self.groupSeries.group_score = group_score;
-            resolve();
-          });
-        } else {
-          resolve();
-        }
-      });
-    }
 
     self.cancel = function() {
       $uibModalInstance.dismiss();

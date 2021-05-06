@@ -126,8 +126,14 @@ exports.updateGroup = async function(request, response) {
   response.json({msg: 'Success!'});
 };
 
-exports.getGroupPersons = function(request, response) {
+exports.getGroupPersons = async function(request, response) {
   const tv_group_id = request.query.tv_group_id;
+
+  const persons = await getPersonsInGroup(tv_group_id);
+  response.json(persons);
+};
+
+async function getPersonsInGroup(tv_group_id) {
 
   const sql = "SELECT id as person_id, first_name " +
     "FROM person " +
@@ -143,9 +149,8 @@ exports.getGroupPersons = function(request, response) {
     0
   ];
 
-  db.selectSendResponse(response, sql, values);
-};
-
+  return await db.selectNoResponse(sql, values);
+}
 
 /* GROUP SHOWS */
 
@@ -1214,9 +1219,87 @@ exports.editBallot = function(request, response) {
   db.updateObjectWithChangedFieldsSendResponse(response, changedFields, "tv_group_ballot", tvGroupBallotId);
 };
 
-exports.submitVote = function(request, response) {
-  const vote = request.body.vote;
+exports.closeBallot = async function(request, response) {
+  const tv_group_id = request.body.tv_group_id;
+  const series_id = request.body.series_id;
+  const tvGroupBallotId = request.body.tv_group_ballot_id;
+  const skip = request.body.skip;
 
+  await closeBallotInternal(tvGroupBallotId, skip, tv_group_id, series_id);
+  response.json({msg: 'Success!'});
+}
+
+async function closeBallotInternal(tv_group_ballot_id, skip, tv_group_id, series_id) {
+  const changedFields = {
+    voting_closed: new Date(),
+    skip
+  };
+  await db.updateObjectWithChangedFieldsNoResponse(changedFields, 'tv_group_ballot', tv_group_ballot_id);
+
+  const msg = {
+    series_id: series_id,
+    tv_group_id: tv_group_id,
+    voting_closed: changedFields.voting_closed,
+    tv_group_ballot_id: tv_group_ballot_id,
+    skip: skip
+  };
+
+  sockets.emit('close_ballot', msg);
+}
+
+exports.submitVote = async function(request, response) {
+  const vote = request.body.vote;
+  const tv_group_id = request.body.tv_group_id;
+  const series_id = request.body.series_id;
+
+  console.debug(`Processing vote for series ID ${series_id}, person ${vote.person_id}, group ${tv_group_id}...`);
+
+  await insertVote(vote);
+
+  const votesResult = await getVotesForBallotID(vote.tv_group_ballot_id);
+  const members = await getPersonsInGroup(tv_group_id);
+
+  const group_score = exports.calculateGroupRating({votes: votesResult});
+
+  sendVoteMessage(vote, group_score, tv_group_id, series_id);
+
+  if (votesResult.length === members.length) {
+    console.debug('Closing ballot because final vote received!');
+    await closeBallotInternal(vote.tv_group_ballot_id, false, tv_group_id, series_id);
+  } else {
+    console.debug(`${votesResult.length} of ${members.length} votes received.`);
+  }
+
+  response.json({group_score: group_score, votes: votesResult});
+};
+
+function sendVoteMessage(vote, group_score, tv_group_id, series_id) {
+  const msg = {
+    tv_group_ballot_id: vote.tv_group_ballot_id,
+    person_id: vote.person_id,
+    vote_value: vote.vote_value,
+    group_score: group_score,
+    tv_group_id: tv_group_id,
+    series_id: series_id
+  };
+  sockets.emit('vote_submitted', msg);
+}
+
+async function getVotesForBallotID(ballot_id) {
+  const sql = 'SELECT * ' +
+    'FROM tv_group_vote ' +
+    'WHERE tv_group_ballot_id = $1 ' +
+    'AND retired = $2 ';
+
+  const values = [
+    ballot_id,
+    0
+  ];
+
+  return await db.selectNoResponse(sql, values);
+}
+
+async function insertVote(vote) {
   const sql = 'INSERT INTO tv_group_vote (tv_group_ballot_id, person_id, vote_value) ' +
     'VALUES ($1, $2, $3)';
 
@@ -1226,25 +1309,8 @@ exports.submitVote = function(request, response) {
     vote.vote_value
   ];
 
-  db.updateNoResponse(sql, values).then(function() {
-    const sql = 'SELECT vote_value ' +
-      'FROM tv_group_vote ' +
-      'WHERE tv_group_ballot_id = $1 ' +
-      'AND retired = $2 ';
-
-    const values = [
-      vote.tv_group_ballot_id,
-      0
-    ];
-
-    db.selectNoResponse(sql, values).then(function(votesResult) {
-      const group_score = exports.calculateGroupRating({votes: votesResult});
-
-      response.json({group_score: group_score});
-    });
-  });
-};
-
+  await db.updateNoResponse(sql, values);
+}
 
 
 // GROUP RATING
