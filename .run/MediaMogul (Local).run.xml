@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MediaMogul (Local)" type="NodeJSConfigurationType" path-to-js-file="bin/www.js" working-dir="$PROJECT_DIR$">
     <envs>
-      <env name="AUTH0_CLIENT_ID" value="HY2lTrNdFc6HDrTlSoKZNL0EriSi0dnW" />
-      <env name="AUTH0_CLIENT_SECRET" value="q56x5KpoZUqqu21aJ7Su6YD4KjjYP-pWXUzKxOGKppOSfIxcRs_-zimV-Vg6pHGb" />
+      <env name="AUTH0_CLIENT_ID" value="QdwQv7LcXgmiUpYhXnTYyGQsXie2UQNb" />
+      <env name="AUTH0_CLIENT_SECRET" value="1EqUeeAaEEBy3XXPDVQSv7Ng7h6YgatX6eZbjK2tFG2Tvi7Tvk4JRhcEszc9t5Of" />
       <env name="DEBUG" value="MediaMogul" />
       <env name="DATABASE_URL" value="postgres://postgres:m3mysql@localhost:5436/tv" />
       <env name="envName" value="local" />
