@@ -1,6 +1,5 @@
 const express = require('express');
 const jwt = require('express-jwt');
-const jwks = require("jwks-rsa");
 const admin = require('../controllers/admin_controller');
 const games = require('../controllers/games_controller');
 const series = require('../controllers/series_controller');
@@ -14,25 +13,20 @@ const assert = require('assert');
 
 module.exports = function(app) {
 
+  const secret = process.env.AUTH0_CLIENT_SECRET;
+  const clientID = process.env.AUTH0_CLIENT_ID;
   const database_url = process.env.DATABASE_URL;
   const envName = process.env.envName;
 
+  assert(!!secret, "No environment variable: AUTH0_CLIENT_SECRET");
+  assert(!!clientID, "No environment variable: AUTH0_CLIENT_ID");
   assert(!!database_url, "No environment variable: DATABASE_URL");
   assert(!!envName, "No environment variable: envName");
 
-  const authConfig = {
-    domain: 'mayhew3.auth0.com'
-  }
-
   const authCheck = jwt({
-    secret: jwks.expressJwtSecret({
-      cache: true,
-      rateLimit: true,
-      jwksRequestsPerMinute: 5,
-      jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
-    }),
-    issuer: `https://${authConfig.domain}/`,
-    algorithms: ['RS256']
+    secret: Buffer.from(secret, 'base64'),
+    audience: clientID,
+    algorithms: ['HS256']
   });
 
   const router = express.Router();
