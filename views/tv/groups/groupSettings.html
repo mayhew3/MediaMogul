@@ -3,12 +3,19 @@
 </div>
 
 <div class="modal-body clearfix">
-  <label for="minWeight">Minimum Weight:</label>
-  <input type="number"
-         id="minWeight"
-         min="0"
-         max="1"
-         ng-model="ctrl.minWeight">
+
+  <div class="row">
+    <div class="col-lg-3">
+      <label for="minWeight">Minimum Weight:</label>
+      <input type="number"
+             class="form-control"
+             id="minWeight"
+             min="0"
+             max="1"
+             ng-model="ctrl.minWeight">
+    </div>
+  </div>
+
 </div>
 
 <div class="modal-footer">
