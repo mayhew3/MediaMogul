@@ -628,6 +628,7 @@ exports.getSeriesDetailInfo = function(request, response) {
           exports.updateSeriesDenorms(series, series.personSeries, series.episodes);
 
           const sql = 'SELECT tgs.tv_group_id, ' +
+            ' tg.min_weight, ' +
             ' tgs.date_added, ' +
             ' tgs.id AS tv_group_series_id, ' +
             "(SELECT MAX(tge.watched_date) " +
@@ -859,7 +860,7 @@ function attachBallotsToGroupSeries(series, groupSeries) {
         });
 
         groupSeries.ballots = ballotResults;
-        groupSeries.group_score = groups_controller.calculateGroupRatingForGroupSeries(groupSeries);
+        groupSeries.group_score = groups_controller.calculateGroupRatingForGroupSeries(groupSeries, groupSeries.min_weight);
 
         resolve();
       });
