@@ -11,7 +11,7 @@ const sockets = require('./sockets_controller');
 exports.getMyGroups = function(request, response) {
   const person_id = request.query.person_id;
 
-  const sql = "SELECT id, name " +
+  const sql = "SELECT id, name, min_weight " +
     "FROM tv_group " +
     "WHERE id IN (SELECT tv_group_id " +
     "             FROM tv_group_person " +
