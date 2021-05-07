@@ -10,12 +10,17 @@
     <div class="row">
       <div class="col-lg-8 col-sm-9 col-xs-6">
         <label for="minWeight">Minimum Weight:</label>
-        <input type="number"
-               class="form-control"
-               id="minWeight"
-               min="0"
-               max="1"
-               ng-model="ctrl.minWeight">
+
+        <div class="input-group">
+          <input type="number"
+                 class="form-control"
+                 id="minWeight"
+                 min="0"
+                 max="100"
+                 ng-model="ctrl.minWeight">
+          <span class="input-group-addon">%</span>
+        </div>
+
       </div>
     </div>
 

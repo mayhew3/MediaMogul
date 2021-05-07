@@ -4,11 +4,11 @@ angular.module('mediaMogulApp')
     const self = this;
     self.tv_group_id = tv_group_id;
     self.group = GroupService.getGroupWithID(self.tv_group_id);
-    self.minWeight = +self.group.min_weight;
+    self.minWeight = (+self.group.min_weight) * 100;
     self.LockService = LockService;
 
     self.updateAndClose = function() {
-      GroupService.changeMinWeight(self.tv_group_id, self.minWeight).then(() => {
+      GroupService.changeMinWeight(self.tv_group_id, self.minWeight / 100).then(() => {
         $uibModalInstance.close();
       });
     };
