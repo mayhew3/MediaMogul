@@ -56,25 +56,26 @@ angular.module('mediaMogulApp')
       };
 
       self.addVoteToBallot = function(vote, ballot) {
-        if (!_.isArray(ballot.votes)) {
-          ballot.votes = [];
-        }
-        ballot.votes.push({
-          vote_value: vote.vote_value,
-          person_id: vote.person_id
-        });
+        addVoteIfNotExists(vote, ballot);
       };
 
       self.updateVotesForBallot = function(votes, ballot) {
+        _.each(votes, vote => {
+          addVoteIfNotExists(vote, ballot);
+        });
+      }
+
+      function addVoteIfNotExists(vote, ballot) {
         if (!_.isArray(ballot.votes)) {
           ballot.votes = [];
         }
-        _.each(votes, vote => {
-          const existing = _.findWhere(ballot.votes, {person_id: vote.person_id});
-          if (!existing) {
-            ballot.votes.push(vote);
-          }
-        });
+        const existing = _.findWhere(ballot.votes, {person_id: vote.person_id});
+        if (!existing) {
+          ballot.votes.push(vote);
+
+          console.debug(`Vote added: Now ${ballot.votes.length} votes.`);
+        }
+
       }
 
       LockService.addCallback(self.updateMyGroupsList);
