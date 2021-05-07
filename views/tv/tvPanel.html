@@ -8,11 +8,17 @@
           <h3 ng-bind="ctrl.panelInfo.headerText"></h3>
         </div>
         <div class="headerRight">
-           <button type="button"
-                   ng-if="!!ctrl.filtersEnabled()"
-                   ng-disabled="!ctrl.filtersCached"
-                   ng-click="ctrl.toggleFilterBar()"
-                   class="btn btn-default"><i class="glyphicon glyphicon-filter"></i></button>
+          <button type="button"
+                  ng-if="ctrl.showPanelButton()"
+                  class="btn btn-primary"
+                  ng-click="ctrl.clickPanelButton()">
+            <i class="glyphicon glyphicon-cog"></i>
+          </button>
+          <button type="button"
+                  ng-if="!!ctrl.filtersEnabled()"
+                  ng-disabled="!ctrl.filtersCached"
+                  ng-click="ctrl.toggleFilterBar()"
+                  class="btn btn-default"><i class="glyphicon glyphicon-filter"></i></button>
         </div>
       </div>
       <div class="col-xs-12"

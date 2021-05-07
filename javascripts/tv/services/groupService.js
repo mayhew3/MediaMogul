@@ -1,6 +1,6 @@
 angular.module('mediaMogulApp')
-  .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q', 'SocketService', 'PersonService',
-    function ($http, ArrayService, LockService, $q, SocketService, PersonService) {
+  .service('GroupService', ['$http', 'ArrayService', 'LockService', '$q', 'SocketService', 'PersonService', '$uibModal',
+    function ($http, ArrayService, LockService, $q, SocketService, PersonService, $uibModal) {
       const self = this;
 
       self.LockService = LockService;
@@ -126,6 +126,27 @@ angular.module('mediaMogulApp')
           });
         });
       };
+
+      self.groupSettingsPopup = function(tv_group_id) {
+        $uibModal.open({
+          templateUrl: 'views/tv/groups/groupSettings.html',
+          controller: 'groupSettingsController',
+          controllerAs: 'ctrl',
+          size: 'lg',
+          resolve: {
+            tv_group_id: function() {
+              return tv_group_id;
+            }
+          }
+        })
+      }
+
+      self.changeMinWeight = function(tv_group_id, minWeight) {
+        const changedFields = {
+          min_weight: minWeight
+        };
+        return self.updateGroup(tv_group_id, changedFields);
+      }
 
       function addGroupFromInfo(groupInfo) {
         const members = _.map(groupInfo.person_ids, person_id => {

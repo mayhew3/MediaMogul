@@ -94,6 +94,14 @@
       return runThroughFilterArray(filters, show);
     };
 
+    self.showPanelButton = function() {
+      return !!self.panelInfo.panelButton;
+    }
+
+    self.clickPanelButton = function() {
+      self.panelInfo.panelButton();
+    }
+
     self.hasButtonInfo = function() {
       return ArrayService.exists(getButtonInfo());
     };
