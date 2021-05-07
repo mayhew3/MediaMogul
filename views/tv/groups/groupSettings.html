@@ -4,21 +4,31 @@
 
 <div class="modal-body clearfix">
 
-  <div class="row">
-    <div class="col-lg-3">
-      <label for="minWeight">Minimum Weight:</label>
-      <input type="number"
-             class="form-control"
-             id="minWeight"
-             min="0"
-             max="1"
-             ng-model="ctrl.minWeight">
+  <form class="bs-component"
+        name="groupSettings">
+
+    <div class="row">
+      <div class="col-lg-8 col-sm-9 col-xs-6">
+        <label for="minWeight">Minimum Weight:</label>
+        <input type="number"
+               class="form-control"
+               id="minWeight"
+               min="0"
+               max="1"
+               ng-model="ctrl.minWeight">
+      </div>
     </div>
-  </div>
+
+  </form>
 
 </div>
 
 <div class="modal-footer">
+  <input type="button"
+         class="btn btn-success"
+         ng-click="ctrl.updateAndClose()"
+         ng-disabled="groupSettings.$invalid || !ctrl.LockService.isAuthenticated"
+         value="Update and Close">
   <input type="button"
          class="btn btn-default"
          ng-click="ctrl.cancel()"

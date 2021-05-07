@@ -132,7 +132,7 @@ angular.module('mediaMogulApp')
           templateUrl: 'views/tv/groups/groupSettings.html',
           controller: 'groupSettingsController',
           controllerAs: 'ctrl',
-          size: 'lg',
+          size: 'sm',
           resolve: {
             tv_group_id: function() {
               return tv_group_id;

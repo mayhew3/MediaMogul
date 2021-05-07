@@ -358,6 +358,7 @@ angular.module('mediaMogulApp')
       panel_id: createPanelID('all_active'),
       filters: filters,
       showEmpty: true,
+      panelButton: clickGroupSettings,
       badgeValue: getUnwatched,
       scoreValue: getGroupScore,
       pageLimit: 18,
