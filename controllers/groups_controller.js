@@ -11,7 +11,7 @@ const sockets = require('./sockets_controller');
 exports.getMyGroups = function(request, response) {
   const person_id = request.query.person_id;
 
-  const sql = "SELECT id, name " +
+  const sql = "SELECT id, name, min_weight " +
     "FROM tv_group " +
     "WHERE id IN (SELECT tv_group_id " +
     "             FROM tv_group_person " +
@@ -1121,7 +1121,40 @@ function updateTVGroupEpisodesAllPastWatchedForGroup(tv_group_id, series_id, las
 
 // VOTING
 
-exports.getBallots = function(tv_group_id, response, seriesResults) {
+exports.getBallots = async function(tv_group_id, response, seriesResults) {
+
+  const minWeight = await getMinWeight(tv_group_id);
+  const ballots = await getBallots(tv_group_id);
+  const votes = await getVotes(tv_group_id);
+
+  let groupedByBallot = _.groupBy(votes, 'tv_group_ballot_id');
+
+  ballots.forEach(function(ballot) {
+    let votesForBallot = groupedByBallot[ballot.id];
+    ballot.votes = _.map(votesForBallot, function (vote) {
+      return _.omit(vote, 'tv_group_ballot_id');
+    });
+  });
+
+  let groupedBySeries = _.groupBy(ballots, 'series_id');
+
+  for (let series_id in groupedBySeries) {
+    if (groupedBySeries.hasOwnProperty(series_id)) {
+      let ballots = groupedBySeries[series_id];
+      let series = _.findWhere(seriesResults, {id: parseInt(series_id)});
+
+      const groupSeries = getGroupShowFromSeries(series, tv_group_id);
+
+      groupSeries.ballots = ballots;
+
+      groupSeries.group_score = exports.calculateGroupRatingForGroupSeries(groupSeries, minWeight);
+    }
+  }
+
+  response.json(seriesResults);
+};
+
+async function getBallots(tv_group_id) {
 
   const sql = 'SELECT tgb.id, tgb.voting_open, tgb.voting_closed, tgb.reason, tgb.last_episode, tgb.first_episode, ' +
     'tgb.skip, tgb.season, tgb.person_id, tgs.series_id  ' +
@@ -1141,53 +1174,40 @@ exports.getBallots = function(tv_group_id, response, seriesResults) {
     0
   ];
 
-  db.selectNoResponse(sql, values).then(function(ballotResults) {
-    const sql = 'SELECT tgv.tv_group_ballot_id, tgv.person_id, tgv.vote_value ' +
-      'FROM tv_group_vote tgv ' +
-      'INNER JOIN tv_group_ballot tgb ' +
-      '  ON tgv.tv_group_ballot_id = tgb.id ' +
-      'INNER JOIN tv_group_series tgs ' +
-      '  ON tgb.tv_group_series_id = tgs.id ' +
-      'WHERE tgs.tv_group_id = $1 ' +
-      'AND tgv.retired = $2 ' +
-      'AND tgb.retired = $3 ' +
-      'AND tgs.retired = $4 ';
+  return await db.selectNoResponse(sql, values);
+}
 
-    const values = [
-      tv_group_id,
-      0, 0, 0
-    ];
+async function getVotes(tv_group_id) {
 
-    db.selectNoResponse(sql, values).then(function(voteResults) {
+  const sql = 'SELECT tgv.tv_group_ballot_id, tgv.person_id, tgv.vote_value ' +
+    'FROM tv_group_vote tgv ' +
+    'INNER JOIN tv_group_ballot tgb ' +
+    '  ON tgv.tv_group_ballot_id = tgb.id ' +
+    'INNER JOIN tv_group_series tgs ' +
+    '  ON tgb.tv_group_series_id = tgs.id ' +
+    'WHERE tgs.tv_group_id = $1 ' +
+    'AND tgv.retired = $2 ' +
+    'AND tgb.retired = $3 ' +
+    'AND tgs.retired = $4 ';
 
-      let groupedByBallot = _.groupBy(voteResults, 'tv_group_ballot_id');
+  const values = [
+    tv_group_id,
+    0, 0, 0
+  ];
 
-      ballotResults.forEach(function(ballot) {
-        let votesForBallot = groupedByBallot[ballot.id];
-        ballot.votes = _.map(votesForBallot, function (vote) {
-          return _.omit(vote, 'tv_group_ballot_id');
-        });
-      });
+  return await db.selectNoResponse(sql, values);
+}
 
-      let groupedBySeries = _.groupBy(ballotResults, 'series_id');
+async function getMinWeight(tv_group_id) {
+  const sql = 'SELECT min_weight ' +
+    'FROM tv_group ' +
+    'WHERE id = $1 ';
 
-      for (let series_id in groupedBySeries) {
-        if (groupedBySeries.hasOwnProperty(series_id)) {
-          let ballots = groupedBySeries[series_id];
-          let series = _.findWhere(seriesResults, {id: parseInt(series_id)});
+  const values = [tv_group_id];
 
-          const groupSeries = getGroupShowFromSeries(series, tv_group_id);
-
-          groupSeries.ballots = ballots;
-
-          groupSeries.group_score = exports.calculateGroupRatingForGroupSeries(groupSeries);
-        }
-      }
-
-      response.json(seriesResults);
-    });
-  });
-};
+  const group = await db.selectNoResponse(sql, values);
+  return group[0].min_weight;
+}
 
 exports.addBallot = function(request, response) {
   const tv_group_series_id = request.body.tv_group_series_id;
@@ -1252,6 +1272,8 @@ exports.submitVote = async function(request, response) {
   const tv_group_id = request.body.tv_group_id;
   const series_id = request.body.series_id;
 
+  const minWeight = await getMinWeight(tv_group_id);
+
   console.debug(`Processing vote for series ID ${series_id}, person ${vote.person_id}, group ${tv_group_id}...`);
 
   await insertVote(vote);
@@ -1259,7 +1281,7 @@ exports.submitVote = async function(request, response) {
   const votesResult = await getVotesForBallotID(vote.tv_group_ballot_id);
   const members = await getPersonsInGroup(tv_group_id);
 
-  const group_score = exports.calculateGroupRating({votes: votesResult});
+  const group_score = exports.calculateGroupRating({votes: votesResult}, minWeight);
 
   sendVoteMessage(vote, group_score, tv_group_id, series_id);
 
@@ -1315,12 +1337,12 @@ async function insertVote(vote) {
 
 // GROUP RATING
 
-exports.calculateGroupRatingForGroupSeries = function(groupSeries) {
+exports.calculateGroupRatingForGroupSeries = function(groupSeries, minWeight) {
   const lastBallot = getMostRecentClosedBallot(groupSeries.ballots);
-  return !lastBallot ? null : exports.calculateGroupRating(lastBallot);
+  return !lastBallot ? null : exports.calculateGroupRating(lastBallot, minWeight);
 };
 
-exports.calculateGroupRating = function(ballot) {
+exports.calculateGroupRating = function(ballot, minWeight) {
   const votes = ballot.votes;
 
   if (_.isUndefined(votes) || votes.length === 0) {
@@ -1332,7 +1354,8 @@ exports.calculateGroupRating = function(ballot) {
   const average = total / vote_numbers.length;
   const minimum = _.min(vote_numbers);
 
-  return ((average * 2) + (minimum * 3)) / 5;
+  const averageWeight = 1 - minWeight;
+  return average * averageWeight + minimum * minWeight;
 };
 
 function getMostRecentClosedBallot(ballots) {

@@ -1,0 +1,43 @@
+<div class="modal-header">
+  <h3 ng-bind="'Group Settings: ' + ctrl.group.name"></h3>
+</div>
+
+<div class="modal-body clearfix">
+
+  <form class="bs-component"
+        name="groupSettings">
+
+    <div class="row">
+      <div class="col-lg-8 col-sm-9 col-xs-6">
+        <label for="minWeight">Minimum Weight:</label>
+
+        <div class="input-group">
+          <input type="number"
+                 class="form-control"
+                 id="minWeight"
+                 min="0"
+                 max="100"
+                 ng-model="ctrl.minWeight">
+          <span class="input-group-addon">%</span>
+        </div>
+
+      </div>
+    </div>
+
+  </form>
+
+</div>
+
+<div class="modal-footer">
+  <input type="button"
+         class="btn btn-success"
+         ng-click="ctrl.updateAndClose()"
+         ng-disabled="groupSettings.$invalid || !ctrl.LockService.isAuthenticated"
+         value="Update and Close">
+  <input type="button"
+         class="btn btn-default"
+         ng-click="ctrl.cancel()"
+         value="Cancel">
+</div>
+
+

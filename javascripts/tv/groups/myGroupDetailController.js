@@ -62,6 +62,10 @@ angular.module('mediaMogulApp')
       }
     };
 
+    self.changeMinWeight = function(minWeight) {
+      GroupService.changeMinWeight(self.group.id, minWeight);
+    }
+
     function textOverlay(show) {
       const hasNoTrailerLink = !show.trailer_link;
       return hasNoTrailerLink && !hasWatchedEpisodes(show) ? 'No Trailer' : null;
@@ -177,6 +181,7 @@ angular.module('mediaMogulApp')
         showLoading: self.showLoading,
         seriesFunction: self.getGroupShows,
         scoreValue: getGroupScore,
+        panelButton: clickGroupSettings,
         posterSize: 'large',
         badgeValue: getUnwatched,
         panel_id: createPanelID('top_queue')
@@ -353,6 +358,7 @@ angular.module('mediaMogulApp')
       panel_id: createPanelID('all_active'),
       filters: filters,
       showEmpty: true,
+      panelButton: clickGroupSettings,
       badgeValue: getUnwatched,
       scoreValue: getGroupScore,
       pageLimit: 18,
@@ -632,6 +638,10 @@ angular.module('mediaMogulApp')
 
     function clickBallotPoster(series, starting_reason) {
       BallotService.addBallotPopup(series, self.group.id, starting_reason);
+    }
+
+    function clickGroupSettings() {
+      GroupService.groupSettingsPopup(self.group.id);
     }
 
     // DATE FORMAT
