@@ -6,7 +6,7 @@ angular.module('mediaMogulApp')
           show.inputValue = titleFragment;
         }
         return titleFragment === undefined ||
-          show.title.toLowerCase().indexOf(titleFragment.toLowerCase()) > -1 ||
+          !!show.title && show.title.toLowerCase().indexOf(titleFragment.toLowerCase()) > -1 ||
           !!show.fakeCatchAll;
       });
     }

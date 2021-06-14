@@ -129,9 +129,13 @@ angular.module('mediaMogulApp')
               mismatches.push(show);
             }
           }
-          const noTitle = _.filter(allShows, show => !show.title);
-          console.debug(`${noTitle.length} shows with no title.`);
         });
+        const noTitle = _.filter(allShows, show => !show.title);
+        if (noTitle.length > 0) {
+          const tvdb_ids = _.map(noTitle, show => show.tvdb_series_ext_id);
+          const tvdb_ids_str = tvdb_ids.join(', ');
+          console.warn(`${noTitle.length} shows with no title, TVDB IDs: ${tvdb_ids_str}`);
+        }
         if (mismatchCount > 0) {
           console.log("MISMATCHES: " + mismatchCount + " found.");
           _.each(mismatches, show => console.log(' - ' + show.title));
