@@ -129,6 +129,8 @@ angular.module('mediaMogulApp')
               mismatches.push(show);
             }
           }
+          const noTitle = _.filter(allShows, show => !show.title);
+          console.debug(`${noTitle.length} shows with no title.`);
         });
         if (mismatchCount > 0) {
           console.log("MISMATCHES: " + mismatchCount + " found.");
